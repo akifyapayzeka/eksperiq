@@ -5,9 +5,11 @@ const requiredFiles = [
   "docs/launch-plan-2026-08-15.md",
   "docs/release-operations-checklist.md",
   "docs/first-user-test-script.md",
+  "docs/first-5-user-tests.md",
   "docs/user-test-feedback-triage.md",
   "docs/feedback-rule-expansion.md",
   "docs/rule-backlog.md",
+  "docs/ios-testflight-preflight.md",
   "docs/testflight-qa-checklist.md",
   "docs/testflight-qa-report.md",
   "docs/ios-repo-strategy.md",
@@ -44,8 +46,16 @@ const requiredTextChecks = [
     snippets: ["kişisel veri", "Kural adayı", "App Store riski"],
   },
   {
+    file: "docs/first-5-user-tests.md",
+    snippets: ["Test 1", "Test 5", "Kullanıcı testi issue"],
+  },
+  {
     file: "docs/rule-backlog.md",
     snippets: ["Kural Backlog", "Kanıt", "Unit test"],
+  },
+  {
+    file: "docs/ios-testflight-preflight.md",
+    snippets: ["Xcode", "Signing", "TestFlight"],
   },
   {
     file: ".github/ISSUE_TEMPLATE/user-test-feedback.md",

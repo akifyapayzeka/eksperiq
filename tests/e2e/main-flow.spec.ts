@@ -99,6 +99,7 @@ test("shows product module roadmap", async ({ page }) => {
 test("shows feedback collection flow", async ({ page }) => {
   await page.goto("/geri-bildirim");
   await expect(page.getByRole("heading", { name: "Geri bildirim" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Kullanıcı testi notu gönder" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Kural geri bildirimi gönder" })).toBeVisible();
   await expect(page.getByRole("link", { name: "İlk kullanıcı testi issue'su" })).toBeVisible();
   await expect(page.getByText("kişisel veri eklemeden")).toBeVisible();
@@ -118,6 +119,9 @@ test("creates analysis result", async ({ page }) => {
   await expect(page.getByText("Bilgi doluluğu")).toBeVisible();
   await expect(page.getByText("Araç ve ilan özeti")).toBeVisible();
   await expect(page.getByText("Skor nasıl okunmalı?")).toBeVisible();
+  await expect(page.getByText("Öncelik", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("İlk kontrol edilecek risk")).toBeVisible();
+  await expect(page.getByText("Sonraki adım")).toBeVisible();
   await expect(page.getByRole("progressbar", { name: "Bilgi doluluğu yüzdesi" })).toBeVisible();
   await expect(page.getByRole("progressbar", { name: "Hasar geçmişi skoru" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Raporu yazdır" })).toBeVisible();

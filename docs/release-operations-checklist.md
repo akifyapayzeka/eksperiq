@@ -85,12 +85,14 @@ Kontrol edilecekler:
 - `safe-area-shell` sınıfı iOS güvenli alanlarında içerik taşmasını engellemeli.
 - App Store metinleri kesin ekspertiz veya satın alma garantisi vermiyor.
 - App Store Connect metinleri `docs/app-store-submission.md` dosyasından kontrol edildi.
+- iOS/TestFlight ön kontrol dosyası: `docs/ios-testflight-preflight.md`
 
 ## Geri bildirim ve kural geliştirme
 
 - Canlı uygulamada `/geri-bildirim` sayfası görünür olmalı.
 - GitHub issue şablonu: `.github/ISSUE_TEMPLATE/rule-feedback.md`
 - Kullanıcı testi issue şablonu: `.github/ISSUE_TEMPLATE/user-test-feedback.md`
+- İlk 5 kullanıcı testi planı: `docs/first-5-user-tests.md`
 - İlk takip issue'su: `https://github.com/akifyapayzeka/eksperiq/issues/1`
 - Kural adayları: `src/lib/feedback/rule-candidates.ts`
 - Kural backlog dosyası: `docs/rule-backlog.md`

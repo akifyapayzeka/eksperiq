@@ -5,9 +5,11 @@ import Link from "next/link";
 import {
   AlertTriangle,
   ArrowUpRight,
+  BadgeCheck,
   CheckCircle2,
   ClipboardCopy,
   FileText,
+  Gauge,
   RotateCcw,
   Share2,
   ShieldCheck,
@@ -97,6 +99,12 @@ function riskToneClass(score: number): string {
   if (score >= 60) return "bg-amber-50 text-amber-800 ring-amber-200";
   if (score >= 40) return "bg-orange-50 text-orange-800 ring-orange-200";
   return "bg-red-50 text-red-800 ring-red-200";
+}
+
+function priorityToneClass(severity: string): string {
+  if (severity === "high") return "border-red-200 bg-red-50 text-red-950";
+  if (severity === "medium") return "border-amber-200 bg-amber-50 text-amber-950";
+  return "border-emerald-200 bg-emerald-50 text-emerald-950";
 }
 
 function scoreRingStyle(score: number) {
@@ -360,6 +368,46 @@ export function ResultClient() {
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+          <div className="grid gap-3 border-t border-slate-200 bg-white p-4 md:grid-cols-3">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                <Gauge aria-hidden="true" className="h-4 w-4 text-teal-700" />
+                Öncelik
+              </div>
+              <p className="mt-2 text-lg font-semibold leading-snug text-slate-950">{result.decision}</p>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Satın alma kararı vermeden önce bulguları belge ve bağımsız ekspertizle doğrulayın.
+              </p>
+            </div>
+            <div
+              className={`rounded-2xl border p-4 ${priorityToneClass(result.findings[0]?.severity ?? "low")}`}
+              aria-label="İlk kontrol edilecek risk"
+            >
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <AlertTriangle aria-hidden="true" className="h-4 w-4" />
+                İlk kontrol
+              </div>
+              <p className="mt-2 text-lg font-semibold leading-snug">
+                {result.findings[0]?.title ?? "Öncelikli risk bulgusu oluşmadı"}
+              </p>
+              <p className="mt-2 text-sm leading-6">
+                {result.findings[0]?.recommendation ?? "Yine de ekspertiz ve belge kontrolünü tamamlayın."}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-teal-100 bg-teal-50 p-4 text-teal-950">
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <BadgeCheck aria-hidden="true" className="h-4 w-4" />
+                Sonraki adım
+              </div>
+              <p className="mt-2 text-lg font-semibold leading-snug">
+                {result.priorityActions[0]?.title ?? "Satıcıdan belge isteyin"}
+              </p>
+              <p className="mt-2 text-sm leading-6">
+                {result.priorityActions[0]?.reason ??
+                  "Eksik veya belirsiz bilgileri yazılı belge ve ekspertiz raporuyla netleştirin."}
+              </p>
             </div>
           </div>
           <div className="no-print grid gap-3 border-t border-slate-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-6">

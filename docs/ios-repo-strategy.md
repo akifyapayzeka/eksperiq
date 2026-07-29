@@ -51,6 +51,7 @@ Xcode içinde kontrol edilecekler:
 
 - `npm run native:build` geçer.
 - `npm run appstore:prepare` geçer.
+- `npm run launch:check` geçer ve `docs/ios-testflight-preflight.md` güncel kalır.
 - `docs/testflight-qa-checklist.md` güncel kalır.
 - Secret taramasında Apple veya OpenRouter key görünmez.
 - App Store gizlilik beyanı uygulama davranışıyla çelişmez.

@@ -1,0 +1,47 @@
+# iOS / TestFlight Ön Kontrol
+
+Bu dosya Windows tarafında hazırlanabilecek iOS teslim şartlarını net tutar. Gerçek arşivleme, signing ve TestFlight yükleme için macOS, Xcode ve Apple Developer hesabı gerekir.
+
+## Yerelde doğrulanacaklar
+
+```bash
+npm run launch:check
+npm run native:build
+npm run appstore:prepare
+```
+
+- Web build statik olarak üretiliyor.
+- Capacitor sync hata vermiyor.
+- 1024 x 1024 opak App Store ikonu hazır.
+- App Store screenshot paketi üretiliyor.
+- Gizlilik ve kullanım koşulları canlı web rotalarında mevcut.
+- OpenRouter veya Apple secret dosyası commitlenmiyor.
+
+## macOS / Xcode ön koşulları
+
+- Xcode 26 veya Apple'ın güncel kabul ettiği sürüm kurulu.
+- Apple Developer Program üyeliği aktif.
+- App Store Connect erişimi mevcut.
+- Bundle ID: `com.eksperiq.app`
+- Display name: `EksperIQ`
+- Signing team seçildi.
+- Release build gerçek iPhone üzerinde açılıyor.
+
+## Signing ve secret sınırı
+
+Repo içine şunlar eklenmez:
+
+- `.p12`
+- `.cer`
+- `.mobileprovision`
+- App Store Connect API key dosyası
+- Xcode kullanıcı state dosyaları
+- OpenRouter veya başka servis anahtarı
+
+## TestFlight çıkış kapısı
+
+- `docs/testflight-qa-checklist.md` gerçek cihazda işaretlenir.
+- Rapor paylaşma veya kopyalama davranışı iOS üzerinde denenir.
+- Uçak modu/offline davranışı anlaşılır kalır.
+- Uygulama kamera, konum, fotoğraf veya bildirim izni istemez.
+- App Store metinleri profesyonel ekspertiz yerine geçme iddiası taşımaz.

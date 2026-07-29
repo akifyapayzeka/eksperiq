@@ -54,6 +54,7 @@ Amaç: App Store/TestFlight öncesi teknik kaliteyi kapatmak.
 Amaç: Gönderim ve dış onay sürecini yönetmek.
 
 - TestFlight gerçek cihaz testi.
+- İlk 5 kullanıcı testi planındaki notların issue'a çevrilmesi.
 - Kritik bug fix.
 - App Store Connect metadata girişi.
 - App Review gönderimi.
@@ -92,6 +93,7 @@ npm run format
 npm run lint
 npm run typecheck
 npm run test
+npm run launch:check
 npm run e2e
 npm run screenshots
 npm run build
