@@ -9,6 +9,7 @@ Bu doküman, ilk gerçek kullanıcı testlerinden gelen notları kaybolmadan ür
 - Test notu GitHub issue olarak açılır: `.github/ISSUE_TEMPLATE/user-test-feedback.md`
 - Kural motorunu ilgilendiren somut öneriler ayrıca `.github/ISSUE_TEMPLATE/rule-feedback.md` ile açılır.
 - Bir not hem kullanıcı deneyimi hem kural önerisi içeriyorsa iki ayrı issue açılır.
+- Ham not issue'a taşınmadan önce `docs/user-test-intake-template.md` ile anonimleştirilir ve önceliklendirilir.
 
 ## Triage sınıfları
 

@@ -19,8 +19,8 @@ const issues = [
   {
     file: "03-mobil-tek-elle-kullanim.md",
     title: "[Kullanıcı testi] Mobil tek elle kullanım",
-    scenario: "Küçük telefonda form doldurma, hata düzeltme ve rapora ulaşma.",
-    evidence: "Klavye, buton, yatay taşma veya okunabilirlik notu.",
+    scenario: "Küçük telefonda seçenekli alanları kullanarak form doldurma, hata düzeltme ve rapora ulaşma.",
+    evidence: "Şehir, araç detayı, hasar parçası, klavye, buton, yatay taşma veya okunabilirlik notu.",
   },
   {
     file: "04-yuksek-riskli-ilan-degerlendirmesi.md",
@@ -31,8 +31,8 @@ const issues = [
   {
     file: "05-paylasma-ve-ekspertize-hazirlik.md",
     title: "[Kullanıcı testi] Paylaşma ve ekspertize hazırlık",
-    scenario: "Kısa özeti kopyalama, satıcı sorularını okuma, checklist işaretleme.",
-    evidence: "Paylaşılabilir özet, yasal uyarı ve App Store dili hakkında geri bildirim.",
+    scenario: "Satıcı mesajını kopyalama, kısa özeti kopyalama, satıcı sorularını okuma, checklist işaretleme.",
+    evidence: "Satıcı mesajı, paylaşılabilir özet, yasal uyarı ve App Store dili hakkında geri bildirim.",
   },
 ];
 
@@ -62,16 +62,18 @@ ${issue.evidence}
 
 - [ ] Ana sayfadan analiz formuna geçildi
 - [ ] Form dolduruldu
+- [ ] Şehir, araç detayları ve hasar parça seçenekleri denendi
 - [ ] Hata mesajları görüldü
 - [ ] Analiz oluşturuldu
 - [ ] Sonuç raporu okundu
 - [ ] Ekspertiz kontrol listesi işaretlendi
-- [ ] Rapor paylaşma veya kopyalama denendi
+- [ ] Satıcı mesajı, satıcı soruları veya rapor özeti kopyalama denendi
 
 ## Test notu
 
 - Takıldığı yer:
 - En faydalı bölüm:
+- Zor gelen form alanı:
 - Satın alma güveni:
 - Eksik kural veya soru:
 - Beklenen iyileştirme:
