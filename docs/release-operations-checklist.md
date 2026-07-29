@@ -12,6 +12,7 @@ Manuel test rehberi: `docs/how-to-test.md`
 
 ```bash
 npm run release:check
+npm run ship:local-check
 npm run format
 npm run lint
 npm run typecheck
@@ -47,6 +48,7 @@ Kontrol edilecekler:
 - Türkçe görünen metinlerde bozuk karakter yok.
 - Eski çalışma adı, secret veya gereksiz env referansı yok.
 - Kesin satın alma, hasarsızlık veya ekspertiz yerine geçme iddiası yok; `npm run claims:check` geçiyor.
+- Satış/App Store öncesi yerel ağır kapı `npm run ship:local-check` ile tek komutta geçiyor.
 - Kullanıcı testi ham notları, triage çıktıları ve issue taslakları `dist` altında kalıyor; repoya eklenmiyor.
 - Gerçek kullanıcı feedback akışı `docs/real-user-feedback-runbook.md` ile takip ediliyor.
 - `/`, `/analiz`, `/sonuc`, `/moduller`, `/gizlilik` sayfaları çalışıyor.

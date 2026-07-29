@@ -11,6 +11,14 @@ npm run release:check
 
 Bu komut format, lint, typecheck, privacy check, unit test, kullanıcı testi triage check, launch readiness, App Store metadata ve production build kontrollerini çalıştırır.
 
+Satış veya App Store öncesi daha ağır yerel prova için:
+
+```bash
+npm run ship:local-check
+```
+
+Bu komut release kapısına ek olarak E2E, App Store paket üretimi, Hostinger zip üretimi/kontrolü ve launch audit adımlarını da çalıştırır.
+
 Gerçek kullanıcı notu geldiğinde dağınık ilerlememek için önce `docs/real-user-feedback-runbook.md` dosyasındaki sırayı uygula.
 
 ## 2. Tarayıcıda yerel kullanım

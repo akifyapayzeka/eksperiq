@@ -39,6 +39,7 @@
     "form:fields-check": "node scripts/check-form-field-types.mjs",
     "rule-backlog:check": "node scripts/check-rule-backlog.mjs",
     "release:check": "node scripts/check-release-preflight.mjs",
+    "ship:local-check": "node scripts/check-local-ship-readiness.mjs",
     "user-tests:package": "node scripts/prepare-user-test-issues.mjs",
     "user-tests:package-check": "node scripts/check-user-test-issue-package.mjs",
     "user-tests:new-note": "node scripts/prepare-user-test-note.mjs",

@@ -36,6 +36,7 @@ const requiredFiles = [
   "scripts/check-feedback-runbook.mjs",
   "scripts/check-triage-verification-commands.mjs",
   "scripts/check-release-preflight.mjs",
+  "scripts/check-local-ship-readiness.mjs",
   "scripts/check-rule-backlog.mjs",
   "scripts/check-rule-feedback-package.mjs",
   "scripts/prepare-user-test-issues.mjs",
@@ -67,6 +68,7 @@ const requiredPackageScripts = [
   "feedback:runbook-check",
   "rule-backlog:check",
   "release:check",
+  "ship:local-check",
   "user-tests:package",
   "user-tests:package-check",
   "user-tests:new-note",
@@ -139,6 +141,7 @@ const requiredTextChecks = [
     file: "docs/release-operations-checklist.md",
     snippets: [
       "npm run launch:check",
+      "npm run ship:local-check",
       "npm run form:fields-check",
       "npm run claims:check",
       "npm run feedback:outputs-check",
@@ -158,6 +161,7 @@ const requiredTextChecks = [
     file: "docs/how-to-test.md",
     snippets: [
       "npm run release:check",
+      "npm run ship:local-check",
       "Mobil görünüm",
       "npm run user-tests:new-note",
       "npm run user-tests:triage",
