@@ -9,6 +9,7 @@ const fixturePath = join(root, "tests", "fixtures", "user-test-note.txt");
 const ruleFixturePath = join(root, "tests", "fixtures", "user-test-rule-note.txt");
 const piiFixturePath = join(root, "tests", "fixtures", "user-test-note-with-pii.txt");
 const uiFixturePath = join(root, "tests", "fixtures", "user-test-ui-note.txt");
+const mixedFixturePath = join(root, "tests", "fixtures", "user-test-mixed-note.txt");
 
 function fail(message) {
   console.error(`User test triage check failed: ${message}`);
@@ -135,6 +136,26 @@ try {
   ];
 
   expectIncludes(uiOutput, requiredUiSnippets, "ui triage output");
+
+  execFileSync(process.execPath, [join(root, "scripts", "triage-user-test-note.mjs"), mixedFixturePath, tempDir], {
+    cwd: root,
+    stdio: "pipe",
+  });
+
+  const mixedOutput = readFileSync(join(tempDir, "user-test-mixed-note-triage.md"), "utf8");
+  const requiredMixedSnippets = [
+    "Sorun tipi: güven ve dil riski",
+    "Öncelik: P1",
+    "Etkilenen ekran/akış: Sonuç raporu",
+    "Ek issue sinyalleri",
+    "Bu not birden fazla iş tipine temas ediyor.",
+    "P2 / kural adayı",
+    "Kural backlog girdisi aç",
+    "npm run appstore:metadata-check",
+    'npx playwright test tests/e2e/main-flow.spec.ts --grep "creates analysis result"',
+  ];
+
+  expectIncludes(mixedOutput, requiredMixedSnippets, "mixed triage output");
 } finally {
   rmSync(tempDir, { force: true, recursive: true });
 }

@@ -11,6 +11,7 @@ const fixtures = [
   "tests/fixtures/user-test-rule-note.txt",
   "tests/fixtures/user-test-note-with-pii.txt",
   "tests/fixtures/user-test-ui-note.txt",
+  "tests/fixtures/user-test-mixed-note.txt",
 ];
 const allowedNpxCommands = [
   /^npx playwright test tests\/e2e\/main-flow\.spec\.ts --project=mobile$/,
@@ -53,6 +54,7 @@ try {
     "user-test-rule-note-triage.md",
     "user-test-note-with-pii-triage.md",
     "user-test-ui-note-triage.md",
+    "user-test-mixed-note-triage.md",
   ];
 
   for (const output of outputs) {

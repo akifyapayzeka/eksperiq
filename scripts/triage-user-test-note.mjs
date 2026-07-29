@@ -153,6 +153,29 @@ function pickCategory(note) {
   );
 }
 
+function matchingCategories(note) {
+  const normalizedNote = normalize(note);
+
+  return categories.filter((category) =>
+    category.patterns.some((pattern) => normalizedNote.includes(normalize(pattern))),
+  );
+}
+
+function secondaryIssueSignals(note, primaryCategory) {
+  const secondaryCategories = matchingCategories(note).filter((category) => category.type !== primaryCategory.type);
+
+  if (!secondaryCategories.length) {
+    return "";
+  }
+
+  return `## Ek issue sinyalleri
+
+Bu not birden fazla iş tipine temas ediyor. Ana issue kapatılırken aşağıdaki başlıklar ayrı issue olarak açılmalı veya açıkça kapsam dışı bırakılmalı.
+
+${secondaryCategories.map((category) => `- ${category.priority} / ${category.type}: ${category.action}`).join("\n")}
+`;
+}
+
 function findPersonalDataWarnings(note) {
   return personalDataPatterns
     .filter((item) => {
@@ -345,6 +368,7 @@ const inputName = basename(inputPath).replace(/\.[^.]+$/, "");
 const outputFile = join(outputDir, `${slugify(inputName || "kullanici-notu")}-triage.md`);
 const optionalBacklogDraft = category.type === "kural adayı" ? `\n${backlogDraft(rawNote, inputName)}` : "";
 const mobileFormFieldSignal = detectMobileFormFieldSignal(rawNote);
+const secondarySignals = secondaryIssueSignals(rawNote, category);
 const redactionNote =
   warnings.length > 0 ? "\n- [ ] Orijinal notu issue'a taşıma; aşağıdaki redakte edilmiş sürümü kullan." : "";
 
@@ -371,6 +395,8 @@ Kaynak not: \`${basename(inputPath)}\`
 ${commands.map((command) => `- \`${command}\``).join("\n")}
 
 ${mobileFormFieldSignal}
+
+${secondarySignals}
 
 ## Kişisel veri kontrolü
 

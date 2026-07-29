@@ -13,6 +13,7 @@ Bu doküman, ilk gerçek kullanıcı testlerinden gelen notları kaybolmadan ür
 - `npm run user-tests:triage -- path/to/user-note.txt` çıktısı telefon, plaka, e-posta ve URL olabilecek alanları redakte eder; yine de issue açmadan önce manuel kontrol yapılır.
 - Triage çıktısındaki `Issue önerisi` bölümü, ilk GitHub başlığı, issue şablonu ve label seti için başlangıç kabul edilir; kişisel veri içermediği kontrol edilmeden birebir taşınmaz.
 - Triage çıktısındaki `Önerilen doğrulama komutları` issue kapanış kanıtı için başlangıç listesidir; etkilenen modüle göre daraltılabilir ama tamamen silinmemelidir.
+- Triage çıktısında `Ek issue sinyalleri` bölümü varsa, not birden fazla iş tipine temas ediyordur; ana issue açıldıktan sonra listelenen UX, kural, güven dili veya App Store başlıkları ayrı issue olarak açılır ya da neden kapsam dışı bırakıldığı yazılır.
 - Kural adayı çıktılarında `Backlog tablo satırı taslağı` ve `Typed kayıt taslağı için kontrol` bölümleri bulunur; bu bölümler `docs/rule-backlog.md` ve `src/lib/feedback/rule-candidates.ts` güncellenirken başlangıç kanıtı olarak kullanılır.
 
 ## Triage sınıfları
