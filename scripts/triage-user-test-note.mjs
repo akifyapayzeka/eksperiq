@@ -240,21 +240,51 @@ function inferRuleModule(note) {
   return "ilan analizi";
 }
 
+function inferAffectedRuleFile(moduleName) {
+  const filesByModule = {
+    hasar: "src/lib/analysis/rules/damage-rules.ts",
+    bakım: "src/lib/analysis/rules/maintenance-rules.ts",
+    belge: "src/lib/analysis/rules/document-rules.ts",
+    "satıcı açıklaması": "src/lib/analysis/rules/seller-rules.ts",
+    "ilan analizi": "src/lib/analysis/engine.ts",
+  };
+
+  return filesByModule[moduleName] ?? "src/lib/analysis/engine.ts";
+}
+
 function backlogDraft(note, sourceName) {
   const moduleName = inferRuleModule(note);
   const candidateId = `feedback-${slugify(sourceName || "kural-adayi")}`;
+  const affectedRuleFile = inferAffectedRuleFile(moduleName);
+  const issueFile = `${candidateId}.md`;
 
   return `## Kural backlog aday taslağı
 
 - Aday ID: ${candidateId}
 - Kaynak: Kullanıcı testi
 - Etkilenen modül: ${moduleName}
+- Önerilen dosya: \`${affectedRuleFile}\`
 - Girdi sinyali: Ham nottan netleştirilecek.
 - Beklenen bulgu: Başlık, kategori, severity ve öneri cümlesi yazılacak.
 - Kanıt: ${basename(inputPath)}
 - Skor etkisi: Belirlenecek; gerekirse sadece bilgilendirme.
 - Unit test: Pozitif ve negatif test eklenmeden aktif kurala taşınmayacak.
 - Durum: Needs feedback
+
+### Backlog tablo satırı taslağı
+
+\`\`\`md
+| ${candidateId} | Kullanıcı testi | \`${affectedRuleFile}\` | ${basename(inputPath)} | Belirlenecek | needs-feedback |
+\`\`\`
+
+### Typed kayıt taslağı için kontrol
+
+- [ ] \`src/lib/feedback/rule-candidates.ts\` içine \`${candidateId}\` ID'siyle aday ekle.
+- [ ] \`status\` değeri \`needs-feedback\` olmalı.
+- [ ] \`source\` değeri \`user-feedback\` olmalı.
+- [ ] \`affectedRuleFile\` değeri \`${affectedRuleFile}\` olmalı.
+- [ ] \`feedbackRecord.issueTitle\` kural geri bildirimi issue başlığıyla eşleşmeli.
+- [ ] Issue taslağı önerisi: \`dist/rule-feedback-issues/${issueFile}\`
 `;
 }
 
