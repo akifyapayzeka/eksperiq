@@ -42,13 +42,16 @@ test("shows validation errors", async ({ page }) => {
 
 test("shows product module roadmap", async ({ page }) => {
   await page.goto("/moduller");
-  await expect(page.getByRole("heading", { name: "EksperIQ modülleri bağımsız geliştirilecek." })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Sadece ilan analizi değil, araç yolculuğu asistanı." }),
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Garajım" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Aktif modül" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Planlanan modüller" })).toBeVisible();
-  await expect(page.getByText("İlan Analizi")).toBeVisible();
-  await expect(page.getByText("Fotoğraftan Hasar Analizi")).toBeVisible();
-  await expect(page.getByText("Araç Sağlık Karnesi")).toBeVisible();
-  await expect(page.getByText("Kesinlik sınırı")).toHaveCount(8);
+  await expect(page.getByRole("heading", { name: "Yakında gelecek özellikler" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "İlan Analizi" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Fotoğraftan Hasar Analizi" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Araç Sağlık Karnesi" })).toBeVisible();
+  await expect(page.getByText("Kesinlik sınırı:")).toHaveCount(8);
 });
 
 test("shows feedback collection flow", async ({ page }) => {

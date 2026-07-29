@@ -50,7 +50,7 @@ test("captures release screenshots", async ({ page }, testInfo) => {
   const prefix = testInfo.project.name;
 
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "İkinci el araç ilanını daha bilinçli değerlendir." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Araç ilanını daha bilinçli değerlendir." })).toBeVisible();
   await page.screenshot({ fullPage: true, path: path.join(screenshotDir, `${prefix}-home.png`) });
 
   await page.goto("/analiz");
