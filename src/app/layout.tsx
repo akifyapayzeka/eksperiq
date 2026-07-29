@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { appConfig } from "@/lib/constants/app";
@@ -59,6 +60,7 @@ export default function RootLayout({
         <SiteHeader />
         {children}
         <SiteFooter />
+        <MobileBottomNav />
       </body>
     </html>
   );

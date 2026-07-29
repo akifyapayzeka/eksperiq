@@ -33,6 +33,18 @@ test("home to analysis form", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Satıcı açıklaması" })).toBeVisible();
 });
 
+test("mobile bottom navigation opens analysis", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "Mobile bottom navigation is only visible on small screens.");
+
+  await page.goto("/");
+  const mobileNav = page.getByRole("navigation", { name: "Mobil alt menü" });
+  await expect(mobileNav).toBeVisible();
+  await expect(mobileNav.getByRole("link", { name: "Ana Sayfa" })).toHaveAttribute("aria-current", "page");
+  await mobileNav.getByRole("link", { name: "Analiz" }).click();
+  await expect(page).toHaveURL(/\/analiz$/);
+  await expect(page.getByRole("heading", { name: "Araç ilanı analizi" })).toBeVisible();
+});
+
 test("shows validation errors", async ({ page }) => {
   await page.goto("/analiz");
   await page.getByRole("button", { name: "Analiz oluştur" }).click();

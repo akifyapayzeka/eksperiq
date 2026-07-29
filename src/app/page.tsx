@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
   ArrowUpRight,
-  BellPlus,
   Camera,
   CarFront,
   ChartNoAxesCombined,
@@ -219,16 +218,6 @@ export default function Home() {
               <Gauge aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-teal-700" />
               <p>Risk skorları mevcut bilgilere göre hesaplanır; kesin hüküm yerine inceleme önceliği sunar.</p>
             </div>
-          </div>
-
-          <div className="fixed inset-x-4 bottom-4 z-20 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-xl shadow-slate-900/10 backdrop-blur sm:hidden">
-            <Link
-              href="/analiz"
-              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-teal-700 px-4 text-base font-semibold text-white"
-            >
-              <BellPlus aria-hidden="true" className="h-5 w-5" />
-              Yeni analiz başlat
-            </Link>
           </div>
         </div>
       </section>
