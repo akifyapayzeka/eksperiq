@@ -63,4 +63,4 @@ Kural çıktıları şu çerçevede yazılmalıdır:
 - Mevcut bilgilerle risk artıyor
 - Bilgi yetersiz olduğu için karar desteği sınırlı
 
-Canlı uygulama geri bildirim giriş noktası `/geri-bildirim` sayfasıdır. Kural adayları `src/lib/feedback/rule-candidates.ts` içinde gerçek issue kayıt formatına bağlanır.
+Canlı uygulama geri bildirim giriş noktası `/geri-bildirim` sayfasıdır. Kullanıcı testi notları önce `docs/user-test-feedback-triage.md` ile sınıflandırılır. Kural adayları `docs/rule-backlog.md` ve `src/lib/feedback/rule-candidates.ts` içinde gerçek issue kayıt formatına bağlanır.

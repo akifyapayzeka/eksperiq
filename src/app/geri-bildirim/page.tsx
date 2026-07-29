@@ -36,7 +36,8 @@ export default function FeedbackPage() {
       </div>
       <p>
         Geri bildirimlerde plaka, telefon numarası, açık adres, satıcı adı veya kimlik bilgisi paylaşmayın. İlanı
-        anlatmak için marka, model, yıl, kilometre ve anonimleştirilmiş açıklama yeterlidir.
+        anlatmak için marka, model, yıl, kilometre ve anonimleştirilmiş açıklama yeterlidir. Kullanıcı testi notları
+        önce triage edilir; kural önerileri test yazılmadan aktif analiz motoruna taşınmaz.
       </p>
       <div className="rounded-lg border border-teal-100 bg-teal-50 p-4">
         <h2 className="text-lg font-semibold text-slate-950">5 dakikalık kullanıcı testi</h2>
@@ -53,15 +54,25 @@ export default function FeedbackPage() {
           ))}
         </ul>
         <p className="mt-3 text-sm text-slate-600">
-          Detaylı senaryo: <code>docs/first-user-test-script.md</code>
+          Detaylı senaryo: <code>docs/first-user-test-script.md</code>. Triage akışı:{" "}
+          <code>docs/user-test-feedback-triage.md</code>
         </p>
       </div>
       <div className="flex flex-col gap-3 sm:flex-row">
         <a
-          href={appConfig.newRuleFeedbackUrl}
+          href={appConfig.newUserTestFeedbackUrl}
           target="_blank"
           rel="noreferrer"
           className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-slate-950 px-5 font-semibold text-white hover:bg-slate-800"
+        >
+          Kullanıcı testi notu gönder
+          <ExternalLink aria-hidden="true" className="h-4 w-4" />
+        </a>
+        <a
+          href={appConfig.newRuleFeedbackUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-slate-300 px-5 font-semibold text-slate-950 hover:bg-slate-50"
         >
           Kural geri bildirimi gönder
           <ExternalLink aria-hidden="true" className="h-4 w-4" />

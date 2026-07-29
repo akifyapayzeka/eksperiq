@@ -1,0 +1,92 @@
+import fs from "node:fs";
+import path from "node:path";
+
+const requiredFiles = [
+  "docs/launch-plan-2026-08-15.md",
+  "docs/release-operations-checklist.md",
+  "docs/first-user-test-script.md",
+  "docs/user-test-feedback-triage.md",
+  "docs/feedback-rule-expansion.md",
+  "docs/rule-backlog.md",
+  "docs/testflight-qa-checklist.md",
+  "docs/testflight-qa-report.md",
+  "docs/ios-repo-strategy.md",
+  "docs/ai-production-rollout.md",
+  "docs/app-store-submission.md",
+  "docs/app-store-readiness.md",
+  ".github/ISSUE_TEMPLATE/rule-feedback.md",
+  ".github/ISSUE_TEMPLATE/user-test-feedback.md",
+  "src/app/geri-bildirim/page.tsx",
+  "src/lib/feedback/rule-candidates.ts",
+  "public/app-store-icon-1024.png",
+];
+
+const requiredPackageScripts = [
+  "lint",
+  "typecheck",
+  "test",
+  "e2e",
+  "build",
+  "native:build",
+  "appstore:prepare",
+  "hostinger:package",
+  "ai:staging-check",
+  "launch:check",
+];
+
+const requiredTextChecks = [
+  {
+    file: "docs/launch-plan-2026-08-15.md",
+    snippets: ["15 Ağustos 2026", "Apple Developer Program", "Sonraki en yüksek etkili 3 iş"],
+  },
+  {
+    file: "docs/user-test-feedback-triage.md",
+    snippets: ["kişisel veri", "Kural adayı", "App Store riski"],
+  },
+  {
+    file: "docs/rule-backlog.md",
+    snippets: ["Kural Backlog", "Kanıt", "Unit test"],
+  },
+  {
+    file: ".github/ISSUE_TEMPLATE/user-test-feedback.md",
+    snippets: ["Kişisel veri paylaşmayın", "Cihaz ve ortam", "Satın alma güveni"],
+  },
+  {
+    file: "docs/release-operations-checklist.md",
+    snippets: ["npm run launch:check", "Geri bildirim ve kural geliştirme"],
+  },
+];
+
+function fail(message) {
+  console.error(`Launch readiness check failed: ${message}`);
+  process.exitCode = 1;
+}
+
+for (const file of requiredFiles) {
+  if (!fs.existsSync(path.join(process.cwd(), file))) {
+    fail(`missing required file: ${file}`);
+  }
+}
+
+const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
+
+for (const script of requiredPackageScripts) {
+  if (typeof packageJson.scripts?.[script] !== "string") {
+    fail(`missing package script: ${script}`);
+  }
+}
+
+for (const check of requiredTextChecks) {
+  const content = fs.readFileSync(check.file, "utf8");
+  const normalizedContent = content.toLocaleLowerCase("tr-TR");
+
+  for (const snippet of check.snippets) {
+    if (!normalizedContent.includes(snippet.toLocaleLowerCase("tr-TR"))) {
+      fail(`${check.file} does not include required text: ${snippet}`);
+    }
+  }
+}
+
+if (!process.exitCode) {
+  console.log("Launch readiness package is complete.");
+}

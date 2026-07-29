@@ -41,6 +41,8 @@ Güven sorunu:
 Bir sonraki iyileştirme:
 ```
 
+Notlar GitHub'a aktarılırken kullanıcı testi şablonu kullanılmalı: `.github/ISSUE_TEMPLATE/user-test-feedback.md`. Kural motorunu ilgilendiren ayrı öneriler `docs/user-test-feedback-triage.md` üzerinden kural geri bildirimi issue'suna dönüştürülür.
+
 ## Başarı Ölçütü
 
 - Kullanıcı yardım almadan rapora ulaşabiliyor.

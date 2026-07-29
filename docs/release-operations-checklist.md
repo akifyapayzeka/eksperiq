@@ -11,6 +11,7 @@ npm run format
 npm run lint
 npm run typecheck
 npm run test
+npm run launch:check
 npm run build
 npm run e2e
 npm run screenshots
@@ -89,8 +90,11 @@ Kontrol edilecekler:
 
 - Canlı uygulamada `/geri-bildirim` sayfası görünür olmalı.
 - GitHub issue şablonu: `.github/ISSUE_TEMPLATE/rule-feedback.md`
+- Kullanıcı testi issue şablonu: `.github/ISSUE_TEMPLATE/user-test-feedback.md`
 - İlk takip issue'su: `https://github.com/akifyapayzeka/eksperiq/issues/1`
 - Kural adayları: `src/lib/feedback/rule-candidates.ts`
+- Kural backlog dosyası: `docs/rule-backlog.md`
+- Kullanıcı testi triage dosyası: `docs/user-test-feedback-triage.md`
 - Bir aday aktif kurala taşınmadan önce pozitif ve negatif unit test yazılmalı.
 
 ## Demo ve screenshot
