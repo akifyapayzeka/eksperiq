@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
 import { RISK_LEVELS, SCORE_WEIGHTS } from "@/lib/constants/analysis";
-import { formatAnalysisSummary } from "@/lib/analysis/report-summary";
+import { formatAnalysisSummary, formatSellerQuestionMessage } from "@/lib/analysis/report-summary";
 import { buildAiAnalysisNoteInput } from "@/lib/ai/analysis-note";
 import {
   clearAiNoteFeedback,
@@ -141,9 +141,9 @@ Not: Bu özet kesin ekspertiz sonucu değildir.`;
 export function ResultClient() {
   const [isReady, setIsReady] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [copyStatus, setCopyStatus] = useState<"idle" | "questions-copied" | "summary-copied" | "shared" | "failed">(
-    "idle",
-  );
+  const [copyStatus, setCopyStatus] = useState<
+    "idle" | "questions-copied" | "seller-message-copied" | "summary-copied" | "shared" | "failed"
+  >("idle");
   const [findingFilter, setFindingFilter] = useState<FindingFilter>("all");
   const [checkedChecklist, setCheckedChecklist] = useState<Set<string>>(new Set());
   const [aiNote, setAiNote] = useState<string | null>(null);
@@ -164,7 +164,10 @@ export function ResultClient() {
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
-  async function copyText(text: string, successStatus: "questions-copied" | "summary-copied") {
+  async function copyText(
+    text: string,
+    successStatus: "questions-copied" | "seller-message-copied" | "summary-copied",
+  ) {
     try {
       await navigator.clipboard.writeText(text);
       setCopyStatus(successStatus);
@@ -177,6 +180,11 @@ export function ResultClient() {
     if (!result) return;
     const text = result.sellerQuestions.map((question, index) => `${index + 1}. ${question}`).join("\n");
     await copyText(text, "questions-copied");
+  }
+
+  async function copySellerMessage() {
+    if (!result) return;
+    await copyText(formatSellerQuestionMessage(result), "seller-message-copied");
   }
 
   async function copySummary() {
@@ -410,7 +418,7 @@ export function ResultClient() {
               </p>
             </div>
           </div>
-          <div className="no-print grid gap-3 border-t border-slate-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-6">
+          <div className="no-print grid gap-3 border-t border-slate-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-4">
             <button
               type="button"
               onClick={() => window.print()}
@@ -426,6 +434,14 @@ export function ResultClient() {
             >
               <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
               Soruları kopyala
+            </button>
+            <button
+              type="button"
+              onClick={copySellerMessage}
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800"
+            >
+              <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
+              Satıcı mesajını kopyala
             </button>
             <button
               type="button"
@@ -479,6 +495,7 @@ export function ResultClient() {
           </div>
           <p className="no-print min-h-5 px-4 pb-4 text-sm text-slate-600" role="status">
             {copyStatus === "questions-copied" ? "Satıcı soruları panoya kopyalandı." : null}
+            {copyStatus === "seller-message-copied" ? "Satıcı mesajı panoya kopyalandı." : null}
             {copyStatus === "summary-copied" ? "Rapor özeti panoya kopyalandı." : null}
             {copyStatus === "shared" ? "Rapor özeti paylaşım paneline gönderildi." : null}
             {copyStatus === "failed" ? "Paylaşma veya kopyalama tarayıcı tarafından engellendi." : null}

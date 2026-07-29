@@ -178,6 +178,7 @@ test("creates analysis result", async ({ page }) => {
   await expect(page.getByRole("progressbar", { name: "Hasar geçmişi skoru" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Raporu yazdır" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Soruları kopyala" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Satıcı mesajını kopyala" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Rapor özetini kopyala" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Raporu paylaş" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Geri bildirim gönder" })).toBeVisible();

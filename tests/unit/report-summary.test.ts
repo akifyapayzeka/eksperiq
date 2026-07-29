@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { analyzeVehicle } from "@/lib/analysis/engine";
-import { formatAnalysisSummary } from "@/lib/analysis/report-summary";
+import { formatAnalysisSummary, formatSellerQuestionMessage } from "@/lib/analysis/report-summary";
 import type { VehicleFormData } from "@/lib/schemas/vehicle";
 
 const input: VehicleFormData = {
@@ -56,5 +56,16 @@ describe("report summary", () => {
     expect(summary).toContain("Satıcıya ilk sorular:");
     expect(summary).toContain("İlan referansı: https://example.com/ilan/123");
     expect(summary).toContain("Profesyonel araç ekspertizinin");
+  });
+
+  it("formats a seller-ready question message", () => {
+    const message = formatSellerQuestionMessage(analyzeVehicle(input));
+
+    expect(message).toContain("Merhaba, 2020 Toyota Corolla ilanınızla ilgileniyorum.");
+    expect(message).toContain("Satın alma öncesi birkaç bilgiyi netleştirmek isterim:");
+    expect(message).toContain("1.");
+    expect(message).toContain("EksperIQ karar desteği notum:");
+    expect(message).toContain("kesin ekspertiz sonucu değildir");
+    expect(message).toContain("İlan referansı: https://example.com/ilan/123");
   });
 });

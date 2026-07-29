@@ -50,3 +50,23 @@ export function formatAnalysisSummary(result: AnalysisResult): string {
     .filter((line) => line !== "")
     .join("\n");
 }
+
+export function formatSellerQuestionMessage(result: AnalysisResult): string {
+  const vehicle = `${result.input.year} ${result.input.brand} ${result.input.model}`;
+  const questions = result.sellerQuestions.slice(0, 8);
+
+  return [
+    `Merhaba, ${vehicle} ilanınızla ilgileniyorum.`,
+    "",
+    "Satın alma öncesi birkaç bilgiyi netleştirmek isterim:",
+    questions.length
+      ? numbered(questions)
+      : "1. Araçla ilgili ekspertiz, tramer ve bakım detaylarını paylaşır mısınız?",
+    "",
+    `EksperIQ karar desteği notum: ${result.totalScore}/100 - ${result.riskLabel}.`,
+    "Bu skor kesin ekspertiz sonucu değildir; yalnızca hangi bilgileri doğrulamam gerektiğini gösterir.",
+    result.input.listingUrl ? `İlan referansı: ${result.input.listingUrl}` : "",
+  ]
+    .filter((line) => line !== "")
+    .join("\n");
+}
