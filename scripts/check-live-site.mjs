@@ -1,14 +1,24 @@
 const baseUrl = (process.env.DEPLOY_CHECK_BASE_URL ?? "https://eksperiq.vercel.app").replace(/\/$/, "");
 
 const pages = [
-  { path: "/", expected: ["EksperIQ", "Ücretsiz analiz et"] },
-  { path: "/analiz", expected: ["Araç ilanı analizi", "Analiz oluştur"] },
-  { path: "/sonuc", expected: ["EksperIQ", "İkinci el araç ilanı risk analizi"] },
+  { path: "/", expected: ["EksperIQ", "\u00dccretsiz analiz et"] },
+  { path: "/analiz", expected: ["Ara\u00e7 ilan\u0131 analizi", "Analiz olu\u015ftur"] },
+  { path: "/sonuc", expected: ["EksperIQ", "\u0130kinci el ara\u00e7 ilan\u0131 risk analizi"] },
   {
     path: "/geri-bildirim",
-    expected: ["Geri bildirim", "Anonim test notu şablonu", "Geri bildirimi doğru hatta ayır"],
+    expected: ["Geri bildirim", "Anonim test notu \u015fablonu", "Geri bildirimi do\u011fru hatta ay\u0131r"],
   },
-  { path: "/gizlilik", expected: ["Gizlilik", "Girdiğiniz ilan ve araç bilgileri"] },
+  { path: "/moduller", expected: ["EksperIQ vizyonu", "Garaj\u0131m", "Kesinlik s\u0131n\u0131r\u0131"] },
+  {
+    path: "/kontrol-listesi",
+    expected: ["Uzmanl\u0131k Kontrol Listesi", "Sat\u0131n alma \u00f6ncesi son kontroller"],
+  },
+  { path: "/hakkinda", expected: ["Hakk\u0131nda", "sat\u0131n almaya uygun oldu\u011funu garanti etmez"] },
+  { path: "/gizlilik", expected: ["Gizlilik", "Girdi\u011finiz ilan ve ara\u00e7 bilgileri"] },
+  {
+    path: "/kullanim-kosullari",
+    expected: ["Kullan\u0131m ko\u015fullar\u0131", "kesin sat\u0131n alma tavsiyesi olmad\u0131\u011f\u0131n\u0131"],
+  },
   { path: "/manifest.webmanifest", expected: ["EksperIQ"] },
 ];
 
