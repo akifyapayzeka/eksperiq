@@ -8,6 +8,7 @@ const tempDir = mkdtempSync(join(tmpdir(), "eksperiq-triage-"));
 const fixturePath = join(root, "tests", "fixtures", "user-test-note.txt");
 const ruleFixturePath = join(root, "tests", "fixtures", "user-test-rule-note.txt");
 const piiFixturePath = join(root, "tests", "fixtures", "user-test-note-with-pii.txt");
+const uiFixturePath = join(root, "tests", "fixtures", "user-test-ui-note.txt");
 
 function fail(message) {
   console.error(`User test triage check failed: ${message}`);
@@ -87,6 +88,22 @@ try {
 
   expectIncludes(piiOutput, requiredPiiSnippets, "pii triage output");
   expectExcludes(piiOutput, forbiddenPiiSnippets, "pii triage output");
+
+  execFileSync(process.execPath, [join(root, "scripts", "triage-user-test-note.mjs"), uiFixturePath, tempDir], {
+    cwd: root,
+    stdio: "pipe",
+  });
+
+  const uiOutput = readFileSync(join(tempDir, "user-test-ui-note-triage.md"), "utf8");
+  const requiredUiSnippets = [
+    "Sorun tipi: kullanıcı deneyimi",
+    "Öncelik: P1",
+    "Etkilenen ekran/akış: Analiz formu",
+    "Analiz formunu mobil viewport'ta doldur",
+    "Küçük UI iyileştirmesi yap",
+  ];
+
+  expectIncludes(uiOutput, requiredUiSnippets, "ui triage output");
 } finally {
   rmSync(tempDir, { force: true, recursive: true });
 }

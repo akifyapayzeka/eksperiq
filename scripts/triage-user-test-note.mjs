@@ -59,6 +59,36 @@ const personalDataPatterns = [
   { label: "URL olabilir", pattern: /https?:\/\/\S+/gi, replacement: "[url redakte edildi]" },
 ];
 
+const affectedAreaPatterns = [
+  {
+    area: "Analiz formu",
+    patterns: ["form", "alan", "secenek", "seçenek", "klavye", "şehir", "hasar parca", "hasar parça", "buton"],
+    verification:
+      "Analiz formunu mobil viewport'ta doldur, validasyon ve dokunma alanlarını E2E veya screenshot ile doğrula.",
+  },
+  {
+    area: "Sonuç raporu",
+    patterns: ["sonuc", "sonuç", "rapor", "risk skoru", "satici sorusu", "satıcı sorusu", "ekspertiz listesi"],
+    verification:
+      "Demo analiz oluşturup sonuç sayfasında skor, yasal uyarı ve ilgili bölümün görünür olduğunu doğrula.",
+  },
+  {
+    area: "Mobil alt menü",
+    patterns: ["alt menu", "alt menü", "tab", "navigasyon", "profil", "yeni analiz", "analiz raporu", "kontrol"],
+    verification: "Mobil E2E'de alt menü bağlantılarını ve yatay taşma olmadığını kontrol et.",
+  },
+  {
+    area: "Paylaşma ve kopyalama",
+    patterns: ["paylas", "paylaş", "kopyala", "mesaj", "ozet", "özet", "clipboard"],
+    verification: "Satıcı mesajı, kısa özet ve rapor paylaşma/kopyalama akışını tarayıcıda doğrula.",
+  },
+  {
+    area: "Geri bildirim",
+    patterns: ["geri bildirim", "feedback", "not gonder", "not gönder", "kullanici testi", "kullanıcı testi"],
+    verification: "Geri bildirim sayfası metinlerinin kişisel veri istemediğini ve CTA'ların göründüğünü doğrula.",
+  },
+];
+
 function normalize(value) {
   return value
     .toLocaleLowerCase("tr-TR")
@@ -91,6 +121,19 @@ function findPersonalDataWarnings(note) {
       return item.pattern.test(note);
     })
     .map((item) => item.label);
+}
+
+function inferAffectedArea(note) {
+  const normalizedNote = normalize(note);
+
+  return (
+    affectedAreaPatterns.find((item) =>
+      item.patterns.some((pattern) => normalizedNote.includes(normalize(pattern))),
+    ) ?? {
+      area: "Genel kullanıcı akışı",
+      verification: "Ana akışı mobil ve desktop E2E ile tekrar doğrula; gerekirse kullanıcıdan ekran görüntüsü iste.",
+    }
+  );
 }
 
 function redactPersonalData(note) {
@@ -153,6 +196,7 @@ function backlogDraft(note, sourceName) {
 const category = pickCategory(rawNote);
 const warnings = findPersonalDataWarnings(rawNote);
 const redactedNote = redactPersonalData(rawNote);
+const affectedArea = inferAffectedArea(rawNote);
 const inputName = basename(inputPath).replace(/\.[^.]+$/, "");
 const outputFile = join(outputDir, `${slugify(inputName || "kullanici-notu")}-triage.md`);
 const optionalBacklogDraft = category.type === "kural adayı" ? `\n${backlogDraft(rawNote, inputName)}` : "";
@@ -167,7 +211,9 @@ Kaynak not: \`${basename(inputPath)}\`
 
 - Sorun tipi: ${category.type}
 - Öncelik: ${category.priority}
+- Etkilenen ekran/akış: ${affectedArea.area}
 - Önerilen aksiyon: ${category.action}
+- Önerilen doğrulama: ${affectedArea.verification}
 
 ## Kişisel veri kontrolü
 

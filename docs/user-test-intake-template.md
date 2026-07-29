@@ -38,6 +38,8 @@ Kullanıcının kendi cümlesi:
 - Sorun tipi: `kritik hata / kullanıcı deneyimi / kural adayı / güven ve dil riski / App Store riski`
 - Öncelik: `P0 / P1 / P2 / P3`
 - Etkilenen ekran veya modül:
+- Otomatik triage alanı: `Etkilenen ekran/akış`
+- Önerilen doğrulama:
 - Beklenen davranış:
 - Kanıt:
 - Tekrarlanabilir mi:
