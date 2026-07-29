@@ -87,10 +87,54 @@ function slugify(value) {
     .slice(0, 80);
 }
 
+function inferRuleModule(note) {
+  const normalizedNote = normalize(note);
+
+  if (["tramer", "hasar", "boya", "degisen", "sasi", "airbag", "pert"].some((term) => normalizedNote.includes(term))) {
+    return "hasar";
+  }
+  if (
+    ["bakim", "triger", "zincir", "sanziman", "aku", "lastik", "muayene"].some((term) => normalizedNote.includes(term))
+  ) {
+    return "bakım";
+  }
+  if (["ruhsat", "vekalet", "rehin", "haciz", "evrak", "ekspertiz"].some((term) => normalizedNote.includes(term))) {
+    return "belge";
+  }
+  if (
+    ["satici", "satıcı", "ilan aciklamasi", "ilan açıklaması", "mesaj", "soru"].some((term) =>
+      normalizedNote.includes(term),
+    )
+  ) {
+    return "satıcı açıklaması";
+  }
+
+  return "ilan analizi";
+}
+
+function backlogDraft(note, sourceName) {
+  const moduleName = inferRuleModule(note);
+  const candidateId = `feedback-${slugify(sourceName || "kural-adayi")}`;
+
+  return `## Kural backlog aday taslağı
+
+- Aday ID: ${candidateId}
+- Kaynak: Kullanıcı testi
+- Etkilenen modül: ${moduleName}
+- Girdi sinyali: Ham nottan netleştirilecek.
+- Beklenen bulgu: Başlık, kategori, severity ve öneri cümlesi yazılacak.
+- Kanıt: ${basename(inputPath)}
+- Skor etkisi: Belirlenecek; gerekirse sadece bilgilendirme.
+- Unit test: Pozitif ve negatif test eklenmeden aktif kurala taşınmayacak.
+- Durum: Needs feedback
+`;
+}
+
 const category = pickCategory(rawNote);
 const warnings = findPersonalDataWarnings(rawNote);
 const inputName = basename(inputPath).replace(/\.[^.]+$/, "");
 const outputFile = join(outputDir, `${slugify(inputName || "kullanici-notu")}-triage.md`);
+const optionalBacklogDraft = category.type === "kural adayı" ? `\n${backlogDraft(rawNote, inputName)}` : "";
 
 const issueBody = `# Kullanıcı testi triage taslağı
 
@@ -123,6 +167,7 @@ ${rawNote.trim()}
 - [ ] Etkilenen ekran veya kural modülü seçildi.
 - [ ] Kural adayıysa pozitif ve negatif test gereksinimi yazıldı.
 - [ ] UI sorunuysa mobil screenshot veya E2E doğrulaması belirlendi.
+${optionalBacklogDraft}
 `;
 
 mkdirSync(outputDir, { recursive: true });

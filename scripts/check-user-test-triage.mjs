@@ -6,6 +6,7 @@ import { join } from "node:path";
 const root = process.cwd();
 const tempDir = mkdtempSync(join(tmpdir(), "eksperiq-triage-"));
 const fixturePath = join(root, "tests", "fixtures", "user-test-note.txt");
+const ruleFixturePath = join(root, "tests", "fixtures", "user-test-rule-note.txt");
 
 function fail(message) {
   console.error(`User test triage check failed: ${message}`);
@@ -30,6 +31,28 @@ try {
   for (const snippet of requiredSnippets) {
     if (!output.includes(snippet)) {
       fail(`triage output missing text: ${snippet}`);
+    }
+  }
+
+  execFileSync(process.execPath, [join(root, "scripts", "triage-user-test-note.mjs"), ruleFixturePath, tempDir], {
+    cwd: root,
+    stdio: "pipe",
+  });
+
+  const ruleOutput = readFileSync(join(tempDir, "user-test-rule-note-triage.md"), "utf8");
+  const requiredRuleSnippets = [
+    "Sorun tipi: kural adayı",
+    "Öncelik: P2",
+    "Kural backlog aday taslağı",
+    "Aday ID: feedback-user-test-rule-note",
+    "Etkilenen modül: satıcı açıklaması",
+    "Unit test: Pozitif ve negatif test eklenmeden aktif kurala taşınmayacak.",
+    "Durum: Needs feedback",
+  ];
+
+  for (const snippet of requiredRuleSnippets) {
+    if (!ruleOutput.includes(snippet)) {
+      fail(`rule triage output missing text: ${snippet}`);
     }
   }
 } finally {
