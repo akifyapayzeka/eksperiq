@@ -17,10 +17,15 @@ npm run lint
 npm run typecheck
 npm run test
 npm run privacy:check
+npm run form:fields-check
 npm run rule-backlog:check
 npm run launch:check
 npm run launch:audit
 npm run appstore:metadata-check
+npm run appstore:prepare
+npm run hostinger:package
+npm run hostinger:check
+npm run native:build
 npm run repo:check
 npm run user-tests:package
 npm run user-tests:triage-check

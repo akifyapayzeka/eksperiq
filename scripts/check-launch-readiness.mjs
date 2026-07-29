@@ -111,7 +111,15 @@ const requiredTextChecks = [
   },
   {
     file: "docs/release-operations-checklist.md",
-    snippets: ["npm run launch:check", "docs/how-to-test.md", "Geri bildirim ve kural geliştirme"],
+    snippets: [
+      "npm run launch:check",
+      "npm run form:fields-check",
+      "npm run appstore:prepare",
+      "npm run hostinger:check",
+      "npm run native:build",
+      "docs/how-to-test.md",
+      "Geri bildirim ve kural geliştirme",
+    ],
   },
   {
     file: "docs/how-to-test.md",
