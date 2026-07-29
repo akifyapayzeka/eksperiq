@@ -12,6 +12,8 @@ const docs = [
   "docs/app-store-assets.md",
   "docs/testflight-qa-checklist.md",
   "docs/testflight-qa-report.md",
+  "docs/ios-repo-strategy.md",
+  "docs/ai-production-rollout.md",
   "docs/release-operations-checklist.md",
 ];
 

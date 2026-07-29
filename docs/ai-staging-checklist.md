@@ -80,3 +80,5 @@ NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED=false
 ```
 
 Bu kapatma anahtarı kural tabanlı raporu etkilemez.
+
+Production açılış ve rollback planı için `docs/ai-production-rollout.md` dosyasını kullanın.

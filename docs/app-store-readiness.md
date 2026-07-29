@@ -124,3 +124,5 @@ App Store Connect alanları için `docs/app-store-submission.md` dosyasındaki t
 Gerçek cihaz TestFlight kontrolü için `docs/testflight-qa-checklist.md` dosyasını kullanın.
 
 Test sonuçlarını teslim edilebilir rapora çevirmek için `docs/testflight-qa-report.md` dosyasını kullanın.
+
+iOS klasörü üretildiğinde repo ve secret sınırları için `docs/ios-repo-strategy.md` dosyasını kullanın.

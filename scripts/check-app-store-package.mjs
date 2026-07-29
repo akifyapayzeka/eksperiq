@@ -8,6 +8,8 @@ const requiredFiles = [
   "dist/app-store-package/docs/app-store-assets.md",
   "dist/app-store-package/docs/testflight-qa-checklist.md",
   "dist/app-store-package/docs/testflight-qa-report.md",
+  "dist/app-store-package/docs/ios-repo-strategy.md",
+  "dist/app-store-package/docs/ai-production-rollout.md",
   "dist/app-store-package/screenshots/mobile-home.png",
   "dist/app-store-package/screenshots/mobile-analysis-form.png",
   "dist/app-store-package/screenshots/mobile-result.png",
