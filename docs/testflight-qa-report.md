@@ -41,6 +41,15 @@ Bu rapor gerçek cihaz testi sırasında doldurulur. Her bulgu için ekran gör�
 | AI feature flag kapalı davranışı | Beklemede |     |
 | AI staging açık davranışı        | Beklemede |     |
 
+## Yerel App Store Screenshot QA
+
+- Tarih: 30 Temmuz 2026
+- Commit: `0661e83`
+- Komutlar: `npm run appstore:prepare`, `npm run appstore:check`
+- Dosyalar: `dist/app-store-package/app-store-screenshots/01-home-1320x2868.png` - `05-offline-1320x2868.png`
+- Sonuç: Ölçü kontrolü geçti; ana sayfa, analiz formu, sonuç raporu, analizlerim ve offline ekranlarında belirgin taşma veya kırık layout görülmedi.
+- Not: Bu kontrol gerçek iPhone/TestFlight testi yerine geçmez; yalnızca App Store görsel paketi için yerel ön kontroldür.
+
 ## Bulgu Kaydı
 
 ### Bulgu 1
