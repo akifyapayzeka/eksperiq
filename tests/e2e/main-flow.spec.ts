@@ -248,12 +248,27 @@ test("clears current session result", async ({ page }) => {
 test("mobile pages do not create horizontal overflow", async ({ page, isMobile }) => {
   test.skip(!isMobile, "Mobile overflow is covered by the mobile project.");
 
-  await page.goto("/");
-  await expectNoHorizontalOverflow(page);
+  const staticMobilePaths = [
+    "/",
+    "/analiz",
+    "/analizlerim",
+    "/profil",
+    "/geri-bildirim",
+    "/kontrol-listesi",
+    "/moduller",
+    "/nasil-calisir",
+    "/hakkinda",
+    "/gizlilik",
+    "/kullanim-kosullari",
+    "/offline",
+  ];
+
+  for (const path of staticMobilePaths) {
+    await page.goto(path);
+    await expectNoHorizontalOverflow(page);
+  }
 
   await page.goto("/analiz");
-  await expectNoHorizontalOverflow(page);
-
   await fillRequiredForm(page);
   await page.getByRole("button", { name: "Analiz oluştur" }).click();
   await expect(page).toHaveURL(/\/sonuc$/);
