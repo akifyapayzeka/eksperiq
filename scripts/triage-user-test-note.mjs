@@ -1,0 +1,134 @@
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { basename, join } from "node:path";
+
+const inputPath = process.argv[2];
+const outputDir = process.argv[3] ?? join(process.cwd(), "dist", "user-test-triage");
+
+if (!inputPath) {
+  console.error("Kullanim: node scripts/triage-user-test-note.mjs <not-dosyasi> [cikti-klasoru]");
+  process.exit(1);
+}
+
+const rawNote = readFileSync(inputPath, "utf8");
+
+const categories = [
+  {
+    type: "kritik hata",
+    priority: "P0",
+    patterns: ["acilmadi", "açılmadı", "calismadi", "çalışmadı", "rapora ulasamadim", "sonuc yok", "hata verdi"],
+    action: "Aynı gün bug fix issue aç, E2E testi ekle ve release kontrolü çalıştır.",
+  },
+  {
+    type: "güven ve dil riski",
+    priority: "P1",
+    patterns: ["korkuttu", "fazla kesin", "yaniltti", "yanılttı", "al dedi", "alma dedi", "guvenmedim", "güvenmedim"],
+    action: "Sonuç dili, skor açıklaması ve yasal uyarı görünürlüğünü düzelt.",
+  },
+  {
+    type: "App Store riski",
+    priority: "P1",
+    patterns: ["verim", "gizlilik", "garanti", "izin", "ucret", "ücret", "odeme", "ödeme"],
+    action: "Gizlilik, App Store submission ve uygulama içi uyarıları birlikte kontrol et.",
+  },
+  {
+    type: "kullanıcı deneyimi",
+    priority: "P1",
+    patterns: ["zor", "bulamadim", "bulamadım", "klavye", "tasiyor", "taşıyor", "küçük", "okunmuyor", "buton"],
+    action: "Küçük UI iyileştirmesi yap, mobil screenshot ve E2E ile doğrula.",
+  },
+  {
+    type: "kural adayı",
+    priority: "P2",
+    patterns: ["eksik soru", "eksik kural", "risk yok", "uyari yok", "uyarı yok", "sormali", "sormalı"],
+    action: "Kural backlog girdisi aç, pozitif/negatif unit test olmadan aktif kurala taşıma.",
+  },
+];
+
+const personalDataPatterns = [
+  { label: "telefon olabilir", pattern: /(?:\+90|0)?\s?5\d{2}[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}/ },
+  { label: "plaka olabilir", pattern: /\b\d{2}\s?[A-ZÇĞİÖŞÜ]{1,3}\s?\d{2,4}\b/i },
+  { label: "e-posta olabilir", pattern: /[^\s@]+@[^\s@]+\.[^\s@]+/ },
+  { label: "URL olabilir", pattern: /https?:\/\/\S+/i },
+];
+
+function normalize(value) {
+  return value
+    .toLocaleLowerCase("tr-TR")
+    .replaceAll("ı", "i")
+    .replaceAll("ğ", "g")
+    .replaceAll("ü", "u")
+    .replaceAll("ş", "s")
+    .replaceAll("ö", "o")
+    .replaceAll("ç", "c")
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "");
+}
+
+function pickCategory(note) {
+  const normalizedNote = normalize(note);
+
+  return (
+    categories.find((category) => category.patterns.some((pattern) => normalizedNote.includes(normalize(pattern)))) ?? {
+      type: "kullanıcı deneyimi",
+      priority: "P2",
+      action: "İkinci kullanıcıdan benzer kanıt gelene kadar takip et.",
+    }
+  );
+}
+
+function findPersonalDataWarnings(note) {
+  return personalDataPatterns.filter((item) => item.pattern.test(note)).map((item) => item.label);
+}
+
+function slugify(value) {
+  return normalize(value)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 80);
+}
+
+const category = pickCategory(rawNote);
+const warnings = findPersonalDataWarnings(rawNote);
+const inputName = basename(inputPath).replace(/\.[^.]+$/, "");
+const outputFile = join(outputDir, `${slugify(inputName || "kullanici-notu")}-triage.md`);
+
+const issueBody = `# Kullanıcı testi triage taslağı
+
+Kaynak not: \`${basename(inputPath)}\`
+
+## Otomatik sınıflandırma
+
+- Sorun tipi: ${category.type}
+- Öncelik: ${category.priority}
+- Önerilen aksiyon: ${category.action}
+
+## Kişisel veri kontrolü
+
+${
+  warnings.length
+    ? warnings.map((warning) => `- [ ] Kontrol et: ${warning}`).join("\n")
+    : "- [x] Basit otomatik taramada telefon, plaka veya e-posta kalıbı bulunmadı."
+}
+
+## Ham not
+
+\`\`\`text
+${rawNote.trim()}
+\`\`\`
+
+## Issue'a çevirmeden önce
+
+- [ ] Kişisel veri temizlendi.
+- [ ] Beklenen davranış tek cümleyle yazıldı.
+- [ ] Etkilenen ekran veya kural modülü seçildi.
+- [ ] Kural adayıysa pozitif ve negatif test gereksinimi yazıldı.
+- [ ] UI sorunuysa mobil screenshot veya E2E doğrulaması belirlendi.
+`;
+
+mkdirSync(outputDir, { recursive: true });
+writeFileSync(outputFile, issueBody, "utf8");
+
+console.log(`Triage taslagi hazirlandi: ${outputFile}`);
+if (warnings.length) {
+  console.log(`Kisisel veri kontrol uyarisi: ${warnings.join(", ")}`);
+}

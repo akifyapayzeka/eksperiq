@@ -2,6 +2,14 @@
 
 Bu şablon gerçek kullanıcıdan gelen ham notu issue ve aksiyon adayına çevirmek için kullanılır. Kişisel veri eklemeyin; plaka, telefon, açık adres, satıcı adı ve ilan sahibi bilgilerini silin.
 
+Ham not bir `.txt` veya `.md` dosyasına alındıktan sonra ilk triage taslağı şu komutla üretilebilir:
+
+```bash
+npm run user-tests:triage -- path/to/user-note.txt
+```
+
+Çıktı `dist/user-test-triage` altında oluşur. Otomatik sınıflandırma yalnızca ilk ayrıştırmadır; issue açmadan önce kişisel veri ve öncelik manuel kontrol edilmelidir.
+
 ## Ham Not
 
 ```text
