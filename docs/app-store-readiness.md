@@ -78,7 +78,7 @@ Native wrapper ileride fotoğraf analizi, bildirim veya hesap özellikleri ekler
 - Pazarlama URL'si: `https://eksperiq.vercel.app`
 - Gizlilik politikası URL'si: `https://eksperiq.vercel.app/gizlilik`
 - Ekran görüntüleri: `npm run screenshots` ile `test-results/screenshots` altında ana sayfa, analiz formu, sonuç raporu ve offline ekran üretilir.
-- Uygulama ikonu: Mevcut geçici ikonlar web/PWA içindir; App Store için Xcode asset catalog içinde 1024x1024 final ikon üretilmelidir.
+- Uygulama ikonu: `npm run appstore:prepare` ile `public/app-store-icon-1024.png` üretilir ve alpha kanalı içermeyen 1024x1024 PNG olarak doğrulanır. Xcode asset catalog içinde AppIcon alanına bu dosya yerleştirilmelidir.
 - TestFlight notu: Uygulama yalnızca karar desteği sağlar; girilen bilgiler sunucuya kaydedilmez.
 
 ## İlk TestFlight test senaryoları
