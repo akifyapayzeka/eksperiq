@@ -9,6 +9,7 @@ Tüm adımların merkezi takip dosyası: `docs/launch-master-checklist.md`
 ## Her yayın öncesi
 
 ```bash
+npm run release:check
 npm run format
 npm run lint
 npm run typecheck

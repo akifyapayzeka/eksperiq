@@ -103,6 +103,12 @@ npm run e2e
 npm run ai:env-check
 ```
 
+Yayın öncesi yerel preflight için:
+
+```bash
+npm run release:check
+```
+
 ## Build komutu
 
 ```bash
