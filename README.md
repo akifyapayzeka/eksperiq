@@ -150,8 +150,7 @@ npm run native:build
 App Store metin, screenshot ve ikon kaynak paketini hazırlamak için:
 
 ```bash
-npm run appstore:package
-npm run appstore:check
+npm run appstore:prepare
 ```
 
 macOS/Xcode ortamında iOS proje üretimi için:

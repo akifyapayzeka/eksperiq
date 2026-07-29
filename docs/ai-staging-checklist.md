@@ -48,7 +48,13 @@ Gerçek AI notu üretimini bilinçli test etmek için:
 AI_STAGING_LIVE=1 npm run ai:staging-check
 ```
 
-`AI_STAGING_LIVE=1` kullanımı günlük OpenRouter limitinden düşer. Bu modu yalnızca staging feature flag açıkken ve düşük limit belirlenmişken çalıştırın.
+Yanlışlıkla canlı AI çağrısı yapılmasını engelleyen tek deneme komutu:
+
+```bash
+AI_LIVE_CONFIRM=EVET AI_STAGING_LIVE=1 npm run ai:live-check
+```
+
+`AI_STAGING_LIVE=1` ve `ai:live-check` kullanımı günlük OpenRouter limitinden düşebilir. Bu modu yalnızca staging feature flag açıkken ve düşük limit belirlenmişken çalıştırın.
 
 ## Vercel staging adımları
 

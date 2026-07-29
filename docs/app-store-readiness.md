@@ -120,3 +120,5 @@ Genel yayın checklist'i için `docs/release-operations-checklist.md` dosyasın�
 App Store Connect alanları için `docs/app-store-submission.md` dosyasındaki teslim metinlerini kullanın.
 
 İkon, screenshot sırası ve ücretsiz asset hazırlığı için `docs/app-store-assets.md` dosyasını kullanın.
+
+Gerçek cihaz TestFlight kontrolü için `docs/testflight-qa-checklist.md` dosyasını kullanın.

@@ -20,8 +20,11 @@
     "ios:open": "npx cap open ios",
     "ai:env-check": "node scripts/check-ai-env.mjs",
     "ai:staging-check": "node scripts/check-ai-staging.mjs",
+    "ai:live-check": "node scripts/check-ai-live-once.mjs",
     "appstore:package": "node scripts/prepare-app-store-package.mjs",
+    "appstore:screenshots": "node scripts/generate-app-store-screenshots.mjs",
     "appstore:check": "node scripts/check-app-store-package.mjs",
+    "appstore:prepare": "npm run appstore:package && npm run appstore:screenshots && npm run appstore:check",
     "hostinger:package": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-hostinger.ps1"
   },
   "dependencies": {

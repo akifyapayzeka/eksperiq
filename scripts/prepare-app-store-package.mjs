@@ -10,6 +10,7 @@ const docs = [
   "docs/app-store-submission.md",
   "docs/app-store-readiness.md",
   "docs/app-store-assets.md",
+  "docs/testflight-qa-checklist.md",
   "docs/release-operations-checklist.md",
 ];
 

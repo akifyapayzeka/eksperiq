@@ -4,6 +4,17 @@ import { expect, test, type Page } from "@playwright/test";
 import { demoVehicleInput } from "../fixtures/demo-vehicle";
 
 const screenshotDir = path.join("test-results", "screenshots");
+const screenshotOnlyCss = `
+  nextjs-portal,
+  [data-nextjs-toast],
+  [data-nextjs-devtools-button] {
+    display: none !important;
+  }
+`;
+
+async function prepareScreenshotPage(page: Page) {
+  await page.addStyleTag({ content: screenshotOnlyCss });
+}
 
 async function fillDemoVehicle(page: Page) {
   for (const [name, value] of Object.entries({
@@ -50,23 +61,28 @@ test("captures release screenshots", async ({ page }, testInfo) => {
   const prefix = testInfo.project.name;
 
   await page.goto("/");
+  await prepareScreenshotPage(page);
   await expect(page.getByRole("heading", { name: "Araç ilanını daha bilinçli değerlendir." })).toBeVisible();
   await page.screenshot({ fullPage: true, path: path.join(screenshotDir, `${prefix}-home.png`) });
 
   await page.goto("/analiz");
+  await prepareScreenshotPage(page);
   await fillDemoVehicle(page);
   await page.screenshot({ fullPage: true, path: path.join(screenshotDir, `${prefix}-analysis-form.png`) });
 
   await page.getByRole("button", { name: "Analiz oluştur" }).click();
   await expect(page).toHaveURL(/\/sonuc$/);
+  await prepareScreenshotPage(page);
   await expect(page.getByText("Araç Risk Skoru")).toBeVisible();
   await page.screenshot({ fullPage: true, path: path.join(screenshotDir, `${prefix}-result.png`) });
 
   await page.goto("/analizlerim");
+  await prepareScreenshotPage(page);
   await expect(page.getByRole("heading", { name: "Analizlerim" })).toBeVisible();
   await page.screenshot({ fullPage: true, path: path.join(screenshotDir, `${prefix}-my-analyses.png`) });
 
   await page.goto("/offline");
+  await prepareScreenshotPage(page);
   await expect(page.getByRole("heading", { name: "Bağlantı gerekiyor" })).toBeVisible();
   await page.screenshot({ fullPage: true, path: path.join(screenshotDir, `${prefix}-offline.png`) });
 });

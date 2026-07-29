@@ -34,11 +34,12 @@ npm run screenshots
 Teslim paketi üretimi:
 
 ```bash
-npm run appstore:package
-npm run appstore:check
+npm run appstore:prepare
 ```
 
-İlk komut App Store dokümanlarını, mevcut mobil screenshot çıktısını ve ikon kaynaklarını `dist/app-store-package` altına toplar. İkinci komut paketin beklenen dosyaları içerdiğini doğrular. `dist` klasörü repoya eklenmez.
+Bu komut App Store dokümanlarını, mevcut mobil screenshot çıktısını ve ikon kaynaklarını `dist/app-store-package` altına toplar; mevcut mobil ekran görüntülerinden 1320 x 2868 ölçülü App Store sunum görselleri üretir; paketin beklenen dosyaları ve final screenshot ölçülerini doğrular. `dist` klasörü repoya eklenmez.
+
+Apple'ın App Store Connect screenshot referansına göre iPhone 6.9 inç portre setinde 1320 x 2868, 1290 x 2796 veya 1260 x 2736 piksel kabul edilir. EksperIQ ilk paketleme akışı 1320 x 2868 PNG üretir. Apple ayrıca her screenshot seti için 1-10 PNG/JPG/JPEG dosyası kabul eder.
 
 Öncelikli mobil dosyalar:
 
