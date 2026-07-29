@@ -15,6 +15,8 @@ EksperIQ'un ana analiz motoru ilk sürümde kural tabanlıdır. OpenRouter enteg
 ```env
 OPENROUTER_API_KEY=
 OPENROUTER_MODEL=openrouter/free
+OPENROUTER_DAILY_REQUEST_LIMIT=20
+NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED=false
 ```
 
 `OPENROUTER_API_KEY` yoksa AI yardımcı katmanı `disabled` döner ve kural tabanlı analiz kullanılmaya devam eder.
@@ -24,7 +26,15 @@ OPENROUTER_MODEL=openrouter/free
 ```text
 src/lib/ai/openrouter.ts
 src/lib/ai/analysis-note.ts
+src/lib/ai/usage-guard.ts
+src/lib/ai/feature-flags.ts
 ```
+
+## Static export notu
+
+Mevcut proje `output: "export"` ile statik yayınlanır. Bu yapı API route çalıştırmadığı için OpenRouter çağrısı doğrudan kullanıcı tarayıcısından yapılmamalıdır.
+
+Canlı AI notu için `docs/ai-serverless-endpoint-plan.md` dosyasındaki serverless plan uygulanmalıdır.
 
 ## Kullanım sınırı
 

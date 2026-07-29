@@ -11,6 +11,7 @@ import {
   RotateCcw,
   Share2,
   ShieldCheck,
+  Sparkles,
   Trash2,
 } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
@@ -26,6 +27,7 @@ import {
   type StoredFindingFilter,
 } from "@/lib/storage/analysis-storage";
 import type { AnalysisResult, ScoreCategory } from "@/lib/analysis/types";
+import { isAiAnalysisNoteVisible } from "@/lib/ai/feature-flags";
 import { SectionCard } from "@/components/ui/section-card";
 
 const scoreLabels = {
@@ -245,6 +247,7 @@ export function ResultClient() {
 
   const visibleFindings =
     findingFilter === "all" ? result.findings : result.findings.filter((finding) => finding.severity === findingFilter);
+  const showAiAnalysisNote = isAiAnalysisNoteVisible();
 
   return (
     <main className="flex-1 bg-slate-50">
@@ -398,6 +401,27 @@ export function ResultClient() {
             </div>
           </div>
         </div>
+        {showAiAnalysisNote ? (
+          <SectionCard
+            title="AI karar destek notu"
+            description="Bu alan yalnızca serverless endpoint, günlük limit ve OpenRouter key güvenliği tamamlandığında aktif edilir."
+          >
+            <div className="rounded-2xl border border-sky-100 bg-sky-50 p-4">
+              <div className="flex items-start gap-3">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-teal-700">
+                  <Sparkles aria-hidden="true" className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="font-semibold text-slate-950">Hazırlık modu</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-700">
+                    Kural tabanlı rapor ana karar desteği olarak kalır. AI notu yalnızca riskleri sadeleştiren ek bir
+                    açıklama üretir ve kesin ekspertiz sonucu vermez.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </SectionCard>
+        ) : null}
         <SectionCard
           title="Paylaşılabilir kısa özet"
           description="Uzun rapor yerine satıcıya, ekspertize veya kendinize gönderebileceğiniz kısa karar desteği özeti."
