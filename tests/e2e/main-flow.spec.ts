@@ -42,7 +42,8 @@ test("mobile bottom navigation opens app actions", async ({ page, isMobile }) =>
   await expect(mobileNav.getByRole("link", { name: "Profil" })).toBeVisible();
   await expect(mobileNav.getByRole("link", { name: "Yeni Analiz" })).toBeVisible();
   await expect(mobileNav.getByRole("link", { name: "Analiz Raporu" })).toBeVisible();
-  await expect(mobileNav.getByRole("link", { name: "Uzmanlık Kontrol" })).toBeVisible();
+  await expect(mobileNav.getByRole("link", { name: "Uzmanlık kontrol listesi" })).toBeVisible();
+  await expect(mobileNav.getByText("Kontrol", { exact: true })).toBeVisible();
 
   await mobileNav.getByRole("link", { name: "Profil" }).click();
   await expect(page).toHaveURL(/\/profil$/);
@@ -58,7 +59,7 @@ test("mobile bottom navigation opens app actions", async ({ page, isMobile }) =>
 
   await page
     .getByRole("navigation", { name: "Mobil alt menü" })
-    .getByRole("link", { name: "Uzmanlık Kontrol" })
+    .getByRole("link", { name: "Uzmanlık kontrol listesi" })
     .click();
   await expect(page).toHaveURL(/\/kontrol-listesi$/);
   await expect(page.getByRole("heading", { name: "Satın alma öncesi son kontroller" })).toBeVisible();
