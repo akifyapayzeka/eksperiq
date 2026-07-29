@@ -9,6 +9,7 @@ const steps = [
   { label: "Rule backlog", script: "rule-backlog:check" },
   { label: "Unit tests", script: "test" },
   { label: "User test issue package", script: "user-tests:package-check" },
+  { label: "User test note template", script: "user-tests:note-template-check" },
   { label: "User test triage", script: "user-tests:triage-check" },
   { label: "User test verification commands", script: "user-tests:commands-check" },
   { label: "Rule feedback package", script: "rule-feedback:check" },

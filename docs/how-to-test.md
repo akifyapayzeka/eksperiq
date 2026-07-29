@@ -90,6 +90,14 @@ Test akışı:
 5. Notu `docs/user-test-intake-template.md` formatında kaydet.
 6. Triage için çalıştır:
 
+Boş not dosyasını tek komutla hazırlamak için:
+
+```bash
+npm run user-tests:new-note -- dist/user-test-notes mobil-tek-elle
+```
+
+Bu komut `dist/user-test-notes` altında kişisel veri istemeyen bir ham not şablonu oluşturur.
+
 ```bash
 npm run user-tests:triage -- path/to/user-note.txt
 ```

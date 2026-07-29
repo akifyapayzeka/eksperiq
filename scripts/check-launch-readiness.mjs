@@ -35,6 +35,8 @@ const requiredFiles = [
   "scripts/check-rule-backlog.mjs",
   "scripts/check-rule-feedback-package.mjs",
   "scripts/prepare-user-test-issues.mjs",
+  "scripts/prepare-user-test-note.mjs",
+  "scripts/check-user-test-note-template.mjs",
   "scripts/prepare-rule-feedback-issues.mjs",
   "scripts/triage-user-test-note.mjs",
   "scripts/check-user-test-triage.mjs",
@@ -60,6 +62,8 @@ const requiredPackageScripts = [
   "release:check",
   "user-tests:package",
   "user-tests:package-check",
+  "user-tests:new-note",
+  "user-tests:note-template-check",
   "user-tests:triage",
   "user-tests:triage-check",
   "user-tests:commands-check",
@@ -130,6 +134,7 @@ const requiredTextChecks = [
     snippets: [
       "npm run release:check",
       "Mobil görünüm",
+      "npm run user-tests:new-note",
       "npm run user-tests:triage",
       "npm run rule-feedback:package",
       "*-github-issue.md",
@@ -147,6 +152,10 @@ const requiredTextChecks = [
   {
     file: "src/components/feedback/feedback-template-copy.tsx",
     snippets: ["Anonim test notu şablonu", "Kişisel veri eklemedim: Evet", "navigator.clipboard.writeText"],
+  },
+  {
+    file: "scripts/prepare-user-test-note.mjs",
+    snippets: ["Kişisel veri eklemeyin", "Akış kanıtı", "npm run user-tests:triage --"],
   },
 ];
 
