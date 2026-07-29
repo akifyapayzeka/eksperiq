@@ -109,7 +109,7 @@ function buildHtml(item) {
         line-height: 1.3;
       }
       .phone {
-        width: 810px;
+        width: 900px;
         height: 1760px;
         padding: 22px;
         border-radius: 102px;

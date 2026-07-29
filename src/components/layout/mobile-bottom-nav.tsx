@@ -8,7 +8,7 @@ const items = [
   { href: "/profil", label: "Profil", icon: UserRound },
   { href: "/analiz", label: "Yeni Analiz", icon: Plus },
   { href: "/analizlerim", label: "Analiz Raporu", icon: FileText },
-  { href: "/kontrol-listesi", label: "Uzmanlık Kontrol", icon: ClipboardCheck },
+  { href: "/kontrol-listesi", label: "Kontrol", ariaLabel: "Uzmanlık kontrol listesi", icon: ClipboardCheck },
 ];
 
 export function MobileBottomNav() {
@@ -28,6 +28,7 @@ export function MobileBottomNav() {
             <Link
               key={item.href}
               href={item.href}
+              aria-label={item.ariaLabel}
               aria-current={isActive ? "page" : undefined}
               className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-1 text-center text-[0.66rem] font-semibold leading-tight ${
                 isActive ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"

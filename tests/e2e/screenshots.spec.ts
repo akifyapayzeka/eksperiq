@@ -73,6 +73,13 @@ async function fillDemoVehicle(page: Page) {
   await page.locator('[name="hasSpareKey"]').check();
 }
 
+async function captureReleaseScreenshot(page: Page, projectName: string, name: string) {
+  await page.screenshot({
+    fullPage: projectName !== "mobile",
+    path: path.join(screenshotDir, `${projectName}-${name}.png`),
+  });
+}
+
 test("captures release screenshots", async ({ page }, testInfo) => {
   await mkdir(screenshotDir, { recursive: true });
   const prefix = testInfo.project.name;
@@ -80,26 +87,26 @@ test("captures release screenshots", async ({ page }, testInfo) => {
   await page.goto("/");
   await prepareScreenshotPage(page);
   await expect(page.getByRole("heading", { name: "Araç ilanını daha bilinçli değerlendir." })).toBeVisible();
-  await page.screenshot({ fullPage: true, path: path.join(screenshotDir, `${prefix}-home.png`) });
+  await captureReleaseScreenshot(page, prefix, "home");
 
   await page.goto("/analiz");
   await prepareScreenshotPage(page);
   await fillDemoVehicle(page);
-  await page.screenshot({ fullPage: true, path: path.join(screenshotDir, `${prefix}-analysis-form.png`) });
+  await captureReleaseScreenshot(page, prefix, "analysis-form");
 
   await page.getByRole("button", { name: "Analiz oluştur" }).click();
   await expect(page).toHaveURL(/\/sonuc$/);
   await prepareScreenshotPage(page);
   await expect(page.getByText("Araç Risk Skoru")).toBeVisible();
-  await page.screenshot({ fullPage: true, path: path.join(screenshotDir, `${prefix}-result.png`) });
+  await captureReleaseScreenshot(page, prefix, "result");
 
   await page.goto("/analizlerim");
   await prepareScreenshotPage(page);
   await expect(page.getByRole("heading", { name: "Analizlerim" })).toBeVisible();
-  await page.screenshot({ fullPage: true, path: path.join(screenshotDir, `${prefix}-my-analyses.png`) });
+  await captureReleaseScreenshot(page, prefix, "my-analyses");
 
   await page.goto("/offline");
   await prepareScreenshotPage(page);
   await expect(page.getByRole("heading", { name: "Bağlantı gerekiyor" })).toBeVisible();
-  await page.screenshot({ fullPage: true, path: path.join(screenshotDir, `${prefix}-offline.png`) });
+  await captureReleaseScreenshot(page, prefix, "offline");
 });
