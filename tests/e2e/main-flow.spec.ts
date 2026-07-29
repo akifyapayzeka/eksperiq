@@ -33,41 +33,32 @@ test("home to analysis form", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Satıcı açıklaması" })).toBeVisible();
 });
 
-test("mobile bottom navigation opens analysis", async ({ page, isMobile }) => {
+test("mobile bottom navigation opens app actions", async ({ page, isMobile }) => {
   test.skip(!isMobile, "Mobile bottom navigation is only visible on small screens.");
 
   await page.goto("/");
   const mobileNav = page.getByRole("navigation", { name: "Mobil alt menü" });
   await expect(mobileNav).toBeVisible();
-  await expect(mobileNav.getByRole("link", { name: "Ana Sayfa" })).toHaveAttribute("aria-current", "page");
-  await expect(mobileNav.getByRole("link", { name: "Analizlerim" })).toBeVisible();
-  await mobileNav.getByRole("link", { name: "Analiz", exact: true }).click();
-  await expect(page).toHaveURL(/\/analiz$/);
-  await expect(page.getByRole("heading", { name: "Araç ilanı analizi" })).toBeVisible();
-});
+  await expect(mobileNav.getByRole("link", { name: "Profil" })).toBeVisible();
+  await expect(mobileNav.getByRole("link", { name: "Yeni Analiz" })).toBeVisible();
+  await expect(mobileNav.getByRole("link", { name: "Analiz Raporu" })).toBeVisible();
+  await expect(mobileNav.getByRole("link", { name: "Uzmanlık Kontrol" })).toBeVisible();
 
-test("mobile top actions match the app shell", async ({ page, isMobile }) => {
-  test.skip(!isMobile, "Mobile top actions are only visible on small screens.");
-
-  await page.goto("/");
-  const topActions = page.getByRole("navigation", { name: "Mobil hızlı işlemler" });
-  await expect(topActions).toBeVisible();
-  await expect(topActions.getByRole("link", { name: "Profil" })).toBeVisible();
-  await expect(topActions.getByRole("link", { name: "Yeni Analiz" })).toBeVisible();
-  await expect(topActions.getByRole("link", { name: "Analiz Raporu" })).toBeVisible();
-  await expect(topActions.getByRole("link", { name: "Kontrol Listesi" })).toBeVisible();
-  await topActions.getByRole("link", { name: "Profil" }).click();
+  await mobileNav.getByRole("link", { name: "Profil" }).click();
   await expect(page).toHaveURL(/\/profil$/);
   await expect(page.getByRole("heading", { name: "EksperIQ hesabı olmadan kullanılabilir." })).toBeVisible();
-  await page
-    .getByRole("navigation", { name: "Mobil hızlı işlemler" })
-    .getByRole("link", { name: "Analiz Raporu" })
-    .click();
+
+  await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Yeni Analiz" }).click();
+  await expect(page).toHaveURL(/\/analiz$/);
+  await expect(page.getByRole("heading", { name: "Araç ilanı analizi" })).toBeVisible();
+
+  await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Analiz Raporu" }).click();
   await expect(page).toHaveURL(/\/analizlerim$/);
   await expect(page.getByRole("heading", { name: "Analizlerim" })).toBeVisible();
+
   await page
-    .getByRole("navigation", { name: "Mobil hızlı işlemler" })
-    .getByRole("link", { name: "Kontrol Listesi" })
+    .getByRole("navigation", { name: "Mobil alt menü" })
+    .getByRole("link", { name: "Uzmanlık Kontrol" })
     .click();
   await expect(page).toHaveURL(/\/kontrol-listesi$/);
   await expect(page.getByRole("heading", { name: "Satın alma öncesi son kontroller" })).toBeVisible();
