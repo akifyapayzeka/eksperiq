@@ -24,6 +24,7 @@ const requiredFiles = [
   ".github/ISSUE_TEMPLATE/rule-feedback.md",
   ".github/ISSUE_TEMPLATE/user-test-feedback.md",
   "src/app/geri-bildirim/page.tsx",
+  "src/components/feedback/feedback-template-copy.tsx",
   "src/lib/feedback/rule-candidates.ts",
   "scripts/check-live-site.mjs",
   "scripts/check-hostinger-package.ps1",
@@ -128,7 +129,11 @@ const requiredTextChecks = [
   },
   {
     file: "src/app/geri-bildirim/page.tsx",
-    snippets: ["Geri bildirimi doğru hatta ayır", "Kural adayı", "npm run user-tests:triage"],
+    snippets: ["FeedbackTemplateCopy", "Geri bildirimi doğru hatta ayır", "Kural adayı", "npm run user-tests:triage"],
+  },
+  {
+    file: "src/components/feedback/feedback-template-copy.tsx",
+    snippets: ["Anonim test notu şablonu", "Kişisel veri eklemedim: Evet", "navigator.clipboard.writeText"],
   },
 ];
 

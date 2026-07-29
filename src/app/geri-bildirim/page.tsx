@@ -1,4 +1,5 @@
 import { CheckCircle2, ExternalLink, ListChecks, ShieldAlert, Wrench } from "lucide-react";
+import { FeedbackTemplateCopy } from "@/components/feedback/feedback-template-copy";
 import { InfoPage } from "@/components/layout/info-page";
 import { appConfig } from "@/lib/constants/app";
 
@@ -63,6 +64,7 @@ export default function FeedbackPage() {
         anlatmak için marka, model, yıl, kilometre ve anonimleştirilmiş açıklama yeterlidir. Kullanıcı testi notları
         önce triage edilir; kural önerileri test yazılmadan aktif analiz motoruna taşınmaz.
       </p>
+      <FeedbackTemplateCopy />
       <div className="rounded-lg border border-slate-200 bg-white p-4">
         <h2 className="text-lg font-semibold text-slate-950">Geri bildirimi doğru hatta ayır</h2>
         <p className="mt-2 text-slate-700">

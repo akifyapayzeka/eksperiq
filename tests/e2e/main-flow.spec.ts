@@ -153,13 +153,21 @@ test("shows product module roadmap", async ({ page }) => {
   await expect(page.getByText("Kesinlik sınırı:")).toHaveCount(8);
 });
 
-test("shows feedback collection flow", async ({ page }) => {
+test("shows feedback collection flow", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: "http://127.0.0.1:3000" });
   await page.goto("/geri-bildirim");
   await expect(page.getByRole("heading", { name: "Geri bildirim", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Kullanıcı testi notu gönder" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Kural geri bildirimi gönder" })).toBeVisible();
   await expect(page.getByRole("link", { name: "İlk kullanıcı testi issue'su" })).toBeVisible();
   await expect(page.getByText("kişisel veri eklemeden")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Anonim test notu şablonu" })).toBeVisible();
+  await page.getByRole("button", { name: "Anonim not şablonunu kopyala" }).click();
+  await expect(page.getByText("Anonim test notu şablonu panoya kopyalandı.")).toBeVisible();
+
+  const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+  expect(clipboardText).toContain("EksperIQ kullanıcı testi notu");
+  expect(clipboardText).toContain("Kişisel veri eklemedim: Evet");
   await expect(page.getByRole("heading", { name: "Geri bildirimi doğru hatta ayır" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "UI / kullanılabilirlik" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Kural adayı" })).toBeVisible();
