@@ -1,12 +1,25 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { z } from "zod";
-import { createAiAnalysisNoteFromInput } from "../../src/lib/ai/analysis-note";
-import { isAiAnalysisNoteEnabled } from "../../src/lib/ai/feature-flags";
-import { isOpenRouterConfigured } from "../../src/lib/ai/openrouter";
-import { reserveDailyAiUsage } from "../../src/lib/ai/usage-store";
-import { decideAiUsage, parseDailyLimit } from "../../src/lib/ai/usage-guard";
 
+const OPENROUTER_CHAT_COMPLETIONS_URL = "https://openrouter.ai/api/v1/chat/completions";
+const DEFAULT_OPENROUTER_MODEL = "openrouter/free";
+const DEFAULT_AI_DAILY_LIMIT = 20;
+const UPSTASH_TTL_SECONDS = 60 * 60 * 48;
 const usageKey = "analysis-note";
+const productionUrl = "https://eksperiq.vercel.app";
+const appName = "EksperIQ";
+
+type JsonValue = Record<string, unknown>;
+type CounterRecord = {
+  dayKey: string;
+  count: number;
+};
+type UpstashResponse = {
+  result?: unknown;
+  error?: string;
+};
+
+const counters = new Map<string, CounterRecord>();
 
 const analysisNoteSchema = z.object({
   vehicleLabel: z.string().trim().min(3).max(120),
@@ -25,7 +38,7 @@ const analysisNoteSchema = z.object({
     .max(6),
 });
 
-type JsonValue = Record<string, unknown>;
+type AnalysisNoteInput = z.infer<typeof analysisNoteSchema>;
 
 function sendJson(response: ServerResponse, statusCode: number, body: JsonValue): void {
   response.statusCode = statusCode;
@@ -46,6 +59,170 @@ async function readJsonBody(request: IncomingMessage): Promise<unknown> {
   return JSON.parse(raw) as unknown;
 }
 
+function getTodayKey(date = new Date()): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function parseDailyLimit(value: string | undefined): number {
+  if (!value) return DEFAULT_AI_DAILY_LIMIT;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_AI_DAILY_LIMIT;
+}
+
+function isFeatureEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED === "true";
+}
+
+function isOpenRouterConfigured(): boolean {
+  return Boolean(process.env.OPENROUTER_API_KEY?.trim());
+}
+
+function getMemoryUsage(key: string, date = new Date()): number {
+  const dayKey = getTodayKey(date);
+  const record = counters.get(key);
+  if (!record || record.dayKey !== dayKey) return 0;
+  return record.count;
+}
+
+function reserveMemoryUsage(
+  key: string,
+  dailyLimit: number,
+  date = new Date(),
+): { allowed: boolean; remaining: number } {
+  const usedToday = getMemoryUsage(key, date);
+  if (usedToday >= dailyLimit) return { allowed: false, remaining: 0 };
+
+  const next = usedToday + 1;
+  counters.set(key, { dayKey: getTodayKey(date), count: next });
+  return { allowed: true, remaining: Math.max(dailyLimit - next, 0) };
+}
+
+function getUpstashConfig(): { url: string; token: string } | null {
+  const url = process.env.UPSTASH_REDIS_REST_URL?.trim();
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
+  if (!url || !token) return null;
+  return { url: url.replace(/\/$/, ""), token };
+}
+
+function parseCount(value: unknown): number {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const parsed = Number.parseInt(value, 10);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return 0;
+}
+
+async function reserveUpstashUsage(
+  key: string,
+  dailyLimit: number,
+  config: { url: string; token: string },
+): Promise<{ allowed: boolean; remaining: number }> {
+  const dailyKey = `eksperiq:ai:${key}:${getTodayKey()}`;
+  const response = await fetch(`${config.url}/pipeline`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${config.token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify([
+      ["INCR", dailyKey],
+      ["EXPIRE", dailyKey, UPSTASH_TTL_SECONDS],
+    ]),
+  });
+
+  if (!response.ok) throw new Error(`Upstash failed: ${response.status}`);
+  const payload: unknown = await response.json();
+  if (!Array.isArray(payload)) throw new Error("Invalid Upstash payload.");
+
+  const firstResult = payload[0] as UpstashResponse | undefined;
+  if (firstResult?.error) throw new Error("Upstash INCR failed.");
+
+  const used = parseCount(firstResult?.result);
+  if (used > dailyLimit) return { allowed: false, remaining: 0 };
+  return { allowed: true, remaining: Math.max(dailyLimit - used, 0) };
+}
+
+async function reserveUsage(key: string, dailyLimit: number): Promise<{ allowed: boolean; remaining: number }> {
+  const upstash = getUpstashConfig();
+  if (!upstash) return reserveMemoryUsage(key, dailyLimit);
+  return reserveUpstashUsage(key, dailyLimit, upstash);
+}
+
+function buildPrompt(input: AnalysisNoteInput): string {
+  const findings = input.findings
+    .slice(0, 6)
+    .map((finding) => `${finding.severity.toUpperCase()} - ${finding.title}: ${finding.explanation}`)
+    .join("\n");
+
+  return `Araç: ${input.vehicleLabel}
+Risk skoru: ${input.totalScore}/100
+Sonuç: ${input.riskLabel}
+Karar özeti: ${input.decision}
+
+Öne çıkan bulgular:
+${findings}
+
+Kullanıcıya Türkçe, kısa, kesin hüküm vermeyen ve profesyonel ekspertizin yerine geçmediğini belirten bir karar destek notu yaz.`;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function extractAssistantContent(payload: unknown): string | null {
+  if (!isRecord(payload)) return null;
+  const choices = payload.choices;
+  if (!Array.isArray(choices)) return null;
+  const firstChoice = choices[0];
+  if (!isRecord(firstChoice)) return null;
+  const message = firstChoice.message;
+  if (!isRecord(message)) return null;
+  const content = message.content;
+  return typeof content === "string" && content.trim().length > 0 ? content : null;
+}
+
+async function createAnalysisNote(
+  input: AnalysisNoteInput,
+): Promise<{ note: string; model: string } | { error: string }> {
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim();
+  if (!apiKey) return { error: "OPENROUTER_API_KEY tanımlı değil; kural tabanlı analiz kullanılmalı." };
+
+  const model = process.env.OPENROUTER_MODEL?.trim() || DEFAULT_OPENROUTER_MODEL;
+  const response = await fetch(OPENROUTER_CHAT_COMPLETIONS_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": productionUrl,
+      "X-OpenRouter-Title": appName,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        {
+          role: "system",
+          content:
+            "Sen EksperIQ için çalışan dikkatli bir ikinci el araç karar destek asistanısın. Kesin ekspertiz, hasarsızlık veya satın alma garantisi verme.",
+        },
+        {
+          role: "user",
+          content: buildPrompt(input),
+        },
+      ],
+      temperature: 0.2,
+      max_tokens: 700,
+    }),
+  });
+
+  if (!response.ok) return { error: `OpenRouter isteği başarısız oldu: ${response.status}` };
+
+  const payload: unknown = await response.json();
+  const note = extractAssistantContent(payload);
+  if (!note) return { error: "OpenRouter yanıtında okunabilir içerik bulunamadı." };
+  return { note, model };
+}
+
 export default async function handler(request: IncomingMessage, response: ServerResponse): Promise<void> {
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
@@ -54,17 +231,19 @@ export default async function handler(request: IncomingMessage, response: Server
   }
 
   const dailyLimit = parseDailyLimit(process.env.OPENROUTER_DAILY_REQUEST_LIMIT);
-  const usageDecision = decideAiUsage({
-    isConfigured: isOpenRouterConfigured(),
-    isFeatureEnabled: isAiAnalysisNoteEnabled(),
-    usedToday: 0,
-    dailyLimit,
-  });
 
-  if (!usageDecision.allowed) {
+  if (!isFeatureEnabled()) {
     sendJson(response, 429, {
-      error: usageDecision.reason,
-      remaining: usageDecision.remaining,
+      error: "AI karar destek notu şu anda kapalı.",
+      remaining: dailyLimit,
+    });
+    return;
+  }
+
+  if (!isOpenRouterConfigured()) {
+    sendJson(response, 429, {
+      error: "OpenRouter key tanımlı değil.",
+      remaining: dailyLimit,
     });
     return;
   }
@@ -85,7 +264,7 @@ export default async function handler(request: IncomingMessage, response: Server
 
   let reservation;
   try {
-    reservation = await reserveDailyAiUsage(usageKey, dailyLimit);
+    reservation = await reserveUsage(usageKey, dailyLimit);
   } catch {
     sendJson(response, 503, {
       error: "AI kullanım limiti şu anda doğrulanamadı. Kural tabanlı raporu kullanabilirsiniz.",
@@ -95,20 +274,20 @@ export default async function handler(request: IncomingMessage, response: Server
 
   if (!reservation.allowed) {
     sendJson(response, 429, {
-      error: reservation.reason,
-      remaining: reservation.remaining,
+      error: "Günlük AI deneme limiti doldu.",
+      remaining: 0,
     });
     return;
   }
 
-  const aiResult = await createAiAnalysisNoteFromInput(parsed.data);
-  if (aiResult.status !== "success") {
-    sendJson(response, 502, { error: aiResult.reason });
+  const aiResult = await createAnalysisNote(parsed.data);
+  if ("error" in aiResult) {
+    sendJson(response, 502, { error: aiResult.error });
     return;
   }
 
   sendJson(response, 200, {
-    note: aiResult.content,
+    note: aiResult.note,
     model: aiResult.model,
     remaining: reservation.remaining,
   });
