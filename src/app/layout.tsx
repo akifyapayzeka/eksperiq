@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
+import { MobileTopActions } from "@/components/layout/mobile-top-actions";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { appConfig } from "@/lib/constants/app";
@@ -58,6 +59,7 @@ export default function RootLayout({
     <html lang="tr" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="safe-area-shell flex min-h-full flex-col">
         <SiteHeader />
+        <MobileTopActions />
         {children}
         <SiteFooter />
         <MobileBottomNav />

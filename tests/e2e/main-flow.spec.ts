@@ -45,6 +45,19 @@ test("mobile bottom navigation opens analysis", async ({ page, isMobile }) => {
   await expect(page.getByRole("heading", { name: "Araç ilanı analizi" })).toBeVisible();
 });
 
+test("mobile top actions match the app shell", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "Mobile top actions are only visible on small screens.");
+
+  await page.goto("/");
+  const topActions = page.getByRole("navigation", { name: "Mobil hızlı işlemler" });
+  await expect(topActions).toBeVisible();
+  await expect(topActions.getByText("Profil")).toBeVisible();
+  await expect(topActions.getByRole("link", { name: "Yeni Analiz" })).toBeVisible();
+  await expect(topActions.getByRole("link", { name: "Analiz Raporu" })).toBeVisible();
+  await topActions.getByRole("link", { name: "Yeni Analiz" }).click();
+  await expect(page).toHaveURL(/\/analiz$/);
+});
+
 test("shows validation errors", async ({ page }) => {
   await page.goto("/analiz");
   await page.getByRole("button", { name: "Analiz oluştur" }).click();
