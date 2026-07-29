@@ -37,9 +37,6 @@ async function fillDemoVehicle(page: Page) {
     enginePower: demoVehicleInput.enginePower,
     listingUrl: demoVehicleInput.listingUrl,
     tramerAmount: String(demoVehicleInput.tramerAmount),
-    paintedParts: demoVehicleInput.paintedParts,
-    replacedParts: demoVehicleInput.replacedParts,
-    localPaintedParts: demoVehicleInput.localPaintedParts,
     lastMaintenanceDate: demoVehicleInput.lastMaintenanceDate,
     timingBeltInfo: demoVehicleInput.timingBeltInfo,
     transmissionMaintenanceInfo: demoVehicleInput.transmissionMaintenanceInfo,
@@ -69,6 +66,8 @@ async function fillDemoVehicle(page: Page) {
     .locator('[name="tireStatus"]')
     .selectOption(requiredSelectValue(demoVehicleInput.tireStatus, "tireStatus"));
   await page.locator('[name="lpgStatus"]').selectOption(requiredSelectValue(demoVehicleInput.lpgStatus, "lpgStatus"));
+  await page.getByRole("group", { name: "Boyalı parçalar", exact: true }).getByLabel("Sağ ön çamurluk").check();
+  await page.getByRole("group", { name: "Lokal boyalı parçalar", exact: true }).getByLabel("Ön tampon").check();
   await page.locator('[name="hasMaintenanceInvoices"]').check();
   await page.locator('[name="hasExpertiseReport"]').check();
   await page.locator('[name="hasSpareKey"]').check();

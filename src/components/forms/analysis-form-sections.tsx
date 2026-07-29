@@ -1,11 +1,14 @@
-import type { FieldErrors, UseFormRegister } from "react-hook-form";
+import type { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { Field, SelectField, TextareaField } from "@/components/ui/field";
 import { SectionCard } from "@/components/ui/section-card";
 import type { VehicleFormInput } from "@/lib/schemas/vehicle";
+import { cn } from "@/lib/utils/cn";
 
 type SectionProps = {
   register: UseFormRegister<VehicleFormInput>;
   errors: FieldErrors<VehicleFormInput>;
+  setValue?: UseFormSetValue<VehicleFormInput>;
+  watch?: UseFormWatch<VehicleFormInput>;
 };
 
 type CheckboxName =
@@ -44,6 +47,23 @@ const airbagStatuses = ["Açmamış", "Açmış", "Değişmiş", "Bilinmiyor"];
 const batteryStatuses = ["İyi", "Orta", "Zayıf", "Yeni değişmiş", "Bilinmiyor"];
 const tireStatuses = ["İyi", "Orta", "Kötü", "Yeni", "Mevsimlik değişim gerekli", "Bilinmiyor"];
 const lpgStatuses = ["Yok", "Var", "Sökülmüş", "Bilinmiyor"];
+const damagePartOptions = [
+  "Ön tampon",
+  "Arka tampon",
+  "Kaput",
+  "Bagaj kapağı",
+  "Tavan",
+  "Sağ ön çamurluk",
+  "Sol ön çamurluk",
+  "Sağ arka çamurluk",
+  "Sol arka çamurluk",
+  "Sağ ön kapı",
+  "Sol ön kapı",
+  "Sağ arka kapı",
+  "Sol arka kapı",
+  "Sağ marşpiyel",
+  "Sol marşpiyel",
+];
 const booleanFields: Array<{ name: CheckboxName; label: string }> = [
   { name: "hasHeavyDamage", label: "Ağır hasar kaydı var" },
   { name: "hasChassisRepair", label: "Şasi veya podye işlemi var" },
@@ -53,6 +73,82 @@ const booleanFields: Array<{ name: CheckboxName; label: string }> = [
   { name: "hasSpareKey", label: "Yedek anahtar var" },
   { name: "hasMaintenanceInvoices", label: "Bakım faturaları var" },
 ];
+
+type DamagePartFieldName = "paintedParts" | "replacedParts" | "localPaintedParts";
+
+function parseParts(value: unknown): string[] {
+  if (typeof value !== "string") return [];
+
+  return value
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+function DamagePartPicker({
+  name,
+  label,
+  register,
+  setValue,
+  watch,
+}: {
+  name: DamagePartFieldName;
+  label: string;
+  register: UseFormRegister<VehicleFormInput>;
+  setValue?: UseFormSetValue<VehicleFormInput>;
+  watch?: UseFormWatch<VehicleFormInput>;
+}) {
+  const selectedParts = parseParts(watch?.(name));
+
+  function togglePart(part: string) {
+    if (!setValue) return;
+
+    const nextParts = selectedParts.includes(part)
+      ? selectedParts.filter((selectedPart) => selectedPart !== part)
+      : [...selectedParts, part];
+
+    setValue(name, nextParts.join(", "), {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  }
+
+  return (
+    <fieldset className="grid gap-3 md:col-span-2">
+      <legend className="text-sm font-medium text-slate-800">{label}</legend>
+      <input type="hidden" {...register(name)} />
+      <div className="flex flex-wrap gap-2" aria-label={`${label} seçenekleri`}>
+        {damagePartOptions.map((part) => {
+          const checked = selectedParts.includes(part);
+
+          return (
+            <label
+              key={`${name}-${part}`}
+              className={cn(
+                "inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border px-3 text-sm font-semibold transition",
+                checked
+                  ? "border-teal-700 bg-teal-50 text-teal-900"
+                  : "border-slate-200 bg-white text-slate-700 hover:border-teal-700",
+              )}
+            >
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-slate-300 text-teal-700"
+                checked={checked}
+                onChange={() => togglePart(part)}
+              />
+              {part}
+            </label>
+          );
+        })}
+      </div>
+      <p className="text-xs leading-5 text-slate-500">
+        Bilinmiyorsa boş bırakın; raporda satıcıdan parça detayı istemeniz önerilir.
+      </p>
+    </fieldset>
+  );
+}
 
 export function VehicleInfoSection({ register, errors }: SectionProps) {
   return (
@@ -122,7 +218,7 @@ export function VehicleInfoSection({ register, errors }: SectionProps) {
   );
 }
 
-export function DamageInfoSection({ register }: SectionProps) {
+export function DamageInfoSection({ register, setValue, watch }: SectionProps) {
   return (
     <SectionCard id="damage-info" title="Hasar bilgileri">
       <div className="grid gap-4 md:grid-cols-2">
@@ -133,9 +229,27 @@ export function DamageInfoSection({ register }: SectionProps) {
           inputMode="numeric"
           {...register("tramerAmount")}
         />
-        <Field id="paintedParts" label="Boyalı parçalar" {...register("paintedParts")} />
-        <Field id="replacedParts" label="Değişen parçalar" {...register("replacedParts")} />
-        <Field id="localPaintedParts" label="Lokal boyalı parçalar" {...register("localPaintedParts")} />
+        <DamagePartPicker
+          name="paintedParts"
+          label="Boyalı parçalar"
+          register={register}
+          setValue={setValue}
+          watch={watch}
+        />
+        <DamagePartPicker
+          name="replacedParts"
+          label="Değişen parçalar"
+          register={register}
+          setValue={setValue}
+          watch={watch}
+        />
+        <DamagePartPicker
+          name="localPaintedParts"
+          label="Lokal boyalı parçalar"
+          register={register}
+          setValue={setValue}
+          watch={watch}
+        />
         <SelectField id="airbagStatus" label="Airbag durumu" options={airbagStatuses} {...register("airbagStatus")} />
       </div>
     </SectionCard>

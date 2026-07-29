@@ -224,6 +224,7 @@ export function AnalysisForm() {
     handleSubmit,
     control,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<VehicleFormInput, unknown, VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
@@ -286,7 +287,7 @@ export function AnalysisForm() {
       <FormProgress values={progressValues} />
       <FormSectionLinks />
       <VehicleInfoSection register={register} errors={errors} />
-      <DamageInfoSection register={register} errors={errors} />
+      <DamageInfoSection register={register} errors={errors} setValue={setValue} watch={watch} />
       <MaintenanceInfoSection register={register} errors={errors} />
       <BooleanInfoSection register={register} errors={errors} />
       <SellerDescriptionSection register={register} errors={errors} />

@@ -113,6 +113,26 @@ test("uses select controls for fixed-choice vehicle details", async ({ page }) =
   await expect(page.getByLabel("Muayene bitiş tarihi")).toHaveAttribute("type", "date");
 });
 
+test("uses tappable damage part choices instead of text inputs", async ({ page }) => {
+  await page.goto("/analiz");
+
+  await expect(page.locator('input[name="paintedParts"]')).toHaveAttribute("type", "hidden");
+  await expect(page.locator('input[name="replacedParts"]')).toHaveAttribute("type", "hidden");
+  await expect(page.locator('input[name="localPaintedParts"]')).toHaveAttribute("type", "hidden");
+
+  const paintedParts = page.getByRole("group", { name: "Boyalı parçalar", exact: true });
+  const replacedParts = page.getByRole("group", { name: "Değişen parçalar", exact: true });
+  const localPaintedParts = page.getByRole("group", { name: "Lokal boyalı parçalar", exact: true });
+
+  await paintedParts.getByLabel("Sağ ön çamurluk").check();
+  await replacedParts.getByLabel("Kaput").check();
+  await localPaintedParts.getByLabel("Ön tampon").check();
+
+  await expect(page.locator('input[name="paintedParts"]')).toHaveValue("Sağ ön çamurluk");
+  await expect(page.locator('input[name="replacedParts"]')).toHaveValue("Kaput");
+  await expect(page.locator('input[name="localPaintedParts"]')).toHaveValue("Ön tampon");
+});
+
 test("shows product module roadmap", async ({ page }) => {
   await page.goto("/moduller");
   await expect(
