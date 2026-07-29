@@ -13,6 +13,27 @@ Bu veri:
 - Garaj kullanımı iddiası kuralını görünür hale getirir.
 - Bakım, tramer, ekspertiz ve yedek anahtar alanlarını doldurarak raporu daha gerçekçi gösterir.
 
+## Otomatik üretim
+
+Screenshot setini üretmek için:
+
+```bash
+npm run screenshots
+```
+
+Çıktılar `test-results/screenshots` klasörüne yazılır. Bu klasör test çıktısıdır ve Git deposuna eklenmez.
+
+Üretilen temel dosyalar:
+
+- `chromium-home.png`
+- `chromium-analysis-form.png`
+- `chromium-result.png`
+- `chromium-offline.png`
+- `mobile-home.png`
+- `mobile-analysis-form.png`
+- `mobile-result.png`
+- `mobile-offline.png`
+
 ## Çekilecek ekranlar
 
 1. Ana sayfa

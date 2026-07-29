@@ -72,6 +72,25 @@ describe("maintenance rules", () => {
 
     expect(findings).not.toContainEqual(expect.objectContaining({ id: "inspection-soon" }));
   });
+  it("prioritizes unknown timing history for high-mileage vehicles", () => {
+    const findings = maintenanceRules({ ...baseInput, mileage: 130000, timingBeltInfo: "" });
+
+    expect(findings).toContainEqual(
+      expect.objectContaining({
+        id: "timing-history-unknown-high-mileage",
+        severity: "medium",
+        title: "Triger veya zincir geçmişi netleştirilmeli",
+      }),
+    );
+    expect(findings).not.toContainEqual(expect.objectContaining({ id: "timing-unknown" }));
+  });
+
+  it("keeps the general timing warning below the high-mileage threshold", () => {
+    const findings = maintenanceRules({ ...baseInput, mileage: 90000, timingBeltInfo: "" });
+
+    expect(findings).toContainEqual(expect.objectContaining({ id: "timing-unknown" }));
+    expect(findings).not.toContainEqual(expect.objectContaining({ id: "timing-history-unknown-high-mileage" }));
+  });
 });
 
 describe("document rules", () => {

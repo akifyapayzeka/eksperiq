@@ -1,4 +1,4 @@
-import { INSPECTION_SOON_DAYS } from "@/lib/constants/analysis";
+import { HIGH_MILEAGE_TIMING_HISTORY_KM, INSPECTION_SOON_DAYS } from "@/lib/constants/analysis";
 import type { VehicleFormData } from "@/lib/schemas/vehicle";
 import type { AnalysisFinding } from "../types";
 
@@ -29,7 +29,17 @@ export function maintenanceRules(input: VehicleFormData): AnalysisFinding[] {
       explanation: "Yakın dönemde bakım masrafı çıkabilir.",
       recommendation: "Son bakımın tarihini, kilometresini ve kapsamını sorun.",
     });
-  if (!input.timingBeltInfo)
+  if (!input.timingBeltInfo && input.mileage >= HIGH_MILEAGE_TIMING_HISTORY_KM)
+    findings.push({
+      id: "timing-history-unknown-high-mileage",
+      category: "Bakım",
+      severity: "medium",
+      title: "Triger veya zincir geçmişi netleştirilmeli",
+      explanation:
+        "Araç yüksek kilometrede olduğu için triger veya zincir bakım geçmişinin belirsiz kalması yakın masraf ve mekanik risk doğurabilir.",
+      recommendation: "Motor tipine göre triger/zincir bakım geçmişini fatura veya servis kaydıyla doğrulayın.",
+    });
+  else if (!input.timingBeltInfo)
     findings.push({
       id: "timing-unknown",
       category: "Bakım",

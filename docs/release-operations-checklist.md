@@ -11,6 +11,7 @@ npm run typecheck
 npm run test
 npm run build
 npm run e2e
+npm run screenshots
 ```
 
 Kontrol edilecekler:
@@ -49,6 +50,7 @@ npm run hostinger:package
   - `analiz.html`
   - `sonuc.html`
   - `moduller.html`
+  - `offline.html`
   - `_next/static`
 - Paket `public_html` içine açıldıktan sonra sayfa yenileme testi yapılmalı.
 
@@ -91,4 +93,6 @@ Kontrol edilecekler:
 
 - Sabit demo verisi: `tests/fixtures/demo-vehicle.ts`
 - Görsel çekim senaryosu: `docs/demo-screenshot-scenario.md`
+- Otomatik screenshot komutu: `npm run screenshots`
+- Çıktı klasörü: `test-results/screenshots`
 - App Store görsellerinde kesin garanti dili kullanılmamalı.

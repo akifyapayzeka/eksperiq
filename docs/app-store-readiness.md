@@ -73,7 +73,7 @@ Native wrapper ileride fotoğraf analizi, bildirim veya hesap özellikleri ekler
 - Destek URL'si: İlk aşamada canlı web sitesi veya GitHub issue sayfası kullanılabilir.
 - Pazarlama URL'si: `https://eksperiq.vercel.app`
 - Gizlilik politikası URL'si: `https://eksperiq.vercel.app/gizlilik`
-- Ekran görüntüleri: En az ana sayfa, analiz formu, sonuç raporu, satıcı soruları, checklist.
+- Ekran görüntüleri: `npm run screenshots` ile `test-results/screenshots` altında ana sayfa, analiz formu, sonuç raporu ve offline ekran üretilir.
 - Uygulama ikonu: Mevcut geçici ikonlar web/PWA içindir; App Store için Xcode asset catalog içinde 1024x1024 final ikon üretilmelidir.
 - TestFlight notu: Uygulama yalnızca karar desteği sağlar; girilen bilgiler sunucuya kaydedilmez.
 

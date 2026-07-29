@@ -57,7 +57,7 @@ export const ruleCandidates: RuleCandidate[] = [
   {
     id: "maintenance-chain-unknown",
     moduleId: "listing-analysis",
-    status: "needs-feedback",
+    status: "accepted",
     source: "user-feedback",
     affectedRuleFile: "src/lib/analysis/rules/maintenance-rules.ts",
     inputSignal: "Triger veya zincir değişim bilgisi bilinmiyor ve araç yüksek kilometrede.",

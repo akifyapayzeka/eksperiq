@@ -25,5 +25,6 @@ export const MILEAGE_BANDS = {
 export const HIGH_TRAMER_AMOUNT = 100000;
 export const MEDIUM_TRAMER_PRICE_RATIO = 0.1;
 export const HIGH_TRAMER_PRICE_RATIO = 0.2;
+export const HIGH_MILEAGE_TIMING_HISTORY_KM = 120000;
 export const INSPECTION_SOON_DAYS = 60;
 export const MAX_PRIORITY_ACTIONS = 5;
