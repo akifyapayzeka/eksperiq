@@ -40,6 +40,7 @@ Kullanıcının kendi cümlesi:
 - Etkilenen ekran veya modül:
 - Otomatik triage alanı: `Etkilenen ekran/akış`
 - Önerilen doğrulama:
+- Önerilen doğrulama komutları:
 - Beklenen davranış:
 - Kanıt:
 - Tekrarlanabilir mi:

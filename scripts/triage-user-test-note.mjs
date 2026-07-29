@@ -89,6 +89,24 @@ const affectedAreaPatterns = [
   },
 ];
 
+const categoryVerificationCommands = {
+  "kritik hata": ["npm run release:check", "npm run e2e"],
+  "güven ve dil riski": ["npm run release:check", "npm run appstore:metadata-check"],
+  "App Store riski": ["npm run privacy:check", "npm run appstore:metadata-check", "npm run release:check"],
+  "kullanıcı deneyimi": ["npx playwright test tests/e2e/main-flow.spec.ts --project=mobile", "npm run screenshots"],
+  "kural adayı": ["npm run rule-backlog:check", "npm run rule-feedback:check", "npm run test"],
+};
+
+const areaVerificationCommands = {
+  "Analiz formu": ['npx playwright test tests/e2e/main-flow.spec.ts --project=mobile --grep "form|select|damage"'],
+  "Sonuç raporu": ['npx playwright test tests/e2e/main-flow.spec.ts --grep "creates analysis result"'],
+  "Mobil alt menü": [
+    'npx playwright test tests/e2e/main-flow.spec.ts --project=mobile --grep "mobile bottom navigation"',
+  ],
+  "Paylaşma ve kopyalama": ['npx playwright test tests/e2e/main-flow.spec.ts --grep "copies seller-ready message"'],
+  "Geri bildirim": ['npx playwright test tests/e2e/main-flow.spec.ts --grep "feedback collection"'],
+};
+
 function normalize(value) {
   return value
     .toLocaleLowerCase("tr-TR")
@@ -134,6 +152,15 @@ function inferAffectedArea(note) {
       verification: "Ana akışı mobil ve desktop E2E ile tekrar doğrula; gerekirse kullanıcıdan ekran görüntüsü iste.",
     }
   );
+}
+
+function verificationCommands(category, affectedArea) {
+  const commands = [
+    ...(categoryVerificationCommands[category.type] ?? ["npm run release:check"]),
+    ...(areaVerificationCommands[affectedArea.area] ?? []),
+  ];
+
+  return [...new Set(commands)];
 }
 
 function redactPersonalData(note) {
@@ -197,6 +224,7 @@ const category = pickCategory(rawNote);
 const warnings = findPersonalDataWarnings(rawNote);
 const redactedNote = redactPersonalData(rawNote);
 const affectedArea = inferAffectedArea(rawNote);
+const commands = verificationCommands(category, affectedArea);
 const inputName = basename(inputPath).replace(/\.[^.]+$/, "");
 const outputFile = join(outputDir, `${slugify(inputName || "kullanici-notu")}-triage.md`);
 const optionalBacklogDraft = category.type === "kural adayı" ? `\n${backlogDraft(rawNote, inputName)}` : "";
@@ -214,6 +242,10 @@ Kaynak not: \`${basename(inputPath)}\`
 - Etkilenen ekran/akış: ${affectedArea.area}
 - Önerilen aksiyon: ${category.action}
 - Önerilen doğrulama: ${affectedArea.verification}
+
+## Önerilen doğrulama komutları
+
+${commands.map((command) => `- \`${command}\``).join("\n")}
 
 ## Kişisel veri kontrolü
 

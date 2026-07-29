@@ -42,6 +42,7 @@ try {
     "Sorun tipi: güven ve dil riski",
     "Öncelik: P1",
     "Sonuç dili, skor açıklaması ve yasal uyarı görünürlüğünü düzelt.",
+    "npm run appstore:metadata-check",
     "Basit otomatik taramada telefon, plaka, e-posta veya URL kalıbı bulunmadı.",
     "Şehir seçmek kolaydı",
   ];
@@ -62,6 +63,8 @@ try {
     "Etkilenen modül: satıcı açıklaması",
     "Unit test: Pozitif ve negatif test eklenmeden aktif kurala taşınmayacak.",
     "Durum: Needs feedback",
+    "npm run rule-backlog:check",
+    "npm run rule-feedback:check",
   ];
 
   expectIncludes(ruleOutput, requiredRuleSnippets, "rule triage output");
@@ -79,6 +82,7 @@ try {
     "Kontrol et: e-posta olabilir",
     "Kontrol et: URL olabilir",
     "Orijinal notu issue'a taşıma; aşağıdaki redakte edilmiş sürümü kullan.",
+    "npm run privacy:check",
     "[telefon redakte edildi]",
     "[plaka redakte edildi]",
     "[e-posta redakte edildi]",
@@ -100,6 +104,7 @@ try {
     "Öncelik: P1",
     "Etkilenen ekran/akış: Analiz formu",
     "Analiz formunu mobil viewport'ta doldur",
+    "npx playwright test tests/e2e/main-flow.spec.ts --project=mobile",
     "Küçük UI iyileştirmesi yap",
   ];
 
