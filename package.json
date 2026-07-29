@@ -25,8 +25,9 @@
     "appstore:icon": "node scripts/generate-app-store-icon.mjs",
     "appstore:package": "node scripts/prepare-app-store-package.mjs",
     "appstore:screenshots": "node scripts/generate-app-store-screenshots.mjs",
+    "appstore:metadata-check": "node scripts/check-app-store-metadata.mjs",
     "appstore:check": "node scripts/check-app-store-package.mjs",
-    "appstore:prepare": "npm run appstore:icon && npm run appstore:package && npm run appstore:screenshots && npm run appstore:check",
+    "appstore:prepare": "npm run appstore:icon && npm run appstore:metadata-check && npm run appstore:package && npm run appstore:screenshots && npm run appstore:check",
     "hostinger:package": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-hostinger.ps1"
   },
   "dependencies": {

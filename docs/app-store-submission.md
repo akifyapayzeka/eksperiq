@@ -57,6 +57,8 @@ Recommended review flow:
 - Mikrofon/rehber izni: Yok.
 - Hassas kişisel veri işleme: Yok.
 
+Detaylı App Store gizlilik cevapları: `docs/app-store-privacy-answers.md`
+
 ## Ekran görüntüsü seti
 
 Yerel üretim komutu:

@@ -165,7 +165,7 @@ Detaylı yayın hazırlığı, gizlilik beyanı ve native wrapper ilkeleri için
 
 ## Yayın operasyon checklist'i
 
-Vercel, Hostinger ve App Store/TestFlight hazırlığı için tek kontrol listesi `docs/release-operations-checklist.md` dosyasındadır.
+Vercel, Hostinger ve App Store/TestFlight hazırlığı için ana operasyon listesi `docs/release-operations-checklist.md`, tüm adımların merkezi takip dosyası ise `docs/launch-master-checklist.md` içindedir.
 
 ## Proje sınırlamaları
 

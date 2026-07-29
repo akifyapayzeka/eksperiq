@@ -3,6 +3,7 @@ import path from "node:path";
 
 const requiredFiles = [
   "docs/launch-plan-2026-08-15.md",
+  "docs/launch-master-checklist.md",
   "docs/release-operations-checklist.md",
   "docs/first-user-test-script.md",
   "docs/first-5-user-tests.md",
@@ -15,6 +16,7 @@ const requiredFiles = [
   "docs/ios-repo-strategy.md",
   "docs/ai-production-rollout.md",
   "docs/app-store-submission.md",
+  "docs/app-store-privacy-answers.md",
   "docs/app-store-readiness.md",
   ".github/ISSUE_TEMPLATE/rule-feedback.md",
   ".github/ISSUE_TEMPLATE/user-test-feedback.md",
@@ -31,6 +33,7 @@ const requiredPackageScripts = [
   "build",
   "native:build",
   "appstore:prepare",
+  "appstore:metadata-check",
   "hostinger:package",
   "ai:staging-check",
   "launch:check",
@@ -39,7 +42,15 @@ const requiredPackageScripts = [
 const requiredTextChecks = [
   {
     file: "docs/launch-plan-2026-08-15.md",
-    snippets: ["15 Ağustos 2026", "Apple Developer Program", "Sonraki en yüksek etkili 3 iş"],
+    snippets: ["15 Ağustos 2026", "Apple Developer Program", "Launch Master Checklist"],
+  },
+  {
+    file: "docs/launch-master-checklist.md",
+    snippets: ["Yerel Ürün Kalitesi", "App Store Teslim Paketi", "Dış Bağımlılık Sınırı"],
+  },
+  {
+    file: "docs/app-store-privacy-answers.md",
+    snippets: ["Kullanıcı hesabı: Yok", "Reklam takibi: Yok", "İlan sitesi scraping: Yok"],
   },
   {
     file: "docs/user-test-feedback-triage.md",

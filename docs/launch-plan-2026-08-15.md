@@ -2,6 +2,8 @@
 
 Hedef: EksperIQ'u 15 Ağustos 2026'ya kadar satılabilir, gerçek kullanıcıya açılabilir ve App Store'a gönderilebilir seviyeye getirmek.
 
+Tüm takip adımları: `docs/launch-master-checklist.md`
+
 ## Kritik gerçeklik
 
 - App Store yayını teknik build'den ibaret değildir; Apple Developer Program üyeliği, macOS/Xcode, App Store Connect kaydı, TestFlight ve Apple Review süreci gerekir.
@@ -101,8 +103,6 @@ npm run native:build
 npm run hostinger:package
 ```
 
-## Sonraki en yüksek etkili 3 iş
+## Launch Master Checklist
 
-1. Sonuç sayfasını mobil kart tabanlı rapor ekranına çevirmek.
-2. App Store screenshot ölçülerini ayrı Playwright projeleriyle üretmek.
-3. Xcode 26/TestFlight hazırlığı için iOS platform kurulum kontrol dosyasını eklemek.
+Tüm yerel ürün, test, App Store, kullanıcı testi, hosting ve iOS/TestFlight adımları `docs/launch-master-checklist.md` içinde izlenir. Bu dosya dış bağımlılık gerektiren işleri de açıkça ayırır.

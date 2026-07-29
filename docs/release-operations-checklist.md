@@ -4,6 +4,8 @@ Bu checklist Vercel, Hostinger ve App Store hazırlık yollarında aynı kalite 
 
 15 Ağustos 2026 launch planı: `docs/launch-plan-2026-08-15.md`
 
+Tüm adımların merkezi takip dosyası: `docs/launch-master-checklist.md`
+
 ## Her yayın öncesi
 
 ```bash
@@ -12,6 +14,7 @@ npm run lint
 npm run typecheck
 npm run test
 npm run launch:check
+npm run appstore:metadata-check
 npm run build
 npm run e2e
 npm run screenshots
@@ -85,6 +88,8 @@ Kontrol edilecekler:
 - `safe-area-shell` sınıfı iOS güvenli alanlarında içerik taşmasını engellemeli.
 - App Store metinleri kesin ekspertiz veya satın alma garantisi vermiyor.
 - App Store Connect metinleri `docs/app-store-submission.md` dosyasından kontrol edildi.
+- App Store gizlilik cevapları `docs/app-store-privacy-answers.md` dosyasından kontrol edildi.
+- Metadata güvenlik kontrolü: `npm run appstore:metadata-check`
 - iOS/TestFlight ön kontrol dosyası: `docs/ios-testflight-preflight.md`
 
 ## Geri bildirim ve kural geliştirme

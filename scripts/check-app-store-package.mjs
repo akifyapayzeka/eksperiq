@@ -4,8 +4,12 @@ import { join } from "node:path";
 const requiredFiles = [
   "dist/app-store-package/README.md",
   "dist/app-store-package/docs/app-store-submission.md",
+  "dist/app-store-package/docs/app-store-privacy-answers.md",
   "dist/app-store-package/docs/app-store-readiness.md",
   "dist/app-store-package/docs/app-store-assets.md",
+  "dist/app-store-package/docs/launch-master-checklist.md",
+  "dist/app-store-package/docs/ios-testflight-preflight.md",
+  "dist/app-store-package/docs/first-5-user-tests.md",
   "dist/app-store-package/docs/testflight-qa-checklist.md",
   "dist/app-store-package/docs/testflight-qa-report.md",
   "dist/app-store-package/docs/ios-repo-strategy.md",

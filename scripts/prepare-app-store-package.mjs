@@ -8,8 +8,12 @@ const assetsDir = join(outputDir, "assets");
 
 const docs = [
   "docs/app-store-submission.md",
+  "docs/app-store-privacy-answers.md",
   "docs/app-store-readiness.md",
   "docs/app-store-assets.md",
+  "docs/launch-master-checklist.md",
+  "docs/ios-testflight-preflight.md",
+  "docs/first-5-user-tests.md",
   "docs/testflight-qa-checklist.md",
   "docs/testflight-qa-report.md",
   "docs/ios-repo-strategy.md",
