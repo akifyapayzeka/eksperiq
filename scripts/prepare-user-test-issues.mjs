@@ -86,7 +86,7 @@ Ham notu kişisel veri kontrolünden geçirmek ve issue başlığı, şablon, la
 npm run user-tests:triage -- path/to/user-note.txt
 \`\`\`
 
-Triage çıktısındaki \`Issue önerisi\` ve \`Önerilen doğrulama komutları\` bölümleri kapanış kanıtına eklenmelidir.
+Triage çıktısındaki \`Issue önerisi\`, \`Önerilen doğrulama komutları\` ve \`*-github-issue.md\` taslağı kapanış kanıtına eklenmelidir.
 
 ## Kapanış
 

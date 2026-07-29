@@ -366,6 +366,7 @@ const commands = verificationCommands(category, affectedArea);
 const metadata = issueMetadata(category, affectedArea);
 const inputName = basename(inputPath).replace(/\.[^.]+$/, "");
 const outputFile = join(outputDir, `${slugify(inputName || "kullanici-notu")}-triage.md`);
+const issueDraftFile = join(outputDir, `${slugify(inputName || "kullanici-notu")}-github-issue.md`);
 const optionalBacklogDraft = category.type === "kural adayı" ? `\n${backlogDraft(rawNote, inputName)}` : "";
 const mobileFormFieldSignal = detectMobileFormFieldSignal(rawNote);
 const secondarySignals = secondaryIssueSignals(rawNote, category);
@@ -423,10 +424,57 @@ ${redactedNote.trim()}
 ${optionalBacklogDraft}
 `;
 
+const githubIssueBody = `# ${metadata.title}
+
+## Triage özeti
+
+- Kaynak not: \`${basename(inputPath)}\`
+- Şablon: \`${metadata.template}\`
+- Label'lar: ${metadata.labels.map((label) => `\`${label}\``).join(", ")}
+- Sorun tipi: ${category.type}
+- Öncelik: ${category.priority}
+- Etkilenen ekran/akış: ${affectedArea.area}
+
+## Beklenen aksiyon
+
+${category.action}
+
+## Doğrulama komutları
+
+${commands.map((command) => `- \`${command}\``).join("\n")}
+
+${secondarySignals}
+
+## Redakte edilmiş kullanıcı notu
+
+\`\`\`text
+${redactedNote.trim()}
+\`\`\`
+
+## Kişisel veri kontrolü
+
+${
+  warnings.length
+    ? warnings.map((warning) => `- [ ] Kontrol et: ${warning}`).join("\n")
+    : "- [x] Basit otomatik taramada telefon, plaka, e-posta veya URL kalıbı bulunmadı."
+}
+${redactionNote}
+
+## Kapanış kriterleri
+
+- [ ] Beklenen davranış tek cümleyle yazıldı.
+- [ ] Etkilenen ekran veya kural modülü doğrulandı.
+- [ ] Doğrulama komutları çalıştırıldı.
+- [ ] Kişisel veri içermediği son kez kontrol edildi.
+- [ ] Kural adayıysa backlog kaydı ve pozitif/negatif test ihtiyacı yazıldı.
+`;
+
 mkdirSync(outputDir, { recursive: true });
 writeFileSync(outputFile, issueBody, "utf8");
+writeFileSync(issueDraftFile, githubIssueBody, "utf8");
 
 console.log(`Triage taslagi hazirlandi: ${outputFile}`);
+console.log(`GitHub issue taslagi hazirlandi: ${issueDraftFile}`);
 if (warnings.length) {
   console.log(`Kisisel veri kontrol uyarisi: ${warnings.join(", ")}`);
 }

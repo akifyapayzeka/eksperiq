@@ -39,6 +39,7 @@ try {
   });
 
   const output = readFileSync(join(tempDir, "user-test-note-triage.md"), "utf8");
+  const issueDraft = readFileSync(join(tempDir, "user-test-note-github-issue.md"), "utf8");
   const requiredSnippets = [
     "Sorun tipi: güven ve dil riski",
     "Öncelik: P1",
@@ -52,6 +53,19 @@ try {
   ];
 
   expectIncludes(output, requiredSnippets, "triage output");
+  expectIncludes(
+    issueDraft,
+    [
+      "# [Kullanıcı testi][P1] Analiz formu - güven ve dil riski",
+      "## Triage özeti",
+      "Şablon: `.github/ISSUE_TEMPLATE/user-test-feedback.md`",
+      "Label'lar: `feedback`, `user-test`, `trust-language`, `p1`, `app-store`, `analysis-form`",
+      "## Doğrulama komutları",
+      "## Redakte edilmiş kullanıcı notu",
+      "## Kapanış kriterleri",
+    ],
+    "github issue draft",
+  );
 
   execFileSync(process.execPath, [join(root, "scripts", "triage-user-test-note.mjs"), ruleFixturePath, tempDir], {
     cwd: root,
@@ -59,6 +73,7 @@ try {
   });
 
   const ruleOutput = readFileSync(join(tempDir, "user-test-rule-note-triage.md"), "utf8");
+  const ruleIssueDraft = readFileSync(join(tempDir, "user-test-rule-note-github-issue.md"), "utf8");
   const requiredRuleSnippets = [
     "Sorun tipi: kural adayı",
     "Öncelik: P2",
@@ -84,6 +99,15 @@ try {
   ];
 
   expectIncludes(ruleOutput, requiredRuleSnippets, "rule triage output");
+  expectIncludes(
+    ruleIssueDraft,
+    [
+      "# [Kural geri bildirimi][P2] Sonuç raporu - kural adayı",
+      "Şablon: `.github/ISSUE_TEMPLATE/rule-feedback.md`",
+      "Kural adayıysa backlog kaydı ve pozitif/negatif test ihtiyacı yazıldı.",
+    ],
+    "rule github issue draft",
+  );
 
   execFileSync(process.execPath, [join(root, "scripts", "triage-user-test-note.mjs"), piiFixturePath, tempDir], {
     cwd: root,
@@ -91,6 +115,7 @@ try {
   });
 
   const piiOutput = readFileSync(join(tempDir, "user-test-note-with-pii-triage.md"), "utf8");
+  const piiIssueDraft = readFileSync(join(tempDir, "user-test-note-with-pii-github-issue.md"), "utf8");
   const requiredPiiSnippets = [
     "Sorun tipi: App Store riski",
     "Başlık: [Kullanıcı testi][P1] Genel kullanıcı akışı - App Store riski",
@@ -111,6 +136,8 @@ try {
 
   expectIncludes(piiOutput, requiredPiiSnippets, "pii triage output");
   expectExcludes(piiOutput, forbiddenPiiSnippets, "pii triage output");
+  expectIncludes(piiIssueDraft, ["[telefon redakte edildi]", "[plaka redakte edildi]"], "pii github issue draft");
+  expectExcludes(piiIssueDraft, forbiddenPiiSnippets, "pii github issue draft");
 
   execFileSync(process.execPath, [join(root, "scripts", "triage-user-test-note.mjs"), uiFixturePath, tempDir], {
     cwd: root,
@@ -143,6 +170,7 @@ try {
   });
 
   const mixedOutput = readFileSync(join(tempDir, "user-test-mixed-note-triage.md"), "utf8");
+  const mixedIssueDraft = readFileSync(join(tempDir, "user-test-mixed-note-github-issue.md"), "utf8");
   const requiredMixedSnippets = [
     "Sorun tipi: güven ve dil riski",
     "Öncelik: P1",
@@ -156,6 +184,7 @@ try {
   ];
 
   expectIncludes(mixedOutput, requiredMixedSnippets, "mixed triage output");
+  expectIncludes(mixedIssueDraft, ["Ek issue sinyalleri", "P2 / kural adayı"], "mixed github issue draft");
 } finally {
   rmSync(tempDir, { force: true, recursive: true });
 }

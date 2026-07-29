@@ -51,10 +51,15 @@ try {
 
   const outputs = [
     "user-test-note-triage.md",
+    "user-test-note-github-issue.md",
     "user-test-rule-note-triage.md",
+    "user-test-rule-note-github-issue.md",
     "user-test-note-with-pii-triage.md",
+    "user-test-note-with-pii-github-issue.md",
     "user-test-ui-note-triage.md",
+    "user-test-ui-note-github-issue.md",
     "user-test-mixed-note-triage.md",
+    "user-test-mixed-note-github-issue.md",
   ];
 
   for (const output of outputs) {

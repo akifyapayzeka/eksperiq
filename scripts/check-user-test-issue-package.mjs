@@ -19,6 +19,7 @@ const requiredSnippets = [
   "npm run user-tests:triage -- path/to/user-note.txt",
   "Issue önerisi",
   "Önerilen doğrulama komutları",
+  "*-github-issue.md",
   "Otomatik triage taslağı üretildi",
 ];
 
