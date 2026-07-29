@@ -28,11 +28,26 @@ function trackedFiles() {
     .filter((file) => !binaryExtensions.has(extname(file).toLocaleLowerCase("tr-TR")));
 }
 
+function trackedEnvFiles() {
+  return execFileSync("git", ["ls-files", ".env*"], { encoding: "utf8" })
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .filter((file) => file !== ".env.example");
+}
+
 function lineNumberFor(content, index) {
   return content.slice(0, index).split(/\r?\n/).length;
 }
 
 const findings = [];
+
+for (const file of trackedEnvFiles()) {
+  findings.push({
+    file,
+    label: "tracked env file is not allowed",
+    line: 1,
+  });
+}
 
 for (const file of trackedFiles()) {
   const content = readFileSync(file, "utf8");
