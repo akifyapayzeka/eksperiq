@@ -126,6 +126,10 @@ const requiredTextChecks = [
     file: "docs/how-to-test.md",
     snippets: ["npm run release:check", "Mobil görünüm", "npm run user-tests:triage", "npm run rule-feedback:package"],
   },
+  {
+    file: "src/app/geri-bildirim/page.tsx",
+    snippets: ["Geri bildirimi doğru hatta ayır", "Kural adayı", "npm run user-tests:triage"],
+  },
 ];
 
 function fail(message) {

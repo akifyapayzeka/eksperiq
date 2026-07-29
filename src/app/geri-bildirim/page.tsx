@@ -1,4 +1,4 @@
-import { CheckCircle2, ExternalLink } from "lucide-react";
+import { CheckCircle2, ExternalLink, ListChecks, ShieldAlert, Wrench } from "lucide-react";
 import { InfoPage } from "@/components/layout/info-page";
 import { appConfig } from "@/lib/constants/app";
 
@@ -15,6 +15,30 @@ const userTestQuestions = [
   "Risk skoru güven verdi mi, fazla kesin mi hissettirdi?",
   "Satıcı soruları ve ekspertiz listesi işine yarar mıydı?",
 ];
+
+const feedbackRoutes = [
+  {
+    title: "UI / kullanılabilirlik",
+    icon: Wrench,
+    signal: "Klavye, seçenekli alan, buton, yatay taşma veya okunabilirlik sorunu.",
+    triage: "Sorun tipi: kullanıcı deneyimi",
+    nextStep: "Mobil E2E veya ekran görüntüsüyle doğrula.",
+  },
+  {
+    title: "Kural adayı",
+    icon: ListChecks,
+    signal: "Eksik risk, satıcı sorusu, ekspertiz kontrolü veya yeni ilan ifadesi.",
+    triage: "Sorun tipi: kural adayı",
+    nextStep: "Backlog tablo satırı ve typed kayıt kontrolü oluştur.",
+  },
+  {
+    title: "Güven ve App Store dili",
+    icon: ShieldAlert,
+    signal: "Fazla kesin skor, garanti algısı, veri/gizlilik veya ödeme beklentisi.",
+    triage: "Sorun tipi: güven ve dil riski / App Store riski",
+    nextStep: "Yasal uyarı, metadata ve gizlilik metinlerini birlikte kontrol et.",
+  },
+] as const;
 
 export default function FeedbackPage() {
   return (
@@ -39,6 +63,42 @@ export default function FeedbackPage() {
         anlatmak için marka, model, yıl, kilometre ve anonimleştirilmiş açıklama yeterlidir. Kullanıcı testi notları
         önce triage edilir; kural önerileri test yazılmadan aktif analiz motoruna taşınmaz.
       </p>
+      <div className="rounded-lg border border-slate-200 bg-white p-4">
+        <h2 className="text-lg font-semibold text-slate-950">Geri bildirimi doğru hatta ayır</h2>
+        <p className="mt-2 text-slate-700">
+          Her not aynı işe dönüşmez. Test sırasında gelen yorumu aşağıdaki üç hattan birine koyarsak, hem öncelik hem de
+          doğrulama komutu netleşir.
+        </p>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {feedbackRoutes.map((route) => {
+            const Icon = route.icon;
+
+            return (
+              <article key={route.title} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <div className="flex items-start gap-3">
+                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-800">
+                    <Icon aria-hidden="true" className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <h3 className="font-semibold text-slate-950">{route.title}</h3>
+                    <p className="mt-2 text-sm text-slate-700">{route.signal}</p>
+                  </div>
+                </div>
+                <p className="mt-3 text-sm font-semibold text-slate-900">{route.triage}</p>
+                <p className="mt-1 text-sm text-slate-600">{route.nextStep}</p>
+              </article>
+            );
+          })}
+        </div>
+        <div className="mt-4 rounded-lg bg-slate-950 p-4 text-sm text-slate-100">
+          <p className="font-semibold">Otomatik triage komutları</p>
+          <code className="mt-2 block whitespace-pre-wrap text-xs leading-5 text-slate-100">
+            npm run user-tests:triage -- path/to/user-note.txt{"\n"}
+            npm run user-tests:triage-check{"\n"}
+            npm run user-tests:package-check
+          </code>
+        </div>
+      </div>
       <div className="rounded-lg border border-teal-100 bg-teal-50 p-4">
         <h2 className="text-lg font-semibold text-slate-950">5 dakikalık kullanıcı testi</h2>
         <p className="mt-2 text-slate-700">

@@ -51,7 +51,7 @@ test("mobile bottom navigation opens app actions", async ({ page, isMobile }) =>
   await expect(page.getByRole("heading", { name: "Destek ve geri bildirim" })).toBeVisible();
   await page.getByRole("link", { name: "Geri bildirim gönder" }).click();
   await expect(page).toHaveURL(/\/geri-bildirim$/);
-  await expect(page.getByRole("heading", { name: "Geri bildirim" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Geri bildirim", exact: true })).toBeVisible();
 
   await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Yeni Analiz" }).click();
   await expect(page).toHaveURL(/\/analiz$/);
@@ -155,11 +155,16 @@ test("shows product module roadmap", async ({ page }) => {
 
 test("shows feedback collection flow", async ({ page }) => {
   await page.goto("/geri-bildirim");
-  await expect(page.getByRole("heading", { name: "Geri bildirim" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Geri bildirim", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Kullanıcı testi notu gönder" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Kural geri bildirimi gönder" })).toBeVisible();
   await expect(page.getByRole("link", { name: "İlk kullanıcı testi issue'su" })).toBeVisible();
   await expect(page.getByText("kişisel veri eklemeden")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Geri bildirimi doğru hatta ayır" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "UI / kullanılabilirlik" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Kural adayı" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Güven ve App Store dili" })).toBeVisible();
+  await expect(page.getByText("npm run user-tests:triage -- path/to/user-note.txt")).toBeVisible();
 });
 
 test("creates analysis result", async ({ page }) => {
