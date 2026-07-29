@@ -8,9 +8,12 @@ Tüm adımların denetlenebilir durum listesi: `docs/all-steps-status.md`
 
 - [x] Ana sayfa mobil öncelikli hazır.
 - [x] Analiz formu Zod doğrulamasıyla çalışıyor.
+- [x] Mobil formda şehir, araç detayları ve hasar parça alanları seçenekli/dokunulabilir.
 - [x] Kural tabanlı analiz motoru UI'dan bağımsız.
+- [x] Satıcı açıklamasında belirsiz/kaçamak ifadeler doğrulama bulgusu olarak yakalanıyor.
 - [x] Sonuç ekranı risk skoru, ilk kontrol ve sonraki adım paneli gösteriyor.
 - [x] Satıcı soruları ve ekspertiz kontrol listesi dinamik üretiliyor.
+- [x] Satıcıya gönderilebilir kısa mesaj panoya kopyalanabiliyor.
 - [x] Geri bildirim sayfası kullanıcı testi ve kural önerisi issue şablonlarına bağlı.
 - [x] Gizlilik ve kullanım koşulları sayfaları mevcut.
 
@@ -61,6 +64,7 @@ Tüm adımların denetlenebilir durum listesi: `docs/all-steps-status.md`
 - [x] GitHub remote/local commit eşleşme kontrol komutu hazır.
 - [x] `.env.local` ve `dist` çıktıları git dışında.
 - [x] Canlı Vercel ana akış sayfaları `npm run deploy:check` ile doğrulanıyor.
+- [x] Canlı Vercel mobil analiz-sonuç akışında satıcı mesajı aksiyonu doğrulandı.
 - [x] GitHub `origin/master` ile yerel HEAD `npm run repo:check` ile doğrulanıyor.
 - [ ] Vercel son deployment commit ile eşleştiği canlı panelden manuel kontrol edilecek.
 - [ ] Hostinger kullanılacaksa zip `public_html` içine açılıp canlı yenileme testi yapılacak.

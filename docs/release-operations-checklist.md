@@ -30,7 +30,9 @@ Kontrol edilecekler:
 - Türkçe görünen metinlerde bozuk karakter yok.
 - Eski çalışma adı, secret veya gereksiz env referansı yok.
 - `/`, `/analiz`, `/sonuc`, `/moduller`, `/gizlilik` sayfaları çalışıyor.
-- Sonuç sayfasında yasal uyarı, paylaşma/kopyalama/yazdırma aksiyonları ve geri bildirim bağlantısı görünüyor.
+- Analiz formunda şehir, araç detayları ve hasar parçaları uygun yerlerde seçenekli/dokunulabilir çalışıyor.
+- Sonuç sayfasında yasal uyarı, paylaşma/kopyalama/yazdırma, satıcı mesajı ve geri bildirim bağlantısı görünüyor.
+- Satıcı açıklamasında belirsiz/kaçamak ifade girildiğinde raporda doğrulama bulgusu oluşuyor.
 - Demo/screenshot verisi `tests/fixtures/demo-vehicle.ts` ile tutarlı.
 
 ## Vercel

@@ -22,7 +22,10 @@ npm run launch:audit
 - [x] Session storage akışı ve yenileme boş-state davranışı çalışıyor.
 - [x] Gizlilik, kullanım koşulları, hakkında ve nasıl çalışır sayfaları mevcut.
 - [x] Mobil alt navigasyon profil, yeni analiz, analiz raporu ve uzmanlık kontrol listesine bağlı.
+- [x] Mobil formda şehir, araç detayları ve hasar parça alanları seçenekli/dokunulabilir hale getirildi.
 - [x] Analizlerim, profil, modüller ve kontrol listesi ekranları hazır.
+- [x] Sonuç ekranında satıcıya gönderilebilir kısa mesaj kopyalama aksiyonu eklendi.
+- [x] Satıcı açıklamasındaki belirsiz/kaçamak ifadeler kural tabanlı doğrulama bulgusu olarak yakalanıyor.
 - [x] Kural geri bildirimi ve kullanıcı testi issue şablonları hazır.
 - [x] İlk 5 kullanıcı testi planı ve issue taslakları hazır.
 - [x] Kural backlog ve kural adayları typed servis dosyasında takip ediliyor.
@@ -33,6 +36,7 @@ npm run launch:audit
 - [x] App Store metadata güvenlik kontrolü var.
 - [x] Hostinger statik zip paketi ve zip içerik kontrolü var.
 - [x] Vercel canlı sağlık kontrolü var.
+- [x] Canlı Vercel üzerinde mobil analizden sonuca temel akış ve satıcı mesajı butonu doğrulandı.
 - [x] GitHub remote/local commit eşleşme kontrolü var.
 - [x] iOS/TestFlight ön kontrol, QA checklist ve iOS repo stratejisi yazıldı.
 - [x] Secret, eski marka ve istenmeyen env taraması yapılıyor.
