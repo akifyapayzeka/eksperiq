@@ -123,6 +123,20 @@ for (const candidate of candidates) {
   writeFileSync(join(outputDir, fileName), issueBody(candidate), "utf8");
 }
 
+const manifest = candidates.map((candidate) => ({
+  id: candidate.id,
+  issueFile: `${normalizeFileName(candidate.id)}.md`,
+  issueTitle: candidate.issueTitle,
+  source: candidate.source,
+  status: candidate.status,
+  affectedRuleFile: candidate.affectedRuleFile,
+  moduleId: candidate.moduleId,
+  feedbackType: candidate.feedbackType,
+  acceptanceEvidenceCount: candidate.acceptanceEvidence.length,
+}));
+
+writeFileSync(join(outputDir, "rule-feedback-manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+
 writeFileSync(
   join(outputDir, "README.md"),
   `# Kural Geri Bildirimi Issue Taslakları
@@ -136,6 +150,8 @@ npm run rule-feedback:package
 \`\`\`
 
 Issue açmadan önce kullanıcı girdilerinin kişisel veri içermediğini manuel kontrol edin.
+
+\`rule-feedback-manifest.json\` dosyası aday ID, issue dosyası, kaynak, durum ve etkilenen kural dosyasını makine okunabilir biçimde listeler.
 `,
   "utf8",
 );

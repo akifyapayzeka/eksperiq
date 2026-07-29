@@ -72,3 +72,5 @@ npm run rule-feedback:package
 ```
 
 Çıktı `dist/rule-feedback-issues` altında oluşur ve issue açmadan önce kişisel veri kontrolü manuel yapılır.
+
+`rule-feedback-manifest.json` dosyası aday ID, issue dosyası, kaynak, durum ve etkilenen kural dosyasını makine okunabilir biçimde listeler. Kullanıcı testi triage çıktısından backlog kaydına geçerken adayın kaybolmadığını kontrol etmek için bu manifest kullanılır.
