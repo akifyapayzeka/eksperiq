@@ -14,7 +14,7 @@ const steps = [
   { label: "Rule feedback package", script: "rule-feedback:check" },
   { label: "Launch readiness", script: "launch:check" },
   { label: "App Store metadata", script: "appstore:metadata-check" },
-  { label: "Production build", script: "build" },
+  { label: "Native build", script: "native:build" },
 ];
 
 for (const step of steps) {
