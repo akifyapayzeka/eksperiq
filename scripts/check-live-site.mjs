@@ -4,7 +4,10 @@ const pages = [
   { path: "/", expected: ["EksperIQ", "Ücretsiz analiz et"] },
   { path: "/analiz", expected: ["Araç ilanı analizi", "Analiz oluştur"] },
   { path: "/sonuc", expected: ["EksperIQ", "İkinci el araç ilanı risk analizi"] },
-  { path: "/geri-bildirim", expected: ["Geri bildirim", "Kullanıcı testi notu gönder"] },
+  {
+    path: "/geri-bildirim",
+    expected: ["Geri bildirim", "Anonim test notu şablonu", "Geri bildirimi doğru hatta ayır"],
+  },
   { path: "/gizlilik", expected: ["Gizlilik", "Girdiğiniz ilan ve araç bilgileri"] },
   { path: "/manifest.webmanifest", expected: ["EksperIQ"] },
 ];
