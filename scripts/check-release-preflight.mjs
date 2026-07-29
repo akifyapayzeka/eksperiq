@@ -5,6 +5,7 @@ const steps = [
   { label: "Lint", script: "lint" },
   { label: "TypeScript", script: "typecheck" },
   { label: "Sensitive data", script: "privacy:check" },
+  { label: "Form field types", script: "form:fields-check" },
   { label: "Rule backlog", script: "rule-backlog:check" },
   { label: "Unit tests", script: "test" },
   { label: "User test triage", script: "user-tests:triage-check" },
