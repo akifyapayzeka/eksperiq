@@ -10,6 +10,8 @@ npm run user-tests:triage -- path/to/user-note.txt
 
 Çıktı `dist/user-test-triage` altında oluşur. Otomatik sınıflandırma yalnızca ilk ayrıştırmadır; issue açmadan önce kişisel veri ve öncelik manuel kontrol edilmelidir.
 
+Triage çıktısı telefon, plaka, e-posta ve URL olabilecek alanları redakte edilmiş ham not olarak üretir. Issue'a orijinal notu değil, redakte edilmiş sürümü taşı.
+
 ## Ham Not
 
 ```text

@@ -10,6 +10,7 @@ Bu doküman, ilk gerçek kullanıcı testlerinden gelen notları kaybolmadan ür
 - Kural motorunu ilgilendiren somut öneriler ayrıca `.github/ISSUE_TEMPLATE/rule-feedback.md` ile açılır.
 - Bir not hem kullanıcı deneyimi hem kural önerisi içeriyorsa iki ayrı issue açılır.
 - Ham not issue'a taşınmadan önce `docs/user-test-intake-template.md` ile anonimleştirilir ve önceliklendirilir.
+- `npm run user-tests:triage -- path/to/user-note.txt` çıktısı telefon, plaka, e-posta ve URL olabilecek alanları redakte eder; yine de issue açmadan önce manuel kontrol yapılır.
 
 ## Triage sınıfları
 

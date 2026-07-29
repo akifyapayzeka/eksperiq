@@ -45,10 +45,18 @@ const categories = [
 ];
 
 const personalDataPatterns = [
-  { label: "telefon olabilir", pattern: /(?:\+90|0)?\s?5\d{2}[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}/ },
-  { label: "plaka olabilir", pattern: /\b\d{2}\s?[A-ZÇĞİÖŞÜ]{1,3}\s?\d{2,4}\b/i },
-  { label: "e-posta olabilir", pattern: /[^\s@]+@[^\s@]+\.[^\s@]+/ },
-  { label: "URL olabilir", pattern: /https?:\/\/\S+/i },
+  {
+    label: "telefon olabilir",
+    pattern: /(?:\+90|0)?\s?5\d{2}[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}/g,
+    replacement: "[telefon redakte edildi]",
+  },
+  {
+    label: "plaka olabilir",
+    pattern: /\b\d{2}\s?[A-ZÇĞİÖŞÜ]{1,3}\s?\d{2,4}\b/gi,
+    replacement: "[plaka redakte edildi]",
+  },
+  { label: "e-posta olabilir", pattern: /[^\s@]+@[^\s@]+\.[^\s@]+/g, replacement: "[e-posta redakte edildi]" },
+  { label: "URL olabilir", pattern: /https?:\/\/\S+/gi, replacement: "[url redakte edildi]" },
 ];
 
 function normalize(value) {
@@ -77,7 +85,19 @@ function pickCategory(note) {
 }
 
 function findPersonalDataWarnings(note) {
-  return personalDataPatterns.filter((item) => item.pattern.test(note)).map((item) => item.label);
+  return personalDataPatterns
+    .filter((item) => {
+      item.pattern.lastIndex = 0;
+      return item.pattern.test(note);
+    })
+    .map((item) => item.label);
+}
+
+function redactPersonalData(note) {
+  return personalDataPatterns.reduce((redactedNote, item) => {
+    item.pattern.lastIndex = 0;
+    return redactedNote.replace(item.pattern, item.replacement);
+  }, note);
 }
 
 function slugify(value) {
@@ -132,9 +152,12 @@ function backlogDraft(note, sourceName) {
 
 const category = pickCategory(rawNote);
 const warnings = findPersonalDataWarnings(rawNote);
+const redactedNote = redactPersonalData(rawNote);
 const inputName = basename(inputPath).replace(/\.[^.]+$/, "");
 const outputFile = join(outputDir, `${slugify(inputName || "kullanici-notu")}-triage.md`);
 const optionalBacklogDraft = category.type === "kural adayı" ? `\n${backlogDraft(rawNote, inputName)}` : "";
+const redactionNote =
+  warnings.length > 0 ? "\n- [ ] Orijinal notu issue'a taşıma; aşağıdaki redakte edilmiş sürümü kullan." : "";
 
 const issueBody = `# Kullanıcı testi triage taslağı
 
@@ -151,13 +174,14 @@ Kaynak not: \`${basename(inputPath)}\`
 ${
   warnings.length
     ? warnings.map((warning) => `- [ ] Kontrol et: ${warning}`).join("\n")
-    : "- [x] Basit otomatik taramada telefon, plaka veya e-posta kalıbı bulunmadı."
+    : "- [x] Basit otomatik taramada telefon, plaka, e-posta veya URL kalıbı bulunmadı."
 }
+${redactionNote}
 
-## Ham not
+## Redakte edilmiş ham not
 
 \`\`\`text
-${rawNote.trim()}
+${redactedNote.trim()}
 \`\`\`
 
 ## Issue'a çevirmeden önce
