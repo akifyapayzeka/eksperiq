@@ -35,9 +35,10 @@ Teslim paketi üretimi:
 
 ```bash
 npm run appstore:package
+npm run appstore:check
 ```
 
-Bu komut App Store dokümanlarını, mevcut mobil screenshot çıktısını ve ikon kaynaklarını `dist/app-store-package` altına toplar. `dist` klasörü repoya eklenmez.
+İlk komut App Store dokümanlarını, mevcut mobil screenshot çıktısını ve ikon kaynaklarını `dist/app-store-package` altına toplar. İkinci komut paketin beklenen dosyaları içerdiğini doğrular. `dist` klasörü repoya eklenmez.
 
 Öncelikli mobil dosyalar:
 

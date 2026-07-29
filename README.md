@@ -151,6 +151,7 @@ App Store metin, screenshot ve ikon kaynak paketini hazırlamak için:
 
 ```bash
 npm run appstore:package
+npm run appstore:check
 ```
 
 macOS/Xcode ortamında iOS proje üretimi için:

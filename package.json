@@ -21,6 +21,7 @@
     "ai:env-check": "node scripts/check-ai-env.mjs",
     "ai:staging-check": "node scripts/check-ai-staging.mjs",
     "appstore:package": "node scripts/prepare-app-store-package.mjs",
+    "appstore:check": "node scripts/check-app-store-package.mjs",
     "hostinger:package": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-hostinger.ps1"
   },
   "dependencies": {
