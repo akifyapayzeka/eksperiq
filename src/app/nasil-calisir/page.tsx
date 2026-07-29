@@ -4,7 +4,7 @@ export default function HowItWorksPage() {
   return (
     <InfoPage title="Nasıl çalışır?">
       <p>
-        eksperIQ, kullanıcının manuel girdiği araç bilgileri, hasar bilgileri, bakım kayıtları ve ilan açıklaması
+        EksperIQ, kullanıcının manuel girdiği araç bilgileri, hasar bilgileri, bakım kayıtları ve ilan açıklaması
         üzerinden kural tabanlı bir değerlendirme üretir.
       </p>
       <p>

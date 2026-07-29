@@ -1,5 +1,5 @@
 export const appConfig = {
-  name: "eksperIQ",
+  name: "EksperIQ",
   shortName: "EksperIQ",
   tagline: "Araç ilanını gir, riskleri gör, satıcıya ne soracağını öğren.",
   productionUrl: "https://eksperiq.vercel.app",

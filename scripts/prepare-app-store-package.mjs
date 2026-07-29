@@ -11,6 +11,7 @@ const docs = [
   "docs/app-store-readiness.md",
   "docs/app-store-assets.md",
   "docs/testflight-qa-checklist.md",
+  "docs/testflight-qa-report.md",
   "docs/release-operations-checklist.md",
 ];
 
@@ -37,9 +38,11 @@ const copiedDocs = docs.filter((doc) => copyIfExists(join(process.cwd(), doc), d
 const copiedScreenshots = screenshots.filter((file) =>
   copyIfExists(join(process.cwd(), "test-results", "screenshots", file), screenshotsDir),
 );
-const copiedAssets = ["public/app-store-icon-source.svg", "public/apple-touch-icon.png"].filter((asset) =>
-  copyIfExists(join(process.cwd(), asset), assetsDir),
-);
+const copiedAssets = [
+  "public/app-store-icon-source.svg",
+  "public/app-store-icon-1024.png",
+  "public/apple-touch-icon.png",
+].filter((asset) => copyIfExists(join(process.cwd(), asset), assetsDir));
 
 writeFileSync(
   join(outputDir, "README.md"),
@@ -56,7 +59,7 @@ Bu klasör App Store Connect için ücretsiz hazırlanabilen teslim varlıkları
 ## Kontrol
 
 1. Screenshot dosyalarını gerçek iPhone ölçülerine göre incele.
-2. App Store ikonunu 1024x1024 PNG olarak opak arka planla dışa aktar.
+2. App Store ikonunun 1024x1024 opak PNG çıktısını \`assets/app-store-icon-1024.png\` içinden kullan.
 3. App Store Connect metinlerini \`docs/app-store-submission.md\` içinden kullan.
 4. Review note içinde karar destek sınırını koru.
 5. TestFlight öncesi \`npm run native:build\` sonucunu yeniden doğrula.

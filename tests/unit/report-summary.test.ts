@@ -46,7 +46,7 @@ describe("report summary", () => {
   it("formats a copyable Turkish report summary", () => {
     const summary = formatAnalysisSummary(analyzeVehicle(input));
 
-    expect(summary).toContain("eksperIQ ikinci el araç ilanı karar desteği");
+    expect(summary).toContain("EksperIQ ikinci el araç ilanı karar desteği");
     expect(summary).toContain("Araç: Toyota Corolla 2020");
     expect(summary).toContain("Risk skoru:");
     expect(summary).toContain("Bilgi doluluğu:");

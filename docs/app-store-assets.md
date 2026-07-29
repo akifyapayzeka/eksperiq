@@ -13,15 +13,17 @@ public/app-store-icon-source.svg
 App Store için gereken final ikon:
 
 ```text
+public/app-store-icon-1024.png
 1024 x 1024 PNG, alfa kanalı olmadan
 ```
 
 Ücretsiz üretim yolu:
 
-1. `public/app-store-icon-source.svg` dosyasını Inkscape, Figma free, Photopea veya benzeri ücretsiz araçla aç.
-2. 1024 x 1024 PNG olarak dışa aktar.
-3. Arka planın opak olduğundan emin ol.
-4. Xcode Asset Catalog içinde AppIcon alanına yerleştir.
+```bash
+npm run appstore:icon
+```
+
+Bu komut `public/app-store-icon-1024.png` dosyasını opak RGB PNG olarak üretir. `npm run appstore:check` ikonun 1024 x 1024 olduğunu ve alpha kanalı içermediğini doğrular. Xcode Asset Catalog içinde AppIcon alanına bu dosya yerleştirilmelidir.
 
 ## Screenshot seti
 

@@ -122,3 +122,5 @@ App Store Connect alanları için `docs/app-store-submission.md` dosyasındaki t
 İkon, screenshot sırası ve ücretsiz asset hazırlığı için `docs/app-store-assets.md` dosyasını kullanın.
 
 Gerçek cihaz TestFlight kontrolü için `docs/testflight-qa-checklist.md` dosyasını kullanın.
+
+Test sonuçlarını teslim edilebilir rapora çevirmek için `docs/testflight-qa-report.md` dosyasını kullanın.

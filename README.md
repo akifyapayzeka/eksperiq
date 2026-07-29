@@ -1,6 +1,6 @@
-# eksperIQ
+# EksperIQ
 
-eksperIQ, ikinci el araç ilanı giren kullanıcıya kural tabanlı risk değerlendirmesi, satıcıya sorulacak sorular ve ekspertiz kontrol listesi sunan ücretsiz bir responsive web uygulamasıdır.
+EksperIQ, ikinci el araç ilanı giren kullanıcıya kural tabanlı risk değerlendirmesi, satıcıya sorulacak sorular ve ekspertiz kontrol listesi sunan ücretsiz bir responsive web uygulamasıdır.
 
 ## Özellikler
 

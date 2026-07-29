@@ -5,9 +5,7 @@ Bu checklist App Store hesabı, macOS ve Xcode hazır olduktan sonra gerçek iPh
 ## Hazırlık
 
 - [ ] `npm run native:build` geçti.
-- [ ] `npm run appstore:package` geçti.
-- [ ] `npm run appstore:screenshots` geçti.
-- [ ] `npm run appstore:check` geçti.
+- [ ] `npm run appstore:prepare` geçti.
 - [ ] Xcode signing team seçildi.
 - [ ] Bundle ID `com.eksperiq.app` veya onaylanan final ID ile eşleşiyor.
 - [ ] App icon setinde opak 1024 x 1024 ikon var.
