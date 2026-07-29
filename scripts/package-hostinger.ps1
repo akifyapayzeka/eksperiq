@@ -23,14 +23,17 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 RewriteRule ^analiz/?$ /analiz.html [L]
+RewriteRule ^analizlerim/?$ /analizlerim.html [L]
 RewriteRule ^sonuc/?$ /sonuc.html [L]
 RewriteRule ^geri-bildirim/?$ /geri-bildirim.html [L]
+RewriteRule ^kontrol-listesi/?$ /kontrol-listesi.html [L]
 RewriteRule ^nasil-calisir/?$ /nasil-calisir.html [L]
 RewriteRule ^hakkinda/?$ /hakkinda.html [L]
 RewriteRule ^gizlilik/?$ /gizlilik.html [L]
 RewriteRule ^kullanim-kosullari/?$ /kullanim-kosullari.html [L]
 RewriteRule ^moduller/?$ /moduller.html [L]
 RewriteRule ^offline/?$ /offline.html [L]
+RewriteRule ^profil/?$ /profil.html [L]
 RewriteRule . /404.html [L]
 "@
 

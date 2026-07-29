@@ -40,7 +40,8 @@ test("mobile bottom navigation opens analysis", async ({ page, isMobile }) => {
   const mobileNav = page.getByRole("navigation", { name: "Mobil alt menü" });
   await expect(mobileNav).toBeVisible();
   await expect(mobileNav.getByRole("link", { name: "Ana Sayfa" })).toHaveAttribute("aria-current", "page");
-  await mobileNav.getByRole("link", { name: "Analiz" }).click();
+  await expect(mobileNav.getByRole("link", { name: "Analizlerim" })).toBeVisible();
+  await mobileNav.getByRole("link", { name: "Analiz", exact: true }).click();
   await expect(page).toHaveURL(/\/analiz$/);
   await expect(page.getByRole("heading", { name: "Araç ilanı analizi" })).toBeVisible();
 });
@@ -51,11 +52,25 @@ test("mobile top actions match the app shell", async ({ page, isMobile }) => {
   await page.goto("/");
   const topActions = page.getByRole("navigation", { name: "Mobil hızlı işlemler" });
   await expect(topActions).toBeVisible();
-  await expect(topActions.getByText("Profil")).toBeVisible();
+  await expect(topActions.getByRole("link", { name: "Profil" })).toBeVisible();
   await expect(topActions.getByRole("link", { name: "Yeni Analiz" })).toBeVisible();
   await expect(topActions.getByRole("link", { name: "Analiz Raporu" })).toBeVisible();
-  await topActions.getByRole("link", { name: "Yeni Analiz" }).click();
-  await expect(page).toHaveURL(/\/analiz$/);
+  await expect(topActions.getByRole("link", { name: "Kontrol Listesi" })).toBeVisible();
+  await topActions.getByRole("link", { name: "Profil" }).click();
+  await expect(page).toHaveURL(/\/profil$/);
+  await expect(page.getByRole("heading", { name: "EksperIQ hesabı olmadan kullanılabilir." })).toBeVisible();
+  await page
+    .getByRole("navigation", { name: "Mobil hızlı işlemler" })
+    .getByRole("link", { name: "Analiz Raporu" })
+    .click();
+  await expect(page).toHaveURL(/\/analizlerim$/);
+  await expect(page.getByRole("heading", { name: "Analizlerim" })).toBeVisible();
+  await page
+    .getByRole("navigation", { name: "Mobil hızlı işlemler" })
+    .getByRole("link", { name: "Kontrol Listesi" })
+    .click();
+  await expect(page).toHaveURL(/\/kontrol-listesi$/);
+  await expect(page.getByRole("heading", { name: "Satın alma öncesi son kontroller" })).toBeVisible();
 });
 
 test("shows validation errors", async ({ page }) => {

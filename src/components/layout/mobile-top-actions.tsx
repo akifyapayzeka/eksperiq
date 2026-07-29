@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardCheck, FileText, Lock, Plus, UserRound } from "lucide-react";
+import { ClipboardCheck, FileText, Plus, UserRound } from "lucide-react";
 
 const actions = [
-  { href: "/moduller", label: "Profil", icon: UserRound, locked: true },
-  { href: "/analiz", label: "Yeni Analiz", icon: Plus, locked: false },
-  { href: "/sonuc", label: "Analiz Raporu", icon: FileText, locked: false },
-  { href: "/sonuc", label: "Kontrol Listesi", icon: ClipboardCheck, locked: false },
+  { href: "/profil", label: "Profil", icon: UserRound },
+  { href: "/analiz", label: "Yeni Analiz", icon: Plus },
+  { href: "/analizlerim", label: "Analiz Raporu", icon: FileText },
+  { href: "/kontrol-listesi", label: "Kontrol Listesi", icon: ClipboardCheck },
 ];
 
 export function MobileTopActions() {
@@ -21,28 +21,6 @@ export function MobileTopActions() {
           {actions.map((action) => {
             const isActive = pathname === action.href || (action.href !== "/" && pathname.startsWith(action.href));
             const Icon = action.icon;
-            const content = (
-              <>
-                {action.locked ? (
-                  <Lock aria-hidden="true" className="h-4 w-4" />
-                ) : (
-                  <Icon aria-hidden="true" className="h-4 w-4" />
-                )}
-                <span>{action.label}</span>
-              </>
-            );
-
-            if (action.locked) {
-              return (
-                <span
-                  key={action.label}
-                  aria-disabled="true"
-                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 text-sm font-semibold text-slate-400 shadow-sm"
-                >
-                  {content}
-                </span>
-              );
-            }
 
             return (
               <Link
@@ -55,7 +33,8 @@ export function MobileTopActions() {
                     : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-950"
                 }`}
               >
-                {content}
+                <Icon aria-hidden="true" className="h-4 w-4" />
+                <span>{action.label}</span>
               </Link>
             );
           })}

@@ -7,7 +7,7 @@ import { ClipboardList, Home, LayoutGrid, MessageSquareText } from "lucide-react
 const items = [
   { href: "/", label: "Ana Sayfa", icon: Home },
   { href: "/analiz", label: "Analiz", icon: ClipboardList },
-  { href: "/moduller", label: "Garajım", icon: LayoutGrid },
+  { href: "/analizlerim", label: "Analizlerim", icon: LayoutGrid },
   { href: "/geri-bildirim", label: "Geri Bildirim", icon: MessageSquareText },
 ];
 
