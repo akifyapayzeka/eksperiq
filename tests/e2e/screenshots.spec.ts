@@ -92,6 +92,7 @@ test("captures release screenshots", async ({ page }, testInfo) => {
   await page.goto("/analiz");
   await prepareScreenshotPage(page);
   await fillDemoVehicle(page);
+  await page.getByLabel("Yakıt türü").scrollIntoViewIfNeeded();
   await captureReleaseScreenshot(page, prefix, "analysis-form");
 
   await page.getByRole("button", { name: "Analiz oluştur" }).click();
