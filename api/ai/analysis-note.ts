@@ -1,9 +1,9 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { z } from "zod";
 import { createAiAnalysisNoteFromInput } from "../../src/lib/ai/analysis-note";
-import { getDailyUsage, incrementDailyUsage } from "../../src/lib/ai/daily-counter";
 import { isAiAnalysisNoteEnabled } from "../../src/lib/ai/feature-flags";
 import { isOpenRouterConfigured } from "../../src/lib/ai/openrouter";
+import { reserveDailyAiUsage } from "../../src/lib/ai/usage-store";
 import { decideAiUsage, parseDailyLimit } from "../../src/lib/ai/usage-guard";
 
 const usageKey = "analysis-note";
@@ -53,12 +53,11 @@ export default async function handler(request: IncomingMessage, response: Server
     return;
   }
 
-  const usedToday = getDailyUsage(usageKey);
   const dailyLimit = parseDailyLimit(process.env.OPENROUTER_DAILY_REQUEST_LIMIT);
   const usageDecision = decideAiUsage({
     isConfigured: isOpenRouterConfigured(),
     isFeatureEnabled: isAiAnalysisNoteEnabled(),
-    usedToday,
+    usedToday: 0,
     dailyLimit,
   });
 
@@ -84,16 +83,33 @@ export default async function handler(request: IncomingMessage, response: Server
     return;
   }
 
+  let reservation;
+  try {
+    reservation = await reserveDailyAiUsage(usageKey, dailyLimit);
+  } catch {
+    sendJson(response, 503, {
+      error: "AI kullanım limiti şu anda doğrulanamadı. Kural tabanlı raporu kullanabilirsiniz.",
+    });
+    return;
+  }
+
+  if (!reservation.allowed) {
+    sendJson(response, 429, {
+      error: reservation.reason,
+      remaining: reservation.remaining,
+    });
+    return;
+  }
+
   const aiResult = await createAiAnalysisNoteFromInput(parsed.data);
   if (aiResult.status !== "success") {
     sendJson(response, 502, { error: aiResult.reason });
     return;
   }
 
-  const usedAfterRequest = incrementDailyUsage(usageKey);
   sendJson(response, 200, {
     note: aiResult.content,
     model: aiResult.model,
-    remaining: Math.max(dailyLimit - usedAfterRequest, 0),
+    remaining: reservation.remaining,
   });
 }

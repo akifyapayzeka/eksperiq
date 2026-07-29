@@ -1,5 +1,5 @@
 import type { AnalysisResult } from "@/lib/analysis/types";
-import { requestOpenRouterChat, type OpenRouterChatResult } from "@/lib/ai/openrouter";
+import { requestOpenRouterChat, type OpenRouterChatResult } from "./openrouter";
 
 export type AiAnalysisNoteInput = {
   vehicleLabel: string;

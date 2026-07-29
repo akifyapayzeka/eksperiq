@@ -31,6 +31,14 @@ Yerel üretim:
 npm run screenshots
 ```
 
+Teslim paketi üretimi:
+
+```bash
+npm run appstore:package
+```
+
+Bu komut App Store dokümanlarını, mevcut mobil screenshot çıktısını ve ikon kaynaklarını `dist/app-store-package` altına toplar. `dist` klasörü repoya eklenmez.
+
 Öncelikli mobil dosyalar:
 
 ```text

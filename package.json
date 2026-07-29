@@ -19,6 +19,8 @@
     "ios:sync": "npm run build && npx cap sync ios",
     "ios:open": "npx cap open ios",
     "ai:env-check": "node scripts/check-ai-env.mjs",
+    "ai:staging-check": "node scripts/check-ai-staging.mjs",
+    "appstore:package": "node scripts/prepare-app-store-package.mjs",
     "hostinger:package": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-hostinger.ps1"
   },
   "dependencies": {

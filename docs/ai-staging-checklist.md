@@ -19,17 +19,51 @@ OPENROUTER_DAILY_REQUEST_LIMIT
 NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED
 ```
 
+Opsiyonel kalıcı limit store değişkenleri:
+
+```text
+UPSTASH_REDIS_REST_URL
+UPSTASH_REDIS_REST_TOKEN
+```
+
+Bu iki değişken yoksa endpoint in-memory fallback kullanır. Staging ve production ortamında merkezi limit için Upstash Redis REST önerilir.
+
+## Staging smoke kontrolü
+
+Gerçek AI çağrısı yapmadan:
+
+```bash
+npm run ai:staging-check
+```
+
+Farklı preview URL için:
+
+```bash
+AI_STAGING_BASE_URL=https://preview-url.example npm run ai:staging-check
+```
+
+Gerçek AI notu üretimini bilinçli test etmek için:
+
+```bash
+AI_STAGING_LIVE=1 npm run ai:staging-check
+```
+
+`AI_STAGING_LIVE=1` kullanımı günlük OpenRouter limitinden düşer. Bu modu yalnızca staging feature flag açıkken ve düşük limit belirlenmişken çalıştırın.
+
 ## Vercel staging adımları
 
 1. Vercel project settings içinde env değişkenlerini staging/preview için gir.
 2. `NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED=true` sadece staging ortamında aç.
 3. Günlük limiti düşük tut: `OPENROUTER_DAILY_REQUEST_LIMIT=20`
-4. Preview deploy al.
-5. Bir analiz raporu oluştur.
-6. AI notu oluştur butonuna bir kez bas.
-7. Notun kesin ekspertiz, hasarsızlık veya satın alma garantisi vermediğini kontrol et.
-8. Limit dolduğunda kullanıcıya net hata gösterildiğini kontrol et.
-9. Flag tekrar `false` yapıldığında AI alanının görünmediğini kontrol et.
+4. Varsa `UPSTASH_REDIS_REST_URL` ve `UPSTASH_REDIS_REST_TOKEN` değerlerini staging ortamına gir.
+5. Preview deploy al.
+6. `npm run ai:staging-check` çalıştır.
+7. Gerekirse `AI_STAGING_LIVE=1 npm run ai:staging-check` ile tek canlı AI notu dene.
+8. Bir analiz raporu oluştur.
+9. AI notu oluştur butonuna bir kez bas.
+10. Notun kesin ekspertiz, hasarsızlık veya satın alma garantisi vermediğini kontrol et.
+11. Limit dolduğunda kullanıcıya net hata gösterildiğini kontrol et.
+12. Flag tekrar `false` yapıldığında AI alanının görünmediğini kontrol et.
 
 ## Kapatma planı
 

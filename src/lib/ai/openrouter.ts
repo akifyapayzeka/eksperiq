@@ -1,4 +1,4 @@
-import { appConfig } from "@/lib/constants/app";
+import { appConfig } from "../constants/app";
 
 const OPENROUTER_CHAT_COMPLETIONS_URL = "https://openrouter.ai/api/v1/chat/completions";
 const DEFAULT_OPENROUTER_MODEL = "openrouter/free";

@@ -19,6 +19,15 @@ OPENROUTER_DAILY_REQUEST_LIMIT=20
 NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED=false
 ```
 
+Opsiyonel merkezi günlük limit store:
+
+```env
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+```
+
+Bu değerler yoksa ücretsiz yerel kullanım için in-memory fallback çalışır.
+
 `OPENROUTER_API_KEY` yoksa AI yardımcı katmanı `disabled` döner ve kural tabanlı analiz kullanılmaya devam eder.
 
 ## Servis dosyaları
@@ -27,6 +36,7 @@ NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED=false
 src/lib/ai/openrouter.ts
 src/lib/ai/analysis-note.ts
 src/lib/ai/usage-guard.ts
+src/lib/ai/usage-store.ts
 src/lib/ai/feature-flags.ts
 ```
 
@@ -43,6 +53,12 @@ api/ai/analysis-note.ts
 ```
 
 Bu endpoint feature flag kapalıyken veya günlük limit doluyken OpenRouter çağrısı yapmaz.
+
+Staging smoke kontrolü:
+
+```bash
+npm run ai:staging-check
+```
 
 Staging açılış kontrolü için:
 

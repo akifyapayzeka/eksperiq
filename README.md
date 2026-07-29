@@ -97,6 +97,7 @@ npm run lint
 npm run typecheck
 npm run test
 npm run e2e
+npm run ai:env-check
 ```
 
 ## Build komutu
@@ -110,8 +111,11 @@ npm run build
 1. Yeni ve bağımsız bir GitHub deposu oluşturun. Önerilen ad: `eksperiq`.
 2. Bu projeyi depoya push edin.
 3. Vercel üzerinde yeni proje oluşturup bu depoyu seçin.
-4. Framework olarak Next.js algılanır. Ek environment variable gerekmez.
-5. Deploy komutları varsayılan Next.js ayarlarıyla çalışır.
+4. Framework olarak Next.js algılanır. Kural tabanlı MVP için environment variable gerekmez.
+5. Opsiyonel AI notu açılacaksa `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `OPENROUTER_DAILY_REQUEST_LIMIT` ve `NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED` değişkenlerini girin.
+6. Merkezi günlük limit için opsiyonel `UPSTASH_REDIS_REST_URL` ve `UPSTASH_REDIS_REST_TOKEN` kullanılabilir.
+7. Deploy komutları varsayılan Next.js ayarlarıyla çalışır.
+8. Preview sonrası `npm run ai:staging-check` ile canlı endpoint davranışını doğrulayın.
 
 ## Netlify deploy adımları
 
@@ -141,6 +145,12 @@ Native wrapper hazırlığı için Capacitor konfigürasyonu eklenmiştir. Web �
 
 ```bash
 npm run native:build
+```
+
+App Store metin, screenshot ve ikon kaynak paketini hazırlamak için:
+
+```bash
+npm run appstore:package
 ```
 
 macOS/Xcode ortamında iOS proje üretimi için:
