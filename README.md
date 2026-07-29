@@ -98,6 +98,7 @@ npm run lint
 npm run typecheck
 npm run test
 npm run privacy:check
+npm run rule-backlog:check
 npm run launch:check
 npm run e2e
 npm run ai:env-check

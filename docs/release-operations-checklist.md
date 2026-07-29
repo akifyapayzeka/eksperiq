@@ -17,6 +17,7 @@ npm run lint
 npm run typecheck
 npm run test
 npm run privacy:check
+npm run rule-backlog:check
 npm run launch:check
 npm run launch:audit
 npm run appstore:metadata-check
