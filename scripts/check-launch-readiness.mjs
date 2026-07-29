@@ -25,6 +25,8 @@ const requiredFiles = [
   "src/lib/feedback/rule-candidates.ts",
   "scripts/check-live-site.mjs",
   "scripts/check-hostinger-package.ps1",
+  "scripts/check-repo-sync.mjs",
+  "scripts/prepare-user-test-issues.mjs",
   "public/app-store-icon-1024.png",
 ];
 
@@ -40,6 +42,8 @@ const requiredPackageScripts = [
   "hostinger:package",
   "hostinger:check",
   "deploy:check",
+  "repo:check",
+  "user-tests:package",
   "ai:staging-check",
   "launch:check",
 ];

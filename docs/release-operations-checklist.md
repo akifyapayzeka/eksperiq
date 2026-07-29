@@ -15,6 +15,8 @@ npm run typecheck
 npm run test
 npm run launch:check
 npm run appstore:metadata-check
+npm run repo:check
+npm run user-tests:package
 npm run deploy:check
 npm run build
 npm run e2e
@@ -33,6 +35,7 @@ Kontrol edilecekler:
 ## Vercel
 
 - GitHub `master` branch push sonrası production deployment otomatik başlamalı.
+- GitHub remote/local commit kontrolü: `npm run repo:check`
 - Vercel panelinde son commit `Ready` durumunda görünmeli.
 - Canlı URL: `https://eksperiq.vercel.app`
 - Kontrol:
@@ -100,6 +103,7 @@ Kontrol edilecekler:
 - Kullanıcı testi issue şablonu: `.github/ISSUE_TEMPLATE/user-test-feedback.md`
 - İlk 5 kullanıcı testi planı: `docs/first-5-user-tests.md`
 - Kullanıcı testi issue planı: `docs/user-test-issue-plan.md`
+- Kullanıcı testi issue taslakları: `npm run user-tests:package`
 - İlk takip issue'su: `https://github.com/akifyapayzeka/eksperiq/issues/1`
 - Kural adayları: `src/lib/feedback/rule-candidates.ts`
 - Kural backlog dosyası: `docs/rule-backlog.md`

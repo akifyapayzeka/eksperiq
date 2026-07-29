@@ -2,6 +2,14 @@
 
 Gerçek kullanıcı testi yapılmadan issue'lar tamamlandı kabul edilmez. Bu dosya, test katılımcısı bulunduğunda açılacak beş GitHub issue başlığını ve beklenen kanıtı önceden netleştirir.
 
+Issue gövde taslaklarını üretmek için:
+
+```bash
+npm run user-tests:package
+```
+
+Çıktı klasörü: `dist/user-test-issues`
+
 ## Açılacak issue'lar
 
 1. `[Kullanıcı testi] İlk kez ikinci el araç bakacak kullanıcı`
