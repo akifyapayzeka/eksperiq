@@ -1,16 +1,46 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertCircle, ArrowUpRight, CarFront, FileText, Plus } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowUpRight,
+  CalendarDays,
+  CarFront,
+  FileText,
+  Plus,
+  Search,
+  ShieldCheck,
+  SlidersHorizontal,
+  Wrench,
+} from "lucide-react";
 import { loadAnalysis } from "@/lib/storage/analysis-storage";
+import type { AnalysisResult } from "@/lib/analysis/types";
+
+const filters = ["Tümü", "Yüksek Risk", "Orta Risk", "Düşük Risk"];
+const upcomingModules = [
+  ["Fotoğraftan Hasar Analizi", "Olası çizik, göçük ve panel uyumsuzluğu işaretleri."],
+  ["Bakım Takibi", "Periyodik bakım ve yaklaşan işlemleri tek yerde izle."],
+  ["Araç Sağlık Karnesi", "Bakım, ekspertiz ve kontrol geçmişini sade ekranda tut."],
+  ["Araç Değer Takibi", "Piyasa hareketlerini karar desteği olarak takip et."],
+] as const;
 
 export default function MyAnalysesPage() {
-  const result = useMemo(() => loadAnalysis(), []);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setResult(loadAnalysis());
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  const completedCount = result ? 1 : 0;
 
   return (
     <main className="flex-1 bg-slate-50">
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-sm font-medium text-slate-500">Kayıtlı incelemelerin</p>
@@ -18,49 +48,123 @@ export default function MyAnalysesPage() {
           </div>
           <Link
             href="/analiz"
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white"
+            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white"
           >
             <Plus aria-hidden="true" className="h-4 w-4" />
-            Yeni
+            Yeni Analiz
           </Link>
         </div>
 
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center justify-between gap-4">
+        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+          <div className="grid grid-cols-3 divide-x divide-slate-200 overflow-hidden rounded-2xl border border-slate-200">
+            <div className="p-4">
+              <strong className="block text-2xl text-slate-950">{completedCount}</strong>
+              <span className="text-sm text-slate-600">analiz</span>
+            </div>
+            <div className="p-4">
+              <strong className="block text-2xl text-slate-950">{result?.totalScore ?? "-"}</strong>
+              <span className="text-sm text-slate-600">son skor</span>
+            </div>
+            <div className="p-4">
+              <strong className="block text-2xl text-slate-950">{result ? result.findings.length : "-"}</strong>
+              <span className="text-sm text-slate-600">bulgu</span>
+            </div>
+          </div>
+
+          <div className="mt-5 flex min-h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4">
+            <Search aria-hidden="true" className="h-5 w-5 text-slate-500" />
+            <span className="text-sm text-slate-500">Marka, model veya ilan ara</span>
+            <SlidersHorizontal aria-hidden="true" className="ml-auto h-5 w-5 text-slate-500" />
+          </div>
+
+          <div className="-mx-1 mt-4 flex gap-2 overflow-x-auto px-1 pb-1" aria-label="Analiz filtreleri">
+            {filters.map((filter, index) => (
+              <button
+                key={filter}
+                type="button"
+                className={`min-h-11 shrink-0 rounded-full border px-4 text-sm font-semibold ${
+                  index === 0 ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white text-slate-700"
+                }`}
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-6 flex items-end justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-semibold text-slate-950">{result ? "Son oturum analizi" : "Analiz yok"}</h2>
-              <p className="mt-1 text-sm text-slate-600">Veriler bu MVP aşamasında kalıcı hesaba kaydedilmez.</p>
+              <h2 className="text-2xl font-semibold text-slate-950">
+                {result ? "Son oturum analizi" : "Henüz analiz yok"}
+              </h2>
+              <p className="mt-1 text-sm text-slate-600">
+                Veriler kalıcı hesaba kaydedilmez; yalnızca bu oturumda görünür.
+              </p>
             </div>
             <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600">
-              {result ? "1 analiz" : "0 analiz"}
+              {completedCount} analiz
             </span>
           </div>
 
           {result ? (
-            <article className="mt-5 rounded-2xl border border-slate-200 bg-sky-50 p-5">
-              <div className="flex gap-4">
-                <div className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl bg-white">
-                  <CarFront aria-hidden="true" className="h-10 w-10 text-slate-500" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-xl font-semibold leading-tight text-slate-950">
-                      {result.input.year} {result.input.brand} {result.input.model}
-                    </h3>
-                    <span className="shrink-0 text-sm font-semibold text-amber-700">
-                      {result.totalScore} - {result.riskLabel}
-                    </span>
+            <article className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div className="bg-sky-50 p-5">
+                <div className="flex gap-4">
+                  <div className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl bg-white">
+                    <CarFront aria-hidden="true" className="h-10 w-10 text-slate-500" />
                   </div>
-                  <p className="mt-2 text-sm text-slate-600">{result.input.city || "Şehir belirtilmedi"}</p>
-                  <p className="mt-3 flex items-center gap-2 text-sm font-semibold text-slate-700">
-                    <AlertCircle aria-hidden="true" className="h-4 w-4 text-amber-600" />
-                    {result.findings[0]?.title ?? "Öncelikli bulgu bulunamadı"}
-                  </p>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between">
+                      <h3 className="text-xl font-semibold leading-tight text-slate-950">
+                        {result.input.year} {result.input.brand} {result.input.model}
+                      </h3>
+                      <span className="shrink-0 rounded-full bg-amber-50 px-2 py-1 text-sm font-semibold text-amber-700 ring-1 ring-amber-200">
+                        {result.totalScore} - {result.riskLabel}
+                      </span>
+                    </div>
+                    <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-600">
+                      <span>{result.input.city || "Şehir belirtilmedi"}</span>
+                      <span>{result.input.mileage.toLocaleString("tr-TR")} km</span>
+                      <span>{result.input.fuelType}</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-5">
+                <p className="flex items-start gap-2 text-sm font-semibold text-slate-700">
+                  <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                  {result.findings[0]?.title ?? "Öncelikli bulgu bulunamadı"}
+                </p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-xl bg-slate-50 p-3">
+                    <CalendarDays aria-hidden="true" className="h-4 w-4 text-slate-500" />
+                    <p className="mt-2 text-sm font-semibold text-slate-950">Oturum raporu</p>
+                  </div>
+                  <div className="rounded-xl bg-slate-50 p-3">
+                    <ShieldCheck aria-hidden="true" className="h-4 w-4 text-slate-500" />
+                    <p className="mt-2 text-sm font-semibold text-slate-950">
+                      {result.completeness.completed}/{result.completeness.total} bilgi dolu
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-slate-50 p-3">
+                    <Wrench aria-hidden="true" className="h-4 w-4 text-slate-500" />
+                    <p className="mt-2 text-sm font-semibold text-slate-950">
+                      {result.inspectionFocus.length} kontrol başlığı
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <Link
                     href="/sonuc"
-                    className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white"
                   >
                     Raporu Aç
+                    <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    href="/kontrol-listesi"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-sky-50 px-4 text-sm font-semibold text-slate-900 ring-1 ring-sky-100"
+                  >
+                    Kontrol listesi
                     <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
                   </Link>
                 </div>
@@ -80,6 +184,24 @@ export default function MyAnalysesPage() {
               </Link>
             </div>
           )}
+        </section>
+
+        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="text-2xl font-semibold text-slate-950">Yakında EksperIQ&apos;da</h2>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            Araç yolculuğunu daha şeffaf kılacak ücretsiz modüller.
+          </p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            {upcomingModules.map(([title, description]) => (
+              <article key={title} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-500 ring-1 ring-slate-200">
+                  Yakında
+                </span>
+                <h3 className="mt-4 font-semibold text-slate-950">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+              </article>
+            ))}
+          </div>
         </section>
       </div>
     </main>

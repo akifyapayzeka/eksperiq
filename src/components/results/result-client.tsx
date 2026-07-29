@@ -1,8 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, ClipboardCopy, FileText, RotateCcw, Share2, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowUpRight,
+  CheckCircle2,
+  ClipboardCopy,
+  FileText,
+  RotateCcw,
+  Share2,
+  ShieldCheck,
+  Trash2,
+} from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
 import { RISK_LEVELS, SCORE_WEIGHTS } from "@/lib/constants/analysis";
 import { formatAnalysisSummary } from "@/lib/analysis/report-summary";
@@ -71,16 +81,39 @@ function findingCount(result: AnalysisResult, severity: keyof typeof severityLab
   return result.findings.filter((finding) => finding.severity === severity).length;
 }
 
+function riskToneClass(score: number): string {
+  if (score >= 80) return "bg-emerald-50 text-emerald-800 ring-emerald-200";
+  if (score >= 60) return "bg-amber-50 text-amber-800 ring-amber-200";
+  if (score >= 40) return "bg-orange-50 text-orange-800 ring-orange-200";
+  return "bg-red-50 text-red-800 ring-red-200";
+}
+
+function scoreRingStyle(score: number) {
+  return {
+    background: `conic-gradient(#0f766e ${score * 3.6}deg, #e2e8f0 0deg)`,
+  };
+}
+
 export function ResultClient() {
-  const [result, setResult] = useState<AnalysisResult | null>(() => loadAnalysis());
+  const [isReady, setIsReady] = useState(false);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "questions-copied" | "summary-copied" | "shared" | "failed">(
     "idle",
   );
-  const [findingFilter, setFindingFilter] = useState<FindingFilter>(() => loadFindingFilter());
-  const [checkedChecklist, setCheckedChecklist] = useState<Set<string>>(() => {
-    const current = loadAnalysis();
-    return new Set(current ? loadChecklist(current.finalChecklist) : []);
-  });
+  const [findingFilter, setFindingFilter] = useState<FindingFilter>("all");
+  const [checkedChecklist, setCheckedChecklist] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const current = loadAnalysis();
+      setResult(current);
+      setFindingFilter(loadFindingFilter());
+      setCheckedChecklist(new Set(current ? loadChecklist(current.finalChecklist) : []));
+      setIsReady(true);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   async function copyText(text: string, successStatus: "questions-copied" | "summary-copied") {
     try {
@@ -150,9 +183,20 @@ export function ResultClient() {
     });
   }
 
+  if (!isReady) {
+    return (
+      <main className="flex-1 bg-slate-50">
+        <div className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 lg:px-8">
+          <h1 className="text-3xl font-semibold text-slate-950">Rapor hazırlanıyor</h1>
+          <p className="mt-3 leading-7 text-slate-700">Mevcut tarayıcı oturumundaki analiz kontrol ediliyor.</p>
+        </div>
+      </main>
+    );
+  }
+
   if (!result) {
     return (
-      <main className="flex-1">
+      <main className="flex-1 bg-slate-50">
         <div className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 lg:px-8">
           <h1 className="text-3xl font-semibold text-slate-950">Analiz bulunamadı</h1>
           <p className="mt-3 leading-7 text-slate-700">
@@ -173,26 +217,69 @@ export function ResultClient() {
     findingFilter === "all" ? result.findings : result.findings.filter((finding) => finding.severity === findingFilter);
 
   return (
-    <main className="flex-1">
-      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 sm:px-6 lg:px-8">
-        <section className="rounded-lg bg-slate-950 p-5 text-white sm:p-8">
-          <p className="text-sm text-slate-300">Araç Risk Skoru</p>
-          <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h1 className="text-5xl font-semibold">{result.totalScore} / 100</h1>
-              <p className="mt-3 text-xl text-amber-200">{result.riskLabel}</p>
-              <p className="mt-2 text-sm text-slate-300">Rapor tarihi: {formatReportDate(result.generatedAt)}</p>
+    <main className="flex-1 bg-slate-50">
+      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 lg:px-8">
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="bg-sky-50 p-5 sm:p-7">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-slate-600">Araç Risk Skoru</p>
+                <h1 className="mt-2 text-3xl font-semibold leading-tight text-slate-950 sm:text-4xl">
+                  {result.input.year} {result.input.brand} {result.input.model}
+                </h1>
+                <p className="mt-2 text-sm text-slate-600">Rapor tarihi: {formatReportDate(result.generatedAt)}</p>
+              </div>
+              <span
+                className={`shrink-0 rounded-full px-3 py-1 text-sm font-semibold ring-1 ${riskToneClass(
+                  result.totalScore,
+                )}`}
+              >
+                {result.riskLabel}
+              </span>
             </div>
-            <div className="rounded-lg border border-white/20 p-4">
-              <p className="text-sm text-slate-300">Kısa karar özeti</p>
-              <p className="mt-1 text-lg font-semibold">{result.decision}</p>
+            <div className="mt-6 grid gap-4 lg:grid-cols-[220px_1fr] lg:items-stretch">
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div
+                  className="mx-auto grid h-32 w-32 place-items-center rounded-full"
+                  style={scoreRingStyle(result.totalScore)}
+                  aria-hidden="true"
+                >
+                  <div className="grid h-24 w-24 place-items-center rounded-full bg-white text-center">
+                    <div>
+                      <strong className="block text-3xl text-slate-950">{result.totalScore}</strong>
+                      <span className="text-sm font-medium text-slate-500">/100</span>
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-4 text-center text-sm font-medium text-slate-700">
+                  Skor kesin hüküm değil, inceleme önceliği verir.
+                </p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <p className="text-sm text-slate-500">Kısa karar özeti</p>
+                  <p className="mt-2 text-lg font-semibold leading-snug text-slate-950">{result.decision}</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <p className="text-sm text-slate-500">Riskli bulgu</p>
+                  <p className="mt-2 text-lg font-semibold text-slate-950">
+                    {findingCount(result, "high")} yüksek, {findingCount(result, "medium")} orta
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <p className="text-sm text-slate-500">Bilgi durumu</p>
+                  <p className="mt-2 text-lg font-semibold text-slate-950">
+                    {result.completeness.completed} / {result.completeness.total}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="no-print mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+          <div className="no-print grid gap-3 border-t border-slate-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-6">
             <button
               type="button"
               onClick={() => window.print()}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-semibold text-slate-950 hover:bg-slate-100"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800"
             >
               <FileText aria-hidden="true" className="h-4 w-4" />
               Raporu yazdır
@@ -200,7 +287,7 @@ export function ResultClient() {
             <button
               type="button"
               onClick={copyQuestions}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/25 px-4 text-sm font-semibold text-white hover:bg-white/10"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800"
             >
               <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
               Soruları kopyala
@@ -208,7 +295,7 @@ export function ResultClient() {
             <button
               type="button"
               onClick={copySummary}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/25 px-4 text-sm font-semibold text-white hover:bg-white/10"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800"
             >
               <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
               Rapor özetini kopyala
@@ -216,14 +303,14 @@ export function ResultClient() {
             <button
               type="button"
               onClick={shareSummary}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/25 px-4 text-sm font-semibold text-white hover:bg-white/10"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800"
             >
               <Share2 aria-hidden="true" className="h-4 w-4" />
               Raporu paylaş
             </button>
             <Link
               href="/analiz"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/25 px-4 text-sm font-semibold text-white hover:bg-white/10"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800"
             >
               <RotateCcw aria-hidden="true" className="h-4 w-4" />
               Yeni analiz
@@ -231,35 +318,55 @@ export function ResultClient() {
             <button
               type="button"
               onClick={clearCurrentAnalysis}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-red-300 px-4 text-sm font-semibold text-red-100 hover:bg-red-950/40"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-red-200 px-4 text-sm font-semibold text-red-700 hover:bg-red-50"
             >
               <Trash2 aria-hidden="true" className="h-4 w-4" />
               Oturum verisini sil
             </button>
           </div>
-          <div className="no-print mt-4 rounded-lg border border-white/15 bg-white/5 p-4 text-sm text-slate-200">
-            <p className="font-medium text-white">Bu raporda eksik veya fazla sert görünen bir uyarı var mı?</p>
-            <p className="mt-1">
-              Kural setlerini gerçek kullanıcı geri bildirimiyle geliştiriyoruz. Kişisel veri paylaşmadan not
-              bırakabilirsiniz.
-            </p>
-            <Link
-              href="/geri-bildirim"
-              className="mt-3 inline-flex min-h-11 items-center rounded-lg bg-white px-4 font-semibold text-slate-950 hover:bg-slate-100"
-            >
-              Geri bildirim gönder
-            </Link>
+          <div className="no-print border-t border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-medium text-slate-950">Bu raporda eksik veya fazla sert görünen bir uyarı var mı?</p>
+                <p className="mt-1">
+                  Kural setlerini gerçek kullanıcı geri bildirimiyle geliştiriyoruz. Kişisel veri paylaşmadan not
+                  bırakabilirsiniz.
+                </p>
+              </div>
+              <Link
+                href="/geri-bildirim"
+                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-4 font-semibold text-slate-950 ring-1 ring-slate-200 hover:ring-teal-700"
+              >
+                Geri bildirim gönder
+                <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
-          <p className="no-print mt-3 min-h-5 text-sm text-slate-300" role="status">
+          <p className="no-print min-h-5 px-4 pb-4 text-sm text-slate-600" role="status">
             {copyStatus === "questions-copied" ? "Satıcı soruları panoya kopyalandı." : null}
             {copyStatus === "summary-copied" ? "Rapor özeti panoya kopyalandı." : null}
             {copyStatus === "shared" ? "Rapor özeti paylaşım paneline gönderildi." : null}
             {copyStatus === "failed" ? "Paylaşma veya kopyalama tarayıcı tarafından engellendi." : null}
           </p>
         </section>
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
-          <AlertTriangle aria-hidden="true" className="mr-2 inline h-5 w-5" />
-          {appConfig.disclaimer}
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
+          <div className="flex gap-3">
+            <AlertTriangle aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" />
+            <p>{appConfig.disclaimer}</p>
+          </div>
+        </div>
+        <div className="no-print rounded-2xl border border-teal-100 bg-white p-4 shadow-sm">
+          <div className="flex items-start gap-3">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-teal-50 text-teal-700">
+              <ShieldCheck aria-hidden="true" className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="font-semibold text-slate-950">Ekspertiz öncesi hızlı okuma</p>
+              <p className="mt-1 text-sm leading-6 text-slate-600">
+                Önce öncelikli bulguları, sonra satıcı sorularını ve son kontrol listesini tamamlayın.
+              </p>
+            </div>
+          </div>
         </div>
         <SectionCard
           title="Bilgi doluluğu"

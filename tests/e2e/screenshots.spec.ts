@@ -62,6 +62,10 @@ test("captures release screenshots", async ({ page }, testInfo) => {
   await expect(page.getByText("Araç Risk Skoru")).toBeVisible();
   await page.screenshot({ fullPage: true, path: path.join(screenshotDir, `${prefix}-result.png`) });
 
+  await page.goto("/analizlerim");
+  await expect(page.getByRole("heading", { name: "Analizlerim" })).toBeVisible();
+  await page.screenshot({ fullPage: true, path: path.join(screenshotDir, `${prefix}-my-analyses.png`) });
+
   await page.goto("/offline");
   await expect(page.getByRole("heading", { name: "Bağlantı gerekiyor" })).toBeVisible();
   await page.screenshot({ fullPage: true, path: path.join(screenshotDir, `${prefix}-offline.png`) });

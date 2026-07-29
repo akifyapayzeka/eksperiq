@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckSquare, ClipboardCheck, FileText } from "lucide-react";
 import { loadAnalysis, loadChecklist, saveChecklist } from "@/lib/storage/analysis-storage";
+import type { AnalysisResult } from "@/lib/analysis/types";
 
 const fallbackChecklist = [
   "Ruhsat sahibini doğruladım",
@@ -19,9 +20,20 @@ const fallbackChecklist = [
 ];
 
 export default function ChecklistPage() {
-  const analysis = useMemo(() => loadAnalysis(), []);
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const checklist = analysis?.finalChecklist ?? fallbackChecklist;
-  const [checkedItems, setCheckedItems] = useState<Set<string>>(() => new Set(loadChecklist(checklist)));
+  const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const current = loadAnalysis();
+      const currentChecklist = current?.finalChecklist ?? fallbackChecklist;
+      setAnalysis(current);
+      setCheckedItems(new Set(loadChecklist(currentChecklist)));
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   function toggleItem(item: string) {
     setCheckedItems((current) => {
