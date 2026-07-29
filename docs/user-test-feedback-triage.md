@@ -20,13 +20,13 @@ Kullanıcı analize başlayamıyor, rapora ulaşamıyor, sonuç kayboluyor, mobi
 
 ### Kullanıcı deneyimi sorunu
 
-Form alanı anlaşılmıyor, metin fazla uzun geliyor, buton konumu zor kullanılıyor, ekran tek elle kullanılamıyor veya kullanıcı ne yapacağını anlamıyor.
+Form alanı anlaşılmıyor, seçenekli alan klavye açtırıyor, metin fazla uzun geliyor, buton konumu zor kullanılıyor, ekran tek elle kullanılamıyor veya kullanıcı ne yapacağını anlamıyor.
 
 Çözüm sırası: küçük UI iyileştirmesi, mobil screenshot kontrolü, gerekirse metin sadeleştirme.
 
 ### Kural adayı
 
-Kullanıcı raporda eksik risk, yanlış öncelik, yeni satıcı sorusu, yeni ekspertiz kontrolü veya yeni ilan açıklaması ifadesi söylüyor.
+Kullanıcı raporda eksik risk, yanlış öncelik, yeni satıcı sorusu, satıcı mesajına eklenmesi gereken bilgi, yeni ekspertiz kontrolü veya yeni ilan açıklaması ifadesi söylüyor.
 
 Çözüm sırası: `docs/rule-backlog.md` içine aday ekle, kabul kriterini yaz, pozitif ve negatif unit test olmadan aktif kurala taşıma.
 
