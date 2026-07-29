@@ -5,7 +5,10 @@ import { join } from "node:path";
 
 const root = process.cwd();
 const tempDir = mkdtempSync(join(tmpdir(), "eksperiq-user-note-"));
+const triageDir = join(tempDir, "triage");
 const expectedFile = join(tempDir, "2026-07-30T10-00-00-000Z-mobil-tek-elle.txt");
+const expectedTriageFile = join(triageDir, "2026-07-30t10-00-00-000z-mobil-tek-elle-triage.md");
+const expectedIssueDraftFile = join(triageDir, "2026-07-30t10-00-00-000z-mobil-tek-elle-github-issue.md");
 
 function fail(message) {
   console.error(`User test note template check failed: ${message}`);
@@ -44,6 +47,25 @@ try {
       "Risk skoru veya sonuç dili nasıl hissettirdi?",
       "npm run user-tests:triage --",
     ]);
+
+    execFileSync(process.execPath, [join(root, "scripts", "triage-user-test-note.mjs"), expectedFile, triageDir], {
+      cwd: root,
+      stdio: "pipe",
+    });
+
+    if (!existsSync(expectedTriageFile)) {
+      fail(`expected triage file was not created: ${expectedTriageFile}`);
+    }
+
+    if (!existsSync(expectedIssueDraftFile)) {
+      fail(`expected GitHub issue draft was not created: ${expectedIssueDraftFile}`);
+    }
+
+    const triageContent = readFileSync(expectedTriageFile, "utf8");
+    const issueDraftContent = readFileSync(expectedIssueDraftFile, "utf8");
+
+    expectIncludes(triageContent, ["Otomatik sınıflandırma", "Issue önerisi", "Önerilen doğrulama komutları"]);
+    expectIncludes(issueDraftContent, ["Triage özeti", "Redakte edilmiş kullanıcı notu", "Kapanış kriterleri"]);
   }
 } finally {
   rmSync(tempDir, { force: true, recursive: true });
