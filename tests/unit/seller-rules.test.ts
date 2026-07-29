@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { detectedClaims, detectsGarageClaim, sellerRules } from "@/lib/analysis/rules/seller-rules";
+import {
+  detectedAmbiguousPhrases,
+  detectedClaims,
+  detectsGarageClaim,
+  sellerRules,
+} from "@/lib/analysis/rules/seller-rules";
 import type { VehicleFormData } from "@/lib/schemas/vehicle";
 
 describe("seller claim detection", () => {
@@ -41,5 +46,25 @@ describe("seller claim detection", () => {
 
     expect(detectsGarageClaim(input.sellerDescription)).toBe(false);
     expect(sellerRules(input).some((finding) => finding.id === "claim-garage-kept")).toBe(false);
+  });
+
+  it("detects ambiguous seller phrases as verification findings", () => {
+    const input = {
+      sellerDescription:
+        "Bana boyle soylendi, ufak tefek temizlik boyasi var. Kilometre orijinal deniyor ama belge yok.",
+    } as VehicleFormData;
+
+    expect(detectedAmbiguousPhrases(input.sellerDescription)).toEqual(
+      expect.arrayContaining(["Bana böyle söylendi", "Ufak tefek", "Temizlik boyası", "Kilometre orijinal deniyor"]),
+    );
+    expect(sellerRules(input)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "ambiguous-bana-boyle-soylendi",
+          severity: "medium",
+          title: '"Bana böyle söylendi" ifadesi netleştirilmeli',
+        }),
+      ]),
+    );
   });
 });

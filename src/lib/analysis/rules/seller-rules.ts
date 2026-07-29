@@ -18,6 +18,16 @@ export const CLAIM_PATTERNS = [
 ] as const;
 
 const GARAGE_CLAIM_PATTERNS = ["Garaj arabası", "Kapalı garaj", "Garajda durdu", "Kapalı otopark"] as const;
+const AMBIGUOUS_PHRASE_PATTERNS = [
+  "Bana böyle söylendi",
+  "Ben bilmiyorum",
+  "Detay bilmiyorum",
+  "Ufak tefek",
+  "Yaşına göre",
+  "Temizlik boyası",
+  "Sorunsuz deniyor",
+  "Kilometre orijinal deniyor",
+] as const;
 
 function normalize(value: string): string {
   return value
@@ -43,6 +53,11 @@ export function detectsGarageClaim(description: string): boolean {
   return GARAGE_CLAIM_PATTERNS.some((claim) => text.includes(normalize(claim)));
 }
 
+export function detectedAmbiguousPhrases(description: string): string[] {
+  const text = normalize(description);
+  return AMBIGUOUS_PHRASE_PATTERNS.filter((phrase) => text.includes(normalize(phrase)));
+}
+
 export function sellerRules(input: VehicleFormData): AnalysisFinding[] {
   const findings = detectedClaims(input.sellerDescription).map<AnalysisFinding>((claim) => ({
     id: `claim-${normalize(claim).replaceAll(" ", "-")}`,
@@ -63,6 +78,19 @@ export function sellerRules(input: VehicleFormData): AnalysisFinding[] {
       explanation:
         "Garajda durduğu belirtilen araçlarda boya, plastik trim, güneş yanığı ve lastik durumu yine de fiziksel kontrol gerektirir.",
       recommendation: "Aracın boya, güneş yanığı, trim ve lastik durumunu ekspertizde ayrıca kontrol ettirin.",
+    });
+  }
+
+  for (const phrase of detectedAmbiguousPhrases(input.sellerDescription)) {
+    findings.push({
+      id: `ambiguous-${normalize(phrase).replaceAll(" ", "-")}`,
+      category: "Açıklama",
+      severity: "medium",
+      title: `"${phrase}" ifadesi netleştirilmeli`,
+      explanation:
+        "Belirsiz veya dolaylı anlatımlar tek başına olumsuzluk anlamına gelmez; ancak aracın geçmişini satıcının doğrudan belgeyle açıklaması gerekir.",
+      recommendation:
+        "Satıcıdan bu ifadenin hangi parça, kayıt, bakım veya ekspertiz bulgusuna dayandığını yazılı isteyin.",
     });
   }
 
