@@ -24,6 +24,7 @@ RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 RewriteRule ^analiz/?$ /analiz.html [L]
 RewriteRule ^sonuc/?$ /sonuc.html [L]
+RewriteRule ^geri-bildirim/?$ /geri-bildirim.html [L]
 RewriteRule ^nasil-calisir/?$ /nasil-calisir.html [L]
 RewriteRule ^hakkinda/?$ /hakkinda.html [L]
 RewriteRule ^gizlilik/?$ /gizlilik.html [L]
@@ -34,10 +35,18 @@ RewriteRule . /404.html [L]
 
 Set-Content -Path $htaccessPath -Value $htaccess -Encoding UTF8
 
-if (Test-Path $OutputPath) {
-  Remove-Item -LiteralPath $OutputPath -Force
+$resolvedOutputPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutputPath)
+
+if (Test-Path $resolvedOutputPath) {
+  Remove-Item -LiteralPath $resolvedOutputPath -Force
 }
 
-Compress-Archive -Path (Join-Path $outDir "*") -DestinationPath $OutputPath -Force
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+[System.IO.Compression.ZipFile]::CreateFromDirectory(
+  $outDir,
+  $resolvedOutputPath,
+  [System.IO.Compression.CompressionLevel]::Optimal,
+  $false
+)
 
 Write-Output "Hostinger package created: $OutputPath"

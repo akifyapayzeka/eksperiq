@@ -1,0 +1,85 @@
+# Yayın Operasyon Checklist'i
+
+Bu checklist Vercel, Hostinger ve App Store hazırlık yollarında aynı kalite standardını korumak için kullanılır.
+
+## Her yayın öncesi
+
+```bash
+npm run format
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+npm run e2e
+```
+
+Kontrol edilecekler:
+
+- Uygulama adı merkezi config içinden geliyor.
+- Türkçe görünen metinlerde bozuk karakter yok.
+- Eski çalışma adı, secret veya gereksiz env referansı yok.
+- `/`, `/analiz`, `/sonuc`, `/moduller`, `/gizlilik` sayfaları çalışıyor.
+- Sonuç sayfasında yasal uyarı, paylaşma/kopyalama/yazdırma aksiyonları ve geri bildirim bağlantısı görünüyor.
+
+## Vercel
+
+- GitHub `master` branch push sonrası production deployment otomatik başlamalı.
+- Vercel panelinde son commit `Ready` durumunda görünmeli.
+- Canlı URL: `https://eksperiq.vercel.app`
+- Kontrol:
+
+```bash
+Invoke-WebRequest -Uri https://eksperiq.vercel.app -UseBasicParsing
+Invoke-WebRequest -Uri https://eksperiq.vercel.app/manifest.webmanifest -UseBasicParsing
+```
+
+## Hostinger
+
+- Paket komutu:
+
+```bash
+npm run hostinger:package
+```
+
+- Çıktı: `dist/eksperiq-hostinger-static.zip`
+- Zip içinde bulunması gerekenler:
+  - `.htaccess`
+  - `index.html`
+  - `analiz.html`
+  - `sonuc.html`
+  - `moduller.html`
+  - `_next/static`
+- Paket `public_html` içine açıldıktan sonra sayfa yenileme testi yapılmalı.
+
+## App Store / TestFlight
+
+- Native hazırlık komutu:
+
+```bash
+npm run native:build
+```
+
+- macOS/Xcode üzerinde:
+
+```bash
+npm run ios:add
+npm run ios:sync
+npm run ios:open
+```
+
+Kontrol edilecekler:
+
+- Bundle ID: `com.eksperiq.app`
+- App adı: `EksperIQ`
+- Gizlilik politikası URL'si: `https://eksperiq.vercel.app/gizlilik`
+- Kamera, konum, fotoğraf veya bildirim izni gerekmedikçe istenmiyor.
+- Raporu paylaş aksiyonu gerçek iOS cihazda çalışıyor.
+- App Store metinleri kesin ekspertiz veya satın alma garantisi vermiyor.
+
+## Geri bildirim ve kural geliştirme
+
+- Canlı uygulamada `/geri-bildirim` sayfası görünür olmalı.
+- GitHub issue şablonu: `.github/ISSUE_TEMPLATE/rule-feedback.md`
+- İlk takip issue'su: `https://github.com/akifyapayzeka/eksperiq/issues/1`
+- Kural adayları: `src/lib/feedback/rule-candidates.ts`
+- Bir aday aktif kurala taşınmadan önce pozitif ve negatif unit test yazılmalı.

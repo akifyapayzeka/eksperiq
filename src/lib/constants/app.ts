@@ -3,6 +3,8 @@ export const appConfig = {
   shortName: "EksperIQ",
   tagline: "Araç ilanını gir, riskleri gör, satıcıya ne soracağını öğren.",
   productionUrl: "https://eksperiq.vercel.app",
+  feedbackIssueUrl: "https://github.com/akifyapayzeka/eksperiq/issues/1",
+  newRuleFeedbackUrl: "https://github.com/akifyapayzeka/eksperiq/issues/new?template=rule-feedback.md",
   storageKey: "eksperiq:last-analysis",
   disclaimer:
     "Bu analiz yalnızca bilgilendirme ve karar desteği amacıyla hazırlanır. Profesyonel araç ekspertizinin, servis kontrolünün, resmî kayıt sorgularının veya hukuki incelemenin yerine geçmez. Son satın alma kararı kullanıcıya aittir.",

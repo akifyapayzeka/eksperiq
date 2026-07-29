@@ -62,3 +62,5 @@ Kural çıktıları şu çerçevede yazılmalıdır:
 - Ekspertizde özellikle kontrol edilmeli
 - Mevcut bilgilerle risk artıyor
 - Bilgi yetersiz olduğu için karar desteği sınırlı
+
+Canlı uygulama geri bildirim giriş noktası `/geri-bildirim` sayfasıdır. Kural adayları `src/lib/feedback/rule-candidates.ts` içinde gerçek issue kayıt formatına bağlanır.

@@ -52,6 +52,14 @@ test("shows product module roadmap", async ({ page }) => {
   await expect(page.getByText("Kesinlik sınırı")).toHaveCount(8);
 });
 
+test("shows feedback collection flow", async ({ page }) => {
+  await page.goto("/geri-bildirim");
+  await expect(page.getByRole("heading", { name: "Geri bildirim" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Kural geri bildirimi gönder" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "İlk kullanıcı testi issue'su" })).toBeVisible();
+  await expect(page.getByText("kişisel veri eklemeden")).toBeVisible();
+});
+
 test("creates analysis result", async ({ page }) => {
   await page.goto("/analiz");
   await fillRequiredForm(page);
@@ -72,6 +80,7 @@ test("creates analysis result", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Soruları kopyala" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Rapor özetini kopyala" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Raporu paylaş" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Geri bildirim gönder" })).toBeVisible();
   await expect(page.getByText("Öncelikli ilk aksiyonlar")).toBeVisible();
   await expect(page.getByLabel("Risk bulgusu dağılımı")).toBeVisible();
   await expect(page.getByText("Yüksek riskli bulgu")).toBeVisible();

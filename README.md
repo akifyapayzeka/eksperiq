@@ -153,6 +153,10 @@ npm run ios:open
 
 Detaylı yayın hazırlığı, gizlilik beyanı ve native wrapper ilkeleri için `docs/app-store-readiness.md` dosyasını inceleyin.
 
+## Yayın operasyon checklist'i
+
+Vercel, Hostinger ve App Store/TestFlight hazırlığı için tek kontrol listesi `docs/release-operations-checklist.md` dosyasındadır.
+
 ## Proje sınırlamaları
 
 - Profesyonel ekspertizin yerine geçmez.

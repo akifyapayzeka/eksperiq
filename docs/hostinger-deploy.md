@@ -58,3 +58,5 @@ npm run hostinger:package
 ```
 
 Yayınlanan canlı URL üzerinde ana sayfa, analiz formu, sonuç boş-state, gizlilik ve modüller sayfaları 200 dönmelidir.
+
+Genel yayın checklist'i için `docs/release-operations-checklist.md` dosyasını da kullanın.

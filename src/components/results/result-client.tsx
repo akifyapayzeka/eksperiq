@@ -237,6 +237,19 @@ export function ResultClient() {
               Oturum verisini sil
             </button>
           </div>
+          <div className="no-print mt-4 rounded-lg border border-white/15 bg-white/5 p-4 text-sm text-slate-200">
+            <p className="font-medium text-white">Bu raporda eksik veya fazla sert görünen bir uyarı var mı?</p>
+            <p className="mt-1">
+              Kural setlerini gerçek kullanıcı geri bildirimiyle geliştiriyoruz. Kişisel veri paylaşmadan not
+              bırakabilirsiniz.
+            </p>
+            <Link
+              href="/geri-bildirim"
+              className="mt-3 inline-flex min-h-11 items-center rounded-lg bg-white px-4 font-semibold text-slate-950 hover:bg-slate-100"
+            >
+              Geri bildirim gönder
+            </Link>
+          </div>
           <p className="no-print mt-3 min-h-5 text-sm text-slate-300" role="status">
             {copyStatus === "questions-copied" ? "Satıcı soruları panoya kopyalandı." : null}
             {copyStatus === "summary-copied" ? "Rapor özeti panoya kopyalandı." : null}

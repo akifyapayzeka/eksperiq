@@ -109,3 +109,5 @@ Uzun açıklama:
 EksperIQ, ikinci el araç ilanlarını daha bilinçli değerlendirmenize yardımcı olan karar destek uygulamasıdır. Araç, hasar, bakım ve satıcı açıklaması bilgilerini manuel girerek kural tabanlı risk skoru, güçlü taraflar, riskli noktalar, olası masraf sinyalleri, satıcı soruları ve ekspertiz kontrol listesi oluşturabilirsiniz.
 
 EksperIQ profesyonel araç ekspertizinin, servis kontrolünün, resmi kayıt sorgularının veya hukuki incelemenin yerine geçmez. Hiçbir aracın güvenli, hasarsız veya satın almaya uygun olduğunu garanti etmez.
+
+Genel yayın checklist'i için `docs/release-operations-checklist.md` dosyasını da kullanın.
