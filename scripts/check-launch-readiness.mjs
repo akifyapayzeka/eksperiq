@@ -30,6 +30,7 @@ const requiredFiles = [
   "scripts/check-hostinger-package.ps1",
   "scripts/check-repo-sync.mjs",
   "scripts/check-sensitive-data.mjs",
+  "scripts/check-feedback-output-safety.mjs",
   "scripts/check-triage-verification-commands.mjs",
   "scripts/check-release-preflight.mjs",
   "scripts/check-rule-backlog.mjs",
@@ -58,6 +59,7 @@ const requiredPackageScripts = [
   "deploy:check",
   "repo:check",
   "privacy:check",
+  "feedback:outputs-check",
   "rule-backlog:check",
   "release:check",
   "user-tests:package",
@@ -120,6 +122,7 @@ const requiredTextChecks = [
     snippets: [
       "npm run launch:check",
       "npm run form:fields-check",
+      "npm run feedback:outputs-check",
       "npm run appstore:prepare",
       "npm run hostinger:check",
       "npm run native:build",

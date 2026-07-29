@@ -17,6 +17,7 @@ npm run lint
 npm run typecheck
 npm run test
 npm run privacy:check
+npm run feedback:outputs-check
 npm run form:fields-check
 npm run rule-backlog:check
 npm run launch:check
@@ -43,6 +44,7 @@ Kontrol edilecekler:
 - Uygulama adı merkezi config içinden geliyor.
 - Türkçe görünen metinlerde bozuk karakter yok.
 - Eski çalışma adı, secret veya gereksiz env referansı yok.
+- Kullanıcı testi ham notları, triage çıktıları ve issue taslakları `dist` altında kalıyor; repoya eklenmiyor.
 - `/`, `/analiz`, `/sonuc`, `/moduller`, `/gizlilik` sayfaları çalışıyor.
 - Analiz formunda şehir, araç detayları ve hasar parçaları uygun yerlerde seçenekli/dokunulabilir çalışıyor.
 - Sonuç sayfasında yasal uyarı, paylaşma/kopyalama/yazdırma, satıcı mesajı ve geri bildirim bağlantısı görünüyor.
