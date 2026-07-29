@@ -9,10 +9,19 @@ function assertOk(condition, message) {
 
 async function readJson(response) {
   try {
-    return await response.json();
+    return await response.clone().json();
   } catch {
     return null;
   }
+}
+
+async function describeUnexpectedResponse(response) {
+  const text = await response.text();
+  const vercelError = response.headers.get("x-vercel-error");
+  const parts = [`status ${response.status}`];
+  if (vercelError) parts.push(`x-vercel-error=${vercelError}`);
+  if (text.trim()) parts.push(text.trim().slice(0, 180));
+  return parts.join(" | ");
 }
 
 async function checkResultPage() {
@@ -34,7 +43,10 @@ async function checkEndpointWithoutLiveAi() {
     body: JSON.stringify({ invalid: true }),
   });
   const body = await readJson(response);
-  assertOk([400, 429, 503].includes(response.status), `AI endpoint beklenmeyen status dondu: ${response.status}`);
+  assertOk(
+    [400, 429, 503].includes(response.status),
+    `AI endpoint beklenmeyen yanit dondu: ${await describeUnexpectedResponse(response)}`,
+  );
   assertOk(body && typeof body.error === "string", "AI endpoint okunabilir hata mesaji donmedi.");
 }
 
@@ -60,7 +72,7 @@ async function checkEndpointWithLiveAi() {
     }),
   });
   const body = await readJson(response);
-  assertOk(response.ok, `Canli AI smoke status beklenmedik: ${response.status}`);
+  assertOk(response.ok, `Canli AI smoke yaniti beklenmedik: ${await describeUnexpectedResponse(response)}`);
   assertOk(body && typeof body.note === "string" && body.note.length > 20, "Canli AI notu okunabilir donmedi.");
   assertOk(!/kesin al|kesinlikle al|hasarsızdır|garanti eder/i.test(body.note), "AI notu kesin ifade iceriyor.");
 }
