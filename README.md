@@ -125,6 +125,20 @@ npm run build
 
 EksperIQ bir web uygulamasıdır; App Store yayını için ayrıca Apple Developer Program üyeliği, macOS, Xcode ve native iOS paketleme gerekir. Projede PWA manifest, iOS ana ekran metadata ve ikon dosyaları hazırdır.
 
+Native wrapper hazırlığı için Capacitor konfigürasyonu eklenmiştir. Web çıktısını native projeye hazırlamak için:
+
+```bash
+npm run native:build
+```
+
+macOS/Xcode ortamında iOS proje üretimi için:
+
+```bash
+npm run ios:add
+npm run ios:sync
+npm run ios:open
+```
+
 Detaylı yayın hazırlığı, gizlilik beyanı ve native wrapper ilkeleri için `docs/app-store-readiness.md` dosyasını inceleyin.
 
 ## Proje sınırlamaları

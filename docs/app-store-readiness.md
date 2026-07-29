@@ -8,15 +8,35 @@ EksperIQ şu anda ücretsiz çalışan responsive web uygulamasıdır. App Store
 - Canlı web adresi: `https://eksperiq.vercel.app`
 - PWA manifest hazırdır.
 - iOS ana ekran ikonu ve Apple web app metadata hazırdır.
+- Capacitor konfigürasyonu hazırdır: `capacitor.config.ts`
 - Kullanıcı verisi sunucuya kaydedilmez.
 - Analytics, reklam takip kodu ve çerez bannerı gerektiren servis yoktur.
+
+## Hazır native komutlar
+
+Windows üzerinde çalıştırılabilir:
+
+```bash
+npm run build
+npm run native:build
+```
+
+macOS ve Xcode gereken adımlar:
+
+```bash
+npm run ios:add
+npm run ios:sync
+npm run ios:open
+```
+
+`ios:add` komutu iOS proje klasörünü üretir. Bu klasör üretildikten sonra Xcode içinde bundle id, signing team, launch screen, app icon set ve deployment target ayarları kontrol edilmelidir.
 
 ## App Store için önerilen yol
 
 1. Apple Developer Program üyeliği açılır.
 2. macOS üzerinde Xcode kurulur.
-3. Native wrapper için Capacitor veya benzer hafif bir çözüm seçilir.
-4. Web uygulaması native kabuk içinde paketlenir.
+3. `npm run ios:add` ile Capacitor iOS platformu oluşturulur.
+4. `npm run ios:sync` ile güncel statik web çıktısı iOS projesine aktarılır.
 5. App Store Connect üzerinde uygulama kaydı oluşturulur.
 6. Gizlilik etiketleri, ekran görüntüleri, açıklamalar ve yaş derecelendirmesi girilir.
 7. TestFlight ile gerçek cihaz testi yapılır.
@@ -42,6 +62,29 @@ EksperIQ şu anda ücretsiz çalışan responsive web uygulamasıdır. App Store
 - Analiz verisi cihaz/tarayıcı oturumunda geçici tutulur.
 
 Native wrapper ileride fotoğraf analizi, bildirim veya hesap özellikleri eklerse bu beyan yeniden güncellenmelidir.
+
+## Mağaza varlık checklist'i
+
+- Uygulama adı: EksperIQ
+- Bundle ID önerisi: `com.eksperiq.app`
+- Kategori önerisi: Utilities veya Productivity
+- Yaş derecelendirmesi: Düşük riskli bilgi/karar destek uygulaması olarak doldurulmalı; finansal, tıbbi veya hukuki danışmanlık gibi işaretlenmemeli.
+- Destek URL'si: İlk aşamada canlı web sitesi veya GitHub issue sayfası kullanılabilir.
+- Pazarlama URL'si: `https://eksperiq.vercel.app`
+- Gizlilik politikası URL'si: `https://eksperiq.vercel.app/gizlilik`
+- Ekran görüntüleri: En az ana sayfa, analiz formu, sonuç raporu, satıcı soruları, checklist.
+- Uygulama ikonu: Mevcut geçici ikonlar web/PWA içindir; App Store için Xcode asset catalog içinde 1024x1024 final ikon üretilmelidir.
+- TestFlight notu: Uygulama yalnızca karar desteği sağlar; girilen bilgiler sunucuya kaydedilmez.
+
+## İlk TestFlight test senaryoları
+
+1. Uygulama ilk açılışta ana ekranı taşma olmadan gösteriyor mu?
+2. Analiz formu iPhone küçük ekranda tek elle doldurulabiliyor mu?
+3. Zod hata mesajları ekranda anlaşılır çıkıyor mu?
+4. Sonuç sayfası risk skorunu ve yasal uyarıyı görünür gösteriyor mu?
+5. Oturum verisi kapat/aç davranışında beklenen şekilde korunuyor veya temizleniyor mu?
+6. Dış linkler native kabuk içinde kullanıcıyı sıkıştırmadan açılıyor mu?
+7. iOS geri dönüş hareketi ve güvenli alanlar layout'u bozmuyor mu?
 
 ## İnceleme riski
 
