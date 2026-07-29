@@ -31,4 +31,7 @@ if (!content.includes("npm run launch:audit")) {
 
 if (!process.exitCode) {
   console.log(`Launch audit gecti. Dis bagimlilikta bekleyen madde: ${unchecked.length}`);
+  for (const item of unchecked) {
+    console.log(`- ${item}`);
+  }
 }
