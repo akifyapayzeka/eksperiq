@@ -84,10 +84,10 @@ Native wrapper ileride fotoğraf analizi, bildirim veya hesap özellikleri ekler
 ## İlk TestFlight test senaryoları
 
 1. Uygulama ilk açılışta ana ekranı taşma olmadan gösteriyor mu?
-2. Analiz formu iPhone küçük ekranda tek elle doldurulabiliyor mu?
+2. Analiz formu iPhone küçük ekranda tek elle doldurulabiliyor mu; şehir, araç detayları ve hasar parça seçimleri gereksiz klavye açmadan çalışıyor mu?
 3. Zod hata mesajları ekranda anlaşılır çıkıyor mu?
 4. Sonuç sayfası risk skorunu ve yasal uyarıyı görünür gösteriyor mu?
-5. Raporu paylaş aksiyonu iOS paylaşım panelini açıyor veya güvenli şekilde kopyalama davranışına düşüyor mu?
+5. Raporu paylaş, kısa özet ve satıcı mesajı aksiyonları iOS paylaşım panelini açıyor veya güvenli şekilde kopyalama davranışına düşüyor mu?
 6. Oturum verisi kapat/aç davranışında beklenen şekilde korunuyor veya temizleniyor mu?
 7. Dış linkler native kabuk içinde kullanıcıyı sıkıştırmadan açılıyor mu?
 8. iOS geri dönüş hareketi ve güvenli alanlar layout'u bozmuyor mu?
@@ -111,7 +111,7 @@ Kısa açıklama:
 
 Uzun açıklama:
 
-EksperIQ, ikinci el araç ilanlarını daha bilinçli değerlendirmenize yardımcı olan karar destek uygulamasıdır. Araç, hasar, bakım ve satıcı açıklaması bilgilerini manuel girerek kural tabanlı risk skoru, güçlü taraflar, riskli noktalar, olası masraf sinyalleri, satıcı soruları ve ekspertiz kontrol listesi oluşturabilirsiniz.
+EksperIQ, ikinci el araç ilanlarını daha bilinçli değerlendirmenize yardımcı olan karar destek uygulamasıdır. Araç, hasar, bakım ve satıcı açıklaması bilgilerini manuel girerek kural tabanlı risk skoru, güçlü taraflar, riskli noktalar, olası masraf sinyalleri, satıcı soruları, satıcıya gönderilecek kısa mesaj ve ekspertiz kontrol listesi oluşturabilirsiniz.
 
 EksperIQ profesyonel araç ekspertizinin, servis kontrolünün, resmi kayıt sorgularının veya hukuki incelemenin yerine geçmez. Hiçbir aracın güvenli, hasarsız veya satın almaya uygun olduğunu garanti etmez.
 

@@ -6,6 +6,7 @@ EksperIQ, ikinci el araç ilanı giren kullanıcıya kural tabanlı risk değerl
 
 - Manuel araç, hasar, bakım ve satıcı açıklaması girişi
 - Mobil kullanım için form bölümü hızlı atlama bağlantıları
+- Klavye açmadan seçilebilen şehir, araç detay ve hasar parça alanları
 - Zorunlu ve detay alanları için canlı form ilerleme göstergesi
 - Ücretli API kullanmadan kural tabanlı analiz motoru
 - 100 üzerinden risk skoru ve kategori bazlı skorlar
@@ -14,20 +15,20 @@ EksperIQ, ikinci el araç ilanı giren kullanıcıya kural tabanlı risk değerl
 - Ekspertizde kontrol edilecek noktalar
 - Son kontrol listesi
 - Yazdırma/PDF çıktısına uygun sonuç raporu
-- Raporu yazdırma, rapor özetini ve satıcı sorularını panoya kopyalama
+- Raporu yazdırma, rapor özetini, satıcı sorularını ve satıcıya gönderilecek kısa mesajı panoya kopyalama
 - Oturumdaki analiz sonucunu tek tıkla silme
 - Veriyi sunucuya kaydetmeyen sessionStorage tabanlı ilk sürüm
 
 ## Ürün ekran akışı
 
 1. Kullanıcı ana sayfadaki `Ücretsiz analiz et` çağrısıyla analiz formuna geçer.
-2. Analiz formunda araç, hasar, bakım, evrak ve satıcı açıklaması alanlarını manuel doldurur.
+2. Analiz formunda araç, hasar, bakım, evrak ve satıcı açıklaması alanlarını manuel doldurur; uygun alanlarda hazır seçenekleri kullanır.
 3. Form ilerleme göstergesi zorunlu alanların ve ek detayların ne kadar tamamlandığını gösterir.
 4. Bölüm hızlı atlama bağlantıları uzun formda araç, hasar, bakım, kontroller ve açıklama bölümlerine hızlı geçiş sağlar.
 5. `Analiz oluştur` sonrası veriler sunucuya gönderilmeden tarayıcı oturumunda kural tabanlı analiz sonucu üretilir.
 6. Sonuç ekranında risk skoru, kategori skorları, bilgi doluluğu, güçlü taraflar, öncelikli aksiyonlar, riskli noktalar, masraf sinyalleri ve satıcı soruları gösterilir.
 7. Kullanıcı son kontrol listesini işaretleyebilir; işaretler yalnızca mevcut tarayıcı oturumunda korunur.
-8. Rapor yazdırılabilir, rapor özeti veya satıcı soruları panoya kopyalanabilir.
+8. Rapor yazdırılabilir; rapor özeti, satıcı soruları veya satıcıya gönderilecek kısa mesaj panoya kopyalanabilir.
 9. `Oturum verisini sil` aksiyonu analiz sonucunu ve checklist durumunu temizler.
 10. `/moduller` sayfası aktif ve planlanan modülleri merkezi modül kataloğundan gösterir.
 

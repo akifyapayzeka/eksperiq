@@ -18,7 +18,7 @@ Araç ilanını girin; riskli noktaları, satıcıya sorulacak soruları ve eksp
 
 EksperIQ, ikinci el araç ilanlarını daha bilinçli değerlendirmenize yardımcı olan ücretsiz bir karar destek uygulamasıdır.
 
-Araç bilgilerini, hasar geçmişini, bakım durumunu ve satıcı açıklamasını manuel girerek kural tabanlı bir risk değerlendirmesi oluşturabilirsiniz. Uygulama; risk skorunu, dikkat edilmesi gereken noktaları, satıcıya sorulacak öncelikli soruları, olası masraf sinyallerini ve ekspertizde özellikle kontrol edilecek başlıkları gösterir.
+Araç bilgilerini, hasar geçmişini, bakım durumunu ve satıcı açıklamasını manuel girerek kural tabanlı bir risk değerlendirmesi oluşturabilirsiniz. Mobil kullanım için şehir, araç detayları ve hasar parça bilgileri uygun yerlerde hazır seçeneklerle girilebilir. Uygulama; risk skorunu, dikkat edilmesi gereken noktaları, satıcıya sorulacak öncelikli soruları, satıcıya gönderilebilecek kısa mesajı, olası masraf sinyallerini ve ekspertizde özellikle kontrol edilecek başlıkları gösterir.
 
 EksperIQ kullanıcı verilerini geliştirici sunucusuna kaydetmez. Analiz, mevcut cihaz/tarayıcı oturumu içinde çalışır. İlan bağlantıları ilk sürümde otomatik okunmaz veya scrape edilmez.
 
@@ -44,7 +44,7 @@ Recommended review flow:
 2. Tap "Ücretsiz analiz et".
 3. Fill the vehicle form manually or use realistic sample values.
 4. Submit the form.
-5. Review the generated risk score, seller questions, legal disclaimer, and checklist.
+5. Review the generated risk score, seller questions, seller-ready copy message, legal disclaimer, and checklist.
 
 ## Gizlilik cevap özeti
 
