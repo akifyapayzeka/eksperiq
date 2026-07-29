@@ -15,6 +15,7 @@ const fixtures = [
 const allowedNpxCommands = [
   /^npx playwright test tests\/e2e\/main-flow\.spec\.ts --project=mobile$/,
   /^npx playwright test tests\/e2e\/main-flow\.spec\.ts --project=mobile --grep "form\|select\|damage"$/,
+  /^npx playwright test tests\/e2e\/main-flow\.spec\.ts --project=mobile --grep "select controls\|damage part choices\|creates analysis result"$/,
   /^npx playwright test tests\/e2e\/main-flow\.spec\.ts --grep "creates analysis result"$/,
   /^npx playwright test tests\/e2e\/main-flow\.spec\.ts --project=mobile --grep "mobile bottom navigation"$/,
   /^npx playwright test tests\/e2e\/main-flow\.spec\.ts --grep "copies seller-ready message"$/,

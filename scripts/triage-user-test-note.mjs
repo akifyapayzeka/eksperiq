@@ -93,7 +93,11 @@ const categoryVerificationCommands = {
   "kritik hata": ["npm run release:check", "npm run e2e"],
   "güven ve dil riski": ["npm run release:check", "npm run appstore:metadata-check"],
   "App Store riski": ["npm run privacy:check", "npm run appstore:metadata-check", "npm run release:check"],
-  "kullanıcı deneyimi": ["npx playwright test tests/e2e/main-flow.spec.ts --project=mobile", "npm run screenshots"],
+  "kullanıcı deneyimi": [
+    "npm run form:fields-check",
+    'npx playwright test tests/e2e/main-flow.spec.ts --project=mobile --grep "select controls|damage part choices|creates analysis result"',
+    "npm run screenshots",
+  ],
   "kural adayı": ["npm run rule-backlog:check", "npm run rule-feedback:check", "npm run test"],
 };
 
@@ -178,6 +182,49 @@ function verificationCommands(category, affectedArea) {
   ];
 
   return [...new Set(commands)];
+}
+
+function detectMobileFormFieldSignal(note) {
+  const normalizedNote = normalize(note);
+  const hasKeyboardSignal = ["klavye", "keyboard", "yazmak", "yazinca", "yazınca"].some((term) =>
+    normalizedNote.includes(normalize(term)),
+  );
+  const hasChoiceFieldSignal = [
+    "secenek",
+    "seçenek",
+    "select",
+    "dropdown",
+    "takas",
+    "lpg",
+    "lastik",
+    "aku",
+    "akü",
+    "sehir",
+    "şehir",
+    "ruhsat",
+    "vites",
+    "yakit",
+    "yakıt",
+    "kasa",
+    "cekis",
+    "çekiş",
+    "airbag",
+  ].some((term) => normalizedNote.includes(normalize(term)));
+  const hasDamagePickerSignal = ["hasar parca", "hasar parça", "boyali", "boyalı", "degisen", "değişen"].some((term) =>
+    normalizedNote.includes(normalize(term)),
+  );
+
+  if (!hasKeyboardSignal && !hasChoiceFieldSignal && !hasDamagePickerSignal) {
+    return "";
+  }
+
+  return `## Mobil form alanı sinyali
+
+- Seçenekli alanlar gerçek seçim kontrolü olarak kalmalı; serbest metin alanına dönmemeli.
+- Sayı girilecek alanlar ayrı kalmalı: yıl, kilometre, fiyat ve tramer tutarı.
+- Hasar parça seçimleri dokunulabilir seçenek olarak kalmalı; gizli form alanı ile saklanmalı.
+- Öncelikli kontrol: \`npm run form:fields-check\`
+`;
 }
 
 function issueMetadata(category, affectedArea) {
@@ -297,6 +344,7 @@ const metadata = issueMetadata(category, affectedArea);
 const inputName = basename(inputPath).replace(/\.[^.]+$/, "");
 const outputFile = join(outputDir, `${slugify(inputName || "kullanici-notu")}-triage.md`);
 const optionalBacklogDraft = category.type === "kural adayı" ? `\n${backlogDraft(rawNote, inputName)}` : "";
+const mobileFormFieldSignal = detectMobileFormFieldSignal(rawNote);
 const redactionNote =
   warnings.length > 0 ? "\n- [ ] Orijinal notu issue'a taşıma; aşağıdaki redakte edilmiş sürümü kullan." : "";
 
@@ -321,6 +369,8 @@ Kaynak not: \`${basename(inputPath)}\`
 ## Önerilen doğrulama komutları
 
 ${commands.map((command) => `- \`${command}\``).join("\n")}
+
+${mobileFormFieldSignal}
 
 ## Kişisel veri kontrolü
 

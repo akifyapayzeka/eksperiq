@@ -29,6 +29,13 @@ Form alanı anlaşılmıyor, seçenekli alan klavye açtırıyor, metin fazla uz
 
 Çözüm sırası: küçük UI iyileştirmesi, mobil screenshot kontrolü, gerekirse metin sadeleştirme.
 
+Mobil form alanı notlarında ayrıca şu ayrım korunur:
+
+- Seçenekli alanlar gerçek seçim kontrolü olarak kalır; kullanıcı “Takas yok”, “LPG yok”, “İyi”, “Orta” gibi değerleri yazmak zorunda bırakılmaz.
+- Sayı girilecek alanlar serbest sayı girişi olarak kalır; yıl, kilometre, ilan fiyatı ve tramer tutarı select alanına çevrilmez.
+- Boyalı, değişen ve lokal boyalı parça alanları dokunulabilir parça seçici olarak kalır.
+- Bu tip notlarda ilk otomatik kontrol `npm run form:fields-check`, mobil doğrulama ise `npx playwright test tests/e2e/main-flow.spec.ts --project=mobile --grep "select controls|damage part choices|creates analysis result"` komutuyla yapılır.
+
 ### Kural adayı
 
 Kullanıcı raporda eksik risk, yanlış öncelik, yeni satıcı sorusu, satıcı mesajına eklenmesi gereken bilgi, yeni ekspertiz kontrolü veya yeni ilan açıklaması ifadesi söylüyor.

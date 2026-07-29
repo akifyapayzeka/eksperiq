@@ -125,6 +125,12 @@ try {
     "Label'lar: `feedback`, `user-test`, `ux`, `mobile`, `p1`, `analysis-form`",
     "Analiz formunu mobil viewport'ta doldur",
     "npx playwright test tests/e2e/main-flow.spec.ts --project=mobile",
+    "npm run form:fields-check",
+    "select controls|damage part choices|creates analysis result",
+    "Mobil form alanı sinyali",
+    "Seçenekli alanlar gerçek seçim kontrolü olarak kalmalı",
+    "Sayı girilecek alanlar ayrı kalmalı",
+    "Hasar parça seçimleri dokunulabilir seçenek olarak kalmalı",
     "Küçük UI iyileştirmesi yap",
   ];
 
