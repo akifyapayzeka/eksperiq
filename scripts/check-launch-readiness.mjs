@@ -7,6 +7,7 @@ const requiredFiles = [
   "docs/release-operations-checklist.md",
   "docs/first-user-test-script.md",
   "docs/first-5-user-tests.md",
+  "docs/user-test-issue-plan.md",
   "docs/user-test-feedback-triage.md",
   "docs/feedback-rule-expansion.md",
   "docs/rule-backlog.md",
@@ -22,6 +23,8 @@ const requiredFiles = [
   ".github/ISSUE_TEMPLATE/user-test-feedback.md",
   "src/app/geri-bildirim/page.tsx",
   "src/lib/feedback/rule-candidates.ts",
+  "scripts/check-live-site.mjs",
+  "scripts/check-hostinger-package.ps1",
   "public/app-store-icon-1024.png",
 ];
 
@@ -35,6 +38,8 @@ const requiredPackageScripts = [
   "appstore:prepare",
   "appstore:metadata-check",
   "hostinger:package",
+  "hostinger:check",
+  "deploy:check",
   "ai:staging-check",
   "launch:check",
 ];
@@ -59,6 +64,10 @@ const requiredTextChecks = [
   {
     file: "docs/first-5-user-tests.md",
     snippets: ["Test 1", "Test 5", "Kullanıcı testi issue"],
+  },
+  {
+    file: "docs/user-test-issue-plan.md",
+    snippets: ["Açılacak issue'lar", "Paylaşma ve ekspertize hazırlık", "Kapanış kuralı"],
   },
   {
     file: "docs/rule-backlog.md",

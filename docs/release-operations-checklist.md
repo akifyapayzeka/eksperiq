@@ -15,6 +15,7 @@ npm run typecheck
 npm run test
 npm run launch:check
 npm run appstore:metadata-check
+npm run deploy:check
 npm run build
 npm run e2e
 npm run screenshots
@@ -37,8 +38,7 @@ Kontrol edilecekler:
 - Kontrol:
 
 ```bash
-Invoke-WebRequest -Uri https://eksperiq.vercel.app -UseBasicParsing
-Invoke-WebRequest -Uri https://eksperiq.vercel.app/manifest.webmanifest -UseBasicParsing
+npm run deploy:check
 ```
 
 ## Hostinger
@@ -47,6 +47,7 @@ Invoke-WebRequest -Uri https://eksperiq.vercel.app/manifest.webmanifest -UseBasi
 
 ```bash
 npm run hostinger:package
+npm run hostinger:check
 ```
 
 - Çıktı: `dist/eksperiq-hostinger-static.zip`
@@ -98,6 +99,7 @@ Kontrol edilecekler:
 - GitHub issue şablonu: `.github/ISSUE_TEMPLATE/rule-feedback.md`
 - Kullanıcı testi issue şablonu: `.github/ISSUE_TEMPLATE/user-test-feedback.md`
 - İlk 5 kullanıcı testi planı: `docs/first-5-user-tests.md`
+- Kullanıcı testi issue planı: `docs/user-test-issue-plan.md`
 - İlk takip issue'su: `https://github.com/akifyapayzeka/eksperiq/issues/1`
 - Kural adayları: `src/lib/feedback/rule-candidates.ts`
 - Kural backlog dosyası: `docs/rule-backlog.md`

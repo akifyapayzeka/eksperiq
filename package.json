@@ -28,7 +28,9 @@
     "appstore:metadata-check": "node scripts/check-app-store-metadata.mjs",
     "appstore:check": "node scripts/check-app-store-package.mjs",
     "appstore:prepare": "npm run appstore:icon && npm run appstore:metadata-check && npm run appstore:package && npm run appstore:screenshots && npm run appstore:check",
-    "hostinger:package": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-hostinger.ps1"
+    "hostinger:package": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-hostinger.ps1",
+    "hostinger:check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-hostinger-package.ps1",
+    "deploy:check": "node scripts/check-live-site.mjs"
   },
   "dependencies": {
     "@capacitor/core": "^8.4.2",

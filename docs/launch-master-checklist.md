@@ -40,6 +40,7 @@ Bu dosya EksperIQ'u web, Hostinger paketi, TestFlight hazırlığı ve App Store
 
 - [x] İlk 5 kullanıcı testi planı yazıldı.
 - [x] Kullanıcı testi issue şablonu hazır.
+- [x] Kullanıcı testi issue planı hazır.
 - [x] Kural geri bildirimi issue şablonu hazır.
 - [x] Kural backlog dosyası hazır.
 - [x] Kural adayları typed servis dosyasında takip ediliyor.
@@ -51,8 +52,11 @@ Bu dosya EksperIQ'u web, Hostinger paketi, TestFlight hazırlığı ve App Store
 
 - [x] Vercel uyumlu yapı hazır.
 - [x] Hostinger statik paket komutu hazır.
+- [x] Hostinger paket içerik kontrol komutu hazır.
+- [x] Canlı Vercel sağlık kontrol komutu hazır.
 - [x] `.env.local` ve `dist` çıktıları git dışında.
-- [ ] Vercel son deployment commit ile eşleştiği canlı panelden kontrol edilecek.
+- [x] Canlı Vercel ana akış sayfaları `npm run deploy:check` ile doğrulanıyor.
+- [ ] Vercel son deployment commit ile eşleştiği canlı panelden manuel kontrol edilecek.
 - [ ] Hostinger kullanılacaksa zip `public_html` içine açılıp canlı yenileme testi yapılacak.
 
 ## 6. iOS / TestFlight
@@ -80,3 +84,4 @@ Aşağıdaki adımlar kod içinde tamamlanamaz:
 - App Review sonucunun garanti edilmesi.
 - Gerçek kullanıcı testi katılımcılarının bulunması.
 - Hostinger paneline manuel dosya yükleme.
+- Vercel panelinde son deployment commit eşleşmesini görsel olarak doğrulama.

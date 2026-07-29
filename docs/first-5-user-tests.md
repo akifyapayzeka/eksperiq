@@ -4,6 +4,8 @@ Bu plan, EksperIQ'un 15 Ağustos 2026 hedefinden önce gerçek kullanıcıdan h�
 
 Her testten sonra GitHub'da kullanıcı testi issue'su açılır: `.github/ISSUE_TEMPLATE/user-test-feedback.md`
 
+Issue başlıkları ve beklenen kanıt: `docs/user-test-issue-plan.md`
+
 ## Test 1: İlk kez ikinci el araç bakacak kullanıcı
 
 - Amaç: Ana vaadin ve risk skorunun anlaşılır olup olmadığını görmek.

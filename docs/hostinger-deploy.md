@@ -6,6 +6,7 @@ EksperIQ statik export ürettiği için Hostinger üzerinde en düşük maliyetl
 
 ```bash
 npm run hostinger:package
+npm run hostinger:check
 ```
 
 Bu komut:
@@ -28,13 +29,10 @@ Zip yüklenmeden önce yerelde şu içerikler doğrulanmalıdır:
 - `offline.html`
 - `_next/static`
 
-PowerShell ile hızlı kontrol:
+Otomatik kontrol:
 
-```powershell
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-$zip = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path 'dist\eksperiq-hostinger-static.zip'))
-$zip.Entries.FullName | Select-String '(^\.htaccess$|index\.html|analiz\.html|sonuc\.html|geri-bildirim\.html|offline\.html|_next\\static)'
-$zip.Dispose()
+```bash
+npm run hostinger:check
 ```
 
 ## Hostinger File Manager ile yayın
