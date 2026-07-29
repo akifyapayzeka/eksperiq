@@ -77,12 +77,12 @@ export default function MyAnalysesPage() {
             <SlidersHorizontal aria-hidden="true" className="ml-auto h-5 w-5 text-slate-500" />
           </div>
 
-          <div className="-mx-1 mt-4 flex gap-2 overflow-x-auto px-1 pb-1" aria-label="Analiz filtreleri">
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:flex" aria-label="Analiz filtreleri">
             {filters.map((filter, index) => (
               <button
                 key={filter}
                 type="button"
-                className={`min-h-11 shrink-0 rounded-full border px-4 text-sm font-semibold ${
+                className={`min-h-11 rounded-full border px-3 text-sm font-semibold sm:shrink-0 sm:px-4 ${
                   index === 0 ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white text-slate-700"
                 }`}
               >
