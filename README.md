@@ -121,6 +121,18 @@ npm run build
 4. Proje statik export ürettiği için ek Next.js runtime zorunlu değildir.
 5. Ek environment variable gerekmez.
 
+## Hostinger deploy adımları
+
+Hostinger shared hosting için statik paket oluşturun:
+
+```bash
+npm run hostinger:package
+```
+
+Oluşan `dist/eksperiq-hostinger-static.zip` dosyasını Hostinger File Manager içinde `public_html` klasörüne yükleyip çıkarın. Paket içinde route yenilemeleri için `.htaccess` dosyası bulunur.
+
+Detaylı Hostinger yayın akışı için `docs/hostinger-deploy.md` dosyasını inceleyin.
+
 ## App Store hazırlığı
 
 EksperIQ bir web uygulamasıdır; App Store yayını için ayrıca Apple Developer Program üyeliği, macOS, Xcode ve native iOS paketleme gerekir. Projede PWA manifest, iOS ana ekran metadata ve ikon dosyaları hazırdır.

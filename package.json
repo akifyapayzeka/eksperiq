@@ -16,7 +16,8 @@
     "native:build": "npm run build && npx cap sync",
     "ios:add": "npx cap add ios",
     "ios:sync": "npm run build && npx cap sync ios",
-    "ios:open": "npx cap open ios"
+    "ios:open": "npx cap open ios",
+    "hostinger:package": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-hostinger.ps1"
   },
   "dependencies": {
     "@capacitor/core": "^8.4.2",
