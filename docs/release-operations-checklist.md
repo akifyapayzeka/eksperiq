@@ -20,6 +20,7 @@ Kontrol edilecekler:
 - Eski çalışma adı, secret veya gereksiz env referansı yok.
 - `/`, `/analiz`, `/sonuc`, `/moduller`, `/gizlilik` sayfaları çalışıyor.
 - Sonuç sayfasında yasal uyarı, paylaşma/kopyalama/yazdırma aksiyonları ve geri bildirim bağlantısı görünüyor.
+- Demo/screenshot verisi `tests/fixtures/demo-vehicle.ts` ile tutarlı.
 
 ## Vercel
 
@@ -74,6 +75,8 @@ Kontrol edilecekler:
 - Gizlilik politikası URL'si: `https://eksperiq.vercel.app/gizlilik`
 - Kamera, konum, fotoğraf veya bildirim izni gerekmedikçe istenmiyor.
 - Raporu paylaş aksiyonu gerçek iOS cihazda çalışıyor.
+- `public/offline.html` fallback ekranı native projeye taşınmış olmalı.
+- `safe-area-shell` sınıfı iOS güvenli alanlarında içerik taşmasını engellemeli.
 - App Store metinleri kesin ekspertiz veya satın alma garantisi vermiyor.
 
 ## Geri bildirim ve kural geliştirme
@@ -83,3 +86,9 @@ Kontrol edilecekler:
 - İlk takip issue'su: `https://github.com/akifyapayzeka/eksperiq/issues/1`
 - Kural adayları: `src/lib/feedback/rule-candidates.ts`
 - Bir aday aktif kurala taşınmadan önce pozitif ve negatif unit test yazılmalı.
+
+## Demo ve screenshot
+
+- Sabit demo verisi: `tests/fixtures/demo-vehicle.ts`
+- Görsel çekim senaryosu: `docs/demo-screenshot-scenario.md`
+- App Store görsellerinde kesin garanti dili kullanılmamalı.

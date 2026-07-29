@@ -4,7 +4,7 @@ import { candidatesByStatus, ruleCandidates, ruleFeedbackIssueTitle } from "@/li
 describe("rule candidates", () => {
   it("keeps early feedback candidates outside the active rule engine", () => {
     expect(ruleCandidates.map((candidate) => candidate.status)).toEqual([
-      "needs-feedback",
+      "accepted",
       "needs-feedback",
       "needs-feedback",
     ]);
@@ -23,8 +23,8 @@ describe("rule candidates", () => {
   });
 
   it("filters candidates by review status", () => {
-    expect(candidatesByStatus("needs-feedback")).toHaveLength(3);
-    expect(candidatesByStatus("accepted")).toEqual([]);
+    expect(candidatesByStatus("needs-feedback")).toHaveLength(2);
+    expect(candidatesByStatus("accepted")).toHaveLength(1);
   });
 
   it("derives issue titles from the feedback record", () => {

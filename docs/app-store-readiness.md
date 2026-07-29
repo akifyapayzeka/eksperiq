@@ -87,6 +87,7 @@ Native wrapper ileride fotoğraf analizi, bildirim veya hesap özellikleri ekler
 6. Oturum verisi kapat/aç davranışında beklenen şekilde korunuyor veya temizleniyor mu?
 7. Dış linkler native kabuk içinde kullanıcıyı sıkıştırmadan açılıyor mu?
 8. iOS geri dönüş hareketi ve güvenli alanlar layout'u bozmuyor mu?
+9. `public/offline.html` native fallback olarak kullanılabiliyor mu?
 
 ## İnceleme riski
 

@@ -30,7 +30,7 @@ export const ruleCandidates: RuleCandidate[] = [
   {
     id: "seller-claims-garage-kept",
     moduleId: "listing-analysis",
-    status: "needs-feedback",
+    status: "accepted",
     source: "market-observation",
     affectedRuleFile: "src/lib/analysis/rules/seller-rules.ts",
     inputSignal: "İlan açıklamasında garaj arabası, kapalı garajda durdu veya benzer iddialar geçiyor.",

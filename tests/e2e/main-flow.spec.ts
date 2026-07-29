@@ -1,21 +1,20 @@
 import { expect, test, type Page } from "@playwright/test";
+import { demoVehicleInput } from "../fixtures/demo-vehicle";
 
 async function fillRequiredForm(page: Page) {
-  await page.getByLabel("Marka").fill("Toyota");
-  await page.getByLabel("Model", { exact: true }).fill("Corolla");
-  await page.getByLabel("Model yılı").fill("2020");
-  await page.getByLabel("Yakıt türü").selectOption("Benzin");
-  await page.getByLabel("Vites türü").selectOption("Otomatik");
-  await page.getByLabel("Kilometre").fill("90000");
-  await page.getByLabel("İlan fiyatı").fill("1200000");
-  await page.getByLabel("Şehir").fill("İstanbul");
-  await page.getByLabel("Tramer tutarı").fill("75000");
+  await page.getByLabel("Marka").fill(demoVehicleInput.brand);
+  await page.getByLabel("Model", { exact: true }).fill(demoVehicleInput.model);
+  await page.getByLabel("Model yılı").fill(String(demoVehicleInput.year));
+  await page.getByLabel("Yakıt türü").selectOption(demoVehicleInput.fuelType);
+  await page.getByLabel("Vites türü").selectOption(demoVehicleInput.transmission);
+  await page.getByLabel("Kilometre").fill(String(demoVehicleInput.mileage));
+  await page.getByLabel("İlan fiyatı").fill(String(demoVehicleInput.price));
+  await page.getByLabel("Şehir").fill(demoVehicleInput.city);
+  await page.getByLabel("Tramer tutarı").fill(String(demoVehicleInput.tramerAmount));
   await page.getByLabel("Bakım faturaları var").check();
   await page.getByLabel("Ekspertiz raporu var").check();
   await page.getByLabel("Yedek anahtar var").check();
-  await page
-    .getByLabel("İlan açıklaması")
-    .fill("Ekspertize açık, tramer yok, masrafsız yazılmış ama detayları satıcıdan doğrulamak istiyorum.");
+  await page.getByLabel("İlan açıklaması").fill(demoVehicleInput.sellerDescription);
 }
 
 test("home to analysis form", async ({ page }) => {
@@ -81,6 +80,7 @@ test("creates analysis result", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Rapor özetini kopyala" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Raporu paylaş" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Geri bildirim gönder" })).toBeVisible();
+  await expect(page.getByText("Garaj kullanımı iddiası doğrulanmalı")).toBeVisible();
   await expect(page.getByText("Öncelikli ilk aksiyonlar")).toBeVisible();
   await expect(page.getByLabel("Risk bulgusu dağılımı")).toBeVisible();
   await expect(page.getByText("Yüksek riskli bulgu")).toBeVisible();

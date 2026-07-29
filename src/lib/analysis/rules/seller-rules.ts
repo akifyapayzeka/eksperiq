@@ -17,6 +17,8 @@ export const CLAIM_PATTERNS = [
   "Sadece ciddi alıcılar",
 ] as const;
 
+const GARAGE_CLAIM_PATTERNS = ["Garaj arabası", "Kapalı garaj", "Garajda durdu", "Kapalı otopark"] as const;
+
 function normalize(value: string): string {
   return value
     .toLocaleLowerCase("tr-TR")
@@ -36,6 +38,11 @@ export function detectedClaims(description: string): string[] {
   return CLAIM_PATTERNS.filter((claim) => text.includes(normalize(claim)));
 }
 
+export function detectsGarageClaim(description: string): boolean {
+  const text = normalize(description);
+  return GARAGE_CLAIM_PATTERNS.some((claim) => text.includes(normalize(claim)));
+}
+
 export function sellerRules(input: VehicleFormData): AnalysisFinding[] {
   const findings = detectedClaims(input.sellerDescription).map<AnalysisFinding>((claim) => ({
     id: `claim-${normalize(claim).replaceAll(" ", "-")}`,
@@ -46,6 +53,19 @@ export function sellerRules(input: VehicleFormData): AnalysisFinding[] {
       "Bu ifade tek başına olumsuzluk veya dolandırıcılık anlamına gelmez; yine de belge ve ekspertizle teyit edilmelidir.",
     recommendation: "İddiayı yazılı detay, fotoğraf, kayıt veya bağımsız ekspertizle doğrulayın.",
   }));
+
+  if (detectsGarageClaim(input.sellerDescription)) {
+    findings.push({
+      id: "claim-garage-kept",
+      category: "Satıcı",
+      severity: "low",
+      title: "Garaj kullanımı iddiası doğrulanmalı",
+      explanation:
+        "Garajda durduğu belirtilen araçlarda boya, plastik trim, güneş yanığı ve lastik durumu yine de fiziksel kontrol gerektirir.",
+      recommendation: "Aracın boya, güneş yanığı, trim ve lastik durumunu ekspertizde ayrıca kontrol ettirin.",
+    });
+  }
+
   if (input.sellerDescription.length < 80) {
     findings.push({
       id: "short-description",
