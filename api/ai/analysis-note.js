@@ -1,5 +1,3 @@
-import type { IncomingMessage, ServerResponse } from "node:http";
-
 const OPENROUTER_CHAT_COMPLETIONS_URL = "https://openrouter.ai/api/v1/chat/completions";
 const DEFAULT_OPENROUTER_MODEL = "openrouter/free";
 const DEFAULT_AI_DAILY_LIMIT = 20;
@@ -8,39 +6,17 @@ const usageKey = "analysis-note";
 const productionUrl = "https://eksperiq.vercel.app";
 const appName = "EksperIQ";
 
-type JsonValue = Record<string, unknown>;
-type CounterRecord = {
-  dayKey: string;
-  count: number;
-};
-type UpstashResponse = {
-  result?: unknown;
-  error?: string;
-};
+const counters = new Map();
 
-const counters = new Map<string, CounterRecord>();
-
-type AnalysisNoteInput = {
-  vehicleLabel: string;
-  totalScore: number;
-  riskLabel: string;
-  decision: string;
-  findings: Array<{
-    severity: string;
-    title: string;
-    explanation: string;
-  }>;
-};
-
-function sendJson(response: ServerResponse, statusCode: number, body: JsonValue): void {
+function sendJson(response, statusCode, body) {
   response.statusCode = statusCode;
   response.setHeader("Content-Type", "application/json; charset=utf-8");
   response.setHeader("Cache-Control", "no-store");
   response.end(JSON.stringify(body));
 }
 
-async function readJsonBody(request: IncomingMessage): Promise<unknown> {
-  const chunks: Buffer[] = [];
+async function readJsonBody(request) {
+  const chunks = [];
 
   for await (const chunk of request) {
     chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
@@ -48,39 +24,35 @@ async function readJsonBody(request: IncomingMessage): Promise<unknown> {
 
   const raw = Buffer.concat(chunks).toString("utf8");
   if (!raw.trim()) return null;
-  return JSON.parse(raw) as unknown;
+  return JSON.parse(raw);
 }
 
-function getTodayKey(date = new Date()): string {
+function getTodayKey(date = new Date()) {
   return date.toISOString().slice(0, 10);
 }
 
-function parseDailyLimit(value: string | undefined): number {
+function parseDailyLimit(value) {
   if (!value) return DEFAULT_AI_DAILY_LIMIT;
   const parsed = Number.parseInt(value, 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_AI_DAILY_LIMIT;
 }
 
-function isFeatureEnabled(): boolean {
+function isFeatureEnabled() {
   return process.env.NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED === "true";
 }
 
-function isOpenRouterConfigured(): boolean {
+function isOpenRouterConfigured() {
   return Boolean(process.env.OPENROUTER_API_KEY?.trim());
 }
 
-function getMemoryUsage(key: string, date = new Date()): number {
+function getMemoryUsage(key, date = new Date()) {
   const dayKey = getTodayKey(date);
   const record = counters.get(key);
   if (!record || record.dayKey !== dayKey) return 0;
   return record.count;
 }
 
-function reserveMemoryUsage(
-  key: string,
-  dailyLimit: number,
-  date = new Date(),
-): { allowed: boolean; remaining: number } {
+function reserveMemoryUsage(key, dailyLimit, date = new Date()) {
   const usedToday = getMemoryUsage(key, date);
   if (usedToday >= dailyLimit) return { allowed: false, remaining: 0 };
 
@@ -89,14 +61,14 @@ function reserveMemoryUsage(
   return { allowed: true, remaining: Math.max(dailyLimit - next, 0) };
 }
 
-function getUpstashConfig(): { url: string; token: string } | null {
+function getUpstashConfig() {
   const url = process.env.UPSTASH_REDIS_REST_URL?.trim();
   const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
   if (!url || !token) return null;
   return { url: url.replace(/\/$/, ""), token };
 }
 
-function parseCount(value: unknown): number {
+function parseCount(value) {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   if (typeof value === "string") {
     const parsed = Number.parseInt(value, 10);
@@ -105,11 +77,7 @@ function parseCount(value: unknown): number {
   return 0;
 }
 
-async function reserveUpstashUsage(
-  key: string,
-  dailyLimit: number,
-  config: { url: string; token: string },
-): Promise<{ allowed: boolean; remaining: number }> {
+async function reserveUpstashUsage(key, dailyLimit, config) {
   const dailyKey = `eksperiq:ai:${key}:${getTodayKey()}`;
   const response = await fetch(`${config.url}/pipeline`, {
     method: "POST",
@@ -124,10 +92,10 @@ async function reserveUpstashUsage(
   });
 
   if (!response.ok) throw new Error(`Upstash failed: ${response.status}`);
-  const payload: unknown = await response.json();
+  const payload = await response.json();
   if (!Array.isArray(payload)) throw new Error("Invalid Upstash payload.");
 
-  const firstResult = payload[0] as UpstashResponse | undefined;
+  const firstResult = payload[0];
   if (firstResult?.error) throw new Error("Upstash INCR failed.");
 
   const used = parseCount(firstResult?.result);
@@ -135,13 +103,13 @@ async function reserveUpstashUsage(
   return { allowed: true, remaining: Math.max(dailyLimit - used, 0) };
 }
 
-async function reserveUsage(key: string, dailyLimit: number): Promise<{ allowed: boolean; remaining: number }> {
+async function reserveUsage(key, dailyLimit) {
   const upstash = getUpstashConfig();
   if (!upstash) return reserveMemoryUsage(key, dailyLimit);
   return reserveUpstashUsage(key, dailyLimit, upstash);
 }
 
-function buildPrompt(input: AnalysisNoteInput): string {
+function buildPrompt(input) {
   const findings = input.findings
     .slice(0, 6)
     .map((finding) => `${finding.severity.toUpperCase()} - ${finding.title}: ${finding.explanation}`)
@@ -158,15 +126,15 @@ ${findings}
 Kullanıcıya Türkçe, kısa, kesin hüküm vermeyen ve profesyonel ekspertizin yerine geçmediğini belirten bir karar destek notu yaz.`;
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+function isRecord(value) {
   return typeof value === "object" && value !== null;
 }
 
-function isBoundedString(value: unknown, min: number, max: number): value is string {
+function isBoundedString(value, min, max) {
   return typeof value === "string" && value.trim().length >= min && value.trim().length <= max;
 }
 
-function parseAnalysisNoteInput(value: unknown): AnalysisNoteInput | null {
+function parseAnalysisNoteInput(value) {
   if (!isRecord(value)) return null;
   if (!isBoundedString(value.vehicleLabel, 3, 120)) return null;
   const totalScore = value.totalScore;
@@ -196,11 +164,11 @@ function parseAnalysisNoteInput(value: unknown): AnalysisNoteInput | null {
     totalScore,
     riskLabel: value.riskLabel.trim(),
     decision: value.decision.trim(),
-    findings: findings as AnalysisNoteInput["findings"],
+    findings,
   };
 }
 
-function extractAssistantContent(payload: unknown): string | null {
+function extractAssistantContent(payload) {
   if (!isRecord(payload)) return null;
   const choices = payload.choices;
   if (!Array.isArray(choices)) return null;
@@ -212,9 +180,7 @@ function extractAssistantContent(payload: unknown): string | null {
   return typeof content === "string" && content.trim().length > 0 ? content : null;
 }
 
-async function createAnalysisNote(
-  input: AnalysisNoteInput,
-): Promise<{ note: string; model: string } | { error: string }> {
+async function createAnalysisNote(input) {
   const apiKey = process.env.OPENROUTER_API_KEY?.trim();
   if (!apiKey) return { error: "OPENROUTER_API_KEY tanımlı değil; kural tabanlı analiz kullanılmalı." };
 
@@ -247,13 +213,13 @@ async function createAnalysisNote(
 
   if (!response.ok) return { error: `OpenRouter isteği başarısız oldu: ${response.status}` };
 
-  const payload: unknown = await response.json();
+  const payload = await response.json();
   const note = extractAssistantContent(payload);
   if (!note) return { error: "OpenRouter yanıtında okunabilir içerik bulunamadı." };
   return { note, model };
 }
 
-export default async function handler(request: IncomingMessage, response: ServerResponse): Promise<void> {
+async function handler(request, response) {
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
     sendJson(response, 405, { error: "Yalnızca POST desteklenir." });
@@ -278,7 +244,7 @@ export default async function handler(request: IncomingMessage, response: Server
     return;
   }
 
-  let body: unknown;
+  let body;
   try {
     body = await readJsonBody(request);
   } catch {
@@ -322,3 +288,5 @@ export default async function handler(request: IncomingMessage, response: Server
     remaining: reservation.remaining,
   });
 }
+
+module.exports = handler;
