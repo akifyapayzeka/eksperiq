@@ -9,7 +9,7 @@ async function fillRequiredForm(page: Page) {
   await page.getByLabel("Vites türü").selectOption(demoVehicleInput.transmission);
   await page.getByLabel("Kilometre").fill(String(demoVehicleInput.mileage));
   await page.getByLabel("İlan fiyatı").fill(String(demoVehicleInput.price));
-  await page.getByLabel("Şehir").fill(demoVehicleInput.city);
+  await page.getByLabel("Şehir").selectOption(demoVehicleInput.city);
   await page.getByLabel("Tramer tutarı").fill(String(demoVehicleInput.tramerAmount));
   await page.getByLabel("Bakım faturaları var").check();
   await page.getByLabel("Ekspertiz raporu var").check();
@@ -87,6 +87,7 @@ test("uses select controls for fixed-choice vehicle details", async ({ page }) =
 
   const selectLabels = [
     "Kasa tipi",
+    "Şehir",
     "Çekiş tipi",
     "Ruhsat sahibi bilgisi",
     "Takas durumu",

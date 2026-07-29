@@ -32,7 +32,6 @@ async function fillDemoVehicle(page: Page) {
     trim: demoVehicleInput.trim,
     mileage: String(demoVehicleInput.mileage),
     price: String(demoVehicleInput.price),
-    city: demoVehicleInput.city,
     engineSize: demoVehicleInput.engineSize,
     enginePower: demoVehicleInput.enginePower,
     listingUrl: demoVehicleInput.listingUrl,
@@ -48,6 +47,7 @@ async function fillDemoVehicle(page: Page) {
 
   await page.locator('[name="fuelType"]').selectOption(demoVehicleInput.fuelType);
   await page.locator('[name="transmission"]').selectOption(demoVehicleInput.transmission);
+  await page.locator('[name="city"]').selectOption(demoVehicleInput.city);
   await page.locator('[name="bodyType"]').selectOption(requiredSelectValue(demoVehicleInput.bodyType, "bodyType"));
   await page
     .locator('[name="drivetrain"]')
