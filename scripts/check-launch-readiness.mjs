@@ -85,7 +85,7 @@ const requiredTextChecks = [
   },
   {
     file: "docs/user-test-feedback-triage.md",
-    snippets: ["kişisel veri", "Kural adayı", "App Store riski"],
+    snippets: ["kişisel veri", "Kural adayı", "npm run rule-feedback:check", "App Store riski"],
   },
   {
     file: "docs/first-5-user-tests.md",
@@ -113,7 +113,7 @@ const requiredTextChecks = [
   },
   {
     file: "docs/how-to-test.md",
-    snippets: ["npm run release:check", "Mobil görünüm", "npm run user-tests:triage"],
+    snippets: ["npm run release:check", "Mobil görünüm", "npm run user-tests:triage", "npm run rule-feedback:package"],
   },
 ];
 

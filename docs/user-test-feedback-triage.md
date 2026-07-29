@@ -30,7 +30,7 @@ Form alanı anlaşılmıyor, seçenekli alan klavye açtırıyor, metin fazla uz
 
 Kullanıcı raporda eksik risk, yanlış öncelik, yeni satıcı sorusu, satıcı mesajına eklenmesi gereken bilgi, yeni ekspertiz kontrolü veya yeni ilan açıklaması ifadesi söylüyor.
 
-Çözüm sırası: `docs/rule-backlog.md` içine aday ekle, kabul kriterini yaz, pozitif ve negatif unit test olmadan aktif kurala taşıma.
+Çözüm sırası: `docs/rule-backlog.md` içine aday ekle, aynı adayı `src/lib/feedback/rule-candidates.ts` içine typed kayıt olarak bağla, `npm run rule-feedback:check` ile issue taslağını doğrula. Pozitif ve negatif unit test olmadan aktif kurala taşıma.
 
 ### Güven ve dil riski
 

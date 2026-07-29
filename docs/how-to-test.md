@@ -95,3 +95,13 @@ npm run user-tests:triage -- path/to/user-note.txt
 ```
 
 Issue açarken sadece redakte edilmiş triage çıktısını kullan.
+
+Kural adayı çıktıysa:
+
+```bash
+npm run rule-backlog:check
+npm run rule-feedback:check
+npm run rule-feedback:package
+```
+
+Sonra `dist/rule-feedback-issues` altındaki ilgili taslağı GitHub issue'ya çevir.
