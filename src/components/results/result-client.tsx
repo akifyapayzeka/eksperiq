@@ -12,12 +12,20 @@ import {
   Share2,
   ShieldCheck,
   Sparkles,
+  ThumbsDown,
+  ThumbsUp,
   Trash2,
 } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
 import { RISK_LEVELS, SCORE_WEIGHTS } from "@/lib/constants/analysis";
 import { formatAnalysisSummary } from "@/lib/analysis/report-summary";
 import { buildAiAnalysisNoteInput } from "@/lib/ai/analysis-note";
+import {
+  clearAiNoteFeedback,
+  loadAiNoteFeedback,
+  saveAiNoteFeedback,
+  type AiNoteFeedback,
+} from "@/lib/storage/ai-feedback-storage";
 import {
   clearAnalysis,
   loadAnalysis,
@@ -133,6 +141,7 @@ export function ResultClient() {
   const [aiNote, setAiNote] = useState<string | null>(null);
   const [aiNoteStatus, setAiNoteStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [aiNoteMessage, setAiNoteMessage] = useState<string>("");
+  const [aiNoteFeedback, setAiNoteFeedback] = useState<AiNoteFeedback | null>(null);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -140,6 +149,7 @@ export function ResultClient() {
       setResult(current);
       setFindingFilter(loadFindingFilter());
       setCheckedChecklist(new Set(current ? loadChecklist(current.finalChecklist) : []));
+      setAiNoteFeedback(loadAiNoteFeedback());
       setIsReady(true);
     });
 
@@ -229,9 +239,11 @@ export function ResultClient() {
 
   function clearCurrentAnalysis() {
     clearAnalysis();
+    clearAiNoteFeedback();
     setResult(null);
     setCheckedChecklist(new Set());
     setFindingFilter("all");
+    setAiNoteFeedback(null);
   }
 
   function selectFindingFilter(filter: FindingFilter) {
@@ -250,6 +262,11 @@ export function ResultClient() {
       saveChecklist([...next]);
       return next;
     });
+  }
+
+  function recordAiNoteFeedback(value: AiNoteFeedback) {
+    saveAiNoteFeedback(value);
+    setAiNoteFeedback(value);
   }
 
   if (!isReady) {
@@ -468,6 +485,44 @@ export function ResultClient() {
               {aiNote ? (
                 <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-700">
                   {aiNote}
+                </div>
+              ) : null}
+              {aiNote ? (
+                <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3">
+                  <p className="text-sm font-semibold text-slate-950">Bu AI notu faydalı mı?</p>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    <button
+                      type="button"
+                      onClick={() => recordAiNoteFeedback("helpful")}
+                      aria-pressed={aiNoteFeedback === "helpful"}
+                      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold ${
+                        aiNoteFeedback === "helpful"
+                          ? "border-teal-700 bg-teal-50 text-teal-800"
+                          : "border-slate-200 text-slate-800 hover:border-teal-700"
+                      }`}
+                    >
+                      <ThumbsUp aria-hidden="true" className="h-4 w-4" />
+                      Faydalı
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => recordAiNoteFeedback("needs-improvement")}
+                      aria-pressed={aiNoteFeedback === "needs-improvement"}
+                      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold ${
+                        aiNoteFeedback === "needs-improvement"
+                          ? "border-amber-700 bg-amber-50 text-amber-900"
+                          : "border-slate-200 text-slate-800 hover:border-amber-700"
+                      }`}
+                    >
+                      <ThumbsDown aria-hidden="true" className="h-4 w-4" />
+                      Geliştirilmeli
+                    </button>
+                  </div>
+                  {aiNoteFeedback ? (
+                    <p className="mt-3 text-sm text-slate-600" role="status">
+                      Geri bildiriminiz bu tarayıcı oturumunda tutuldu.
+                    </p>
+                  ) : null}
                 </div>
               ) : null}
               {aiNoteMessage ? (

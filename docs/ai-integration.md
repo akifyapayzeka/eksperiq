@@ -44,6 +44,18 @@ api/ai/analysis-note.ts
 
 Bu endpoint feature flag kapalıyken veya günlük limit doluyken OpenRouter çağrısı yapmaz.
 
+Staging açılış kontrolü için:
+
+```text
+docs/ai-staging-checklist.md
+```
+
+Kalıcı günlük limit stratejisi için:
+
+```text
+docs/ai-usage-persistence.md
+```
+
 ## Kullanım sınırı
 
 AI katmanı yalnızca ek karar destek notu üretmek için tasarlanmıştır. EksperIQ hiçbir durumda profesyonel ekspertiz, resmi kayıt sorgusu, servis kontrolü veya hukuki inceleme yerine geçmez.
