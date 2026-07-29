@@ -39,6 +39,7 @@ Kullanıcının kendi cümlesi:
 - Öncelik: `P0 / P1 / P2 / P3`
 - Etkilenen ekran veya modül:
 - Otomatik triage alanı: `Etkilenen ekran/akış`
+- Issue önerisi: `Başlık / Şablon / Label'lar`
 - Önerilen doğrulama:
 - Önerilen doğrulama komutları:
 - Beklenen davranış:

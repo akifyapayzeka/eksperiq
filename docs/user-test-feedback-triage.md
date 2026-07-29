@@ -11,6 +11,7 @@ Bu doküman, ilk gerçek kullanıcı testlerinden gelen notları kaybolmadan ür
 - Bir not hem kullanıcı deneyimi hem kural önerisi içeriyorsa iki ayrı issue açılır.
 - Ham not issue'a taşınmadan önce `docs/user-test-intake-template.md` ile anonimleştirilir ve önceliklendirilir.
 - `npm run user-tests:triage -- path/to/user-note.txt` çıktısı telefon, plaka, e-posta ve URL olabilecek alanları redakte eder; yine de issue açmadan önce manuel kontrol yapılır.
+- Triage çıktısındaki `Issue önerisi` bölümü, ilk GitHub başlığı, issue şablonu ve label seti için başlangıç kabul edilir; kişisel veri içermediği kontrol edilmeden birebir taşınmaz.
 - Triage çıktısındaki `Önerilen doğrulama komutları` issue kapanış kanıtı için başlangıç listesidir; etkilenen modüle göre daraltılabilir ama tamamen silinmemelidir.
 
 ## Triage sınıfları

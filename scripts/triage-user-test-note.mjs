@@ -107,6 +107,23 @@ const areaVerificationCommands = {
   "Geri bildirim": ['npx playwright test tests/e2e/main-flow.spec.ts --grep "feedback collection"'],
 };
 
+const categoryIssueLabels = {
+  "kritik hata": ["bug", "p0"],
+  "güven ve dil riski": ["trust-language", "p1", "app-store"],
+  "App Store riski": ["app-store", "privacy", "p1"],
+  "kullanıcı deneyimi": ["ux", "mobile", "p1"],
+  "kural adayı": ["rules", "p2"],
+};
+
+const areaIssueLabels = {
+  "Analiz formu": ["analysis-form"],
+  "Sonuç raporu": ["result-report"],
+  "Mobil alt menü": ["mobile-nav"],
+  "Paylaşma ve kopyalama": ["sharing"],
+  "Geri bildirim": ["feedback-page"],
+  "Genel kullanıcı akışı": ["flow"],
+};
+
 function normalize(value) {
   return value
     .toLocaleLowerCase("tr-TR")
@@ -161,6 +178,27 @@ function verificationCommands(category, affectedArea) {
   ];
 
   return [...new Set(commands)];
+}
+
+function issueMetadata(category, affectedArea) {
+  const isRuleCandidate = category.type === "kural adayı";
+  const template = isRuleCandidate
+    ? ".github/ISSUE_TEMPLATE/rule-feedback.md"
+    : ".github/ISSUE_TEMPLATE/user-test-feedback.md";
+  const prefix = isRuleCandidate ? "Kural geri bildirimi" : "Kullanıcı testi";
+  const fallbackPriorityLabel = category.priority.toLocaleLowerCase("tr-TR");
+  const labels = [
+    "feedback",
+    "user-test",
+    ...(categoryIssueLabels[category.type] ?? [fallbackPriorityLabel]),
+    ...(areaIssueLabels[affectedArea.area] ?? ["flow"]),
+  ];
+
+  return {
+    title: `[${prefix}][${category.priority}] ${affectedArea.area} - ${category.type}`,
+    template,
+    labels: [...new Set(labels)],
+  };
 }
 
 function redactPersonalData(note) {
@@ -225,6 +263,7 @@ const warnings = findPersonalDataWarnings(rawNote);
 const redactedNote = redactPersonalData(rawNote);
 const affectedArea = inferAffectedArea(rawNote);
 const commands = verificationCommands(category, affectedArea);
+const metadata = issueMetadata(category, affectedArea);
 const inputName = basename(inputPath).replace(/\.[^.]+$/, "");
 const outputFile = join(outputDir, `${slugify(inputName || "kullanici-notu")}-triage.md`);
 const optionalBacklogDraft = category.type === "kural adayı" ? `\n${backlogDraft(rawNote, inputName)}` : "";
@@ -242,6 +281,12 @@ Kaynak not: \`${basename(inputPath)}\`
 - Etkilenen ekran/akış: ${affectedArea.area}
 - Önerilen aksiyon: ${category.action}
 - Önerilen doğrulama: ${affectedArea.verification}
+
+## Issue önerisi
+
+- Başlık: ${metadata.title}
+- Şablon: \`${metadata.template}\`
+- Label'lar: ${metadata.labels.map((label) => `\`${label}\``).join(", ")}
 
 ## Önerilen doğrulama komutları
 

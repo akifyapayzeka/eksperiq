@@ -41,6 +41,9 @@ try {
   const requiredSnippets = [
     "Sorun tipi: güven ve dil riski",
     "Öncelik: P1",
+    "Başlık: [Kullanıcı testi][P1] Analiz formu - güven ve dil riski",
+    "Şablon: `.github/ISSUE_TEMPLATE/user-test-feedback.md`",
+    "Label'lar: `feedback`, `user-test`, `trust-language`, `p1`, `app-store`, `analysis-form`",
     "Sonuç dili, skor açıklaması ve yasal uyarı görünürlüğünü düzelt.",
     "npm run appstore:metadata-check",
     "Basit otomatik taramada telefon, plaka, e-posta veya URL kalıbı bulunmadı.",
@@ -58,6 +61,9 @@ try {
   const requiredRuleSnippets = [
     "Sorun tipi: kural adayı",
     "Öncelik: P2",
+    "Başlık: [Kural geri bildirimi][P2] Sonuç raporu - kural adayı",
+    "Şablon: `.github/ISSUE_TEMPLATE/rule-feedback.md`",
+    "Label'lar: `feedback`, `user-test`, `rules`, `p2`, `result-report`",
     "Kural backlog aday taslağı",
     "Aday ID: feedback-user-test-rule-note",
     "Etkilenen modül: satıcı açıklaması",
@@ -77,6 +83,9 @@ try {
   const piiOutput = readFileSync(join(tempDir, "user-test-note-with-pii-triage.md"), "utf8");
   const requiredPiiSnippets = [
     "Sorun tipi: App Store riski",
+    "Başlık: [Kullanıcı testi][P1] Genel kullanıcı akışı - App Store riski",
+    "Şablon: `.github/ISSUE_TEMPLATE/user-test-feedback.md`",
+    "Label'lar: `feedback`, `user-test`, `app-store`, `privacy`, `p1`, `flow`",
     "Kontrol et: telefon olabilir",
     "Kontrol et: plaka olabilir",
     "Kontrol et: e-posta olabilir",
@@ -103,6 +112,8 @@ try {
     "Sorun tipi: kullanıcı deneyimi",
     "Öncelik: P1",
     "Etkilenen ekran/akış: Analiz formu",
+    "Başlık: [Kullanıcı testi][P1] Analiz formu - kullanıcı deneyimi",
+    "Label'lar: `feedback`, `user-test`, `ux`, `mobile`, `p1`, `analysis-form`",
     "Analiz formunu mobil viewport'ta doldur",
     "npx playwright test tests/e2e/main-flow.spec.ts --project=mobile",
     "Küçük UI iyileştirmesi yap",
