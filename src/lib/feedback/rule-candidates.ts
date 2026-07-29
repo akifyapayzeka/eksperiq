@@ -83,7 +83,7 @@ export const ruleCandidates: RuleCandidate[] = [
   {
     id: "document-owner-proxy-sale",
     moduleId: "listing-analysis",
-    status: "needs-feedback",
+    status: "accepted",
     source: "expert-review",
     affectedRuleFile: "src/lib/analysis/rules/document-rules.ts",
     inputSignal: "Ruhsat sahibi bilgisi belirsiz veya satış vekaletle yapılacak.",

@@ -80,6 +80,7 @@ Kontrol edilecekler:
 - `/offline` ekranından üretilen `out/offline.html` fallback ekranı olarak native projeye taşınmış olmalı.
 - `safe-area-shell` sınıfı iOS güvenli alanlarında içerik taşmasını engellemeli.
 - App Store metinleri kesin ekspertiz veya satın alma garantisi vermiyor.
+- App Store Connect metinleri `docs/app-store-submission.md` dosyasından kontrol edildi.
 
 ## Geri bildirim ve kural geliştirme
 

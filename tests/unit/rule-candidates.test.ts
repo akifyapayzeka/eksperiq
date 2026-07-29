@@ -3,7 +3,7 @@ import { candidatesByStatus, ruleCandidates, ruleFeedbackIssueTitle } from "@/li
 
 describe("rule candidates", () => {
   it("keeps early feedback candidates outside the active rule engine", () => {
-    expect(ruleCandidates.map((candidate) => candidate.status)).toEqual(["accepted", "accepted", "needs-feedback"]);
+    expect(ruleCandidates.map((candidate) => candidate.status)).toEqual(["accepted", "accepted", "accepted"]);
   });
 
   it("links every candidate to an affected rule file and validation question", () => {
@@ -19,8 +19,8 @@ describe("rule candidates", () => {
   });
 
   it("filters candidates by review status", () => {
-    expect(candidatesByStatus("needs-feedback")).toHaveLength(1);
-    expect(candidatesByStatus("accepted")).toHaveLength(2);
+    expect(candidatesByStatus("needs-feedback")).toHaveLength(0);
+    expect(candidatesByStatus("accepted")).toHaveLength(3);
   });
 
   it("derives issue titles from the feedback record", () => {

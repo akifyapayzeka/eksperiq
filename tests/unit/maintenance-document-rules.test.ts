@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { maintenanceRules } from "@/lib/analysis/rules/maintenance-rules";
-import { documentRules, missingInformation } from "@/lib/analysis/rules/document-rules";
+import { detectsOwnerOrProxySaleRisk, documentRules, missingInformation } from "@/lib/analysis/rules/document-rules";
 import type { VehicleFormData } from "@/lib/schemas/vehicle";
 
 const baseInput: VehicleFormData = {
@@ -131,5 +131,44 @@ describe("document rules", () => {
         "Kilometre geçmişi",
       ]),
     );
+  });
+
+  it("flags proxy sale language as medium-severity document risk", () => {
+    const findings = documentRules({
+      ...baseInput,
+      ownerInfo: "Araç abimin üzerine, vekaletle satış yapılacak",
+    });
+
+    expect(detectsOwnerOrProxySaleRisk({ ...baseInput, ownerInfo: "Vekaletle satış" })).toBe(true);
+    expect(findings).toContainEqual(
+      expect.objectContaining({
+        id: "owner-proxy-sale-verification",
+        severity: "medium",
+        title: "Ruhsat sahibi ve satış yetkisi doğrulanmalı",
+      }),
+    );
+  });
+
+  it("flags missing owner information as a sales authority check", () => {
+    const findings = documentRules({ ...baseInput, ownerInfo: "" });
+
+    expect(findings).toContainEqual(expect.objectContaining({ id: "owner-proxy-sale-verification" }));
+    expect(findings).toContainEqual(
+      expect.objectContaining({
+        title: "Ruhsat sahibinin kim olduğu istenmeli",
+        severity: "low",
+      }),
+    );
+  });
+
+  it("does not flag clear owner information as proxy sale risk", () => {
+    const findings = documentRules({
+      ...baseInput,
+      ownerInfo: "Araç ruhsatta kendi adıma kayıtlı",
+      sellerDescription: "Bakımları düzenli, ekspertize açık.",
+    });
+
+    expect(detectsOwnerOrProxySaleRisk({ ...baseInput, ownerInfo: "Kendi adıma kayıtlı" })).toBe(false);
+    expect(findings).not.toContainEqual(expect.objectContaining({ id: "owner-proxy-sale-verification" }));
   });
 });

@@ -15,6 +15,28 @@ Bu komut:
 3. Hostinger/Apache route yenilemeleri için `out/.htaccess` dosyasını ekler.
 4. `dist/eksperiq-hostinger-static.zip` paketini oluşturur.
 
+## Paket içeriği kontrolü
+
+Zip yüklenmeden önce yerelde şu içerikler doğrulanmalıdır:
+
+- `.htaccess`
+- `index.html`
+- `analiz.html`
+- `sonuc.html`
+- `geri-bildirim.html`
+- `moduller.html`
+- `offline.html`
+- `_next/static`
+
+PowerShell ile hızlı kontrol:
+
+```powershell
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$zip = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path 'dist\eksperiq-hostinger-static.zip'))
+$zip.Entries.FullName | Select-String '(^\.htaccess$|index\.html|analiz\.html|sonuc\.html|geri-bildirim\.html|offline\.html|_next\\static)'
+$zip.Dispose()
+```
+
 ## Hostinger File Manager ile yayın
 
 1. Hostinger hPanel içinde ilgili siteyi açın.
@@ -27,8 +49,39 @@ Bu komut:
    - `/`
    - `/analiz`
    - `/sonuc`
+   - `/geri-bildirim`
    - `/moduller`
    - `/gizlilik`
+   - `/offline`
+
+## Canlı kontrol komutları
+
+Domain bağlandıktan sonra aşağıdaki komutlarda `https://example.com` yerine gerçek Hostinger adresini yazın:
+
+```powershell
+$baseUrl = 'https://example.com'
+$paths = @('/', '/analiz', '/sonuc', '/geri-bildirim', '/moduller', '/gizlilik', '/offline')
+foreach ($path in $paths) {
+  $response = Invoke-WebRequest -Uri "$baseUrl$path" -UseBasicParsing -TimeoutSec 20
+  "$path -> $($response.StatusCode)"
+}
+```
+
+Beklenen sonuç her path için `200` olmalıdır. `/sonuc` sayfasında oturum verisi yoksa yeniden analiz başlatma ekranı görünmesi normaldir.
+
+## Rollback planı
+
+Yükleme öncesinde mevcut `public_html` içeriğini tarihli bir zip veya klasör olarak saklayın.
+
+Önerilen adımlar:
+
+1. Yeni paketi yüklemeden önce mevcut `public_html` içeriğini `backup-YYYY-MM-DD-HHMM.zip` olarak indirin.
+2. Yeni paketi ayrı bir klasörde açıp dosya listesini kontrol edin.
+3. Sorun görülürse yeni yüklenen dosyaları kaldırın.
+4. Yedek zip'i tekrar `public_html` köküne çıkarın.
+5. Ana sayfa, `/analiz`, `/sonuc` ve `/gizlilik` yollarını tekrar kontrol edin.
+
+Rollback sırasında kullanıcı verisi sunucuda tutulmadığı için veritabanı geri dönüşü gerekmez.
 
 ## Yenileme ve 404 davranışı
 
