@@ -1,0 +1,136 @@
+import { expect, test, type Page } from "@playwright/test";
+
+async function fillRequiredForm(page: Page) {
+  await page.getByLabel("Marka").fill("Toyota");
+  await page.getByLabel("Model", { exact: true }).fill("Corolla");
+  await page.getByLabel("Model yılı").fill("2020");
+  await page.getByLabel("Yakıt türü").selectOption("Benzin");
+  await page.getByLabel("Vites türü").selectOption("Otomatik");
+  await page.getByLabel("Kilometre").fill("90000");
+  await page.getByLabel("İlan fiyatı").fill("1200000");
+  await page.getByLabel("Şehir").fill("İstanbul");
+  await page.getByLabel("Tramer tutarı").fill("75000");
+  await page.getByLabel("Bakım faturaları var").check();
+  await page.getByLabel("Ekspertiz raporu var").check();
+  await page.getByLabel("Yedek anahtar var").check();
+  await page
+    .getByLabel("İlan açıklaması")
+    .fill("Ekspertize açık, tramer yok, masrafsız yazılmış ama detayları satıcıdan doğrulamak istiyorum.");
+}
+
+test("home to analysis form", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "Ücretsiz analiz et" }).click();
+  await expect(page).toHaveURL(/\/analiz$/);
+  await expect(page.getByRole("heading", { name: "Araç ilanı analizi" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Form ilerlemesi" })).toBeVisible();
+  await expect(page.getByRole("progressbar", { name: "Zorunlu alan ilerlemesi" })).toHaveAttribute(
+    "aria-valuenow",
+    "0",
+  );
+  await expect(page.getByRole("navigation", { name: "Analiz formu bölümleri" })).toBeVisible();
+  await page.getByRole("link", { name: "Açıklama" }).click();
+  await expect(page).toHaveURL(/#seller-description$/);
+  await expect(page.getByRole("heading", { name: "Satıcı açıklaması" })).toBeVisible();
+});
+
+test("shows validation errors", async ({ page }) => {
+  await page.goto("/analiz");
+  await page.getByRole("button", { name: "Analiz oluştur" }).click();
+  await expect(page.getByText("Marka zorunludur.")).toBeVisible();
+  await expect(page.getByText("İlan açıklaması en az 20 karakter olmalı.")).toBeVisible();
+});
+
+test("shows product module roadmap", async ({ page }) => {
+  await page.goto("/moduller");
+  await expect(page.getByRole("heading", { name: "EksperIQ modülleri bağımsız geliştirilecek." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Aktif modül" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Planlanan modüller" })).toBeVisible();
+  await expect(page.getByText("İlan Analizi")).toBeVisible();
+  await expect(page.getByText("Fotoğraftan Hasar Analizi")).toBeVisible();
+  await expect(page.getByText("Araç Sağlık Karnesi")).toBeVisible();
+  await expect(page.getByText("Kesinlik sınırı")).toHaveCount(8);
+});
+
+test("creates analysis result", async ({ page }) => {
+  await page.goto("/analiz");
+  await fillRequiredForm(page);
+  await expect(page.getByRole("progressbar", { name: "Zorunlu alan ilerlemesi" })).toHaveAttribute(
+    "aria-valuenow",
+    "9",
+  );
+  await expect(page.getByText("Zorunlu alanlar tamamlandı.")).toBeVisible();
+  await page.getByRole("button", { name: "Analiz oluştur" }).click();
+  await expect(page).toHaveURL(/\/sonuc$/);
+  await expect(page.getByText("Araç Risk Skoru")).toBeVisible();
+  await expect(page.getByText("Bilgi doluluğu")).toBeVisible();
+  await expect(page.getByText("Araç ve ilan özeti")).toBeVisible();
+  await expect(page.getByText("Skor nasıl okunmalı?")).toBeVisible();
+  await expect(page.getByRole("progressbar", { name: "Bilgi doluluğu yüzdesi" })).toBeVisible();
+  await expect(page.getByRole("progressbar", { name: "Hasar geçmişi skoru" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Raporu yazdır" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Soruları kopyala" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Rapor özetini kopyala" })).toBeVisible();
+  await expect(page.getByText("Öncelikli ilk aksiyonlar")).toBeVisible();
+  await expect(page.getByLabel("Risk bulgusu dağılımı")).toBeVisible();
+  await expect(page.getByText("Yüksek riskli bulgu")).toBeVisible();
+  await expect(page.getByRole("group", { name: "Risk bulgusu filtresi" })).toBeVisible();
+  await page.getByRole("button", { name: /Yüksek \(/ }).click();
+  await expect(page.getByRole("button", { name: /Yüksek \(/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByText(/\/ Düşük/)).toHaveCount(0);
+  await expect(page.getByText("Satıcıya sorulacak sorular")).toBeVisible();
+  await expect(page.getByText("Ekspertizde özellikle kontrol edilmesi gerekenler")).toBeVisible();
+  await expect(page.getByLabel("Tamamlanan kontroller 0 / 10")).toBeVisible();
+  await page.getByLabel("Ruhsat sahibini doğruladım").check();
+  await expect(page.getByLabel("Tamamlanan kontroller 1 / 10")).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("button", { name: /Yüksek \(/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByText(/\/ Düşük/)).toHaveCount(0);
+  await expect(page.getByLabel("Tamamlanan kontroller 1 / 10")).toBeVisible();
+  await expect(page.getByLabel("Ruhsat sahibini doğruladım")).toBeChecked();
+  await page.getByRole("button", { name: /Tümü \(/ }).click();
+});
+
+test("prepares a clean print report", async ({ page }) => {
+  await page.goto("/analiz");
+  await fillRequiredForm(page);
+  await page.getByRole("button", { name: "Analiz oluştur" }).click();
+  await expect(page).toHaveURL(/\/sonuc$/);
+  await expect(page.getByText(/Rapor tarihi:/)).toBeVisible();
+
+  await page.emulateMedia({ media: "print" });
+  await expect(page.getByRole("button", { name: "Raporu yazdır" })).toBeHidden();
+  await expect(page.getByText("Araç Risk Skoru")).toBeVisible();
+  await expect(page.getByText("Satıcıya sorulacak sorular")).toBeVisible();
+});
+
+test("clears current session result", async ({ page }) => {
+  await page.goto("/analiz");
+  await fillRequiredForm(page);
+  await page.getByRole("button", { name: "Analiz oluştur" }).click();
+  await page.getByRole("button", { name: "Oturum verisini sil" }).click();
+  await expect(page.getByRole("heading", { name: "Analiz bulunamadı" })).toBeVisible();
+});
+
+test("mobile pages do not create horizontal overflow", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "Mobile overflow is covered by the mobile project.");
+
+  await page.goto("/");
+  await expectNoHorizontalOverflow(page);
+
+  await page.goto("/analiz");
+  await expectNoHorizontalOverflow(page);
+
+  await fillRequiredForm(page);
+  await page.getByRole("button", { name: "Analiz oluştur" }).click();
+  await expect(page).toHaveURL(/\/sonuc$/);
+  await expectNoHorizontalOverflow(page);
+});
+
+async function expectNoHorizontalOverflow(page: Page) {
+  const dimensions = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+}
