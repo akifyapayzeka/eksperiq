@@ -1,5 +1,4 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { z } from "zod";
 
 const OPENROUTER_CHAT_COMPLETIONS_URL = "https://openrouter.ai/api/v1/chat/completions";
 const DEFAULT_OPENROUTER_MODEL = "openrouter/free";
@@ -21,24 +20,17 @@ type UpstashResponse = {
 
 const counters = new Map<string, CounterRecord>();
 
-const analysisNoteSchema = z.object({
-  vehicleLabel: z.string().trim().min(3).max(120),
-  totalScore: z.number().int().min(0).max(100),
-  riskLabel: z.string().trim().min(2).max(80),
-  decision: z.string().trim().min(2).max(160),
-  findings: z
-    .array(
-      z.object({
-        severity: z.string().trim().min(2).max(20),
-        title: z.string().trim().min(2).max(160),
-        explanation: z.string().trim().min(2).max(500),
-      }),
-    )
-    .min(1)
-    .max(6),
-});
-
-type AnalysisNoteInput = z.infer<typeof analysisNoteSchema>;
+type AnalysisNoteInput = {
+  vehicleLabel: string;
+  totalScore: number;
+  riskLabel: string;
+  decision: string;
+  findings: Array<{
+    severity: string;
+    title: string;
+    explanation: string;
+  }>;
+};
 
 function sendJson(response: ServerResponse, statusCode: number, body: JsonValue): void {
   response.statusCode = statusCode;
@@ -170,6 +162,44 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
+function isBoundedString(value: unknown, min: number, max: number): value is string {
+  return typeof value === "string" && value.trim().length >= min && value.trim().length <= max;
+}
+
+function parseAnalysisNoteInput(value: unknown): AnalysisNoteInput | null {
+  if (!isRecord(value)) return null;
+  if (!isBoundedString(value.vehicleLabel, 3, 120)) return null;
+  const totalScore = value.totalScore;
+  if (typeof totalScore !== "number" || !Number.isInteger(totalScore) || totalScore < 0 || totalScore > 100) {
+    return null;
+  }
+  if (!isBoundedString(value.riskLabel, 2, 80)) return null;
+  if (!isBoundedString(value.decision, 2, 160)) return null;
+  if (!Array.isArray(value.findings) || value.findings.length < 1 || value.findings.length > 6) return null;
+
+  const findings = value.findings.map((finding) => {
+    if (!isRecord(finding)) return null;
+    if (!isBoundedString(finding.severity, 2, 20)) return null;
+    if (!isBoundedString(finding.title, 2, 160)) return null;
+    if (!isBoundedString(finding.explanation, 2, 500)) return null;
+    return {
+      severity: finding.severity.trim(),
+      title: finding.title.trim(),
+      explanation: finding.explanation.trim(),
+    };
+  });
+
+  if (findings.some((finding) => finding === null)) return null;
+
+  return {
+    vehicleLabel: value.vehicleLabel.trim(),
+    totalScore,
+    riskLabel: value.riskLabel.trim(),
+    decision: value.decision.trim(),
+    findings: findings as AnalysisNoteInput["findings"],
+  };
+}
+
 function extractAssistantContent(payload: unknown): string | null {
   if (!isRecord(payload)) return null;
   const choices = payload.choices;
@@ -256,8 +286,8 @@ export default async function handler(request: IncomingMessage, response: Server
     return;
   }
 
-  const parsed = analysisNoteSchema.safeParse(body);
-  if (!parsed.success) {
+  const parsed = parseAnalysisNoteInput(body);
+  if (!parsed) {
     sendJson(response, 400, { error: "AI notu için gönderilen veri geçerli değil." });
     return;
   }
@@ -280,7 +310,7 @@ export default async function handler(request: IncomingMessage, response: Server
     return;
   }
 
-  const aiResult = await createAnalysisNote(parsed.data);
+  const aiResult = await createAnalysisNote(parsed);
   if ("error" in aiResult) {
     sendJson(response, 502, { error: aiResult.error });
     return;
