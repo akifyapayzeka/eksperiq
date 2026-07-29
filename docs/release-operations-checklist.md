@@ -2,6 +2,8 @@
 
 Bu checklist Vercel, Hostinger ve App Store hazırlık yollarında aynı kalite standardını korumak için kullanılır.
 
+15 Ağustos 2026 launch planı: `docs/launch-plan-2026-08-15.md`
+
 ## Her yayın öncesi
 
 ```bash
@@ -74,6 +76,7 @@ Kontrol edilecekler:
 
 - Bundle ID: `com.eksperiq.app`
 - App adı: `EksperIQ`
+- Build ortamı: Xcode 26 veya sonrası, iOS 26 SDK
 - Gizlilik politikası URL'si: `https://eksperiq.vercel.app/gizlilik`
 - Kamera, konum, fotoğraf veya bildirim izni gerekmedikçe istenmiyor.
 - Raporu paylaş aksiyonu gerçek iOS cihazda çalışıyor.

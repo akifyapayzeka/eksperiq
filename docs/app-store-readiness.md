@@ -2,6 +2,8 @@
 
 EksperIQ şu anda ücretsiz çalışan responsive web uygulamasıdır. App Store yayını için uygulamanın iOS native paketine dönüştürülmesi, Apple Developer Program üyeliği ve macOS/Xcode ile imzalanmış build gerekir.
 
+15 Ağustos 2026 yayın hedefi için ana plan: `docs/launch-plan-2026-08-15.md`
+
 ## Mevcut hazırlık durumu
 
 - Uygulama statik export üretebilir.
@@ -31,10 +33,12 @@ npm run ios:open
 
 `ios:add` komutu iOS proje klasörünü üretir. Bu klasör üretildikten sonra Xcode içinde bundle id, signing team, launch screen, app icon set ve deployment target ayarları kontrol edilmelidir.
 
+Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build Xcode 26 veya sonrası ve iOS 26 SDK ile hazırlanmalıdır.
+
 ## App Store için önerilen yol
 
 1. Apple Developer Program üyeliği açılır.
-2. macOS üzerinde Xcode kurulur.
+2. macOS üzerinde Xcode 26 veya sonrası kurulur.
 3. `npm run ios:add` ile Capacitor iOS platformu oluşturulur.
 4. `npm run ios:sync` ile güncel statik web çıktısı iOS projesine aktarılır.
 5. App Store Connect üzerinde uygulama kaydı oluşturulur.
