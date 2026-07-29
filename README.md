@@ -101,6 +101,7 @@ npm run privacy:check
 npm run rule-backlog:check
 npm run rule-feedback:package
 npm run rule-feedback:check
+npm run user-tests:commands-check
 npm run launch:check
 npm run e2e
 npm run ai:env-check
