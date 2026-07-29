@@ -109,6 +109,8 @@ Yayın öncesi yerel preflight için:
 npm run release:check
 ```
 
+Manuel test akışı için: `docs/how-to-test.md`
+
 ## Build komutu
 
 ```bash

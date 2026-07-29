@@ -6,6 +6,7 @@ const requiredFiles = [
   "docs/launch-master-checklist.md",
   "docs/all-steps-status.md",
   "docs/release-operations-checklist.md",
+  "docs/how-to-test.md",
   "docs/first-user-test-script.md",
   "docs/first-5-user-tests.md",
   "docs/user-test-issue-plan.md",
@@ -102,7 +103,11 @@ const requiredTextChecks = [
   },
   {
     file: "docs/release-operations-checklist.md",
-    snippets: ["npm run launch:check", "Geri bildirim ve kural geliştirme"],
+    snippets: ["npm run launch:check", "docs/how-to-test.md", "Geri bildirim ve kural geliştirme"],
+  },
+  {
+    file: "docs/how-to-test.md",
+    snippets: ["npm run release:check", "Mobil görünüm", "npm run user-tests:triage"],
   },
 ];
 

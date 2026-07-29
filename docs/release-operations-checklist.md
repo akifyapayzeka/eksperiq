@@ -6,6 +6,8 @@ Bu checklist Vercel, Hostinger ve App Store hazırlık yollarında aynı kalite 
 
 Tüm adımların merkezi takip dosyası: `docs/launch-master-checklist.md`
 
+Manuel test rehberi: `docs/how-to-test.md`
+
 ## Her yayın öncesi
 
 ```bash
