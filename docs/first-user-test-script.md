@@ -1,0 +1,49 @@
+# İlk Kullanıcı Testi Senaryosu
+
+Amaç: EksperIQ'un ikinci el araç ilanı karar desteğini 5 dakikada anlaşılır, güvenilir ve mobilde kullanılabilir olup olmadığını görmek.
+
+## Test Öncesi
+
+- Kullanıcıdan kişisel veri, plaka, telefon, açık adres veya gerçek satıcı adı istemeyin.
+- Kullanıcı gerçek ilan kullanacaksa ilan metnini anonimleştirmesini isteyin.
+- Testi mümkünse telefonda yaptırın.
+
+## Görevler
+
+1. Ana sayfadan analiz formuna geç.
+2. Gerçek veya örnek ilan bilgilerini gir.
+3. Eksik bıraktığın alanlar varsa uygulamanın bunu nasıl anlattığını kontrol et.
+4. Analiz oluştur.
+5. Risk skorunu, kısa özeti ve satıcı sorularını oku.
+6. Ekspertiz kontrol listesinde en az iki madde işaretle.
+7. Kısa özeti kopyalamayı dene.
+
+## Sorular
+
+1. İlk ekranda uygulamanın ne yaptığı net miydi?
+2. Formda gereksiz veya zor gelen alan var mıydı?
+3. Risk skoru güven verdi mi, fazla kesin mi hissettirdi?
+4. Satıcıya sorulacak sorular işine yarar mıydı?
+5. Ekspertiz kontrol listesinde eksik gördüğün madde var mı?
+6. Sonuç raporunu bir arkadaşına veya ustaya gönderir miydin?
+7. Bu uygulamayı ücretsiz kullansan tekrar açar mıydın?
+
+## Not Formatı
+
+```text
+Cihaz:
+Kullanılan ilan tipi:
+Tamamlama süresi:
+Takıldığı yer:
+En faydalı bölüm:
+Eksik gördüğü kural:
+Güven sorunu:
+Bir sonraki iyileştirme:
+```
+
+## Başarı Ölçütü
+
+- Kullanıcı yardım almadan rapora ulaşabiliyor.
+- Kullanıcı yasal uyarıyı ve karar desteği sınırını anlıyor.
+- Kullanıcı en az bir satıcı sorusunu faydalı buluyor.
+- Kullanıcı raporu paylaşma fikrini mantıklı buluyor.

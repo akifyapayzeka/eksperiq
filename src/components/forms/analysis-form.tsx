@@ -3,11 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ClipboardCheck, FileText, ShieldCheck, Wrench } from "lucide-react";
+import { ClipboardCheck, FileText, Sparkles, ShieldCheck, Wrench } from "lucide-react";
 import { saveAnalysis } from "@/lib/storage/analysis-storage";
 import { vehicleSchema, type VehicleFormData, type VehicleFormInput } from "@/lib/schemas/vehicle";
 import { createAnalysis } from "@/lib/services/analysis-service";
 import { appConfig } from "@/lib/constants/app";
+import { demoVehicleInput } from "@/lib/constants/demo-vehicle";
 import {
   BooleanInfoSection,
   DamageInfoSection,
@@ -222,6 +223,7 @@ export function AnalysisForm() {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<VehicleFormInput, unknown, VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
@@ -247,10 +249,38 @@ export function AnalysisForm() {
     router.push("/sonuc");
   }
 
+  function fillDemoVehicle() {
+    for (const [name, value] of Object.entries(demoVehicleInput)) {
+      setValue(name as keyof VehicleFormInput, value, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
+    }
+  }
+
   return (
     <form className="grid gap-6" onSubmit={handleSubmit(onSubmit)} noValidate>
       <div className="rounded-2xl border border-teal-200 bg-teal-50 p-4 text-sm leading-6 text-teal-950">
         {appConfig.privacy}
+      </div>
+      <div className="rounded-2xl border border-sky-100 bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="font-semibold text-slate-950">Hızlı deneme</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-600">
+              Gerçek ilan girmeden önce örnek veriyle rapor akışını test edebilirsiniz.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={fillDemoVehicle}
+            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-sky-50 px-4 text-sm font-semibold text-slate-950 ring-1 ring-sky-100 hover:ring-teal-700"
+          >
+            <Sparkles aria-hidden="true" className="h-4 w-4 text-teal-700" />
+            Örnek ilanla doldur
+          </button>
+        </div>
       </div>
       <FormStepOverview values={progressValues} />
       <FormProgress values={progressValues} />

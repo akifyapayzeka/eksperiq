@@ -1,4 +1,4 @@
-import { ExternalLink } from "lucide-react";
+import { CheckCircle2, ExternalLink } from "lucide-react";
 import { InfoPage } from "@/components/layout/info-page";
 import { appConfig } from "@/lib/constants/app";
 
@@ -7,6 +7,13 @@ const feedbackSteps = [
   "İlan bilgisini kişisel veri paylaşmadan özetleyin.",
   "Beklediğiniz satıcı sorusunu veya ekspertiz kontrol başlığını yazın.",
   "Geri bildirimi GitHub issue şablonuyla gönderin.",
+];
+
+const userTestQuestions = [
+  "İlk ekranda uygulamanın ne yaptığı net miydi?",
+  "Formda gereksiz veya zor gelen alan var mıydı?",
+  "Risk skoru güven verdi mi, fazla kesin mi hissettirdi?",
+  "Satıcı soruları ve ekspertiz listesi işine yarar mıydı?",
 ];
 
 export default function FeedbackPage() {
@@ -31,6 +38,24 @@ export default function FeedbackPage() {
         Geri bildirimlerde plaka, telefon numarası, açık adres, satıcı adı veya kimlik bilgisi paylaşmayın. İlanı
         anlatmak için marka, model, yıl, kilometre ve anonimleştirilmiş açıklama yeterlidir.
       </p>
+      <div className="rounded-lg border border-teal-100 bg-teal-50 p-4">
+        <h2 className="text-lg font-semibold text-slate-950">5 dakikalık kullanıcı testi</h2>
+        <p className="mt-2 text-slate-700">
+          İlk kullanıcıdan telefonda ana sayfadan başlayıp rapor oluşturmasını isteyin. Test sonunda şu dört soruyu not
+          almak yeterli.
+        </p>
+        <ul className="mt-3 grid gap-2 text-slate-700">
+          {userTestQuestions.map((question) => (
+            <li key={question} className="flex gap-2">
+              <CheckCircle2 aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-teal-700" />
+              {question}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 text-sm text-slate-600">
+          Detaylı senaryo: <code>docs/first-user-test-script.md</code>
+        </p>
+      </div>
       <div className="flex flex-col gap-3 sm:flex-row">
         <a
           href={appConfig.newRuleFeedbackUrl}

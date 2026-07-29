@@ -94,6 +94,31 @@ function scoreRingStyle(score: number) {
   };
 }
 
+function compactShareSummary(result: AnalysisResult): string {
+  const vehicle = `${result.input.year} ${result.input.brand} ${result.input.model}`;
+  const topFindings = result.findings
+    .slice(0, 3)
+    .map((finding) => `- ${finding.title}`)
+    .join("\n");
+  const questions = result.sellerQuestions
+    .slice(0, 3)
+    .map((question, index) => `${index + 1}. ${question}`)
+    .join("\n");
+
+  return `${vehicle}
+EksperIQ risk skoru: ${result.totalScore}/100
+Sonuç: ${result.riskLabel}
+Karar özeti: ${result.decision}
+
+Öncelikli bulgular:
+${topFindings}
+
+Satıcıya ilk sorular:
+${questions}
+
+Not: Bu özet kesin ekspertiz sonucu değildir.`;
+}
+
 export function ResultClient() {
   const [isReady, setIsReady] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -133,6 +158,11 @@ export function ResultClient() {
   async function copySummary() {
     if (!result) return;
     await copyText(formatAnalysisSummary(result), "summary-copied");
+  }
+
+  async function copyCompactSummary() {
+    if (!result) return;
+    await copyText(compactShareSummary(result), "summary-copied");
   }
 
   async function shareSummary() {
@@ -368,6 +398,48 @@ export function ResultClient() {
             </div>
           </div>
         </div>
+        <SectionCard
+          title="Paylaşılabilir kısa özet"
+          description="Uzun rapor yerine satıcıya, ekspertize veya kendinize gönderebileceğiniz kısa karar desteği özeti."
+        >
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="grid gap-3 text-sm leading-6 text-slate-700">
+              <p>
+                <strong className="text-slate-950">
+                  {result.input.year} {result.input.brand} {result.input.model}
+                </strong>{" "}
+                için EksperIQ skoru {result.totalScore}/100, sonuç: {result.riskLabel}.
+              </p>
+              <p>
+                Karar özeti: <strong className="text-slate-950">{result.decision}</strong>
+              </p>
+              <div>
+                <p className="font-semibold text-slate-950">İlk kontrol edilecek bulgular</p>
+                <ul className="mt-2 grid gap-1">
+                  {result.findings.slice(0, 3).map((finding) => (
+                    <li key={finding.id}>- {finding.title}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="font-semibold text-slate-950">Satıcıya ilk sorular</p>
+                <ol className="mt-2 grid list-decimal gap-1 pl-5">
+                  {result.sellerQuestions.slice(0, 3).map((question) => (
+                    <li key={question}>{question}</li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={copyCompactSummary}
+              className="no-print mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800"
+            >
+              <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
+              Kısa özeti kopyala
+            </button>
+          </div>
+        </SectionCard>
         <SectionCard
           title="Bilgi doluluğu"
           description="Daha fazla doğrulanabilir bilgi girildikçe raporun karar desteği değeri artar."

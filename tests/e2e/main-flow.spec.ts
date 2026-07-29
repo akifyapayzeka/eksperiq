@@ -71,6 +71,17 @@ test("shows validation errors", async ({ page }) => {
   await expect(page.getByText("İlan açıklaması en az 20 karakter olmalı.")).toBeVisible();
 });
 
+test("fills form with demo listing", async ({ page }) => {
+  await page.goto("/analiz");
+  await page.getByRole("button", { name: "Örnek ilanla doldur" }).click();
+  await expect(page.getByLabel("Marka")).toHaveValue(demoVehicleInput.brand);
+  await expect(page.getByLabel("Model", { exact: true })).toHaveValue(demoVehicleInput.model);
+  await expect(page.getByRole("progressbar", { name: "Zorunlu alan ilerlemesi" })).toHaveAttribute(
+    "aria-valuenow",
+    "9",
+  );
+});
+
 test("shows product module roadmap", async ({ page }) => {
   await page.goto("/moduller");
   await expect(
