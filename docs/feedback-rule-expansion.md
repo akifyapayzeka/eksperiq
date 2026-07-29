@@ -64,3 +64,11 @@ Kural çıktıları şu çerçevede yazılmalıdır:
 - Bilgi yetersiz olduğu için karar desteği sınırlı
 
 Canlı uygulama geri bildirim giriş noktası `/geri-bildirim` sayfasıdır. Kullanıcı testi notları önce `docs/user-test-feedback-triage.md` ile sınıflandırılır. Kural adayları `docs/rule-backlog.md` ve `src/lib/feedback/rule-candidates.ts` içinde gerçek issue kayıt formatına bağlanır.
+
+Typed kural adaylarından GitHub issue taslağı üretmek için:
+
+```bash
+npm run rule-feedback:package
+```
+
+Çıktı `dist/rule-feedback-issues` altında oluşur ve issue açmadan önce kişisel veri kontrolü manuel yapılır.

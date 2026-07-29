@@ -24,6 +24,8 @@ npm run appstore:metadata-check
 npm run repo:check
 npm run user-tests:package
 npm run user-tests:triage-check
+npm run rule-feedback:package
+npm run rule-feedback:check
 npm run deploy:check
 npm run build
 npm run e2e

@@ -38,6 +38,8 @@
     "user-tests:package": "node scripts/prepare-user-test-issues.mjs",
     "user-tests:triage": "node scripts/triage-user-test-note.mjs",
     "user-tests:triage-check": "node scripts/check-user-test-triage.mjs",
+    "rule-feedback:package": "node scripts/prepare-rule-feedback-issues.mjs",
+    "rule-feedback:check": "node scripts/check-rule-feedback-package.mjs",
     "launch:audit": "node scripts/audit-launch-checklist.mjs"
   },
   "dependencies": {
