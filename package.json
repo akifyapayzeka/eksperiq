@@ -32,6 +32,7 @@
     "hostinger:check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-hostinger-package.ps1",
     "deploy:check": "node scripts/check-live-site.mjs",
     "repo:check": "node scripts/check-repo-sync.mjs",
+    "privacy:check": "node scripts/check-sensitive-data.mjs",
     "user-tests:package": "node scripts/prepare-user-test-issues.mjs",
     "user-tests:triage": "node scripts/triage-user-test-note.mjs",
     "user-tests:triage-check": "node scripts/check-user-test-triage.mjs",

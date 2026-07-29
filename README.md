@@ -97,6 +97,8 @@ Uygulama varsayılan olarak `http://localhost:3000` adresinde çalışır.
 npm run lint
 npm run typecheck
 npm run test
+npm run privacy:check
+npm run launch:check
 npm run e2e
 npm run ai:env-check
 ```

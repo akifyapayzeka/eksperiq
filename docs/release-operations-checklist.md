@@ -13,6 +13,7 @@ npm run format
 npm run lint
 npm run typecheck
 npm run test
+npm run privacy:check
 npm run launch:check
 npm run launch:audit
 npm run appstore:metadata-check
