@@ -45,6 +45,7 @@ npm run ios:open
 ## Native wrapper ilkeleri
 
 - İlk native sürüm, mevcut ilan analizi akışını korumalıdır.
+- Rapor paylaşma/kaydetme gibi cihaz deneyimine değer katan aksiyonlar korunmalı ve gerçek cihazda test edilmelidir.
 - Fotoğraf yükleme, bildirim, hesap veya ödeme eklenmeyecekse iOS izinleri istenmemelidir.
 - WebView içinde dış ilan siteleri scrape edilmemelidir.
 - Kullanıcıya kesin ekspertiz, kesin hasar veya satın alma garantisi verilmemelidir.
@@ -82,9 +83,10 @@ Native wrapper ileride fotoğraf analizi, bildirim veya hesap özellikleri ekler
 2. Analiz formu iPhone küçük ekranda tek elle doldurulabiliyor mu?
 3. Zod hata mesajları ekranda anlaşılır çıkıyor mu?
 4. Sonuç sayfası risk skorunu ve yasal uyarıyı görünür gösteriyor mu?
-5. Oturum verisi kapat/aç davranışında beklenen şekilde korunuyor veya temizleniyor mu?
-6. Dış linkler native kabuk içinde kullanıcıyı sıkıştırmadan açılıyor mu?
-7. iOS geri dönüş hareketi ve güvenli alanlar layout'u bozmuyor mu?
+5. Raporu paylaş aksiyonu iOS paylaşım panelini açıyor veya güvenli şekilde kopyalama davranışına düşüyor mu?
+6. Oturum verisi kapat/aç davranışında beklenen şekilde korunuyor veya temizleniyor mu?
+7. Dış linkler native kabuk içinde kullanıcıyı sıkıştırmadan açılıyor mu?
+8. iOS geri dönüş hareketi ve güvenli alanlar layout'u bozmuyor mu?
 
 ## İnceleme riski
 

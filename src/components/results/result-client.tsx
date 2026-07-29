@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, ClipboardCopy, FileText, RotateCcw, Trash2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ClipboardCopy, FileText, RotateCcw, Share2, Trash2 } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
 import { RISK_LEVELS, SCORE_WEIGHTS } from "@/lib/constants/analysis";
 import { formatAnalysisSummary } from "@/lib/analysis/report-summary";
@@ -73,7 +73,9 @@ function findingCount(result: AnalysisResult, severity: keyof typeof severityLab
 
 export function ResultClient() {
   const [result, setResult] = useState<AnalysisResult | null>(() => loadAnalysis());
-  const [copyStatus, setCopyStatus] = useState<"idle" | "questions-copied" | "summary-copied" | "failed">("idle");
+  const [copyStatus, setCopyStatus] = useState<"idle" | "questions-copied" | "summary-copied" | "shared" | "failed">(
+    "idle",
+  );
   const [findingFilter, setFindingFilter] = useState<FindingFilter>(() => loadFindingFilter());
   const [checkedChecklist, setCheckedChecklist] = useState<Set<string>>(() => {
     const current = loadAnalysis();
@@ -98,6 +100,29 @@ export function ResultClient() {
   async function copySummary() {
     if (!result) return;
     await copyText(formatAnalysisSummary(result), "summary-copied");
+  }
+
+  async function shareSummary() {
+    if (!result) return;
+
+    const summary = formatAnalysisSummary(result);
+    const shareData: ShareData = {
+      title: `${appConfig.name} araç analiz özeti`,
+      text: summary,
+      url: window.location.origin,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        setCopyStatus("shared");
+        return;
+      }
+
+      await copyText(summary, "summary-copied");
+    } catch {
+      setCopyStatus("failed");
+    }
   }
 
   function clearCurrentAnalysis() {
@@ -163,7 +188,7 @@ export function ResultClient() {
               <p className="mt-1 text-lg font-semibold">{result.decision}</p>
             </div>
           </div>
-          <div className="no-print mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="no-print mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
             <button
               type="button"
               onClick={() => window.print()}
@@ -188,6 +213,14 @@ export function ResultClient() {
               <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
               Rapor özetini kopyala
             </button>
+            <button
+              type="button"
+              onClick={shareSummary}
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/25 px-4 text-sm font-semibold text-white hover:bg-white/10"
+            >
+              <Share2 aria-hidden="true" className="h-4 w-4" />
+              Raporu paylaş
+            </button>
             <Link
               href="/analiz"
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/25 px-4 text-sm font-semibold text-white hover:bg-white/10"
@@ -207,7 +240,8 @@ export function ResultClient() {
           <p className="no-print mt-3 min-h-5 text-sm text-slate-300" role="status">
             {copyStatus === "questions-copied" ? "Satıcı soruları panoya kopyalandı." : null}
             {copyStatus === "summary-copied" ? "Rapor özeti panoya kopyalandı." : null}
-            {copyStatus === "failed" ? "Panoya kopyalama tarayıcı tarafından engellendi." : null}
+            {copyStatus === "shared" ? "Rapor özeti paylaşım paneline gönderildi." : null}
+            {copyStatus === "failed" ? "Paylaşma veya kopyalama tarayıcı tarafından engellendi." : null}
           </p>
         </section>
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">

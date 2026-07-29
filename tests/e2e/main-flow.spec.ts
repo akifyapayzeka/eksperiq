@@ -71,6 +71,7 @@ test("creates analysis result", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Raporu yazdır" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Soruları kopyala" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Rapor özetini kopyala" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Raporu paylaş" })).toBeVisible();
   await expect(page.getByText("Öncelikli ilk aksiyonlar")).toBeVisible();
   await expect(page.getByLabel("Risk bulgusu dağılımı")).toBeVisible();
   await expect(page.getByText("Yüksek riskli bulgu")).toBeVisible();
