@@ -36,6 +36,14 @@ Mevcut proje `output: "export"` ile statik yayınlanır. Bu yapı API route çal
 
 Canlı AI notu için `docs/ai-serverless-endpoint-plan.md` dosyasındaki serverless plan uygulanmalıdır.
 
+Vercel için hazırlanan endpoint:
+
+```text
+api/ai/analysis-note.ts
+```
+
+Bu endpoint feature flag kapalıyken veya günlük limit doluyken OpenRouter çağrısı yapmaz.
+
 ## Kullanım sınırı
 
 AI katmanı yalnızca ek karar destek notu üretmek için tasarlanmıştır. EksperIQ hiçbir durumda profesyonel ekspertiz, resmi kayıt sorgusu, servis kontrolü veya hukuki inceleme yerine geçmez.

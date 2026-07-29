@@ -17,6 +17,7 @@ import {
 import { appConfig } from "@/lib/constants/app";
 import { RISK_LEVELS, SCORE_WEIGHTS } from "@/lib/constants/analysis";
 import { formatAnalysisSummary } from "@/lib/analysis/report-summary";
+import { buildAiAnalysisNoteInput } from "@/lib/ai/analysis-note";
 import {
   clearAnalysis,
   loadAnalysis,
@@ -129,6 +130,9 @@ export function ResultClient() {
   );
   const [findingFilter, setFindingFilter] = useState<FindingFilter>("all");
   const [checkedChecklist, setCheckedChecklist] = useState<Set<string>>(new Set());
+  const [aiNote, setAiNote] = useState<string | null>(null);
+  const [aiNoteStatus, setAiNoteStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  const [aiNoteMessage, setAiNoteMessage] = useState<string>("");
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -187,6 +191,39 @@ export function ResultClient() {
       await copyText(summary, "summary-copied");
     } catch {
       setCopyStatus("failed");
+    }
+  }
+
+  async function requestAiNote() {
+    if (!result || aiNoteStatus === "loading") return;
+
+    setAiNoteStatus("loading");
+    setAiNoteMessage("");
+
+    try {
+      const response = await fetch("/api/ai/analysis-note", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(buildAiAnalysisNoteInput(result)),
+      });
+      const payload = (await response.json()) as { note?: string; error?: string; remaining?: number };
+
+      if (!response.ok || !payload.note) {
+        setAiNoteStatus("error");
+        setAiNoteMessage(payload.error ?? "AI notu şu anda oluşturulamadı.");
+        return;
+      }
+
+      setAiNote(payload.note);
+      setAiNoteStatus("ready");
+      setAiNoteMessage(
+        typeof payload.remaining === "number" ? `Bugün kalan AI deneme hakkı: ${payload.remaining}` : "",
+      );
+    } catch {
+      setAiNoteStatus("error");
+      setAiNoteMessage("AI notu alınamadı. Kural tabanlı rapor kullanılmaya devam edebilir.");
     }
   }
 
@@ -404,7 +441,7 @@ export function ResultClient() {
         {showAiAnalysisNote ? (
           <SectionCard
             title="AI karar destek notu"
-            description="Bu alan yalnızca serverless endpoint, günlük limit ve OpenRouter key güvenliği tamamlandığında aktif edilir."
+            description="Kural tabanlı raporu bozmadan, riskleri daha sade açıklayan opsiyonel bir not üretir."
           >
             <div className="rounded-2xl border border-sky-100 bg-sky-50 p-4">
               <div className="flex items-start gap-3">
@@ -412,13 +449,35 @@ export function ResultClient() {
                   <Sparkles aria-hidden="true" className="h-5 w-5" />
                 </span>
                 <div>
-                  <p className="font-semibold text-slate-950">Hazırlık modu</p>
+                  <p className="font-semibold text-slate-950">Ek açıklama üret</p>
                   <p className="mt-1 text-sm leading-6 text-slate-700">
                     Kural tabanlı rapor ana karar desteği olarak kalır. AI notu yalnızca riskleri sadeleştiren ek bir
                     açıklama üretir ve kesin ekspertiz sonucu vermez.
                   </p>
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={requestAiNote}
+                disabled={aiNoteStatus === "loading"}
+                className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
+              >
+                <Sparkles aria-hidden="true" className="h-4 w-4" />
+                {aiNoteStatus === "loading" ? "Not hazırlanıyor" : "AI notu oluştur"}
+              </button>
+              {aiNote ? (
+                <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-700">
+                  {aiNote}
+                </div>
+              ) : null}
+              {aiNoteMessage ? (
+                <p
+                  className={`mt-3 text-sm ${aiNoteStatus === "error" ? "font-medium text-red-700" : "text-slate-600"}`}
+                  role="status"
+                >
+                  {aiNoteMessage}
+                </p>
+              ) : null}
             </div>
           </SectionCard>
         ) : null}

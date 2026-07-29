@@ -1,16 +1,42 @@
 import type { AnalysisResult } from "@/lib/analysis/types";
 import { requestOpenRouterChat, type OpenRouterChatResult } from "@/lib/ai/openrouter";
 
-export function buildAnalysisNotePrompt(result: AnalysisResult): string {
-  const topFindings = result.findings
+export type AiAnalysisNoteInput = {
+  vehicleLabel: string;
+  totalScore: number;
+  riskLabel: string;
+  decision: string;
+  findings: Array<{
+    severity: string;
+    title: string;
+    explanation: string;
+  }>;
+};
+
+export function buildAiAnalysisNoteInput(result: AnalysisResult): AiAnalysisNoteInput {
+  return {
+    vehicleLabel: `${result.input.year} ${result.input.brand} ${result.input.model}`,
+    totalScore: result.totalScore,
+    riskLabel: result.riskLabel,
+    decision: result.decision,
+    findings: result.findings.slice(0, 6).map((finding) => ({
+      severity: finding.severity,
+      title: finding.title,
+      explanation: finding.explanation,
+    })),
+  };
+}
+
+export function buildAnalysisNotePrompt(input: AiAnalysisNoteInput): string {
+  const topFindings = input.findings
     .slice(0, 6)
     .map((finding) => `${finding.severity.toUpperCase()} - ${finding.title}: ${finding.explanation}`)
     .join("\n");
 
-  return `Araç: ${result.input.year} ${result.input.brand} ${result.input.model}
-Risk skoru: ${result.totalScore}/100
-Sonuç: ${result.riskLabel}
-Karar özeti: ${result.decision}
+  return `Araç: ${input.vehicleLabel}
+Risk skoru: ${input.totalScore}/100
+Sonuç: ${input.riskLabel}
+Karar özeti: ${input.decision}
 
 Öne çıkan bulgular:
 ${topFindings}
@@ -19,6 +45,10 @@ Kullanıcıya Türkçe, kısa, kesin hüküm vermeyen ve profesyonel ekspertizin
 }
 
 export async function createAiAnalysisNote(result: AnalysisResult): Promise<OpenRouterChatResult> {
+  return createAiAnalysisNoteFromInput(buildAiAnalysisNoteInput(result));
+}
+
+export async function createAiAnalysisNoteFromInput(input: AiAnalysisNoteInput): Promise<OpenRouterChatResult> {
   return requestOpenRouterChat({
     messages: [
       {
@@ -28,7 +58,7 @@ export async function createAiAnalysisNote(result: AnalysisResult): Promise<Open
       },
       {
         role: "user",
-        content: buildAnalysisNotePrompt(result),
+        content: buildAnalysisNotePrompt(input),
       },
     ],
   });

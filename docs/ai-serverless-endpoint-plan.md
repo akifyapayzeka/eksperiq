@@ -11,8 +11,8 @@ EksperIQ şu anda `next.config.ts` içinde `output: "export"` kullandığı içi
 ## Önerilen canlı açılış sırası
 
 1. Web MVP static export ile çalışmaya devam eder.
-2. Ayrı bir Vercel serverless endpoint veya static export kapatılmış ayrı branch hazırlanır.
-3. Endpoint yalnızca `POST /api/ai/analysis-note` benzeri tek amaçlı bir rota sunar.
+2. Vercel serverless endpoint hazırlanır.
+3. Endpoint yalnızca `POST /api/ai/analysis-note` tek amaçlı rotasını sunar.
 4. Endpoint içinde `decideAiUsage` ile feature flag, key varlığı ve günlük limit kontrol edilir.
 5. Endpoint `createAiAnalysisNote` çağırır.
 6. Client yalnızca endpoint sonucunu gösterir; OpenRouter key hiçbir zaman client'a taşınmaz.
@@ -25,6 +25,16 @@ OPENROUTER_MODEL=openrouter/free
 OPENROUTER_DAILY_REQUEST_LIMIT=20
 NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED=false
 ```
+
+## Eklenen endpoint
+
+```text
+api/ai/analysis-note.ts
+```
+
+Bu dosya Next App Router route handler değildir. Proje `output: "export"` ile statik kalmaya devam ederken Vercel'in root `api/` serverless function desteği için hazırlanmıştır.
+
+Hostinger statik paketi bu endpoint'i içermez; Hostinger yayınında AI notu kapalı kalmalıdır.
 
 ## Kapatma anahtarı
 
