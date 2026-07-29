@@ -2,6 +2,8 @@
 
 Bu dosya EksperIQ'u web, Hostinger paketi, TestFlight hazırlığı ve App Store teslimi için takip edilecek tüm adımları tek yerde toplar.
 
+Tüm adımların denetlenebilir durum listesi: `docs/all-steps-status.md`
+
 ## 1. Yerel Ürün Kalitesi
 
 - [x] Ana sayfa mobil öncelikli hazır.
@@ -19,6 +21,7 @@ Bu dosya EksperIQ'u web, Hostinger paketi, TestFlight hazırlığı ve App Store
 - [x] `npm run typecheck`
 - [x] `npm run test`
 - [x] `npm run launch:check`
+- [x] `npm run launch:audit`
 - [x] `npm run e2e`
 - [x] `npm run build`
 - [x] `npm run native:build`

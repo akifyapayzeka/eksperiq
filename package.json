@@ -32,7 +32,8 @@
     "hostinger:check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-hostinger-package.ps1",
     "deploy:check": "node scripts/check-live-site.mjs",
     "repo:check": "node scripts/check-repo-sync.mjs",
-    "user-tests:package": "node scripts/prepare-user-test-issues.mjs"
+    "user-tests:package": "node scripts/prepare-user-test-issues.mjs",
+    "launch:audit": "node scripts/audit-launch-checklist.mjs"
   },
   "dependencies": {
     "@capacitor/core": "^8.4.2",

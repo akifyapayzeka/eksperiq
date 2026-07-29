@@ -4,6 +4,7 @@ import path from "node:path";
 const requiredFiles = [
   "docs/launch-plan-2026-08-15.md",
   "docs/launch-master-checklist.md",
+  "docs/all-steps-status.md",
   "docs/release-operations-checklist.md",
   "docs/first-user-test-script.md",
   "docs/first-5-user-tests.md",
@@ -27,6 +28,7 @@ const requiredFiles = [
   "scripts/check-hostinger-package.ps1",
   "scripts/check-repo-sync.mjs",
   "scripts/prepare-user-test-issues.mjs",
+  "scripts/audit-launch-checklist.mjs",
   "public/app-store-icon-1024.png",
 ];
 
@@ -44,6 +46,7 @@ const requiredPackageScripts = [
   "deploy:check",
   "repo:check",
   "user-tests:package",
+  "launch:audit",
   "ai:staging-check",
   "launch:check",
 ];
@@ -56,6 +59,10 @@ const requiredTextChecks = [
   {
     file: "docs/launch-master-checklist.md",
     snippets: ["Yerel Ürün Kalitesi", "App Store Teslim Paketi", "Dış Bağımlılık Sınırı"],
+  },
+  {
+    file: "docs/all-steps-status.md",
+    snippets: ["Tamamlanan Yerel Adımlar", "Dış Bağımlılıkta Bekleyen Adımlar", "npm run launch:audit"],
   },
   {
     file: "docs/app-store-privacy-answers.md",

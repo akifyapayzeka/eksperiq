@@ -14,6 +14,7 @@ npm run lint
 npm run typecheck
 npm run test
 npm run launch:check
+npm run launch:audit
 npm run appstore:metadata-check
 npm run repo:check
 npm run user-tests:package
