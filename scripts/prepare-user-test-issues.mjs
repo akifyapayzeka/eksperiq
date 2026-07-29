@@ -78,9 +78,20 @@ ${issue.evidence}
 - Eksik kural veya soru:
 - Beklenen iyileştirme:
 
+## Triage sonrası
+
+Ham notu kişisel veri kontrolünden geçirmek ve issue başlığı, şablon, label ve doğrulama komutlarını önermek için:
+
+\`\`\`bash
+npm run user-tests:triage -- path/to/user-note.txt
+\`\`\`
+
+Triage çıktısındaki \`Issue önerisi\` ve \`Önerilen doğrulama komutları\` bölümleri kapanış kanıtına eklenmelidir.
+
 ## Kapanış
 
 - [ ] Kişisel veri içermediği kontrol edildi
+- [ ] Otomatik triage taslağı üretildi
 - [ ] P0/P1 bug varsa ayrı issue açıldı
 - [ ] Tekrarlanan kural önerisi varsa \`docs/rule-backlog.md\` ile ilişkilendirildi
 `;
@@ -105,6 +116,13 @@ npm run user-tests:package
 \`\`\`
 
 Dosyalar gerçek kullanıcı testi yapılmadan issue kapatmak için kullanılmamalıdır.
+
+Ham not geldikten sonra:
+
+\`\`\`bash
+npm run user-tests:triage -- path/to/user-note.txt
+npm run user-tests:triage-check
+\`\`\`
 `,
   "utf8",
 );

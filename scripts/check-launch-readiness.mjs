@@ -58,6 +58,7 @@ const requiredPackageScripts = [
   "rule-backlog:check",
   "release:check",
   "user-tests:package",
+  "user-tests:package-check",
   "user-tests:triage",
   "user-tests:triage-check",
   "user-tests:commands-check",

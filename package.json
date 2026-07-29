@@ -37,6 +37,7 @@
     "rule-backlog:check": "node scripts/check-rule-backlog.mjs",
     "release:check": "node scripts/check-release-preflight.mjs",
     "user-tests:package": "node scripts/prepare-user-test-issues.mjs",
+    "user-tests:package-check": "node scripts/check-user-test-issue-package.mjs",
     "user-tests:triage": "node scripts/triage-user-test-note.mjs",
     "user-tests:triage-check": "node scripts/check-user-test-triage.mjs",
     "user-tests:commands-check": "node scripts/check-triage-verification-commands.mjs",
