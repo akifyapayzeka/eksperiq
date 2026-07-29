@@ -9,6 +9,10 @@ export default function PrivacyPage() {
         İlk sürümde üyelik, reklam takibi, analytics kodu, çerez bannerı gerektirecek üçüncü taraf servis veya fotoğraf
         yükleme özelliği bulunmaz.
       </p>
+      <p>
+        Mobil mağaza sürümü hazırlanırsa aynı gizlilik sınırları korunur; kamera, fotoğraf, konum veya bildirim izni
+        yalnızca ilgili özellik açıkça eklendiğinde istenir.
+      </p>
       <p>Tarayıcı oturumu kapatıldığında veya kullanıcı veriyi temizlediğinde analiz sonucu kaybolabilir.</p>
     </InfoPage>
   );

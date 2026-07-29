@@ -16,8 +16,36 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(appConfig.productionUrl),
   title: `${appConfig.name} | İkinci el araç ilanı risk analizi`,
   description: appConfig.tagline,
+  applicationName: appConfig.name,
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  appleWebApp: {
+    capable: true,
+    title: appConfig.shortName,
+    statusBarStyle: "default",
+  },
+  formatDetection: {
+    telephone: false,
+    address: false,
+    email: false,
+  },
+  openGraph: {
+    title: `${appConfig.name} | İkinci el araç ilanı risk analizi`,
+    description: appConfig.tagline,
+    url: appConfig.productionUrl,
+    siteName: appConfig.name,
+    locale: "tr_TR",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

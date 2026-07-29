@@ -117,9 +117,15 @@ npm run build
 
 1. Yeni ve bağımsız GitHub deposunu Netlify'a bağlayın.
 2. Build command: `npm run build`
-3. Publish directory: `.next`
-4. Gerekirse Netlify Next.js runtime eklentisini etkin bırakın.
+3. Publish directory: `out`
+4. Proje statik export ürettiği için ek Next.js runtime zorunlu değildir.
 5. Ek environment variable gerekmez.
+
+## App Store hazırlığı
+
+EksperIQ bir web uygulamasıdır; App Store yayını için ayrıca Apple Developer Program üyeliği, macOS, Xcode ve native iOS paketleme gerekir. Projede PWA manifest, iOS ana ekran metadata ve ikon dosyaları hazırdır.
+
+Detaylı yayın hazırlığı, gizlilik beyanı ve native wrapper ilkeleri için `docs/app-store-readiness.md` dosyasını inceleyin.
 
 ## Proje sınırlamaları
 
