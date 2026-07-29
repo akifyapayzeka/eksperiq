@@ -30,6 +30,7 @@ RewriteRule ^hakkinda/?$ /hakkinda.html [L]
 RewriteRule ^gizlilik/?$ /gizlilik.html [L]
 RewriteRule ^kullanim-kosullari/?$ /kullanim-kosullari.html [L]
 RewriteRule ^moduller/?$ /moduller.html [L]
+RewriteRule ^offline/?$ /offline.html [L]
 RewriteRule . /404.html [L]
 "@
 

@@ -75,7 +75,7 @@ Kontrol edilecekler:
 - Gizlilik politikası URL'si: `https://eksperiq.vercel.app/gizlilik`
 - Kamera, konum, fotoğraf veya bildirim izni gerekmedikçe istenmiyor.
 - Raporu paylaş aksiyonu gerçek iOS cihazda çalışıyor.
-- `public/offline.html` fallback ekranı native projeye taşınmış olmalı.
+- `/offline` ekranından üretilen `out/offline.html` fallback ekranı olarak native projeye taşınmış olmalı.
 - `safe-area-shell` sınıfı iOS güvenli alanlarında içerik taşmasını engellemeli.
 - App Store metinleri kesin ekspertiz veya satın alma garantisi vermiyor.
 
