@@ -11,6 +11,7 @@ const requiredSnippets = [
   "Reklam takibi: Yok",
   "Üçüncü taraf analytics: Yok",
   "Konum izni: Yok",
+  "Destek URL'si: `https://eksperiq.vercel.app/geri-bildirim`",
 ];
 
 const forbiddenPositiveClaims = [

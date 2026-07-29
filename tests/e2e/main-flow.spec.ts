@@ -48,6 +48,10 @@ test("mobile bottom navigation opens app actions", async ({ page, isMobile }) =>
   await mobileNav.getByRole("link", { name: "Profil" }).click();
   await expect(page).toHaveURL(/\/profil$/);
   await expect(page.getByRole("heading", { name: "EksperIQ hesabı olmadan kullanılabilir." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Destek ve geri bildirim" })).toBeVisible();
+  await page.getByRole("link", { name: "Geri bildirim gönder" }).click();
+  await expect(page).toHaveURL(/\/geri-bildirim$/);
+  await expect(page.getByRole("heading", { name: "Geri bildirim" })).toBeVisible();
 
   await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Yeni Analiz" }).click();
   await expect(page).toHaveURL(/\/analiz$/);

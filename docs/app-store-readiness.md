@@ -74,7 +74,7 @@ Native wrapper ileride fotoğraf analizi, bildirim veya hesap özellikleri ekler
 - Bundle ID önerisi: `com.eksperiq.app`
 - Kategori önerisi: Utilities veya Productivity
 - Yaş derecelendirmesi: Düşük riskli bilgi/karar destek uygulaması olarak doldurulmalı; finansal, tıbbi veya hukuki danışmanlık gibi işaretlenmemeli.
-- Destek URL'si: İlk aşamada canlı web sitesi veya GitHub issue sayfası kullanılabilir.
+- Destek URL'si: `https://eksperiq.vercel.app/geri-bildirim`
 - Pazarlama URL'si: `https://eksperiq.vercel.app`
 - Gizlilik politikası URL'si: `https://eksperiq.vercel.app/gizlilik`
 - Ekran görüntüleri: `npm run screenshots` ile `test-results/screenshots` altında ana sayfa, analiz formu, sonuç raporu ve offline ekran üretilir.
