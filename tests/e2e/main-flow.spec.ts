@@ -203,6 +203,22 @@ test("creates analysis result", async ({ page }) => {
   await page.getByRole("button", { name: /Tümü \(/ }).click();
 });
 
+test("copies seller-ready message to clipboard", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: "http://127.0.0.1:3000" });
+  await page.goto("/analiz");
+  await fillRequiredForm(page);
+  await page.getByRole("button", { name: "Analiz oluştur" }).click();
+  await expect(page).toHaveURL(/\/sonuc$/);
+
+  await page.getByRole("button", { name: "Satıcı mesajını kopyala" }).click();
+  await expect(page.getByText("Satıcı mesajı panoya kopyalandı.")).toBeVisible();
+
+  const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+  expect(clipboardText).toContain("Merhaba, 2020 Toyota Corolla ilanınızla ilgileniyorum.");
+  expect(clipboardText).toContain("Satın alma öncesi birkaç bilgiyi netleştirmek isterim:");
+  expect(clipboardText).toContain("kesin ekspertiz sonucu değildir");
+});
+
 test("prepares a clean print report", async ({ page }) => {
   await page.goto("/analiz");
   await fillRequiredForm(page);
