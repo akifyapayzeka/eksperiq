@@ -61,6 +61,12 @@ EksperIQ yalnızca ikinci el ilan analiz eden bir araç olmayacak. Uzun vadeli h
 
 Gelecekte bu modül etkinleştiğinde her bulgu araç bölgesi, hasar sinyali, 0-100 olasılık, düşük/orta/yüksek güven seviyesi, açıklama ve öneri alanlarıyla dönmelidir. Modül hiçbir zaman kesin hasar iddiası veya onarım garantisi üretmemelidir.
 
+## Kural geri bildirimi
+
+Gerçek kullanıcı geri bildirimleri önce `docs/feedback-rule-expansion.md` sürecine ve GitHub issue şablonuna alınır. Kod tarafındaki `src/lib/feedback/rule-candidates.ts` dosyası, henüz aktif analiz motoruna bağlanmamış kural adaylarını izlemek için kullanılır.
+
+Bir aday yalnızca kullanıcı geri bildirimi netleştiğinde, pozitif/negatif test senaryoları yazıldığında ve ilgili `src/lib/analysis/rules` dosyasına kontrollü şekilde taşındığında aktif kurala dönüşmelidir.
+
 ## Kullanılan teknolojiler
 
 - Next.js App Router
