@@ -89,7 +89,7 @@ const requiredTextChecks = [
   },
   {
     file: "docs/user-test-feedback-triage.md",
-    snippets: ["kişisel veri", "Kural adayı", "npm run rule-feedback:check", "App Store riski"],
+    snippets: ["kişisel veri", "Kural adayı", "npm run rule-feedback:check", "App Store riski", "*-github-issue.md"],
   },
   {
     file: "docs/first-5-user-tests.md",
@@ -121,11 +121,24 @@ const requiredTextChecks = [
       "npm run native:build",
       "docs/how-to-test.md",
       "Geri bildirim ve kural geliştirme",
+      "rule-feedback-manifest.json",
+      "*-github-issue.md",
     ],
   },
   {
     file: "docs/how-to-test.md",
-    snippets: ["npm run release:check", "Mobil görünüm", "npm run user-tests:triage", "npm run rule-feedback:package"],
+    snippets: [
+      "npm run release:check",
+      "Mobil görünüm",
+      "npm run user-tests:triage",
+      "npm run rule-feedback:package",
+      "*-github-issue.md",
+      "rule-feedback-manifest.json",
+    ],
+  },
+  {
+    file: "docs/feedback-rule-expansion.md",
+    snippets: ["npm run rule-feedback:package", "rule-feedback-manifest.json", "makine okunabilir"],
   },
   {
     file: "src/app/geri-bildirim/page.tsx",

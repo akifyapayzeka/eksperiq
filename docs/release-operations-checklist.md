@@ -125,6 +125,8 @@ Kontrol edilecekler:
 - Kural adayları: `src/lib/feedback/rule-candidates.ts`
 - Kural backlog dosyası: `docs/rule-backlog.md`
 - Kullanıcı testi triage dosyası: `docs/user-test-feedback-triage.md`
+- Triage issue gövdesi taslağı: `*-github-issue.md`
+- Kural feedback manifest dosyası: `dist/rule-feedback-issues/rule-feedback-manifest.json`
 - Bir aday aktif kurala taşınmadan önce pozitif ve negatif unit test yazılmalı.
 
 ## Demo ve screenshot

@@ -96,6 +96,8 @@ npm run user-tests:triage -- path/to/user-note.txt
 
 Issue açarken sadece redakte edilmiş triage çıktısını kullan.
 
+Triage komutu ayrıca aynı klasörde `*-github-issue.md` dosyası üretir. Bu dosya GitHub issue gövdesi için başlangıçtır; issue'a taşımadan önce kişisel veri içermediğini tekrar kontrol et.
+
 Kural adayı çıktıysa:
 
 ```bash
@@ -104,4 +106,4 @@ npm run rule-feedback:check
 npm run rule-feedback:package
 ```
 
-Sonra `dist/rule-feedback-issues` altındaki ilgili taslağı GitHub issue'ya çevir.
+Sonra `dist/rule-feedback-issues` altındaki ilgili taslağı GitHub issue'ya çevir. `rule-feedback-manifest.json` içinden aday ID, issue dosyası, kaynak, durum ve etkilenen kural dosyasının doğru eşleştiğini kontrol et.
