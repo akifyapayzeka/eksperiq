@@ -16,6 +16,14 @@ async function prepareScreenshotPage(page: Page) {
   await page.addStyleTag({ content: screenshotOnlyCss });
 }
 
+function requiredSelectValue(value: string | undefined, fieldName: string) {
+  if (!value) {
+    throw new Error(`${fieldName} demo degeri eksik.`);
+  }
+
+  return value;
+}
+
 async function fillDemoVehicle(page: Page) {
   for (const [name, value] of Object.entries({
     brand: demoVehicleInput.brand,
@@ -25,25 +33,17 @@ async function fillDemoVehicle(page: Page) {
     mileage: String(demoVehicleInput.mileage),
     price: String(demoVehicleInput.price),
     city: demoVehicleInput.city,
-    bodyType: demoVehicleInput.bodyType,
     engineSize: demoVehicleInput.engineSize,
     enginePower: demoVehicleInput.enginePower,
-    drivetrain: demoVehicleInput.drivetrain,
-    ownerInfo: demoVehicleInput.ownerInfo,
-    tradeStatus: demoVehicleInput.tradeStatus,
     listingUrl: demoVehicleInput.listingUrl,
     tramerAmount: String(demoVehicleInput.tramerAmount),
     paintedParts: demoVehicleInput.paintedParts,
     replacedParts: demoVehicleInput.replacedParts,
     localPaintedParts: demoVehicleInput.localPaintedParts,
-    airbagStatus: demoVehicleInput.airbagStatus,
     lastMaintenanceDate: demoVehicleInput.lastMaintenanceDate,
     timingBeltInfo: demoVehicleInput.timingBeltInfo,
     transmissionMaintenanceInfo: demoVehicleInput.transmissionMaintenanceInfo,
-    batteryStatus: demoVehicleInput.batteryStatus,
-    tireStatus: demoVehicleInput.tireStatus,
     inspectionEndDate: demoVehicleInput.inspectionEndDate,
-    lpgStatus: demoVehicleInput.lpgStatus,
     sellerDescription: demoVehicleInput.sellerDescription,
   })) {
     if (value) await page.locator(`[name="${name}"]`).fill(value);
@@ -51,6 +51,24 @@ async function fillDemoVehicle(page: Page) {
 
   await page.locator('[name="fuelType"]').selectOption(demoVehicleInput.fuelType);
   await page.locator('[name="transmission"]').selectOption(demoVehicleInput.transmission);
+  await page.locator('[name="bodyType"]').selectOption(requiredSelectValue(demoVehicleInput.bodyType, "bodyType"));
+  await page
+    .locator('[name="drivetrain"]')
+    .selectOption(requiredSelectValue(demoVehicleInput.drivetrain, "drivetrain"));
+  await page.locator('[name="ownerInfo"]').selectOption(requiredSelectValue(demoVehicleInput.ownerInfo, "ownerInfo"));
+  await page
+    .locator('[name="tradeStatus"]')
+    .selectOption(requiredSelectValue(demoVehicleInput.tradeStatus, "tradeStatus"));
+  await page
+    .locator('[name="airbagStatus"]')
+    .selectOption(requiredSelectValue(demoVehicleInput.airbagStatus, "airbagStatus"));
+  await page
+    .locator('[name="batteryStatus"]')
+    .selectOption(requiredSelectValue(demoVehicleInput.batteryStatus, "batteryStatus"));
+  await page
+    .locator('[name="tireStatus"]')
+    .selectOption(requiredSelectValue(demoVehicleInput.tireStatus, "tireStatus"));
+  await page.locator('[name="lpgStatus"]').selectOption(requiredSelectValue(demoVehicleInput.lpgStatus, "lpgStatus"));
   await page.locator('[name="hasMaintenanceInvoices"]').check();
   await page.locator('[name="hasExpertiseReport"]').check();
   await page.locator('[name="hasSpareKey"]').check();

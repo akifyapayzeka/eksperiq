@@ -82,6 +82,37 @@ test("fills form with demo listing", async ({ page }) => {
   );
 });
 
+test("uses select controls for fixed-choice vehicle details", async ({ page }) => {
+  await page.goto("/analiz");
+
+  const selectLabels = [
+    "Kasa tipi",
+    "Çekiş tipi",
+    "Ruhsat sahibi bilgisi",
+    "Takas durumu",
+    "Airbag durumu",
+    "Akü durumu",
+    "Lastik durumu",
+    "LPG durumu",
+  ];
+
+  for (const label of selectLabels) {
+    await expect(page.getByLabel(label)).toHaveJSProperty("tagName", "SELECT");
+  }
+
+  await page.getByLabel("Takas durumu").selectOption("Takas yok");
+  await page.getByLabel("Akü durumu").selectOption("İyi");
+  await page.getByLabel("Lastik durumu").selectOption("Orta");
+  await page.getByLabel("LPG durumu").selectOption("Yok");
+
+  await expect(page.getByLabel("Takas durumu")).toHaveValue("Takas yok");
+  await expect(page.getByLabel("Akü durumu")).toHaveValue("İyi");
+  await expect(page.getByLabel("Lastik durumu")).toHaveValue("Orta");
+  await expect(page.getByLabel("LPG durumu")).toHaveValue("Yok");
+  await expect(page.getByLabel("Kilometre")).toHaveAttribute("type", "number");
+  await expect(page.getByLabel("Muayene bitiş tarihi")).toHaveAttribute("type", "date");
+});
+
 test("shows product module roadmap", async ({ page }) => {
   await page.goto("/moduller");
   await expect(

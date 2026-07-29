@@ -22,7 +22,7 @@ export const demoVehicleInput: VehicleFormData = {
   localPaintedParts: "Ön tampon",
   hasHeavyDamage: false,
   hasChassisRepair: false,
-  airbagStatus: "Açmadı deniyor",
+  airbagStatus: "Açmamış",
   hasTotalLossHistory: false,
   hasExpertiseReport: true,
   lastMaintenanceDate: "2026-03-15",

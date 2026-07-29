@@ -19,6 +19,31 @@ type CheckboxName =
 
 const fuelTypes = ["Benzin", "Dizel", "Hibrit", "Elektrik", "LPG"];
 const transmissions = ["Manuel", "Otomatik", "Yarı otomatik"];
+const bodyTypes = [
+  "Sedan",
+  "Hatchback",
+  "Station wagon",
+  "SUV",
+  "Crossover",
+  "Coupe",
+  "Cabrio",
+  "MPV",
+  "Pickup",
+  "Panelvan",
+];
+const drivetrains = ["Önden çekiş", "Arkadan itiş", "4x4", "AWD", "Bilinmiyor"];
+const ownerInfoOptions = [
+  "Ruhsat sahibi satıcı olduğunu belirtiyor",
+  "Araç aile bireyi üzerine",
+  "Vekaletle satış yapılacak",
+  "Galeriden satış",
+  "Ruhsat sahibi bilgisi belirsiz",
+];
+const tradeStatuses = ["Takas yok", "Takas var", "Takas değerlendirilebilir", "Sadece satış", "Belirtilmemiş"];
+const airbagStatuses = ["Açmamış", "Açmış", "Değişmiş", "Bilinmiyor"];
+const batteryStatuses = ["İyi", "Orta", "Zayıf", "Yeni değişmiş", "Bilinmiyor"];
+const tireStatuses = ["İyi", "Orta", "Kötü", "Yeni", "Mevsimlik değişim gerekli", "Bilinmiyor"];
+const lpgStatuses = ["Yok", "Var", "Sökülmüş", "Bilinmiyor"];
 const booleanFields: Array<{ name: CheckboxName; label: string }> = [
   { name: "hasHeavyDamage", label: "Ağır hasar kaydı var" },
   { name: "hasChassisRepair", label: "Şasi veya podye işlemi var" },
@@ -75,12 +100,17 @@ export function VehicleInfoSection({ register, errors }: SectionProps) {
           error={errors.price?.message}
         />
         <Field id="city" label="Şehir" {...register("city")} error={errors.city?.message} />
-        <Field id="bodyType" label="Kasa tipi" {...register("bodyType")} />
+        <SelectField id="bodyType" label="Kasa tipi" options={bodyTypes} {...register("bodyType")} />
         <Field id="engineSize" label="Motor hacmi" {...register("engineSize")} />
         <Field id="enginePower" label="Motor gücü" {...register("enginePower")} />
-        <Field id="drivetrain" label="Çekiş tipi" {...register("drivetrain")} />
-        <Field id="ownerInfo" label="Ruhsat sahibi bilgisi" {...register("ownerInfo")} />
-        <Field id="tradeStatus" label="Takas durumu" {...register("tradeStatus")} />
+        <SelectField id="drivetrain" label="Çekiş tipi" options={drivetrains} {...register("drivetrain")} />
+        <SelectField
+          id="ownerInfo"
+          label="Ruhsat sahibi bilgisi"
+          options={ownerInfoOptions}
+          {...register("ownerInfo")}
+        />
+        <SelectField id="tradeStatus" label="Takas durumu" options={tradeStatuses} {...register("tradeStatus")} />
         <Field
           id="listingUrl"
           label="Opsiyonel ilan bağlantısı"
@@ -106,7 +136,7 @@ export function DamageInfoSection({ register }: SectionProps) {
         <Field id="paintedParts" label="Boyalı parçalar" {...register("paintedParts")} />
         <Field id="replacedParts" label="Değişen parçalar" {...register("replacedParts")} />
         <Field id="localPaintedParts" label="Lokal boyalı parçalar" {...register("localPaintedParts")} />
-        <Field id="airbagStatus" label="Airbag durumu" {...register("airbagStatus")} />
+        <SelectField id="airbagStatus" label="Airbag durumu" options={airbagStatuses} {...register("airbagStatus")} />
       </div>
     </SectionCard>
   );
@@ -123,10 +153,10 @@ export function MaintenanceInfoSection({ register }: SectionProps) {
           label="Şanzıman bakım bilgisi"
           {...register("transmissionMaintenanceInfo")}
         />
-        <Field id="batteryStatus" label="Akü durumu" {...register("batteryStatus")} />
-        <Field id="tireStatus" label="Lastik durumu" {...register("tireStatus")} />
+        <SelectField id="batteryStatus" label="Akü durumu" options={batteryStatuses} {...register("batteryStatus")} />
+        <SelectField id="tireStatus" label="Lastik durumu" options={tireStatuses} {...register("tireStatus")} />
         <Field id="inspectionEndDate" label="Muayene bitiş tarihi" type="date" {...register("inspectionEndDate")} />
-        <Field id="lpgStatus" label="LPG durumu" {...register("lpgStatus")} />
+        <SelectField id="lpgStatus" label="LPG durumu" options={lpgStatuses} {...register("lpgStatus")} />
       </div>
     </SectionCard>
   );
