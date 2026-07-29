@@ -18,6 +18,7 @@ npm run typecheck
 npm run test
 npm run privacy:check
 npm run feedback:outputs-check
+npm run feedback:runbook-check
 npm run form:fields-check
 npm run rule-backlog:check
 npm run launch:check
@@ -45,6 +46,7 @@ Kontrol edilecekler:
 - Türkçe görünen metinlerde bozuk karakter yok.
 - Eski çalışma adı, secret veya gereksiz env referansı yok.
 - Kullanıcı testi ham notları, triage çıktıları ve issue taslakları `dist` altında kalıyor; repoya eklenmiyor.
+- Gerçek kullanıcı feedback akışı `docs/real-user-feedback-runbook.md` ile takip ediliyor.
 - `/`, `/analiz`, `/sonuc`, `/moduller`, `/gizlilik` sayfaları çalışıyor.
 - Analiz formunda şehir, araç detayları ve hasar parçaları uygun yerlerde seçenekli/dokunulabilir çalışıyor.
 - Sonuç sayfasında yasal uyarı, paylaşma/kopyalama/yazdırma, satıcı mesajı ve geri bildirim bağlantısı görünüyor.
@@ -127,6 +129,7 @@ Kontrol edilecekler:
 - Kural adayları: `src/lib/feedback/rule-candidates.ts`
 - Kural backlog dosyası: `docs/rule-backlog.md`
 - Kullanıcı testi triage dosyası: `docs/user-test-feedback-triage.md`
+- Gerçek kullanıcı feedback runbook'u: `docs/real-user-feedback-runbook.md`
 - Triage issue gövdesi taslağı: `*-github-issue.md`
 - Kural feedback manifest dosyası: `dist/rule-feedback-issues/rule-feedback-manifest.json`
 - Bir aday aktif kurala taşınmadan önce pozitif ve negatif unit test yazılmalı.

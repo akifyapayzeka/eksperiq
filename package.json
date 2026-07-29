@@ -34,6 +34,7 @@
     "repo:check": "node scripts/check-repo-sync.mjs",
     "privacy:check": "node scripts/check-sensitive-data.mjs",
     "feedback:outputs-check": "node scripts/check-feedback-output-safety.mjs",
+    "feedback:runbook-check": "node scripts/check-feedback-runbook.mjs",
     "form:fields-check": "node scripts/check-form-field-types.mjs",
     "rule-backlog:check": "node scripts/check-rule-backlog.mjs",
     "release:check": "node scripts/check-release-preflight.mjs",

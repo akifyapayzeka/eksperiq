@@ -11,6 +11,8 @@ npm run release:check
 
 Bu komut format, lint, typecheck, privacy check, unit test, kullanıcı testi triage check, launch readiness, App Store metadata ve production build kontrollerini çalıştırır.
 
+Gerçek kullanıcı notu geldiğinde dağınık ilerlememek için önce `docs/real-user-feedback-runbook.md` dosyasındaki sırayı uygula.
+
 ## 2. Tarayıcıda yerel kullanım
 
 ```bash
