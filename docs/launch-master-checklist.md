@@ -48,6 +48,7 @@ Tüm adımların denetlenebilir durum listesi: `docs/all-steps-status.md`
 - [x] Kullanıcı testi issue şablonu hazır.
 - [x] Kullanıcı testi issue planı hazır.
 - [x] Kullanıcı testi issue taslakları tek komutla üretilebiliyor.
+- [x] Ham kullanıcı testi notu triage taslağına çevrilebiliyor ve kontrol komutuyla doğrulanıyor.
 - [x] Kural geri bildirimi issue şablonu hazır.
 - [x] Kural backlog dosyası hazır.
 - [x] Kural adayları typed servis dosyasında takip ediliyor.

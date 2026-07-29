@@ -28,6 +28,7 @@ npm run launch:audit
 - [x] Satıcı açıklamasındaki belirsiz/kaçamak ifadeler kural tabanlı doğrulama bulgusu olarak yakalanıyor.
 - [x] Kural geri bildirimi ve kullanıcı testi issue şablonları hazır.
 - [x] İlk 5 kullanıcı testi planı ve issue taslakları hazır.
+- [x] Kullanıcı testi ham notlarını triage taslağına çeviren yerel komut ve kontrol komutu hazır.
 - [x] Kural backlog ve kural adayları typed servis dosyasında takip ediliyor.
 - [x] App Store metadata metinleri hazır.
 - [x] App Store gizlilik cevapları hazır.

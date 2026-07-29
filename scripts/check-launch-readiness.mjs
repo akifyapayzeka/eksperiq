@@ -28,6 +28,8 @@ const requiredFiles = [
   "scripts/check-hostinger-package.ps1",
   "scripts/check-repo-sync.mjs",
   "scripts/prepare-user-test-issues.mjs",
+  "scripts/triage-user-test-note.mjs",
+  "scripts/check-user-test-triage.mjs",
   "scripts/audit-launch-checklist.mjs",
   "public/app-store-icon-1024.png",
 ];
@@ -46,6 +48,8 @@ const requiredPackageScripts = [
   "deploy:check",
   "repo:check",
   "user-tests:package",
+  "user-tests:triage",
+  "user-tests:triage-check",
   "launch:audit",
   "ai:staging-check",
   "launch:check",
