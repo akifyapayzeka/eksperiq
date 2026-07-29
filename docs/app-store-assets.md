@@ -1,0 +1,79 @@
+# App Store Varlık Planı
+
+Bu dosya Apple Developer hesabı açılmadan hazırlanabilecek ücretsiz teslim varlıklarını listeler. Ücretli hesap, Xcode imzalama ve App Store Connect yüklemesi bu kapsamda yapılmaz.
+
+## İkon
+
+Kaynak dosya:
+
+```text
+public/app-store-icon-source.svg
+```
+
+App Store için gereken final ikon:
+
+```text
+1024 x 1024 PNG, alfa kanalı olmadan
+```
+
+Ücretsiz üretim yolu:
+
+1. `public/app-store-icon-source.svg` dosyasını Inkscape, Figma free, Photopea veya benzeri ücretsiz araçla aç.
+2. 1024 x 1024 PNG olarak dışa aktar.
+3. Arka planın opak olduğundan emin ol.
+4. Xcode Asset Catalog içinde AppIcon alanına yerleştir.
+
+## Screenshot seti
+
+Yerel üretim:
+
+```bash
+npm run screenshots
+```
+
+Öncelikli mobil dosyalar:
+
+```text
+test-results/screenshots/mobile-home.png
+test-results/screenshots/mobile-analysis-form.png
+test-results/screenshots/mobile-result.png
+test-results/screenshots/mobile-my-analyses.png
+test-results/screenshots/mobile-offline.png
+```
+
+App Store ekran görüntüleri için önerilen sıra:
+
+1. Ana ekran: ücretsiz analiz vaadi.
+2. Analiz formu: manuel ve gizlilik odaklı akış.
+3. Sonuç raporu: risk skoru ve satıcı soruları.
+4. Analizlerim: oturum raporu ve gelecek modüller.
+5. Offline ekran: stabil hata durumu.
+
+## Store metinleri
+
+Teslim metinleri:
+
+```text
+docs/app-store-submission.md
+```
+
+Hazırlık ve risk notları:
+
+```text
+docs/app-store-readiness.md
+docs/release-operations-checklist.md
+```
+
+## Ücretsiz QA listesi
+
+- iPhone küçük ekran: yatay taşma yok.
+- Form alanları en az 44 px dokunma alanına sahip.
+- Klavye açıldığında mobil alt menü ve analiz butonu kritik alanları kapatmıyor.
+- Sonuç sayfasında yasal uyarı görünür.
+- Rapor yazdırma ekranında header, footer ve alt menü görünmez.
+- Paylaşma desteklenmiyorsa rapor özeti panoya kopyalanır.
+- Uygulama login, ödeme, reklam, analytics ve gereksiz izin istemez.
+
+## İlk sürüm sınırı
+
+EksperIQ ilk App Store sürümünde yalnızca karar desteği sağlar. Profesyonel ekspertiz, resmi kayıt sorgusu, servis kontrolü veya hukuki inceleme yerine geçmez.

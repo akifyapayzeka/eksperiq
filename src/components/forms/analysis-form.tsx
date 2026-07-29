@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ClipboardCheck } from "lucide-react";
+import { ClipboardCheck, FileText, ShieldCheck, Wrench } from "lucide-react";
 import { saveAnalysis } from "@/lib/storage/analysis-storage";
 import { vehicleSchema, type VehicleFormData, type VehicleFormInput } from "@/lib/schemas/vehicle";
 import { createAnalysis } from "@/lib/services/analysis-service";
@@ -53,11 +53,11 @@ const detailProgressFields: Array<{ name: ProgressField; label: string }> = [
 ];
 
 const formSections = [
-  { href: "#vehicle-info", label: "Araç" },
-  { href: "#damage-info", label: "Hasar" },
-  { href: "#maintenance-info", label: "Bakım" },
-  { href: "#control-options", label: "Kontroller" },
-  { href: "#seller-description", label: "Açıklama" },
+  { href: "#vehicle-info", label: "Araç", step: "1" },
+  { href: "#damage-info", label: "Hasar", step: "2" },
+  { href: "#maintenance-info", label: "Bakım", step: "3" },
+  { href: "#control-options", label: "Kontroller", step: "4" },
+  { href: "#seller-description", label: "Açıklama", step: "5" },
 ] as const;
 
 function isFilled(value: unknown): boolean {
@@ -80,7 +80,7 @@ function FormProgress({ values }: { values: Partial<Record<ProgressField, unknow
 
   return (
     <section
-      className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+      className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
       aria-labelledby="form-progress-title"
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -145,16 +145,69 @@ function FormProgress({ values }: { values: Partial<Record<ProgressField, unknow
   );
 }
 
+function FormStepOverview({ values }: { values: Partial<Record<ProgressField, unknown>> }) {
+  const requiredCompleted = requiredProgressFields.filter((field) => isFilled(values[field.name])).length;
+  const detailsCompleted = detailProgressFields.filter((field) => isFilled(values[field.name])).length;
+
+  const steps = [
+    {
+      title: "Temel ilan",
+      description: "Marka, model, yıl, km ve fiyat.",
+      icon: FileText,
+      stat: `${requiredCompleted}/${requiredProgressFields.length}`,
+    },
+    {
+      title: "Risk kayıtları",
+      description: "Hasar, tramer ve airbag iddiaları.",
+      icon: ShieldCheck,
+      stat: `${detailsCompleted} detay`,
+    },
+    {
+      title: "Ekspertiz hazırlığı",
+      description: "Bakım, evrak ve kontrol listesi.",
+      icon: Wrench,
+      stat: "Raporla",
+    },
+  ] as const;
+
+  return (
+    <section className="grid gap-3 sm:grid-cols-3" aria-label="Analiz adımları">
+      {steps.map((step, index) => {
+        const Icon = step.icon;
+        return (
+          <article key={step.title} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-sky-50 text-sm font-semibold text-slate-900">
+                {index + 1}
+              </span>
+              <Icon aria-hidden="true" className="h-5 w-5 text-teal-700" />
+            </div>
+            <h2 className="mt-4 text-base font-semibold text-slate-950">{step.title}</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-600">{step.description}</p>
+            <p className="mt-3 text-sm font-semibold text-slate-700">{step.stat}</p>
+          </article>
+        );
+      })}
+    </section>
+  );
+}
+
 function FormSectionLinks() {
   return (
-    <nav className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm" aria-label="Analiz formu bölümleri">
-      <div className="flex flex-wrap gap-2">
+    <nav
+      className="max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm"
+      aria-label="Analiz formu bölümleri"
+    >
+      <div className="flex gap-2 overflow-x-auto pb-1">
         {formSections.map((section) => (
           <a
             key={section.href}
             href={section.href}
-            className="inline-flex min-h-11 flex-1 items-center justify-center rounded-lg border border-slate-200 px-3 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:flex-none sm:px-4"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:px-4"
           >
+            <span className="grid h-6 w-6 place-items-center rounded-full bg-slate-100 text-xs text-slate-700">
+              {section.step}
+            </span>
             {section.label}
           </a>
         ))}
@@ -196,9 +249,10 @@ export function AnalysisForm() {
 
   return (
     <form className="grid gap-6" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className="rounded-lg border border-teal-200 bg-teal-50 p-4 text-sm leading-6 text-teal-950">
+      <div className="rounded-2xl border border-teal-200 bg-teal-50 p-4 text-sm leading-6 text-teal-950">
         {appConfig.privacy}
       </div>
+      <FormStepOverview values={progressValues} />
       <FormProgress values={progressValues} />
       <FormSectionLinks />
       <VehicleInfoSection register={register} errors={errors} />
@@ -209,7 +263,7 @@ export function AnalysisForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-slate-950 px-6 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
+        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-6 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
       >
         <ClipboardCheck aria-hidden="true" className="h-5 w-5" />
         Analiz oluştur

@@ -68,6 +68,7 @@ textarea {
   body {
     background: #ffffff;
     padding-bottom: 0;
+    color: #0f172a;
   }
 
   main {
@@ -79,6 +80,22 @@ textarea {
   li {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  .shadow-sm,
+  [class*="shadow-"] {
+    box-shadow: none !important;
+  }
+
+  .rounded-2xl,
+  .rounded-xl,
+  .rounded-lg {
+    border-radius: 8px !important;
+  }
+
+  main > div {
+    max-width: 100% !important;
+    padding: 0 !important;
   }
 
   a {
