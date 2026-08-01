@@ -166,6 +166,16 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
    (`src/app/bakim-odeme-takvimi/page.tsx`). Ayrıca `reminders-storage.ts`
    için hiç birim testi yoktu → `tests/unit/reminders-storage.test.ts`
    eklendi (ekleme/silme + tarih ilerletme + kalıcılık senaryoları).
+8. `unsubscribeFromPush()` (`src/lib/push/client.ts`), tarayıcının
+   `PushSubscription.unsubscribe()` çağrısı reddedilirse (nadir ama gerçek bir
+   tarayıcı/izin durumu) hiçbir try/catch olmadan hatayı yukarı fırlatıyordu;
+   sayfadaki `disableNotifications()` bunu yakalamadığı için `pushBusy`
+   sonsuza kadar `true` kalıp "Bildirimleri kapat" butonu kalıcı olarak devre
+   dışı kalıyordu. Düzeltme: `unsubscribeFromPush()` artık local unsubscribe
+   hatasını yutup yine de sunucuya kaldırma isteği gönderiyor ve asla
+   reddetmiyor. `push/client.ts` için hiç birim testi yoktu →
+   `tests/unit/push-client.test.ts` eklendi (bozulma senaryosu dahil, önce
+   düzeltmeden önce başarısız olduğu doğrulandı).
 
 ## Bu oturumda eklenen yeni özellikler (kullanıcı isteğiyle)
 
