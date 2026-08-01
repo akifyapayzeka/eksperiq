@@ -5,7 +5,9 @@ import {
   CarFront,
   ChartNoAxesCombined,
   ClipboardCheck,
+  FileSearch,
   Gauge,
+  HeartPulse,
   Plus,
   ShieldCheck,
   Sparkles,
@@ -14,15 +16,46 @@ import {
 import { appConfig } from "@/lib/constants/app";
 
 const summaryItems = [
-  { value: "0", label: "kayıtlı veri" },
+  { value: "4", label: "başlangıç yolu" },
   { value: "100", label: "puanlık risk skoru" },
-  { value: "8", label: "aktif modül" },
+  { value: "0", label: "kalıcı kayıt" },
+];
+
+const entryActions = [
+  {
+    icon: CarFront,
+    title: "İlanı analiz et",
+    description: "İlan linkini ekle, araç bilgilerini seçeneklerle tamamla, riskleri ve satıcı sorularını gör.",
+    href: "/analiz",
+    cta: "İlan analizi",
+  },
+  {
+    icon: FileSearch,
+    title: "Ekspertiz raporu incele",
+    description: "Rapor metnini veya rapor dosyasını ekle, kritik ifadeleri ve baktırılacak noktaları çıkar.",
+    href: "/ekspertiz-raporu",
+    cta: "Rapor incele",
+  },
+  {
+    icon: Camera,
+    title: "Çizik veya hasar fotoğrafı sor",
+    description: "Araç fotoğrafını yükle, olası çizik/göçük notlarını ve ne yaptırman gerektiğini öğren.",
+    href: "/fotograf-hasar",
+    cta: "Fotoğraf kontrolü",
+  },
+  {
+    icon: HeartPulse,
+    title: "Kendi aracını takip et",
+    description: "Bakım tarihi, yağ değişimi, muayene ve araç geçmişi için basit takip ekranlarını kullan.",
+    href: "/arac-saglik-karnesi",
+    cta: "Aracımı ekle",
+  },
 ];
 
 const quickModules = [
-  { icon: Camera, title: "Fotoğraftan Hasar Analizi", href: "/fotograf-hasar" },
   { icon: Wrench, title: "Bakım Takibi", href: "/bakim-takibi" },
   { icon: ChartNoAxesCombined, title: "Araç Değer Takibi", href: "/arac-deger-takibi" },
+  { icon: ClipboardCheck, title: "Uzmanlık Kontrol Listesi", href: "/kontrol-listesi" },
 ];
 
 const garageSignals = [
@@ -44,11 +77,10 @@ export default function Home() {
               </div>
               <span className="rounded-full bg-teal-300 px-3 py-1 text-xs font-bold text-slate-950">Ücretsiz MVP</span>
             </div>
-            <h1 className="mt-7 max-w-xl text-3xl font-semibold leading-tight sm:text-5xl">
-              Araç ilanını daha bilinçli değerlendir.
-            </h1>
+            <h1 className="mt-7 max-w-xl text-3xl font-semibold leading-tight sm:text-5xl">Araban için tek asistan.</h1>
             <p className="mt-4 max-w-xl text-base leading-7 text-slate-200">
-              İlan bilgilerini gir; riskli noktaları, satıcı sorularını ve ekspertiz kontrol listesini aynı ekranda gör.
+              İlanı, ekspertiz raporunu, hasar fotoğrafını veya bakım bilgilerini ekle; neye baktırman gerektiğini sade
+              bir raporda gör.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
@@ -56,7 +88,7 @@ export default function Home() {
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-5 text-base font-semibold text-slate-950 hover:bg-slate-100 focus-visible:ring-4 focus-visible:ring-teal-200"
               >
                 <Plus aria-hidden="true" className="h-5 w-5" />
-                Ücretsiz analiz et
+                Başla
               </Link>
               <Link
                 href="/moduller"
@@ -80,9 +112,9 @@ export default function Home() {
           >
             <div className="flex items-center justify-between gap-3">
               <h2 id="summary-title" className="text-xl font-semibold text-slate-950">
-                Analiz özetin
+                Ne yapmak istiyorsun?
               </h2>
-              <span className="text-sm font-medium text-slate-500">Oturum bazlı</span>
+              <span className="text-sm font-medium text-slate-500">Basit seçim</span>
             </div>
             <div className="mt-5 grid grid-cols-3 overflow-hidden rounded-xl border border-slate-200">
               {summaryItems.map((item) => (
@@ -94,55 +126,35 @@ export default function Home() {
             </div>
           </section>
 
-          <section aria-labelledby="latest-title">
-            <div className="mb-3 flex items-end justify-between gap-3">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-slate-500">En son inceleme</p>
-                <h2 id="latest-title" className="mt-1 text-2xl font-semibold text-slate-950">
-                  İlanı linkle başlat
-                </h2>
-              </div>
-              <Link href="/analiz" className="text-sm font-semibold text-teal-700 hover:text-teal-900">
-                Yeni analiz
-              </Link>
-            </div>
-            <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="bg-sky-50 p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="inline-flex items-center gap-2 text-sm font-semibold text-amber-700">
-                      <span className="h-2 w-2 rounded-full bg-amber-500" />
-                      Orta risk
-                    </p>
-                    <h3 className="mt-4 text-2xl font-semibold leading-tight text-slate-950">
-                      2020 Volkswagen Passat 1.6 TDI
-                    </h3>
-                    <p className="mt-2 text-sm text-slate-600">Linki ekle, bilgileri seçeneklerle tamamla.</p>
-                  </div>
-                  <div className="flex h-24 w-32 shrink-0 items-center justify-center rounded-xl bg-white/70">
-                    <CarFront aria-hidden="true" className="h-14 w-14 text-slate-500" />
-                  </div>
-                </div>
-              </div>
-              <div className="grid gap-4 p-5 sm:grid-cols-[1fr_auto] sm:items-center">
-                <div className="flex items-center gap-4">
-                  <div className="grid h-16 w-16 place-items-center rounded-full border-4 border-amber-400 text-lg font-bold text-slate-950">
-                    64
-                  </div>
-                  <div>
-                    <p className="font-semibold text-slate-950">Risk skoru</p>
-                    <p className="text-sm leading-6 text-slate-600">Bulgular belge ve ekspertizle doğrulanmalı.</p>
-                  </div>
-                </div>
+          <section aria-labelledby="entry-title">
+            <h2 id="entry-title" className="sr-only">
+              Başlangıç seçenekleri
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {entryActions.map((item) => (
                 <Link
-                  href="/analiz"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 text-base font-semibold text-white hover:bg-slate-800"
+                  key={item.title}
+                  aria-label={item.cta}
+                  href={item.href}
+                  className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-teal-700"
                 >
-                  Analize başla
-                  <ArrowUpRight aria-hidden="true" className="h-5 w-5" />
+                  <div className="flex items-start justify-between gap-4">
+                    <span className="grid h-12 w-12 place-items-center rounded-xl bg-sky-50 text-teal-800">
+                      <item.icon aria-hidden="true" className="h-6 w-6" />
+                    </span>
+                    <ArrowUpRight
+                      aria-hidden="true"
+                      className="h-5 w-5 text-slate-400 transition group-hover:text-teal-700"
+                    />
+                  </div>
+                  <h3 className="mt-5 text-xl font-semibold leading-tight text-slate-950">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{item.description}</p>
+                  <span className="mt-5 inline-flex min-h-10 items-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white">
+                    {item.cta}
+                  </span>
                 </Link>
-              </div>
-            </article>
+              ))}
+            </div>
           </section>
 
           <section
@@ -151,18 +163,27 @@ export default function Home() {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-medium text-slate-500">Kayıtsız MVP modu</p>
+                <p className="text-sm font-medium text-slate-500">Kendi aracın</p>
                 <h2 id="garage-title" className="mt-1 text-2xl font-semibold text-slate-950">
-                  Garaj fikri hazır
+                  Garaj ve bakım takibi
                 </h2>
               </div>
-              <Link
-                href="/moduller"
-                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-800"
-              >
-                <Plus aria-hidden="true" className="h-4 w-4" />
-                Araç ekle
-              </Link>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Link
+                  href="/bakim-takibi"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-900 hover:border-teal-700"
+                >
+                  <Wrench aria-hidden="true" className="h-4 w-4" />
+                  Bakım
+                </Link>
+                <Link
+                  href="/analiz"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-800"
+                >
+                  <Plus aria-hidden="true" className="h-4 w-4" />
+                  Araç ekle
+                </Link>
+              </div>
             </div>
             <div className="mt-5 grid gap-3">
               {garageSignals.map((item) => (

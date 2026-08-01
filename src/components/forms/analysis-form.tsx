@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,6 +9,7 @@ import { saveAnalysis } from "@/lib/storage/analysis-storage";
 import { vehicleSchema, type VehicleFormData, type VehicleFormInput } from "@/lib/schemas/vehicle";
 import { createAnalysis } from "@/lib/services/analysis-service";
 import { appConfig } from "@/lib/constants/app";
+import { extractListingFields, type ExtractedListingFields } from "@/lib/listings/extract-listing";
 import {
   BooleanInfoSection,
   DamageInfoSection,
@@ -225,6 +227,8 @@ function FormSectionLinks() {
 
 export function AnalysisForm() {
   const router = useRouter();
+  const [listingText, setListingText] = useState("");
+  const [extractMessage, setExtractMessage] = useState("");
   const {
     register,
     handleSubmit,
@@ -254,6 +258,37 @@ export function AnalysisForm() {
     const parsed = vehicleSchema.parse(values);
     saveAnalysis(createAnalysis(parsed));
     router.push("/sonuc");
+  }
+
+  function applyExtractedFields(fields: ExtractedListingFields) {
+    const entries = Object.entries(fields) as Array<[keyof ExtractedListingFields, string | number | boolean]>;
+    let appliedCount = 0;
+
+    for (const [name, value] of entries) {
+      if (value === undefined || value === "") continue;
+      setValue(name as keyof VehicleFormInput, value, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
+      appliedCount += 1;
+    }
+
+    setExtractMessage(
+      appliedCount
+        ? `${appliedCount} alan ilandan çıkarıldı. Eksik kalanları seçeneklerden tamamlayın.`
+        : "İlan metninden güvenilir araç bilgisi çıkarılamadı. Bilgileri seçeneklerden tamamlayın.",
+    );
+  }
+
+  function extractFromListingText() {
+    const trimmedText = listingText.trim();
+    if (trimmedText.length < 20) {
+      setExtractMessage("İlan açıklamasını veya ilan detay metnini en az 20 karakter olacak şekilde yapıştırın.");
+      return;
+    }
+
+    applyExtractedFields(extractListingFields(trimmedText));
   }
 
   return (
@@ -292,6 +327,30 @@ export function AnalysisForm() {
           {errors.listingUrl?.message ? (
             <p className="mt-2 text-sm text-red-700" role="alert">
               {errors.listingUrl.message}
+            </p>
+          ) : null}
+        </div>
+        <div className="mt-4">
+          <label htmlFor="listingText" className="text-sm font-medium text-slate-800">
+            İlan metni veya açıklaması
+          </label>
+          <textarea
+            id="listingText"
+            value={listingText}
+            onChange={(event) => setListingText(event.target.value)}
+            placeholder="İlan başlığı, açıklaması ve detaylarını buraya yapıştırın. Marka, model, yıl, km, fiyat gibi alanları otomatik doldurmaya çalışırız."
+            className="mt-2 min-h-32 w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-base text-slate-950 shadow-sm outline-none focus:border-teal-700 focus:ring-4 focus:ring-teal-100"
+          />
+          <button
+            type="button"
+            onClick={extractFromListingText}
+            className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 sm:w-auto"
+          >
+            İlan bilgilerini çıkar
+          </button>
+          {extractMessage ? (
+            <p className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-800">
+              {extractMessage}
             </p>
           ) : null}
         </div>

@@ -19,7 +19,13 @@ async function fillRequiredForm(page: Page) {
 
 test("home to analysis form", async ({ page }) => {
   await page.goto("/");
-  const analysisLink = page.getByRole("link", { name: "Ücretsiz analiz et" });
+  await expect(page.getByRole("heading", { name: "Araban için tek asistan." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Ne yapmak istiyorsun?" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "İlan analizi" })).toHaveAttribute("href", "/analiz");
+  await expect(page.getByRole("link", { name: "Rapor incele" })).toHaveAttribute("href", "/ekspertiz-raporu");
+  await expect(page.getByRole("link", { name: "Fotoğraf kontrolü" })).toHaveAttribute("href", "/fotograf-hasar");
+  await expect(page.getByRole("link", { name: "Aracımı ekle" })).toHaveAttribute("href", "/arac-saglik-karnesi");
+  const analysisLink = page.getByRole("main").getByRole("link", { name: "Başla" });
   await expect(analysisLink).toHaveAttribute("href", "/analiz");
   await Promise.all([page.waitForURL(/\/analiz$/), analysisLink.click()]);
   await expect(page.getByRole("heading", { name: "Araç ilanı analizi" })).toBeVisible();
@@ -83,14 +89,23 @@ test("starts analysis with listing link and manual choices", async ({ page }) =>
   await expect(page.getByText("İlan sitelerini otomatik okumadan")).toBeVisible();
   await expect(page.getByRole("button", { name: "Örnek ilanla doldur" })).toHaveCount(0);
   await page.getByLabel("İlan bağlantısı").fill("https://www.sahibinden.com/ilan/vasita-otomobil-test");
-  await page.getByLabel("Marka").selectOption(demoVehicleInput.brand);
-  await page.locator("#model").selectOption(demoVehicleInput.model);
+  await page
+    .getByLabel("İlan metni veya açıklaması")
+    .fill("2020 Toyota Corolla 1.6 Benzin Otomatik İstanbul 87.400 km fiyat 1.250.000 TL ekspertiz mevcut.");
+  await page.getByRole("button", { name: "İlan bilgilerini çıkar" }).click();
   await expect(page.getByLabel("İlan bağlantısı")).toHaveValue("https://www.sahibinden.com/ilan/vasita-otomobil-test");
+  await expect(page.getByLabel("Marka")).toHaveValue("Toyota");
+  await expect(page.locator("#model")).toHaveValue("Corolla");
+  await expect(page.getByLabel("Model yılı")).toHaveValue("2020");
+  await expect(page.getByLabel("Yakıt türü")).toHaveValue("Benzin");
+  await expect(page.getByLabel("Vites türü")).toHaveValue("Otomatik");
+  await expect(page.getByLabel("Şehir")).toHaveValue("İstanbul");
+  await expect(page.getByText(/alan ilandan çıkarıldı/)).toBeVisible();
   await expect(page.getByRole("heading", { name: "İlan linki", exact: true })).toBeVisible();
   await expect(page.getByText("Eklendi")).toBeVisible();
   await expect(page.getByRole("progressbar", { name: "Zorunlu alan ilerlemesi" })).toHaveAttribute(
     "aria-valuenow",
-    "2",
+    "9",
   );
 });
 
@@ -165,6 +180,20 @@ test("shows product module roadmap", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Fotoğraftan Hasar Analizi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Araç Sağlık Karnesi" })).toBeVisible();
   await expect(page.getByText("Kesinlik sınırı:")).toHaveCount(8);
+});
+
+test("expertise report accepts report files and text", async ({ page }) => {
+  await page.goto("/ekspertiz-raporu");
+  await expect(page.getByRole("heading", { name: "Ekspertiz raporunu kontrol notuna çevir" })).toBeVisible();
+  await page.locator('input[type="file"]').setInputFiles({
+    name: "ekspertiz-raporu.jpg",
+    mimeType: "image/jpeg",
+    buffer: Buffer.from("fake-report-image"),
+  });
+  await expect(page.getByText("1 dosya seçildi.")).toBeVisible();
+  await page.getByLabel("Ekspertiz raporu metni").fill("Araçta şasi kontrolü ve airbag arıza taraması önerilir.");
+  await expect(page.getByText("Şasi/podye ifadesi var; ekspertizde özellikle doğrulanmalı.")).toBeVisible();
+  await expect(page.getByText("Airbag ifadesi var; emniyet sistemi arıza taraması istenmeli.")).toBeVisible();
 });
 
 test("shows feedback collection flow", async ({ page, context }) => {

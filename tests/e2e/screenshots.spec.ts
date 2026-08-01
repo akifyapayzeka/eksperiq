@@ -90,7 +90,7 @@ test("captures release screenshots", async ({ page }, testInfo) => {
 
   await page.goto("/");
   await prepareScreenshotPage(page);
-  await expect(page.getByRole("heading", { name: "Araç ilanını daha bilinçli değerlendir." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Araban için tek asistan." })).toBeVisible();
   await captureReleaseScreenshot(page, prefix, "home");
 
   await page.goto("/analiz");
