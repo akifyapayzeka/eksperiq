@@ -91,6 +91,39 @@ describe("maintenance rules", () => {
     expect(findings).toContainEqual(expect.objectContaining({ id: "timing-unknown" }));
     expect(findings).not.toContainEqual(expect.objectContaining({ id: "timing-history-unknown-high-mileage" }));
   });
+
+  it("still flags timing history when the user explicitly answers 'Bilinmiyor' instead of leaving it blank", () => {
+    const findings = maintenanceRules({ ...baseInput, mileage: 130000, timingBeltInfo: "Bilinmiyor" });
+
+    expect(findings).toContainEqual(expect.objectContaining({ id: "timing-history-unknown-high-mileage" }));
+  });
+
+  it("still flags timing history when the answer says a change may be due soon", () => {
+    const findings = maintenanceRules({
+      ...baseInput,
+      mileage: 90000,
+      timingBeltInfo: "Değişim zamanı yaklaşmış olabilir",
+    });
+
+    expect(findings).toContainEqual(expect.objectContaining({ id: "timing-unknown" }));
+  });
+
+  it("does not flag timing history once a documented replacement is reported", () => {
+    const findings = maintenanceRules({
+      ...baseInput,
+      mileage: 130000,
+      timingBeltInfo: "Değişmiş, fatura mevcut",
+    });
+
+    expect(findings).not.toContainEqual(expect.objectContaining({ id: "timing-history-unknown-high-mileage" }));
+    expect(findings).not.toContainEqual(expect.objectContaining({ id: "timing-unknown" }));
+  });
+
+  it("still flags gearbox maintenance when the user explicitly answers 'Belirtilmemiş'", () => {
+    const findings = maintenanceRules({ ...baseInput, transmissionMaintenanceInfo: "Belirtilmemiş" });
+
+    expect(findings).toContainEqual(expect.objectContaining({ id: "gearbox-unknown" }));
+  });
 });
 
 describe("document rules", () => {
