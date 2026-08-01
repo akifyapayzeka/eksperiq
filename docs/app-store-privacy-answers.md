@@ -18,9 +18,11 @@ Bu dosya App Store Connect gizlilik formu doldurulurken kullanılacak ilk sürü
 
 Kullanıcının manuel girdiği araç ve ilan bilgileri mevcut tarayıcı/native oturumunda karar destek raporu üretmek için tutulur. Kullanıcı oturum verisini silebilir. Bu veri geliştirici sunucusuna kalıcı kayıt olarak gönderilmez.
 
-## AI Notu
+## AI Karar Destek ve Fotoğraf Kontrolü
 
-AI karar destek notu kapalıysa veri gönderimi yapılmaz. Staging veya ileride üretim bayrağı açılırsa AI notu yalnızca kullanıcının talebiyle çalışır ve kural tabanlı raporun yerine geçmez. App Store formu bu özellik üretimde aktif edilmeden önce yeniden kontrol edilmelidir.
+AI karar destek notu ve fotoğraf kontrolü yalnızca kullanıcının açık aksiyonuyla çalışır. İlan/araç bilgileri veya seçilen fotoğraf OpenRouter üzerinden geçici olarak işlenebilir; geliştirici sunucusunda kalıcı hesap kaydı olarak saklanmaz. AI çıktısı kural tabanlı raporun, profesyonel ekspertizin veya resmi kayıt kontrolünün yerine geçmez.
+
+App Store gizlilik formunda üçüncü taraf AI işleme açıkça belirtilmeli; fotoğraf erişimi yalnızca kullanıcı dosya seçtiğinde gerçekleştiği için kamera veya fotoğraf arşivi izni talep edilmemelidir.
 
 ## App Store Review İçin Net Sınır
 

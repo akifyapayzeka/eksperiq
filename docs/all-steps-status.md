@@ -43,6 +43,9 @@ npm run launch:audit
 - [x] Canlı Vercel üzerinde mobil analizden sonuca temel akış ve satıcı mesajı butonu doğrulandı.
 - [x] Vercel production fotoğraf AI flag kontrolü `npm run ai:photo-prod-check` ile ayrı kalite kapısına alındı.
 - [x] Vercel AI env değerlerini `.env.local` üzerinden secret yazdırmadan senkronlayacak `npm run vercel:sync-ai-env` komutu hazır.
+- [x] Vercel production AI env değerleri Chrome üzerinden girildi ve production redeploy oluşturuldu.
+- [x] Production deploy sonrası `npm run ai:photo-prod-check` geçti.
+- [x] Canlı fotoğraf AI testi araç dışı görselde `isVehiclePhoto=false` ve bulgu sayısı `0` döndürdü.
 - [x] GitHub remote/local commit eşleşme kontrolü var.
 - [x] iOS/TestFlight ön kontrol, QA checklist ve iOS repo stratejisi yazıldı.
 - [x] Secret, eski marka ve istenmeyen env taraması yapılıyor.
@@ -54,8 +57,7 @@ npm run launch:audit
 - [ ] Tekrarlanan geri bildirimler gerçek GitHub issue olarak açılacak.
 - [ ] Kanıtı oluşan kural adayları pozitif/negatif unit test ile aktif kurala taşınacak.
 - [ ] Vercel panelinde son deployment commit ile eşleştiği görsel olarak kontrol edilecek.
-- [ ] Vercel projesi local klasöre linklenecek ve production AI env değerleri `npm run vercel:sync-ai-env` ile aktarılacak.
-- [ ] Production deploy sonrası `npm run ai:photo-prod-check` geçecek.
+- [ ] Vercel projesi local klasöre linklenecek; panel erişimi yoksa env güncellemesi Chrome üzerinden yapılacak.
 - [ ] Hostinger kullanılacaksa zip `public_html` içine yüklenip canlı yenileme testi yapılacak.
 - [ ] Apple Developer Program üyeliği açılacak.
 - [ ] macOS üzerinde Xcode 26 veya Apple'ın güncel kabul ettiği sürüm kurulacak.

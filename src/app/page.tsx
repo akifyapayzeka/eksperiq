@@ -188,14 +188,16 @@ export default function Home() {
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {quickModules.map((item) => (
-                <Link key={item.title} href={item.href} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <Link
+                  key={item.title}
+                  href={item.href}
+                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                >
                   <div className="flex items-start justify-between gap-4">
                     <span className="grid h-12 w-12 place-items-center rounded-full bg-sky-50 text-teal-800">
                       <item.icon aria-hidden="true" className="h-6 w-6" />
                     </span>
-                    <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-800">
-                      Aç
-                    </span>
+                    <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-800">Aç</span>
                   </div>
                   <h3 className="mt-5 text-lg font-semibold leading-snug text-slate-900">{item.title}</h3>
                 </Link>
