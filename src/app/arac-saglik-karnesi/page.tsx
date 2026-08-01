@@ -1,9 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { HeartPulse, Plus } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { ArrowUpRight, CalendarClock, HeartPulse, Plus } from "lucide-react";
 import { loadAnalysis } from "@/lib/storage/analysis-storage";
+import { loadReminders } from "@/lib/storage/reminders-storage";
+import { daysUntil, sortByUrgency, urgencyOf } from "@/lib/reminders/model";
+import { reminderCategoryLabels } from "@/lib/reminders/types";
+import type { ReminderRecord } from "@/lib/reminders/types";
 import type { AnalysisResult } from "@/lib/analysis/types";
+
+const urgencyStyles: Record<string, string> = {
+  overdue: "bg-red-50 text-red-700",
+  urgent: "bg-amber-50 text-amber-800",
+  upcoming: "bg-sky-50 text-sky-800",
+  later: "bg-slate-100 text-slate-600",
+};
+
+function urgencyLabel(days: number): string {
+  if (days < 0) return `${Math.abs(days)} gün gecikti`;
+  if (days === 0) return "Bugün";
+  return `${days} gün kaldı`;
+}
 
 type RecordItem = {
   type: string;
@@ -17,11 +35,17 @@ export default function VehicleHealthRecordPage() {
   const [title, setTitle] = useState("");
   const [detail, setDetail] = useState("");
   const [records, setRecords] = useState<RecordItem[]>([]);
+  const [reminders, setReminders] = useState<ReminderRecord[]>([]);
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => setAnalysis(loadAnalysis()));
+    const frame = window.requestAnimationFrame(() => {
+      setAnalysis(loadAnalysis());
+      setReminders(loadReminders());
+    });
     return () => window.cancelAnimationFrame(frame);
   }, []);
+
+  const upcomingReminders = useMemo(() => sortByUrgency(reminders).slice(0, 4), [reminders]);
 
   function addRecord() {
     if (!title.trim()) return;
@@ -67,6 +91,56 @@ export default function VehicleHealthRecordPage() {
               Henüz oturumda analiz yok. Yeni araç analizi oluşturduğunuzda burada araç özeti görünecek.
             </p>
           )}
+        </section>
+
+        <section
+          className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+          aria-labelledby="upcoming-dates"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <CalendarClock aria-hidden="true" className="h-5 w-5 text-teal-700" />
+              <h2 id="upcoming-dates" className="text-xl font-semibold text-slate-950">
+                Yaklaşan tarihler
+              </h2>
+            </div>
+            <Link
+              href="/bakim-odeme-takvimi"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-teal-800 hover:underline"
+            >
+              Tümünü gör
+              <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="mt-4 grid gap-3">
+            {upcomingReminders.length ? (
+              upcomingReminders.map((record) => {
+                const days = daysUntil(record.dueDate);
+                const urgency = urgencyOf(days);
+                return (
+                  <div key={record.id} className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase text-teal-800">
+                        {reminderCategoryLabels[record.category]}
+                      </p>
+                      <p className="font-semibold text-slate-950">{record.title}</p>
+                    </div>
+                    <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${urgencyStyles[urgency]}`}>
+                      {urgencyLabel(days)}
+                    </span>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
+                Henüz MTV, sigorta, muayene veya bakım tarihi eklenmedi.{" "}
+                <Link href="/bakim-odeme-takvimi" className="font-semibold text-teal-800 hover:underline">
+                  Bakım ve Ödeme Takvimi
+                </Link>{" "}
+                sayfasından ekleyebilirsiniz.
+              </p>
+            )}
+          </div>
         </section>
 
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">

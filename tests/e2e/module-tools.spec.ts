@@ -87,6 +87,32 @@ test("report action buttons show visible feedback", async ({ page, context }) =>
   await expect(page.getByText(/Yazdırma penceresi açıldı/)).toBeVisible();
 });
 
+test("maintenance and payment calendar tracks upcoming dates and syncs to the garage widget", async ({ page }) => {
+  await page.goto("/bakim-odeme-takvimi");
+
+  await expect(page.getByText("Bildirim servisi henüz yapılandırılmadı.")).toBeVisible();
+
+  await page.getByRole("button", { name: "MTV taksitlerini ekle (Ocak/Temmuz)" }).click();
+  await expect(page.getByText("MTV 1. taksit")).toBeVisible();
+  await expect(page.getByText("MTV 2. taksit")).toBeVisible();
+
+  await page.getByLabel("Tür").selectOption("muayene");
+  await page.getByLabel("Başlık").fill("Araç muayenesi");
+  const nearDate = new Date();
+  nearDate.setDate(nearDate.getDate() + 10);
+  await page.getByLabel("Son tarih").fill(nearDate.toISOString().slice(0, 10));
+  await page.getByLabel("Tutar (opsiyonel, TL)").fill("1200");
+  await page.getByRole("button", { name: "Kaydı ekle", exact: true }).click();
+
+  await expect(page.getByText("Araç muayenesi")).toBeVisible();
+  await expect(page.getByText("1.200 TL", { exact: false })).toBeVisible();
+  await expect(page.getByText("10 gün kaldı")).toBeVisible();
+
+  await page.goto("/arac-saglik-karnesi");
+  await expect(page.getByText("Araç muayenesi")).toBeVisible();
+  await expect(page.getByText("10 gün kaldı")).toBeVisible();
+});
+
 test("photo damage tool refuses non-vehicle photos", async ({ page }) => {
   await page.goto("/fotograf-hasar");
   await page.locator('input[type="file"]').setInputFiles({

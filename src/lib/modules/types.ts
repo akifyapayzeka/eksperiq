@@ -6,6 +6,7 @@ export type ModuleId =
   | "repair-cost-estimation"
   | "expertise-report-analysis"
   | "maintenance-tracking"
+  | "maintenance-payment-calendar"
   | "vehicle-health-record"
   | "vehicle-value-tracking"
   | "smart-sale-preparation";

@@ -1,5 +1,6 @@
 import type { VehicleFormData } from "@/lib/schemas/vehicle";
 import { MAX_PRIORITY_ACTIONS } from "@/lib/constants/analysis";
+import { maintenanceHistoryUnresolved } from "./rules/maintenance-rules";
 import type { AnalysisFinding, CostSignal, DataCompleteness, PriorityAction } from "./types";
 
 export const finalChecklist = [
@@ -80,7 +81,16 @@ export function costSignals(input: VehicleFormData): CostSignal[] {
       item: "Lastik değişimi",
       level: /kötü|zayıf|bitik/i.test(input.tireStatus ?? "") ? "Orta" : input.tireStatus ? "Düşük" : "Bilgi yetersiz",
     },
-    { item: "Ağır bakım", level: input.timingBeltInfo ? "Düşük" : "Bilgi yetersiz" },
+    {
+      item: "Ağır bakım",
+      level: !input.timingBeltInfo
+        ? "Bilgi yetersiz"
+        : /yaklaşmış/i.test(input.timingBeltInfo)
+          ? "Orta"
+          : maintenanceHistoryUnresolved(input.timingBeltInfo)
+            ? "Bilgi yetersiz"
+            : "Düşük",
+    },
     { item: "Muayene", level: input.inspectionEndDate ? "Yakın tarihli" : "Bilgi yetersiz" },
     { item: "Yedek anahtar", level: input.hasSpareKey ? "Düşük" : "Orta" },
   ];

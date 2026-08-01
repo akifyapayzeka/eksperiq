@@ -52,8 +52,8 @@ Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build App
 
 - İlk native sürüm, mevcut ilan analizi ve karar destek akışını korumalıdır.
 - Rapor paylaşma/kaydetme gibi cihaz deneyimine değer katan aksiyonlar korunmalı ve gerçek cihazda test edilmelidir.
-- Fotoğraf kontrolü kullanıcı dosya seçimiyle çalışmalı; kamera veya tüm fotoğraf arşivi izni istenmemelidir.
-- Bildirim, hesap veya ödeme eklenmeyecekse ilgili iOS izinleri istenmemelidir.
+- Fotoğraf kontrolü kullanıcı dosya seçimiyle çalışmalı; kamera ve galeri izinleri yalnızca kullanıcı fotoğraf çekme veya seçme aksiyonunu başlattığı anda, tek fotoğraf için istenmelidir. Tüm fotoğraf arşivine sürekli erişim istenmemelidir.
+- Hesap veya ödeme eklenmeyecekse ilgili iOS izinleri istenmemelidir. Bildirim izni yalnızca Bakım ve Ödeme Takvimi'nde kullanıcı açıkça "Bildirimleri aç" derse istenmelidir; kapsamı yalnızca kullanıcının eklediği MTV/sigorta/muayene/bakım tarihleriyle sınırlı kalmalıdır.
 - WebView içinde dış ilan siteleri scrape edilmemelidir.
 - Kullanıcıya kesin ekspertiz, kesin hasar veya satın alma garantisi verilmemelidir.
 - App Store sürümü ile web sürümü aynı gizlilik sınırlarını kullanmalıdır.
@@ -63,8 +63,9 @@ Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build App
 - Kullanıcı hesabı yok.
 - Reklam takibi yok.
 - Üçüncü taraf analytics yok.
-- Konum, kamera, mikrofon veya rehber izni yok.
-- Fotoğraf erişimi yalnızca kullanıcının dosya seçmesiyle ve fotoğraf kontrolü talebiyle sınırlı.
+- Konum, mikrofon veya rehber izni yok.
+- Kamera ve fotoğraf erişimi yalnızca kullanıcının fotoğraf kontrolü ekranında dosya seçmesiyle veya fotoğraf çekmesiyle, o tek fotoğraf için sınırlı.
+- Bildirim izni yalnızca kullanıcı Bakım ve Ödeme Takvimi'nde açıkça isterse, MTV/sigorta/muayene/bakım tarihi hatırlatmaları için istenir; başka amaçla kullanılmaz.
 - AI karar destek ve fotoğraf kontrolü OpenRouter üzerinden geçici işleme yapabilir.
 - Analiz verisi cihaz/tarayıcı oturumunda geçici tutulur; geliştirici sunucusunda kalıcı hesap kaydı olarak saklanmaz.
 
@@ -94,6 +95,14 @@ Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build App
 9. Dış linkler native kabuk içinde kullanıcıyı sıkıştırmadan açılıyor mu?
 10. iOS geri dönüş hareketi ve güvenli alanlar layout'u bozmuyor mu?
 11. `/offline` ekranından üretilen `out/offline.html` native fallback olarak kullanılabiliyor mu?
+12. Bakım ve Ödeme Takvimi'nde "Bildirimleri aç" seçildiğinde izin diyaloğu doğru metinle çıkıyor ve gerçek cihazda 30/15 gün öncesi bildirim çalışıyor mu?
+
+Not: Bu bildirim akışı Web Push standardıyla çalışır ve web/PWA sürümünde
+gerçek cihazda test edilebilir. Capacitor ile paketlenen native iOS
+uygulamasında aynı davranış için ayrıca `@capacitor/push-notifications`
+eklentisi ve Apple Push Notification servisi (APNs) sertifika/anahtar
+kurulumu gerekir; bu adım bir Apple Developer hesabı gerektirir ve henüz
+yapılmamıştır.
 
 ## İnceleme Riski
 
@@ -102,7 +111,7 @@ Apple, yalnızca web sitesini gösteren ve ek native değer sunmayan uygulamalar
 - Hızlı açılış ve stabil offline hata ekranı
 - iOS güvenli alanlarına uyumlu layout
 - Paylaşılabilir rapor çıktısı veya cihaz içi kaydetme akışı
-- Fotoğraf kontrolünde izin istemeyen kullanıcı dosya seçimi davranışı
+- Fotoğraf kontrolünde yalnızca kullanıcı aksiyonuyla tetiklenen, tek fotoğraflık kamera/galeri izni davranışı
 - TestFlight üzerinde gerçek cihaz testi
 - Net gizlilik ve sorumluluk reddi metni
 

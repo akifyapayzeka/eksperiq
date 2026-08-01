@@ -9,6 +9,10 @@ function daysUntil(date?: string): number | null {
   return Math.ceil((target.getTime() - Date.now()) / 86400000);
 }
 
+export function maintenanceHistoryUnresolved(value?: string): boolean {
+  return !value || /bilinmiyor|belirtilmemiş|yaklaşmış/i.test(value);
+}
+
 export function maintenanceRules(input: VehicleFormData): AnalysisFinding[] {
   const findings: AnalysisFinding[] = [];
   if (!input.hasMaintenanceInvoices)
@@ -29,7 +33,7 @@ export function maintenanceRules(input: VehicleFormData): AnalysisFinding[] {
       explanation: "Yakın dönemde bakım masrafı çıkabilir.",
       recommendation: "Son bakımın tarihini, kilometresini ve kapsamını sorun.",
     });
-  if (!input.timingBeltInfo && input.mileage >= HIGH_MILEAGE_TIMING_HISTORY_KM)
+  if (maintenanceHistoryUnresolved(input.timingBeltInfo) && input.mileage >= HIGH_MILEAGE_TIMING_HISTORY_KM)
     findings.push({
       id: "timing-history-unknown-high-mileage",
       category: "Bakım",
@@ -39,7 +43,7 @@ export function maintenanceRules(input: VehicleFormData): AnalysisFinding[] {
         "Araç yüksek kilometrede olduğu için triger veya zincir bakım geçmişinin belirsiz kalması yakın masraf ve mekanik risk doğurabilir.",
       recommendation: "Motor tipine göre triger/zincir bakım geçmişini fatura veya servis kaydıyla doğrulayın.",
     });
-  else if (!input.timingBeltInfo)
+  else if (maintenanceHistoryUnresolved(input.timingBeltInfo))
     findings.push({
       id: "timing-unknown",
       category: "Bakım",
@@ -48,7 +52,7 @@ export function maintenanceRules(input: VehicleFormData): AnalysisFinding[] {
       explanation: "Triger veya zincir durumu motor tipine göre kritik olabilir.",
       recommendation: "Motor tipine göre triger/zincir kontrolünü ekspertize ekleyin.",
     });
-  if (!input.transmissionMaintenanceInfo)
+  if (maintenanceHistoryUnresolved(input.transmissionMaintenanceInfo))
     findings.push({
       id: "gearbox-unknown",
       category: "Bakım",

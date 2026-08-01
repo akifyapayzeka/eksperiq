@@ -38,9 +38,9 @@ Araç ilanını manuel girin; riskli noktaları ve satıcıya sorulacak sorular�
 
 EksperIQ is a free decision-support app for evaluating used vehicle listings in Turkish. The app does not provide a definitive inspection result and does not guarantee that a vehicle is safe, undamaged, or suitable to purchase.
 
-The app does not require login, payment, ads, analytics, location, camera, microphone, contacts, or background tracking. User-entered vehicle and listing data is not permanently stored as a developer account record. Listing URLs are accepted only as manual references; the app does not scrape listing websites.
+The app does not require login, payment, ads, analytics, location, microphone, contacts, or background tracking. User-entered vehicle and listing data is not permanently stored as a developer account record. Listing URLs are accepted only as manual references; the app does not scrape listing websites.
 
-AI assistance is available only when the user explicitly requests it. The AI note and photo check are limited decision-support features and do not replace professional inspection. Photo access is initiated by the user's file selection; the app should not request camera or full photo library permission for the current release.
+AI assistance is available only when the user explicitly requests it. The AI note and photo check are limited decision-support features and do not replace professional inspection. Photo access is initiated only by the user's own action on the photo upload screen — either taking a single photo or picking one from the library — and camera/photo library permission is requested only at that moment, for that one photo.
 
 Recommended review flow:
 
@@ -58,8 +58,9 @@ Recommended review flow:
 - Üçüncü taraf analytics: Yok.
 - Geliştirici sunucusuna kalıcı hesap kaydı: Yok.
 - Konum izni: Yok.
-- Kamera izni: Yok.
+- Kamera izni: Yalnızca kullanıcı fotoğraf ekleme ekranında "Fotoğraf çek" seçeneğini kullandığı anda, tek bir fotoğraf için istenir; sürekli veya arka planda erişim yoktur.
 - Fotoğraf erişimi: Yalnızca kullanıcının dosya seçmesiyle ve AI fotoğraf kontrolü talebiyle sınırlı.
+- Bildirim izni: Yalnızca kullanıcı Bakım ve Ödeme Takvimi'nde "Bildirimleri aç" derse istenir; MTV/sigorta/muayene/bakım hatırlatmalarıyla sınırlıdır.
 - AI işleme: OpenRouter üzerinden kullanıcı aksiyonuyla geçici karar destek işleme.
 - Mikrofon/rehber izni: Yok.
 - Hassas kişisel veri işleme: Yok.

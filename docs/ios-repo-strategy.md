@@ -45,7 +45,7 @@ Xcode içinde kontrol edilecekler:
 - App icon: `public/app-store-icon-1024.png` kaynağından üretilen opak ikon
 - Signing team: kişisel/şirket Apple Developer hesabı
 - Deployment target: Apple'ın güncel kabul ettiği iOS sürümü
-- Gereksiz permission açıklamaları: ilk sürümde kamera, fotoğraf, konum, mikrofon, rehber ve bildirim izni istenmemeli
+- Gereksiz permission açıklamaları: ilk sürümde konum, mikrofon ve rehber izni istenmemeli. Kamera ve fotoğraf izni yalnızca fotoğraf kontrolü ekranında, o tek fotoğraf için Info.plist'teki `NSCameraUsageDescription` / `NSPhotoLibraryUsageDescription` metinleriyle istenmeli. Bildirim izni yalnızca kullanıcı Bakım ve Ödeme Takvimi'nde açıkça isterse istenmeli; Web Push ile çalıştığı için native iOS build'de ayrıca `@capacitor/push-notifications` + APNs kurulumu (Apple Developer hesabı gerektirir) eklenmeden gerçek cihazda çalışmayabilir.
 
 ## PR / commit kabul kriteri
 
