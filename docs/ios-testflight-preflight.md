@@ -43,5 +43,5 @@ Repo içine şunlar eklenmez:
 - `docs/testflight-qa-checklist.md` gerçek cihazda işaretlenir.
 - Rapor paylaşma veya kopyalama davranışı iOS üzerinde denenir.
 - Uçak modu/offline davranışı anlaşılır kalır.
-- Uygulama kamera, konum, fotoğraf veya bildirim izni istemez.
+- Uygulama konum veya bildirim izni istemez. Kamera ve fotoğraf izni yalnızca fotoğraf kontrolü ekranında, kullanıcı çekim/seçim başlattığı o tek fotoğraf için istenir.
 - App Store metinleri profesyonel ekspertiz yerine geçme iddiası taşımaz.

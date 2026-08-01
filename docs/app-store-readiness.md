@@ -52,7 +52,7 @@ Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build App
 
 - İlk native sürüm, mevcut ilan analizi ve karar destek akışını korumalıdır.
 - Rapor paylaşma/kaydetme gibi cihaz deneyimine değer katan aksiyonlar korunmalı ve gerçek cihazda test edilmelidir.
-- Fotoğraf kontrolü kullanıcı dosya seçimiyle çalışmalı; kamera veya tüm fotoğraf arşivi izni istenmemelidir.
+- Fotoğraf kontrolü kullanıcı dosya seçimiyle çalışmalı; kamera ve galeri izinleri yalnızca kullanıcı fotoğraf çekme veya seçme aksiyonunu başlattığı anda, tek fotoğraf için istenmelidir. Tüm fotoğraf arşivine sürekli erişim istenmemelidir.
 - Bildirim, hesap veya ödeme eklenmeyecekse ilgili iOS izinleri istenmemelidir.
 - WebView içinde dış ilan siteleri scrape edilmemelidir.
 - Kullanıcıya kesin ekspertiz, kesin hasar veya satın alma garantisi verilmemelidir.
@@ -63,8 +63,8 @@ Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build App
 - Kullanıcı hesabı yok.
 - Reklam takibi yok.
 - Üçüncü taraf analytics yok.
-- Konum, kamera, mikrofon veya rehber izni yok.
-- Fotoğraf erişimi yalnızca kullanıcının dosya seçmesiyle ve fotoğraf kontrolü talebiyle sınırlı.
+- Konum, mikrofon veya rehber izni yok.
+- Kamera ve fotoğraf erişimi yalnızca kullanıcının fotoğraf kontrolü ekranında dosya seçmesiyle veya fotoğraf çekmesiyle, o tek fotoğraf için sınırlı.
 - AI karar destek ve fotoğraf kontrolü OpenRouter üzerinden geçici işleme yapabilir.
 - Analiz verisi cihaz/tarayıcı oturumunda geçici tutulur; geliştirici sunucusunda kalıcı hesap kaydı olarak saklanmaz.
 
@@ -102,7 +102,7 @@ Apple, yalnızca web sitesini gösteren ve ek native değer sunmayan uygulamalar
 - Hızlı açılış ve stabil offline hata ekranı
 - iOS güvenli alanlarına uyumlu layout
 - Paylaşılabilir rapor çıktısı veya cihaz içi kaydetme akışı
-- Fotoğraf kontrolünde izin istemeyen kullanıcı dosya seçimi davranışı
+- Fotoğraf kontrolünde yalnızca kullanıcı aksiyonuyla tetiklenen, tek fotoğraflık kamera/galeri izni davranışı
 - TestFlight üzerinde gerçek cihaz testi
 - Net gizlilik ve sorumluluk reddi metni
 

@@ -7,7 +7,8 @@ Bu dosya App Store Connect gizlilik formu doldurulurken kullanılacak ilk sürü
 - Kullanıcı hesabı: Yok.
 - Kullanıcı adı, e-posta, telefon, adres: Toplanmaz.
 - Konum verisi: Toplanmaz.
-- Kişiler, fotoğraflar, kamera, mikrofon: Erişim istenmez.
+- Kişiler, mikrofon: Erişim istenmez.
+- Kamera, fotoğraflar: Yalnızca kullanıcı fotoğraf ekleme ekranında kamerayla çekim veya galeriden seçim başlattığı anda, tek bir fotoğraf için erişilir; sürekli veya arka planda erişim yoktur.
 - Reklam takibi: Yok.
 - Üçüncü taraf analytics: Yok.
 - Geliştirici sunucusuna kalıcı analiz kaydı: Yok.
@@ -22,7 +23,7 @@ Kullanıcının manuel girdiği araç ve ilan bilgileri mevcut tarayıcı/native
 
 AI karar destek notu ve fotoğraf kontrolü yalnızca kullanıcının açık aksiyonuyla çalışır. İlan/araç bilgileri veya seçilen fotoğraf OpenRouter üzerinden geçici olarak işlenebilir; geliştirici sunucusunda kalıcı hesap kaydı olarak saklanmaz. AI çıktısı kural tabanlı raporun, profesyonel ekspertizin veya resmi kayıt kontrolünün yerine geçmez.
 
-App Store gizlilik formunda üçüncü taraf AI işleme açıkça belirtilmeli; fotoğraf erişimi yalnızca kullanıcı dosya seçtiğinde gerçekleştiği için kamera veya fotoğraf arşivi izni talep edilmemelidir.
+App Store gizlilik formunda üçüncü taraf AI işleme açıkça belirtilmeli; kamera ve fotoğraf kitaplığı izinleri yalnızca kullanıcı fotoğraf ekleme ekranında bir fotoğraf çekmeyi veya seçmeyi başlattığı anda, o tek fotoğraf için istenir.
 
 ## App Store Review İçin Net Sınır
 

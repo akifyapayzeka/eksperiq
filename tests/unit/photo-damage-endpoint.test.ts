@@ -111,6 +111,145 @@ describe("photo damage AI endpoint", () => {
     expect(requestBody.response_format?.type).toBe("json_schema");
   });
 
+  it("treats a screenshot response as a non-vehicle photo with no findings", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                isVehiclePhoto: false,
+                summary: "Bu bir telefon ekran görüntüsü, araç görünmüyor.",
+                findings: [],
+              }),
+            },
+          },
+        ],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const previousEnv = process.env;
+    process.env = {
+      ...previousEnv,
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+      OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
+    };
+    const response = createResponse();
+
+    await handler(createRequest(validBody), response);
+
+    process.env = previousEnv;
+    vi.unstubAllGlobals();
+    const payload = JSON.parse(response.body) as { analysis: { isVehiclePhoto: boolean; findings: unknown[] } };
+    expect(response.statusCode).toBe(200);
+    expect(payload.analysis.isVehiclePhoto).toBe(false);
+    expect(payload.analysis.findings).toEqual([]);
+  });
+
+  it("keeps a blurry close-up response low-confidence and hedged instead of a firm damage claim", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                isVehiclePhoto: true,
+                summary: "Fotoğraf çok yakın çekim ve bulanık, bölge net anlaşılamıyor.",
+                findings: [
+                  {
+                    area: "Kapı paneli",
+                    signal: "Çizik",
+                    confidence: "low",
+                    explanation: "Yakın ve bulanık çekim nedeniyle yüzeydeki iz kesin olarak değerlendirilemiyor.",
+                    recommendation: "Daha net ve uzak bir fotoğrafla veya ekspertizde tekrar kontrol ettirin.",
+                  },
+                ],
+              }),
+            },
+          },
+        ],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const previousEnv = process.env;
+    process.env = {
+      ...previousEnv,
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+      OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
+    };
+    const response = createResponse();
+
+    await handler(createRequest(validBody), response);
+
+    process.env = previousEnv;
+    vi.unstubAllGlobals();
+    const payload = JSON.parse(response.body) as {
+      analysis: { isVehiclePhoto: boolean; findings: Array<{ confidence: string; explanation: string }> };
+    };
+    expect(response.statusCode).toBe(200);
+    expect(payload.analysis.isVehiclePhoto).toBe(true);
+    expect(payload.analysis.findings).toHaveLength(1);
+    expect(payload.analysis.findings[0].confidence).toBe("low");
+    expect(payload.analysis.findings[0].explanation.toLocaleLowerCase("tr-TR")).not.toContain("kesin");
+  });
+
+  it("softens absolute-certainty damage claims into hedged language", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                isVehiclePhoto: true,
+                summary: "Bu araç kesinlikle hasarlıdır.",
+                findings: [
+                  {
+                    area: "Ön çamurluk",
+                    signal: "Göçük",
+                    confidence: "high",
+                    explanation: "Bu panel kesinlikle hasar görmüş ve definitely damaged.",
+                    recommendation: "Kesin olarak parça değişimi yapılmalı.",
+                  },
+                ],
+              }),
+            },
+          },
+        ],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const previousEnv = process.env;
+    process.env = {
+      ...previousEnv,
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+      OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
+    };
+    const response = createResponse();
+
+    await handler(createRequest(validBody), response);
+
+    process.env = previousEnv;
+    vi.unstubAllGlobals();
+    const payload = JSON.parse(response.body) as {
+      analysis: {
+        summary: string;
+        findings: Array<{ explanation: string; recommendation: string }>;
+      };
+    };
+    const combinedText =
+      payload.analysis.summary + payload.analysis.findings.map((f) => `${f.explanation} ${f.recommendation}`).join(" ");
+    const lowered = combinedText.toLocaleLowerCase("tr-TR");
+    expect(lowered).not.toContain("kesinlikle");
+    expect(lowered).not.toContain("kesin ");
+    expect(lowered).not.toContain("definitely");
+  });
+
   it("accepts vehicle responses that report no visible damage without signal fields", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,

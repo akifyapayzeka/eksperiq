@@ -128,10 +128,33 @@ function normalizeSignal(finding) {
   return "Olası kontrol notu";
 }
 
+const absoluteLanguageReplacements = [
+  [/kesinlikle hasar(lı|lıdır|)\b/gi, "olası hasar"],
+  [/kesin hasar/gi, "olası hasar"],
+  [/hasar(lı|lıdır) kesin/gi, "olası hasarlı"],
+  [/kesinlikle\b/gi, "büyük olasılıkla"],
+  [/kesindir\b/gi, "olabilir"],
+  [/kesin\b/gi, "olası"],
+  [/(100\s?%|%\s?100)\s*/gi, ""],
+  [/definitely damaged/gi, "possibly damaged"],
+  [/confirmed damage/gi, "possible damage"],
+  [/is damaged/gi, "may be damaged"],
+  [/certainly\b/gi, "possibly"],
+  [/definitely\b/gi, "possibly"],
+];
+
+function hedgeCertainLanguage(text) {
+  if (typeof text !== "string" || !text) return text;
+  return absoluteLanguageReplacements.reduce(
+    (current, [pattern, replacement]) => current.replace(pattern, replacement),
+    text,
+  );
+}
+
 function normalizeAnalysis(value) {
   if (!isRecord(value)) return null;
   const isVehiclePhoto = value.isVehiclePhoto === true;
-  const summary = typeof value.summary === "string" ? value.summary.slice(0, 500) : "";
+  const summary = typeof value.summary === "string" ? hedgeCertainLanguage(value.summary.slice(0, 500)) : "";
   const findings = Array.isArray(value.findings) ? value.findings : [];
   return {
     isVehiclePhoto,
@@ -152,11 +175,11 @@ function normalizeAnalysis(value) {
               isRecord(finding) && ["low", "medium", "high"].includes(finding.confidence) ? finding.confidence : "low",
             explanation:
               isRecord(finding) && typeof finding.explanation === "string"
-                ? finding.explanation.slice(0, 500)
+                ? hedgeCertainLanguage(finding.explanation.slice(0, 500))
                 : "Görselden kesin hüküm verilemez; ekspertizde doğrulanmalıdır.",
             recommendation:
               isRecord(finding) && typeof finding.recommendation === "string" && !looksLikeNoDamageFinding(finding)
-                ? finding.recommendation.slice(0, 300)
+                ? hedgeCertainLanguage(finding.recommendation.slice(0, 300))
                 : "Bağımsız ekspertizde kontrol ettirin.",
           }))
       : [],
@@ -226,7 +249,7 @@ function buildMessages(input) {
     {
       role: "system",
       content:
-        "Sen EksperIQ için çalışan dikkatli bir araç fotoğraf kontrol asistanısın. Kesin hasar, kesin parça değişimi veya satın alma kararı verme. Fotoğrafta araç yoksa bunu açıkça söyle ve bulgu üretme. Görünür hasar yoksa findings boş dizi olsun. Yanıtı sadece geçerli JSON olarak ver.",
+        "Sen EksperIQ için çalışan dikkatli bir araç fotoğraf kontrol asistanısın. Kesin hasar, kesin parça değişimi veya satın alma kararı verme; her zaman 'olası', 'olabilir', 'kontrol edilmeli' gibi ihtiyatlı ifadeler kullan. Fotoğraf ekran görüntüsü, çizim, doküman, oyuncak veya araçla ilgisiz bir obje ise isVehiclePhoto=false döndür ve bulgu üretme. Fotoğraf bulanık, karanlık, çok yakın çekim veya düşük çözünürlüklüyse ve araç parçası olduğundan emin değilsen isVehiclePhoto=false döndür ya da confidence='low' ile çok sınırlı ve ihtiyatlı bir bulgu ver; asla belirsizliği gizleyip kesin bir hasar iddiası üretme. Fotoğrafta araç yoksa bunu açıkça söyle ve bulgu üretme. Görünür hasar yoksa findings boş dizi olsun. Yanıtı sadece geçerli JSON olarak ver.",
     },
     {
       role: "user",
@@ -251,7 +274,10 @@ JSON şeması:
 }
 
 Fotoğrafta araç veya araç parçası yoksa isVehiclePhoto=false ve findings=[] döndür.
-Araç varsa ama görünür hasar sinyali yoksa isVehiclePhoto=true ve findings=[] döndür.`,
+Fotoğraf ekran görüntüsü, doküman, çizim ya da araçla ilgisiz bir objeyse isVehiclePhoto=false ve findings=[] döndür.
+Fotoğraf bulanık, karanlık veya çok yakın çekimse ve araç parçası olduğundan emin değilsen isVehiclePhoto=false döndür veya yalnızca confidence="low" ile ihtiyatlı bir bulgu ver.
+Araç varsa ama görünür hasar sinyali yoksa isVehiclePhoto=true ve findings=[] döndür.
+"kesin", "kesinlikle", "definitely" gibi kesinlik bildiren kelimeler kullanma; her zaman olasılık dili kullan.`,
         },
         ...input.images.map((image) => ({
           type: "image_url",

@@ -1,6 +1,6 @@
 # TestFlight QA Checklist
 
-Bu checklist App Store hesabı, macOS ve Xcode hazır olduktan sonra gerçek iPhone üzerinde çalıştırılır. İlk sürümde kamera, fotoğraf, konum, bildirim veya hesap izni istenmemelidir.
+Bu checklist App Store hesabı, macOS ve Xcode hazır olduktan sonra gerçek iPhone üzerinde çalıştırılır. İlk sürümde konum, bildirim veya hesap izni istenmemelidir. Kamera ve fotoğraf izni yalnızca kullanıcı fotoğraf kontrolü ekranında çekim veya galeri seçimi başlattığında, o tek fotoğraf için istenir.
 
 ## Hazırlık
 
@@ -42,6 +42,13 @@ Bu checklist App Store hesabı, macOS ve Xcode hazır olduktan sonra gerçek iPh
 - [ ] Staging flag açıkken AI notu butonu görünür ama karar destek sınırını korur.
 - [ ] AI hata durumunda kural tabanlı rapor kaybolmuyor.
 - [ ] AI notu kesin ekspertiz, kesin alım veya hasarsızlık iddiası üretmiyor.
+
+## Fotoğraf Kontrolü ve İzinler
+
+- [ ] Fotoğraf ekleme ekranında "Fotoğraf çek" seçilince kamera izni diyaloğu Info.plist metniyle çıkıyor ve uygulama çökmüyor.
+- [ ] Fotoğraf ekleme ekranında galeriden seçim yapılınca gerekiyorsa fotoğraf kitaplığı izni diyaloğu çıkıyor ve uygulama çökmüyor.
+- [ ] İzin reddedilirse uygulama anlaşılır bir uyarı gösteriyor, çökmüyor.
+- [ ] Fotoğraf AI kontrolü araç dışı görselde hasar bulgusu üretmiyor.
 
 ## Offline ve Hata Durumları
 
