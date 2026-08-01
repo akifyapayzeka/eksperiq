@@ -56,7 +56,7 @@ npm run launch:audit
 - [ ] Gerçek 5 kullanıcı testi yapılacak.
 - [ ] Tekrarlanan geri bildirimler gerçek GitHub issue olarak açılacak.
 - [ ] Kanıtı oluşan kural adayları pozitif/negatif unit test ile aktif kurala taşınacak.
-- [ ] Vercel panelinde son deployment commit ile eşleştiği görsel olarak kontrol edilecek.
+- [x] Vercel panelinde son deployment commit ile eşleştiği görsel olarak kontrol edildi: `ba5a11b`, Production, Ready.
 - [ ] Vercel projesi local klasöre linklenecek; panel erişimi yoksa env güncellemesi Chrome üzerinden yapılacak.
 - [ ] Hostinger kullanılacaksa zip `public_html` içine yüklenip canlı yenileme testi yapılacak.
 - [ ] Apple Developer Program üyeliği açılacak.
