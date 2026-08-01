@@ -26,10 +26,7 @@ function requiredSelectValue(value: string | undefined, fieldName: string) {
 
 async function fillDemoVehicle(page: Page) {
   for (const [name, value] of Object.entries({
-    brand: demoVehicleInput.brand,
-    model: demoVehicleInput.model,
     year: String(demoVehicleInput.year),
-    trim: demoVehicleInput.trim,
     mileage: String(demoVehicleInput.mileage),
     price: String(demoVehicleInput.price),
     engineSize: demoVehicleInput.engineSize,
@@ -37,14 +34,15 @@ async function fillDemoVehicle(page: Page) {
     listingUrl: demoVehicleInput.listingUrl,
     tramerAmount: String(demoVehicleInput.tramerAmount),
     lastMaintenanceDate: demoVehicleInput.lastMaintenanceDate,
-    timingBeltInfo: demoVehicleInput.timingBeltInfo,
-    transmissionMaintenanceInfo: demoVehicleInput.transmissionMaintenanceInfo,
     inspectionEndDate: demoVehicleInput.inspectionEndDate,
     sellerDescription: demoVehicleInput.sellerDescription,
   })) {
     if (value) await page.locator(`[name="${name}"]`).fill(value);
   }
 
+  await page.locator('[name="brand"]').selectOption(demoVehicleInput.brand);
+  await page.locator('[name="model"]').selectOption(demoVehicleInput.model);
+  await page.locator('[name="trim"]').selectOption(requiredSelectValue(demoVehicleInput.trim, "trim"));
   await page.locator('[name="fuelType"]').selectOption(demoVehicleInput.fuelType);
   await page.locator('[name="transmission"]').selectOption(demoVehicleInput.transmission);
   await page.locator('[name="city"]').selectOption(demoVehicleInput.city);
@@ -65,6 +63,12 @@ async function fillDemoVehicle(page: Page) {
   await page
     .locator('[name="tireStatus"]')
     .selectOption(requiredSelectValue(demoVehicleInput.tireStatus, "tireStatus"));
+  await page
+    .locator('[name="timingBeltInfo"]')
+    .selectOption(requiredSelectValue(demoVehicleInput.timingBeltInfo, "timingBeltInfo"));
+  await page
+    .locator('[name="transmissionMaintenanceInfo"]')
+    .selectOption(requiredSelectValue(demoVehicleInput.transmissionMaintenanceInfo, "transmissionMaintenanceInfo"));
   await page.locator('[name="lpgStatus"]').selectOption(requiredSelectValue(demoVehicleInput.lpgStatus, "lpgStatus"));
   await page.getByRole("group", { name: "Boyalı parçalar", exact: true }).getByLabel("Sağ ön çamurluk").check();
   await page.getByRole("group", { name: "Lokal boyalı parçalar", exact: true }).getByLabel("Ön tampon").check();

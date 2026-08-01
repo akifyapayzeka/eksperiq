@@ -2,8 +2,8 @@ import { expect, test, type Page } from "@playwright/test";
 import { demoVehicleInput } from "../fixtures/demo-vehicle";
 
 async function fillRequiredForm(page: Page) {
-  await page.locator("#brand").fill(demoVehicleInput.brand);
-  await page.locator("#model").fill(demoVehicleInput.model);
+  await page.locator("#brand").selectOption(demoVehicleInput.brand);
+  await page.locator("#model").selectOption(demoVehicleInput.model);
   await page.locator("#year").fill(String(demoVehicleInput.year));
   await page.locator("#fuelType").selectOption(demoVehicleInput.fuelType);
   await page.locator("#transmission").selectOption(demoVehicleInput.transmission);

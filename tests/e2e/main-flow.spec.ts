@@ -2,8 +2,8 @@ import { expect, test, type Page } from "@playwright/test";
 import { demoVehicleInput } from "../fixtures/demo-vehicle";
 
 async function fillRequiredForm(page: Page) {
-  await page.getByLabel("Marka").fill(demoVehicleInput.brand);
-  await page.getByLabel("Model", { exact: true }).fill(demoVehicleInput.model);
+  await page.getByLabel("Marka").selectOption(demoVehicleInput.brand);
+  await page.locator("#model").selectOption(demoVehicleInput.model);
   await page.getByLabel("Model yılı").fill(String(demoVehicleInput.year));
   await page.getByLabel("Yakıt türü").selectOption(demoVehicleInput.fuelType);
   await page.getByLabel("Vites türü").selectOption(demoVehicleInput.transmission);
@@ -80,7 +80,7 @@ test("fills form with demo listing", async ({ page }) => {
   await page.goto("/analiz");
   await page.getByRole("button", { name: "Örnek ilanla doldur" }).click();
   await expect(page.getByLabel("Marka")).toHaveValue(demoVehicleInput.brand);
-  await expect(page.getByLabel("Model", { exact: true })).toHaveValue(demoVehicleInput.model);
+  await expect(page.locator("#model")).toHaveValue(demoVehicleInput.model);
   await expect(page.getByRole("progressbar", { name: "Zorunlu alan ilerlemesi" })).toHaveAttribute(
     "aria-valuenow",
     "9",
@@ -90,20 +90,25 @@ test("fills form with demo listing", async ({ page }) => {
 test("uses select controls for fixed-choice vehicle details", async ({ page }) => {
   await page.goto("/analiz");
 
-  const selectLabels = [
-    "Kasa tipi",
-    "Şehir",
-    "Çekiş tipi",
-    "Ruhsat sahibi bilgisi",
-    "Takas durumu",
-    "Airbag durumu",
-    "Akü durumu",
-    "Lastik durumu",
-    "LPG durumu",
+  const selectIds = [
+    "bodyType",
+    "brand",
+    "model",
+    "trim",
+    "city",
+    "drivetrain",
+    "ownerInfo",
+    "tradeStatus",
+    "airbagStatus",
+    "timingBeltInfo",
+    "transmissionMaintenanceInfo",
+    "batteryStatus",
+    "tireStatus",
+    "lpgStatus",
   ];
 
-  for (const label of selectLabels) {
-    await expect(page.getByLabel(label)).toHaveJSProperty("tagName", "SELECT");
+  for (const id of selectIds) {
+    await expect(page.locator(`#${id}`)).toHaveJSProperty("tagName", "SELECT");
   }
 
   await page.getByLabel("Takas durumu").selectOption("Takas yok");
@@ -116,6 +121,8 @@ test("uses select controls for fixed-choice vehicle details", async ({ page }) =
   await expect(page.getByLabel("Lastik durumu")).toHaveValue("Orta");
   await expect(page.getByLabel("LPG durumu")).toHaveValue("Yok");
   await expect(page.getByLabel("Kilometre")).toHaveAttribute("type", "number");
+  await expect(page.getByLabel("Motor hacmi")).toHaveAttribute("type", "number");
+  await expect(page.getByLabel("Motor gücü")).toHaveAttribute("type", "number");
   await expect(page.getByLabel("Muayene bitiş tarihi")).toHaveAttribute("type", "date");
 });
 

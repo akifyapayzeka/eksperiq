@@ -22,6 +22,80 @@ type CheckboxName =
 
 const fuelTypes = ["Benzin", "Dizel", "Hibrit", "Elektrik", "LPG"];
 const transmissions = ["Manuel", "Otomatik", "Yarı otomatik"];
+const brandOptions = [
+  "Audi",
+  "BMW",
+  "BYD",
+  "Chery",
+  "Chevrolet",
+  "Citroen",
+  "Cupra",
+  "Dacia",
+  "Fiat",
+  "Ford",
+  "Honda",
+  "Hyundai",
+  "Jeep",
+  "Kia",
+  "Lexus",
+  "Mazda",
+  "Mercedes-Benz",
+  "MG",
+  "Mini",
+  "Nissan",
+  "Opel",
+  "Peugeot",
+  "Renault",
+  "Seat",
+  "Skoda",
+  "Suzuki",
+  "Tesla",
+  "Toyota",
+  "Volkswagen",
+  "Volvo",
+  "Diğer / listede yok",
+];
+const modelOptions = [
+  "A3",
+  "Astra",
+  "Civic",
+  "Clio",
+  "Corolla",
+  "Egea",
+  "Fiesta",
+  "Focus",
+  "Golf",
+  "i20",
+  "Megane",
+  "Octavia",
+  "Passat",
+  "Polo",
+  "Qashqai",
+  "Sandero",
+  "Symbol",
+  "Taliant",
+  "Tiguan",
+  "Diğer / listede yok",
+];
+const trimOptions = [
+  "Baz paket",
+  "Orta paket",
+  "Üst paket",
+  "Business",
+  "Comfort",
+  "Dream",
+  "Dynamic",
+  "Elegance",
+  "Executive",
+  "Joy",
+  "Life",
+  "Premium",
+  "Style",
+  "Touch",
+  "Trend",
+  "Belirtilmemiş",
+  "Diğer / listede yok",
+];
 const cityOptions = [
   "Adana",
   "Adıyaman",
@@ -130,6 +204,22 @@ const airbagStatuses = ["Açmamış", "Açmış", "Değişmiş", "Bilinmiyor"];
 const batteryStatuses = ["İyi", "Orta", "Zayıf", "Yeni değişmiş", "Bilinmiyor"];
 const tireStatuses = ["İyi", "Orta", "Kötü", "Yeni", "Mevsimlik değişim gerekli", "Bilinmiyor"];
 const lpgStatuses = ["Yok", "Var", "Sökülmüş", "Bilinmiyor"];
+const timingBeltStatuses = [
+  "Değişmiş, fatura mevcut",
+  "Değişmiş, belge yok",
+  "Zincirli motor olduğu belirtiliyor",
+  "Değişim zamanı yaklaşmış olabilir",
+  "Bilinmiyor",
+  "Belirtilmemiş",
+];
+const transmissionMaintenanceStatuses = [
+  "Bakım yapılmış, fatura mevcut",
+  "Bakım yapılmış, belge yok",
+  "Manuel şanzıman",
+  "Bakım zamanı yaklaşmış olabilir",
+  "Bilinmiyor",
+  "Belirtilmemiş",
+];
 const damagePartOptions = [
   "Ön tampon",
   "Arka tampon",
@@ -237,8 +327,20 @@ export function VehicleInfoSection({ register, errors }: SectionProps) {
   return (
     <SectionCard id="vehicle-info" title="Araç bilgileri" description="İlandaki temel araç bilgilerini manuel girin.">
       <div className="grid gap-4 md:grid-cols-2">
-        <Field id="brand" label="Marka" {...register("brand")} error={errors.brand?.message} />
-        <Field id="model" label="Model" {...register("model")} error={errors.model?.message} />
+        <SelectField
+          id="brand"
+          label="Marka"
+          options={brandOptions}
+          {...register("brand")}
+          error={errors.brand?.message}
+        />
+        <SelectField
+          id="model"
+          label="Model"
+          options={modelOptions}
+          {...register("model")}
+          error={errors.model?.message}
+        />
         <Field
           id="year"
           label="Model yılı"
@@ -247,7 +349,7 @@ export function VehicleInfoSection({ register, errors }: SectionProps) {
           {...register("year")}
           error={errors.year?.message}
         />
-        <Field id="trim" label="Paket" {...register("trim")} />
+        <SelectField id="trim" label="Paket" options={trimOptions} {...register("trim")} />
         <SelectField
           id="fuelType"
           label="Yakıt türü"
@@ -280,8 +382,8 @@ export function VehicleInfoSection({ register, errors }: SectionProps) {
         />
         <SelectField id="city" label="Şehir" options={cityOptions} {...register("city")} error={errors.city?.message} />
         <SelectField id="bodyType" label="Kasa tipi" options={bodyTypes} {...register("bodyType")} />
-        <Field id="engineSize" label="Motor hacmi" {...register("engineSize")} />
-        <Field id="enginePower" label="Motor gücü" {...register("enginePower")} />
+        <Field id="engineSize" label="Motor hacmi" type="number" inputMode="decimal" {...register("engineSize")} />
+        <Field id="enginePower" label="Motor gücü" type="number" inputMode="numeric" {...register("enginePower")} />
         <SelectField id="drivetrain" label="Çekiş tipi" options={drivetrains} {...register("drivetrain")} />
         <SelectField
           id="ownerInfo"
@@ -344,10 +446,16 @@ export function MaintenanceInfoSection({ register }: SectionProps) {
     <SectionCard id="maintenance-info" title="Bakım ve evrak bilgileri">
       <div className="grid gap-4 md:grid-cols-2">
         <Field id="lastMaintenanceDate" label="Son bakım tarihi" type="date" {...register("lastMaintenanceDate")} />
-        <Field id="timingBeltInfo" label="Triger değişim bilgisi" {...register("timingBeltInfo")} />
-        <Field
+        <SelectField
+          id="timingBeltInfo"
+          label="Triger değişim bilgisi"
+          options={timingBeltStatuses}
+          {...register("timingBeltInfo")}
+        />
+        <SelectField
           id="transmissionMaintenanceInfo"
           label="Şanzıman bakım bilgisi"
+          options={transmissionMaintenanceStatuses}
           {...register("transmissionMaintenanceInfo")}
         />
         <SelectField id="batteryStatus" label="Akü durumu" options={batteryStatuses} {...register("batteryStatus")} />

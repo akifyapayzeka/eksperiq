@@ -4,6 +4,9 @@ import { join } from "node:path";
 const source = readFileSync(join(process.cwd(), "src", "components", "forms", "analysis-form-sections.tsx"), "utf8");
 
 const fixedChoiceSelectIds = [
+  "brand",
+  "model",
+  "trim",
   "fuelType",
   "transmission",
   "city",
@@ -12,12 +15,14 @@ const fixedChoiceSelectIds = [
   "ownerInfo",
   "tradeStatus",
   "airbagStatus",
+  "timingBeltInfo",
+  "transmissionMaintenanceInfo",
   "batteryStatus",
   "tireStatus",
   "lpgStatus",
 ];
 
-const numericFieldIds = ["year", "mileage", "price", "tramerAmount"];
+const numericFieldIds = ["year", "mileage", "price", "engineSize", "enginePower", "tramerAmount"];
 const dateFieldIds = ["lastMaintenanceDate", "inspectionEndDate"];
 const damagePartFieldNames = ["paintedParts", "replacedParts", "localPaintedParts"];
 
