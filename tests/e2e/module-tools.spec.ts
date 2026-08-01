@@ -126,6 +126,20 @@ test("test drive checklist tracks progress and persists within the session", asy
   await expect(page.getByLabel("Motoru soğukken çalıştırdım (satıcı önceden çalıştırmamış olmalı)")).toBeChecked();
 });
 
+test("official lookup guide tracks which sources the user has checked", async ({ page }) => {
+  await page.goto("/resmi-sorgu-rehberi");
+  await expect(page.getByRole("heading", { name: "Kontrol ettiklerim: 0 / 6" })).toBeVisible();
+
+  await page.locator("label", { hasText: "Hasar/TRAMER kaydı" }).locator('input[type="checkbox"]').check();
+  await expect(page.getByRole("heading", { name: "Kontrol ettiklerim: 1 / 6" })).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Kontrol ettiklerim: 1 / 6" })).toBeVisible();
+  await expect(
+    page.locator("label", { hasText: "Hasar/TRAMER kaydı" }).locator('input[type="checkbox"]'),
+  ).toBeChecked();
+});
+
 test("photo damage tool refuses non-vehicle photos", async ({ page }) => {
   await page.goto("/fotograf-hasar");
   await page.locator('input[type="file"]').setInputFiles({

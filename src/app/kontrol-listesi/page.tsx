@@ -96,6 +96,12 @@ export default function ChecklistPage() {
           >
             Test sürüşü kontrol listesini aç
           </Link>
+          <Link
+            href="/resmi-sorgu-rehberi"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 text-base font-semibold text-slate-900 hover:bg-slate-100"
+          >
+            Resmi sorgu rehberini aç
+          </Link>
         </div>
       </div>
     </main>

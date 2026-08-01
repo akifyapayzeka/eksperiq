@@ -128,6 +128,23 @@ export const productModules: ProductModule[] = [
     certaintyPolicy: "Teknik arıza teşhisi yapmaz; şüpheli bulguları bağımsız ekspertize yönlendirir.",
   },
   {
+    id: "official-lookup-guide",
+    title: "Resmi Sorgu Rehberi",
+    status: "active",
+    href: "/resmi-sorgu-rehberi",
+    summary:
+      "Hasar kaydı, muayene, MTV borcu, rehin/haciz ve sigorta gibi bilgileri nereden doğrulayacağınızı gösterir.",
+    capabilities: [
+      {
+        title: "Kaynak rehberi",
+        description:
+          "Her bilgi türü için hangi resmi kanaldan (e-Devlet, TÜVTÜRK, noter, sigorta şirketi) kontrol edileceğini listeler.",
+      },
+    ],
+    dataPolicy: "Herhangi bir sorguyu kendisi yapmaz veya scrape etmez; yalnızca yönlendirme metni sunar.",
+    certaintyPolicy: "Sorgu sonuçlarını garanti etmez; yalnızca nereden bakılacağını hatırlatır.",
+  },
+  {
     id: "vehicle-health-record",
     title: "Araç Sağlık Karnesi",
     status: "active",

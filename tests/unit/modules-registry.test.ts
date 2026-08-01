@@ -11,6 +11,7 @@ describe("product module registry", () => {
       "maintenance-tracking",
       "maintenance-payment-calendar",
       "test-drive-checklist",
+      "official-lookup-guide",
       "vehicle-health-record",
       "vehicle-value-tracking",
       "smart-sale-preparation",
@@ -18,7 +19,7 @@ describe("product module registry", () => {
   });
 
   it("keeps all modules independent and routed", () => {
-    expect(productModules).toHaveLength(10);
+    expect(productModules).toHaveLength(11);
     expect(plannedModules()).toEqual([]);
     for (const productModule of productModules) {
       expect(productModule.href).toMatch(/^\//);
