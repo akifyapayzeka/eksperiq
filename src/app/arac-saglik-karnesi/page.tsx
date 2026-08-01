@@ -5,9 +5,18 @@ import Link from "next/link";
 import { ArrowUpRight, CalendarClock, HeartPulse, Plus } from "lucide-react";
 import { loadAnalysis } from "@/lib/storage/analysis-storage";
 import { loadReminders } from "@/lib/storage/reminders-storage";
+import {
+  createHealthRecordId,
+  deleteHealthRecord,
+  loadHealthRecords,
+  upsertHealthRecord,
+} from "@/lib/storage/health-record-storage";
 import { daysUntil, sortByUrgency, urgencyOf } from "@/lib/reminders/model";
+import { scoreTrend } from "@/lib/health-record/model";
 import { reminderCategoryLabels } from "@/lib/reminders/types";
+import { healthRecordTypes } from "@/lib/health-record/types";
 import type { ReminderRecord } from "@/lib/reminders/types";
+import type { HealthRecord, HealthRecordType } from "@/lib/health-record/types";
 import type { AnalysisResult } from "@/lib/analysis/types";
 
 const urgencyStyles: Record<string, string> = {
@@ -23,35 +32,73 @@ function urgencyLabel(days: number): string {
   return `${days} gün kaldı`;
 }
 
-type RecordItem = {
-  type: string;
-  title: string;
-  detail: string;
-};
-
 export default function VehicleHealthRecordPage() {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
-  const [type, setType] = useState("Bakım");
+  const [type, setType] = useState<HealthRecordType>("Bakım");
   const [title, setTitle] = useState("");
   const [detail, setDetail] = useState("");
-  const [records, setRecords] = useState<RecordItem[]>([]);
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [score, setScore] = useState("");
+  const [records, setRecords] = useState<HealthRecord[]>([]);
   const [reminders, setReminders] = useState<ReminderRecord[]>([]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
       setAnalysis(loadAnalysis());
       setReminders(loadReminders());
+      setRecords(loadHealthRecords());
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
   const upcomingReminders = useMemo(() => sortByUrgency(reminders).slice(0, 4), [reminders]);
+  const trend = useMemo(() => scoreTrend(records), [records]);
 
   function addRecord() {
     if (!title.trim()) return;
-    setRecords((current) => [{ type, title: title.trim(), detail: detail.trim() }, ...current]);
+    const parsedScore = score.trim() ? Number(score) : undefined;
+    if (
+      score.trim() &&
+      (parsedScore === undefined || Number.isNaN(parsedScore) || parsedScore < 0 || parsedScore > 100)
+    ) {
+      return;
+    }
+
+    const record: HealthRecord = {
+      id: createHealthRecordId(),
+      type,
+      title: title.trim(),
+      detail: detail.trim(),
+      date,
+      score: parsedScore,
+      createdAt: new Date().toISOString(),
+    };
+
+    upsertHealthRecord(record);
+    setRecords((current) => [record, ...current]);
     setTitle("");
     setDetail("");
+    setScore("");
+  }
+
+  function removeRecord(id: string) {
+    deleteHealthRecord(id);
+    setRecords((current) => current.filter((item) => item.id !== id));
+  }
+
+  function addCurrentScore() {
+    if (!analysis) return;
+    const record: HealthRecord = {
+      id: createHealthRecordId(),
+      type: "Sağlık Skoru",
+      title: "Analiz skoru",
+      detail: `${analysis.input.year} ${analysis.input.brand} ${analysis.input.model} analizinden.`,
+      date: new Date().toISOString().slice(0, 10),
+      score: analysis.totalScore,
+      createdAt: new Date().toISOString(),
+    };
+    upsertHealthRecord(record);
+    setRecords((current) => [record, ...current]);
   }
 
   return (
@@ -62,8 +109,8 @@ export default function VehicleHealthRecordPage() {
           <p className="mt-5 text-sm font-semibold text-teal-200">Araç Sağlık Karnesi</p>
           <h1 className="mt-2 text-3xl font-semibold">Analiz, bakım ve notları tek ekranda tut</h1>
           <p className="mt-3 text-sm leading-6 text-slate-300">
-            Bu MVP kayıtları kalıcı hesaba yazmaz. Sayfa, mevcut oturumdaki analiz raporu ve bu ekranda eklediğiniz
-            notlarla çalışır.
+            Bu ekranda eklediğiniz kayıtlar hesaba değil, yalnızca bu cihaza kaydedilir. Araç özeti ise mevcut tarayıcı
+            oturumundaki son analiz raporundan gelir.
           </p>
         </section>
 
@@ -143,21 +190,45 @@ export default function VehicleHealthRecordPage() {
           </div>
         </section>
 
+        {trend.length ? (
+          <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="text-xl font-semibold text-slate-950">Sağlık skoru trendi</h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Kayıt eklerken girdiğiniz skorların zaman içindeki değişimi. Tek bir teşhis değil, kendi notlarınızın
+              özetidir.
+            </p>
+            {trend.length >= 2 ? (
+              <ScoreTrendChart points={trend} />
+            ) : (
+              <p className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
+                Trend görmek için en az iki skorlu kayıt gerekir.
+              </p>
+            )}
+          </section>
+        ) : null}
+
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-xl font-semibold text-slate-950">Kayıt ekle</h2>
+          {analysis ? (
+            <button
+              type="button"
+              onClick={addCurrentScore}
+              className="mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-teal-700 px-4 text-sm font-semibold text-teal-800"
+            >
+              Şu anki analiz skorunu ({analysis.totalScore}) trende ekle
+            </button>
+          ) : null}
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <label className="grid gap-2 text-sm font-medium text-slate-800">
               Tür
               <select
                 value={type}
-                onChange={(event) => setType(event.target.value)}
+                onChange={(event) => setType(event.target.value as HealthRecordType)}
                 className="min-h-12 rounded-xl border border-slate-300 px-3"
               >
-                <option>Bakım</option>
-                <option>Ekspertiz</option>
-                <option>Hasar notu</option>
-                <option>Masraf</option>
-                <option>Hatırlatma</option>
+                {healthRecordTypes.map((option) => (
+                  <option key={option}>{option}</option>
+                ))}
               </select>
             </label>
             <label className="grid gap-2 text-sm font-medium text-slate-800 sm:col-span-2">
@@ -167,6 +238,26 @@ export default function VehicleHealthRecordPage() {
                 onChange={(event) => setTitle(event.target.value)}
                 className="min-h-12 rounded-xl border border-slate-300 px-3"
                 placeholder="Örn. 90 bin km bakımı"
+              />
+            </label>
+            <label className="grid gap-2 text-sm font-medium text-slate-800">
+              Tarih
+              <input
+                type="date"
+                value={date}
+                onChange={(event) => setDate(event.target.value)}
+                className="min-h-12 rounded-xl border border-slate-300 px-3"
+              />
+            </label>
+            <label className="grid gap-2 text-sm font-medium text-slate-800">
+              Skor (opsiyonel, 0-100)
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={score}
+                onChange={(event) => setScore(event.target.value)}
+                className="min-h-12 rounded-xl border border-slate-300 px-3"
               />
             </label>
           </div>
@@ -192,16 +283,34 @@ export default function VehicleHealthRecordPage() {
           <h2 className="text-xl font-semibold text-slate-950">Zaman çizelgesi</h2>
           <div className="mt-4 grid gap-3">
             {records.length ? (
-              records.map((record, index) => (
-                <article
-                  key={`${record.title}-${index}`}
-                  className="rounded-xl border border-slate-200 bg-slate-50 p-4"
-                >
-                  <p className="text-xs font-semibold uppercase text-teal-800">{record.type}</p>
-                  <h3 className="mt-1 font-semibold text-slate-950">{record.title}</h3>
-                  {record.detail ? <p className="mt-2 text-sm leading-6 text-slate-600">{record.detail}</p> : null}
-                </article>
-              ))
+              [...records]
+                .sort((a, b) => (a.date < b.date ? 1 : -1))
+                .map((record) => (
+                  <article key={record.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase text-teal-800">
+                          {record.type}
+                          {typeof record.score === "number" ? ` · Skor ${record.score}` : ""}
+                        </p>
+                        <h3 className="mt-1 font-semibold text-slate-950">{record.title}</h3>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {new Date(`${record.date}T00:00:00`).toLocaleDateString("tr-TR")}
+                        </p>
+                        {record.detail ? (
+                          <p className="mt-2 text-sm leading-6 text-slate-600">{record.detail}</p>
+                        ) : null}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeRecord(record.id)}
+                        className="shrink-0 text-sm font-semibold text-red-700 hover:underline"
+                      >
+                        Sil
+                      </button>
+                    </div>
+                  </article>
+                ))
             ) : (
               <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">Henüz kayıt eklenmedi.</p>
             )}
@@ -209,5 +318,69 @@ export default function VehicleHealthRecordPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+function ScoreTrendChart({ points }: { points: { date: string; score: number }[] }) {
+  const width = 320;
+  const height = 120;
+  const padding = 16;
+  const maxScore = 100;
+
+  const stepX = points.length > 1 ? (width - padding * 2) / (points.length - 1) : 0;
+  const coordinates = points.map((point, index) => ({
+    x: padding + index * stepX,
+    y: padding + (1 - point.score / maxScore) * (height - padding * 2),
+    point,
+  }));
+  const path = coordinates.map((coord, index) => `${index === 0 ? "M" : "L"}${coord.x},${coord.y}`).join(" ");
+
+  return (
+    <div className="mt-4">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        aria-label="Zaman içinde sağlık skoru trendi"
+        className="w-full"
+      >
+        <line
+          x1={padding}
+          y1={height - padding}
+          x2={width - padding}
+          y2={height - padding}
+          stroke="#c3c2b7"
+          strokeWidth={1}
+        />
+        <path d={path} fill="none" stroke="#0f766e" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+        {coordinates.map((coord) => (
+          <circle key={coord.point.date} cx={coord.x} cy={coord.y} r={4} fill="#0f766e">
+            <title>
+              {new Date(`${coord.point.date}T00:00:00`).toLocaleDateString("tr-TR")}: {coord.point.score}
+            </title>
+          </circle>
+        ))}
+      </svg>
+      <details className="mt-2">
+        <summary className="cursor-pointer text-sm font-semibold text-teal-800">Tablo olarak gör</summary>
+        <table className="mt-3 w-full text-left text-sm">
+          <thead>
+            <tr className="text-slate-500">
+              <th className="py-1 font-medium">Tarih</th>
+              <th className="py-1 font-medium">Skor</th>
+            </tr>
+          </thead>
+          <tbody>
+            {points.map((point) => (
+              <tr key={point.date} className="border-t border-slate-100">
+                <td className="py-1 text-slate-800">
+                  {new Date(`${point.date}T00:00:00`).toLocaleDateString("tr-TR")}
+                </td>
+                <td className="py-1 text-slate-800">{point.score}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </details>
+    </div>
   );
 }

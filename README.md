@@ -1,6 +1,6 @@
 # EksperIQ
 
-EksperIQ, ikinci el araç ilanı giren kullanıcıya kural tabanlı risk değerlendirmesi, satıcıya sorulacak sorular ve ekspertiz kontrol listesi sunan ücretsiz bir responsive web uygulamasıdır.
+EksperIQ, ikinci el araç ilanı giren kullanıcıya kural tabanlı risk değerlendirmesi, satıcıya sorulacak sorular ve ekspertiz kontrol listesi sunan ücretsiz bir responsive web uygulamasıdır. İlan analizinin yanı sıra fotoğraftan olası hasar kontrolü, ekspertiz raporu sadeleştirme, bakım/sağlık/değer takibi, satış hazırlığı ve MTV/sigorta/muayene gibi tarihleri push bildirimiyle takip eden bağımsız modüller de aktiftir (`/moduller`).
 
 ## Özellikler
 
@@ -17,7 +17,10 @@ EksperIQ, ikinci el araç ilanı giren kullanıcıya kural tabanlı risk değerl
 - Yazdırma/PDF çıktısına uygun sonuç raporu
 - Raporu yazdırma, rapor özetini, satıcı sorularını ve satıcıya gönderilecek kısa mesajı panoya kopyalama
 - Oturumdaki analiz sonucunu tek tıkla silme
-- Veriyi sunucuya kaydetmeyen sessionStorage tabanlı ilk sürüm
+- Fotoğraftan olası hasar kontrolü (opsiyonel AI destekli, feature flag ile kapalı/açık)
+- Ekspertiz raporu metnini sadeleştirme
+- Bakım ve Ödeme Takvimi: MTV, trafik sigortası, kasko, muayene ve bakım tarihlerini tek ekranda takip etme; isteğe bağlı olarak son tarihten 30 ve 15 gün kala push bildirimi
+- Analiz sonucu sunucuya kaydedilmeyen sessionStorage tabanlı ilk sürüm; Bakım ve Ödeme Takvimi kayıtları ise aylar boyunca takip edilebilmesi için cihazda localStorage ile saklanır (bildirim açılırsa sunucuda yalnızca push aboneliği ve ilgili tarih kopyası tutulur)
 
 ## Ürün ekran akışı
 
@@ -34,15 +37,16 @@ EksperIQ, ikinci el araç ilanı giren kullanıcıya kural tabanlı risk değerl
 
 ## Uzun vadeli vizyon
 
-EksperIQ yalnızca ikinci el ilan analiz eden bir araç olmayacak. Uzun vadeli hedef, Türkiye için araç satın almadan satışa kadar kullanılabilen yapay zekâ destekli kapsamlı bir araç asistanı geliştirmektir.
+EksperIQ yalnızca ikinci el ilan analiz eden bir araç değil. Uzun vadeli hedef, Türkiye için araç satın almadan satışa ve sahiplik sürecine kadar kullanılabilen kapsamlı bir araç asistanı olmaktır.
 
-İlk sürüm yalnızca `İlan Analizi` modülünü aktif tutar. Gelecek modüller `src/lib/modules/registry.ts` içinde planlı ve birbirinden bağımsız ürün modülleri olarak tanımlanır:
+Aşağıdaki modüllerin tamamı aktif ve birbirinden bağımsız `src/lib/modules/registry.ts` içinde tanımlıdır (`/moduller` sayfasından erişilebilir):
 
 - İlan Analizi
 - Fotoğraftan Hasar Analizi
 - Tahmini Onarım Maliyeti
 - Ekspertiz Raporu Analizi
 - Bakım Takibi
+- Bakım ve Ödeme Takvimi (MTV, sigorta, muayene, bakım — push bildirimli)
 - Araç Sağlık Karnesi
 - Araç Değer Takibi
 - Akıllı Satış Hazırlığı
@@ -56,11 +60,11 @@ EksperIQ yalnızca ikinci el ilan analiz eden bir araç olmayacak. Uzun vadeli h
 - Hiçbir modül kesin ekspertiz, kesin hasar, kesin fiyat veya satın alma/satış garantisi vermemelidir.
 - Ücretli servis, harici API anahtarı veya maliyet doğuracak entegrasyonlar açık karar olmadan eklenmemelidir.
 
-## Fotoğraftan Hasar Analizi hazırlık modeli
+## Fotoğraftan Hasar Analizi modeli
 
-`src/lib/photo-damage` klasörü, planlanan fotoğraf modülü için yalnızca ortak veri sözleşmesini içerir. Bu katman dosya yükleme, görsel işleme, yapay zekâ çağrısı veya ücretli servis entegrasyonu yapmaz.
+Fotoğraftan Hasar Analizi modülü aktiftir (`/fotograf-hasar`). `src/lib/photo-damage` klasörü, manuel bulgu ekranı ve AI kontrolü arasında paylaşılan ortak veri sözleşmesini (araç bölgesi, hasar sinyali, 0-100 olasılık, düşük/orta/yüksek güven seviyesi) tanımlar; bu katmanın kendisi dosya yükleme, görsel işleme veya yapay zekâ çağrısı yapmaz — bunlar `api/ai/photo-damage.js` ve `src/app/fotograf-hasar/page.tsx` içindedir.
 
-Gelecekte bu modül etkinleştiğinde her bulgu araç bölgesi, hasar sinyali, 0-100 olasılık, düşük/orta/yüksek güven seviyesi, açıklama ve öneri alanlarıyla dönmelidir. Modül hiçbir zaman kesin hasar iddiası veya onarım garantisi üretmemelidir.
+AI destekli fotoğraf kontrolü `NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED` feature flag'i ile açılıp kapatılabilir ve `OPENROUTER_VISION_MODEL`/`OPENROUTER_API_KEY` gerektirir. Araç dışı görsellerde, ekran görüntülerinde veya bulanık/çok yakın çekimlerde bulgu üretmemesi, hiçbir zaman kesin hasar iddiası veya onarım garantisi vermemesi için hem prompt hem sunucu tarafı normalize edilmiştir (`tests/unit/photo-damage-endpoint.test.ts`).
 
 ## Kural geri bildirimi
 
@@ -128,9 +132,10 @@ npm run build
 3. Vercel üzerinde yeni proje oluşturup bu depoyu seçin.
 4. Framework olarak Next.js algılanır. Kural tabanlı MVP için environment variable gerekmez.
 5. Opsiyonel AI notu açılacaksa `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `OPENROUTER_DAILY_REQUEST_LIMIT` ve `NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED` değişkenlerini girin.
-6. Merkezi günlük limit için opsiyonel `UPSTASH_REDIS_REST_URL` ve `UPSTASH_REDIS_REST_TOKEN` kullanılabilir.
-7. Deploy komutları varsayılan Next.js ayarlarıyla çalışır.
-8. Preview sonrası `npm run ai:staging-check` ile canlı endpoint davranışını doğrulayın.
+6. Merkezi günlük AI limiti için opsiyonel `UPSTASH_REDIS_REST_URL` ve `UPSTASH_REDIS_REST_TOKEN` kullanılabilir. Bakım ve Ödeme Takvimi bildirimlerinin production'da çalışması için bu ikisi ZORUNLUDUR (serverless ortamda kalıcı depolama olmadan cron hiçbir aboneliği hatırlamaz).
+7. Bakım ve Ödeme Takvimi bildirimleri için `npm run push:generate-vapid-keys` ile üretilen `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY` değişkenlerini ve isteğe bağlı `CRON_SECRET`'i girin; `vercel.json` içindeki cron tanımı otomatik etkinleşir.
+8. Deploy komutları varsayılan Next.js ayarlarıyla çalışır.
+9. Preview sonrası `npm run ai:staging-check` ile canlı endpoint davranışını doğrulayın.
 
 ## Netlify deploy adımları
 
@@ -187,20 +192,16 @@ Vercel, Hostinger ve App Store/TestFlight hazırlığı için ana operasyon list
 - Profesyonel ekspertizin yerine geçmez.
 - Resmî kayıt sorgusu yapmaz.
 - İlan sitelerini scrape etmez.
-- Fotoğraf yükleme veya görüntü analizi içermez.
-- Kullanıcı hesabı ve kalıcı veritabanı yoktur.
+- Kullanıcı hesabı yoktur. Analiz verisi kalıcı bir hesaba kaydedilmez; Bakım ve Ödeme Takvimi bildirimleri açılırsa yalnızca push aboneliği ve ilgili tarih/tutar kopyası sunucuda tutulur (bkz. `docs/app-store-privacy-answers.md`).
 - Skor genel karar desteğidir; aracın güvenli, hasarsız veya satın almaya uygun olduğunu garanti etmez.
 - Piyasa fiyatı karşılaştırması yapmaz; fiyat tarafında yalnızca kullanıcının girdiği tramer/fiyat oranı gibi genel sinyaller değerlendirilir.
 - Yazdırma/PDF çıktısı tarayıcının sayfa kırma davranışına bağlıdır.
+- Push bildirimleri Web Push standardıyla çalışır; Capacitor ile paketlenen native iOS uygulamasında aynı davranış için ayrıca APNs kurulumu (Apple Developer hesabı) gerekir, henüz yapılmamıştır.
 
 ## Gelecek geliştirmeler
 
 - Supabase ile isteğe bağlı kullanıcı hesabı ve kayıtlı analizler
-- Fotoğraftan olası hasar analizi
-- Tahmini onarım maliyeti aralıkları
-- Ekspertiz raporu PDF/fotoğraf analizi
-- Bakım takibi ve araç sağlık karnesi
-- Araç değer takibi ve akıllı satış hazırlığı
+- Native iOS uygulamasında APNs ile push bildirimi (`@capacitor/push-notifications`)
 - Daha gelişmiş PDF dışa aktarma
 - Resmî kayıt kontrolü için kullanıcı yönlendirme rehberleri
 - Daha kapsamlı erişilebilirlik ve tarayıcı uyumluluk testleri

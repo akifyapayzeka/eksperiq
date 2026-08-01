@@ -73,6 +73,35 @@ test("module cards open usable assistant tools", async ({ page }) => {
   await expect(page.getByText(/piyasa aralığının üzerinde/)).toBeVisible();
 });
 
+test("health record entries persist across reloads and build a score trend", async ({ page }) => {
+  await page.goto("/arac-saglik-karnesi");
+
+  await page.getByLabel("Tür").selectOption("Sağlık Skoru");
+  await page.getByLabel("Başlık").fill("İlk kontrol");
+  await page.getByLabel("Tarih", { exact: true }).fill("2026-06-01");
+  await page.getByLabel("Skor (opsiyonel, 0-100)").fill("60");
+  await page.getByRole("button", { name: "Kaydı ekle" }).click();
+  await expect(page.getByRole("heading", { name: "İlk kontrol" })).toBeVisible();
+
+  await page.getByLabel("Başlık").fill("İkinci kontrol");
+  await page.getByLabel("Tarih", { exact: true }).fill("2026-08-01");
+  await page.getByLabel("Skor (opsiyonel, 0-100)").fill("80");
+  await page.getByRole("button", { name: "Kaydı ekle" }).click();
+
+  await expect(page.getByRole("heading", { name: "Sağlık skoru trendi" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Zaman içinde sağlık skoru trendi" })).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "İlk kontrol" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "İkinci kontrol" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sağlık skoru trendi" })).toBeVisible();
+
+  await page.locator("article", { hasText: "İlk kontrol" }).getByRole("button", { name: "Sil" }).click();
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "İlk kontrol" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "İkinci kontrol" })).toBeVisible();
+});
+
 test("report action buttons show visible feedback", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: "http://127.0.0.1:3000" });
   await page.goto("/analiz");
@@ -85,6 +114,54 @@ test("report action buttons show visible feedback", async ({ page, context }) =>
 
   await page.getByRole("button", { name: "Raporu yazdır" }).click();
   await expect(page.getByText(/Yazdırma penceresi açıldı/)).toBeVisible();
+});
+
+test("comparison page lists analyses added from the result screen and enforces the 3-entry cap", async ({ page }) => {
+  async function createAndAddAnalysis(price: string) {
+    await page.goto("/analiz");
+    await fillRequiredForm(page);
+    await page.getByLabel("İstenen fiyat").fill(price);
+    await page.getByRole("button", { name: "Analiz oluştur" }).click();
+    await expect(page).toHaveURL(/\/sonuc$/);
+    await page.getByRole("button", { name: "Karşılaştırmaya ekle" }).click();
+  }
+
+  await createAndAddAnalysis("1200000");
+  await expect(page.getByText("İlan karşılaştırma listesine eklendi.")).toBeVisible();
+
+  await createAndAddAnalysis("1350000");
+  await createAndAddAnalysis("1450000");
+
+  await page.goto("/karsilastirma");
+  await expect(page.getByRole("cell", { name: "1.200.000 TL" })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "1.350.000 TL" })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "1.450.000 TL" })).toBeVisible();
+
+  await createAndAddAnalysis("1500000");
+  await expect(
+    page.getByText("Karşılaştırma listesi dolu (en fazla 3 ilan). Karşılaştırma sayfasından bir kaydı kaldırın."),
+  ).toBeVisible();
+
+  await page.goto("/karsilastirma");
+  await page
+    .getByRole("button", { name: /karşılaştırmadan kaldır/ })
+    .first()
+    .click();
+  await expect(page.getByRole("cell", { name: "1.200.000 TL" })).toHaveCount(0);
+});
+
+test("clicking 'Karşılaştırmaya ekle' twice on the same result only adds one entry", async ({ page }) => {
+  await page.goto("/analiz");
+  await fillRequiredForm(page);
+  await page.getByLabel("İstenen fiyat").fill("999000");
+  await page.getByRole("button", { name: "Analiz oluştur" }).click();
+  await expect(page).toHaveURL(/\/sonuc$/);
+
+  await page.getByRole("button", { name: "Karşılaştırmaya ekle" }).click();
+  await expect(page.getByRole("button", { name: "Karşılaştırmaya eklendi" })).toBeDisabled();
+
+  await page.goto("/karsilastirma");
+  await expect(page.getByRole("cell", { name: "999.000 TL" })).toHaveCount(1);
 });
 
 test("maintenance and payment calendar tracks upcoming dates and syncs to the garage widget", async ({ page }) => {
@@ -111,6 +188,57 @@ test("maintenance and payment calendar tracks upcoming dates and syncs to the ga
   await page.goto("/arac-saglik-karnesi");
   await expect(page.getByText("Araç muayenesi")).toBeVisible();
   await expect(page.getByText("10 gün kaldı")).toBeVisible();
+});
+
+test("test drive checklist tracks progress and persists within the session", async ({ page }) => {
+  await page.goto("/test-surusu-kontrol");
+  await expect(page.getByRole("heading", { name: "Tamamlanan: 0 / 18" })).toBeVisible();
+
+  await page.getByLabel("Motoru soğukken çalıştırdım (satıcı önceden çalıştırmamış olmalı)").check();
+  await page.getByLabel("Fren pedalının hissini ve düz durup durmadığını kontrol ettim").check();
+  await expect(page.getByRole("heading", { name: "Tamamlanan: 2 / 18" })).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Tamamlanan: 2 / 18" })).toBeVisible();
+  await expect(page.getByLabel("Motoru soğukken çalıştırdım (satıcı önceden çalıştırmamış olmalı)")).toBeChecked();
+});
+
+test("official lookup guide tracks which sources the user has checked", async ({ page }) => {
+  await page.goto("/resmi-sorgu-rehberi");
+  await expect(page.getByRole("heading", { name: "Kontrol ettiklerim: 0 / 6" })).toBeVisible();
+
+  await page.locator("label", { hasText: "Hasar/TRAMER kaydı" }).locator('input[type="checkbox"]').check();
+  await expect(page.getByRole("heading", { name: "Kontrol ettiklerim: 1 / 6" })).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Kontrol ettiklerim: 1 / 6" })).toBeVisible();
+  await expect(
+    page.locator("label", { hasText: "Hasar/TRAMER kaydı" }).locator('input[type="checkbox"]'),
+  ).toBeChecked();
+});
+
+test("expense ledger tracks totals and computes an approximate cost per km", async ({ page }) => {
+  await page.goto("/gider-defteri");
+  await expect(page.getByText("Bilgi yetersiz")).toBeVisible();
+
+  await page.getByLabel("Tür").selectOption("yakit");
+  await page.getByLabel("Tutar (TL)").fill("1000");
+  await page.getByLabel("Tarih").fill("2026-08-01");
+  await page.getByLabel("Kilometre (opsiyonel)").fill("10000");
+  await page.getByRole("button", { name: "Gideri kaydet" }).click();
+  await expect(page.getByText("Gider eklendi.")).toBeVisible();
+
+  await page.getByLabel("Tür").selectOption("bakim");
+  await page.getByLabel("Tutar (TL)").fill("500");
+  await page.getByLabel("Tarih").fill("2026-08-15");
+  await page.getByLabel("Kilometre (opsiyonel)").fill("10500");
+  await page.getByRole("button", { name: "Gideri kaydet" }).click();
+
+  await expect(page.getByText("Toplam gider").locator("..").getByText("1.500 TL")).toBeVisible();
+  await expect(page.getByText("3 TL/km")).toBeVisible();
+  const categorySection = page.locator("section", { hasText: "Kategoriye göre toplam" });
+  await expect(categorySection.getByText("Yakıt", { exact: true })).toBeVisible();
+  await expect(categorySection.getByText("Bakım", { exact: true })).toBeVisible();
 });
 
 test("photo damage tool refuses non-vehicle photos", async ({ page }) => {

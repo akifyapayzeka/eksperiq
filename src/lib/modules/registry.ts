@@ -111,6 +111,74 @@ export const productModules: ProductModule[] = [
     certaintyPolicy: "Tutarları kullanıcı girer; güncel resmi tutarları garanti etmez.",
   },
   {
+    id: "test-drive-checklist",
+    title: "Test Sürüşü Kontrol Listesi",
+    status: "active",
+    href: "/test-surusu-kontrol",
+    summary:
+      "Test sürüşü öncesi, sırası ve sonrasında dikkat edilecek noktaları adım adım işaretlenebilir liste olarak sunar.",
+    capabilities: [
+      {
+        title: "Adım adım kontrol",
+        description:
+          "Başlamadan önce, sürüş sırasında, farklı yol koşullarında ve sürüş sonrasında bakılacak noktaları gruplar.",
+      },
+    ],
+    dataPolicy: "İşaretler yalnızca mevcut tarayıcı oturumunda tutulur; sunucuya kaydedilmez.",
+    certaintyPolicy: "Teknik arıza teşhisi yapmaz; şüpheli bulguları bağımsız ekspertize yönlendirir.",
+  },
+  {
+    id: "official-lookup-guide",
+    title: "Resmi Sorgu Rehberi",
+    status: "active",
+    href: "/resmi-sorgu-rehberi",
+    summary:
+      "Hasar kaydı, muayene, MTV borcu, rehin/haciz ve sigorta gibi bilgileri nereden doğrulayacağınızı gösterir.",
+    capabilities: [
+      {
+        title: "Kaynak rehberi",
+        description:
+          "Her bilgi türü için hangi resmi kanaldan (e-Devlet, TÜVTÜRK, noter, sigorta şirketi) kontrol edileceğini listeler.",
+      },
+    ],
+    dataPolicy: "Herhangi bir sorguyu kendisi yapmaz veya scrape etmez; yalnızca yönlendirme metni sunar.",
+    certaintyPolicy: "Sorgu sonuçlarını garanti etmez; yalnızca nereden bakılacağını hatırlatır.",
+  },
+  {
+    id: "expense-ledger",
+    title: "Gider Defteri",
+    status: "active",
+    href: "/gider-defteri",
+    summary: "Yakıt, bakım, sigorta ve diğer masrafları kaydedip aylık toplam ve yaklaşık km başı maliyeti gösterir.",
+    capabilities: [
+      {
+        title: "Aylık takip",
+        description: "Son 12 ayın gider toplamını basit bir grafikle gösterir.",
+      },
+      {
+        title: "Km başı maliyet",
+        description: "Kilometre girilen kayıtlardan yaklaşık km başı maliyeti hesaplar.",
+      },
+    ],
+    dataPolicy: "Kayıtlar yalnızca cihazda saklanır; sunucuya gönderilmez.",
+    certaintyPolicy: "Resmi mali kayıt değildir; yalnızca kullanıcının girdiği verilerle yaklaşık gösterge sunar.",
+  },
+  {
+    id: "listing-comparison",
+    title: "Karşılaştırmalı İlan Analizi",
+    status: "active",
+    href: "/karsilastirma",
+    summary: "En fazla 3 analiz sonucunu risk skoru, fiyat, kilometre ve bulgu sayısıyla yan yana gösterir.",
+    capabilities: [
+      {
+        title: "Yan yana özet",
+        description: "Sonuç sayfasından eklenen ilanları tek tabloda karşılaştırır.",
+      },
+    ],
+    dataPolicy: "Karşılaştırma listesi yalnızca cihazda saklanır; sunucuya gönderilmez.",
+    certaintyPolicy: "Hangi ilanın alınacağına karar vermez; yalnızca yan yana özet sunar.",
+  },
+  {
     id: "vehicle-health-record",
     title: "Araç Sağlık Karnesi",
     status: "active",
@@ -121,8 +189,12 @@ export const productModules: ProductModule[] = [
         title: "Zaman çizelgesi",
         description: "Araç geçmişini modüllerden gelen bilgilerle bağımsız kayıtlar halinde gösterir.",
       },
+      {
+        title: "Sağlık skoru trendi",
+        description: "Kayıtlara eklenen isteğe bağlı skorların zaman içindeki değişimini basit bir grafikle gösterir.",
+      },
     ],
-    dataPolicy: "Kalıcı kayıtlar için kullanıcı hesabı, veri dışa aktarma ve silme seçenekleri gerekir.",
+    dataPolicy: "Kayıtlar hesaba değil, yalnızca cihaza kaydedilir; kullanıcı istediği zaman silebilir.",
     certaintyPolicy: "Geçmiş kayıtları düzenler; aracın genel durumunu garanti etmez.",
   },
   {

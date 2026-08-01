@@ -10,6 +10,7 @@ import {
   ClipboardCopy,
   FileText,
   Gauge,
+  GitCompareArrows,
   RotateCcw,
   Share2,
   ShieldCheck,
@@ -37,6 +38,7 @@ import {
   saveFindingFilter,
   type StoredFindingFilter,
 } from "@/lib/storage/analysis-storage";
+import { addToComparison } from "@/lib/storage/comparison-storage";
 import type { AnalysisResult, ScoreCategory } from "@/lib/analysis/types";
 import { isAiAnalysisNoteVisible } from "@/lib/ai/feature-flags";
 import { SectionCard } from "@/components/ui/section-card";
@@ -142,8 +144,17 @@ export function ResultClient() {
   const [isReady, setIsReady] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [copyStatus, setCopyStatus] = useState<
-    "idle" | "questions-copied" | "seller-message-copied" | "summary-copied" | "shared" | "print-opened" | "failed"
+    | "idle"
+    | "questions-copied"
+    | "seller-message-copied"
+    | "summary-copied"
+    | "shared"
+    | "print-opened"
+    | "failed"
+    | "comparison-added"
+    | "comparison-full"
   >("idle");
+  const [addedToComparison, setAddedToComparison] = useState(false);
   const [findingFilter, setFindingFilter] = useState<FindingFilter>("all");
   const [checkedChecklist, setCheckedChecklist] = useState<Set<string>>(new Set());
   const [aiNote, setAiNote] = useState<string | null>(null);
@@ -258,7 +269,17 @@ export function ResultClient() {
     if (copyStatus === "print-opened")
       return "Yazdırma penceresi açıldı. Açılmadıysa tarayıcının paylaş menüsünden yazdırmayı deneyin.";
     if (copyStatus === "failed") return "Paylaşma veya kopyalama tarayıcı tarafından engellendi.";
+    if (copyStatus === "comparison-added") return "İlan karşılaştırma listesine eklendi.";
+    if (copyStatus === "comparison-full")
+      return "Karşılaştırma listesi dolu (en fazla 3 ilan). Karşılaştırma sayfasından bir kaydı kaldırın.";
     return "";
+  }
+
+  function addCurrentToComparison() {
+    if (!result || addedToComparison) return;
+    const outcome = addToComparison(result);
+    setCopyStatus(outcome.ok ? "comparison-added" : "comparison-full");
+    if (outcome.ok) setAddedToComparison(true);
   }
 
   async function requestAiNote() {
@@ -507,6 +528,15 @@ export function ResultClient() {
               <RotateCcw aria-hidden="true" className="h-4 w-4" />
               Yeni analiz
             </Link>
+            <button
+              type="button"
+              onClick={addCurrentToComparison}
+              disabled={addedToComparison}
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <GitCompareArrows aria-hidden="true" className="h-4 w-4" />
+              {addedToComparison ? "Karşılaştırmaya eklendi" : "Karşılaştırmaya ekle"}
+            </button>
             <button
               type="button"
               onClick={clearCurrentAnalysis}
