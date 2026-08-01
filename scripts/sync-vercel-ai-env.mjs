@@ -29,7 +29,10 @@ function readLocalEnv() {
     const index = trimmed.indexOf("=");
     if (index === -1) continue;
     const name = trimmed.slice(0, index).trim();
-    const value = trimmed.slice(index + 1).trim().replace(/^["']|["']$/g, "");
+    const value = trimmed
+      .slice(index + 1)
+      .trim()
+      .replace(/^["']|["']$/g, "");
     if (name) values.set(name, value);
   }
   return values;

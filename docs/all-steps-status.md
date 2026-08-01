@@ -26,6 +26,9 @@ npm run launch:audit
 - [x] Analizlerim, profil, modüller ve kontrol listesi ekranları hazır.
 - [x] Sonuç ekranında satıcıya gönderilebilir kısa mesaj kopyalama aksiyonu eklendi.
 - [x] Satıcı açıklamasındaki belirsiz/kaçamak ifadeler kural tabanlı doğrulama bulgusu olarak yakalanıyor.
+- [x] Fotoğraf AI endpoint'i OpenRouter vision çağrısını JSON schema ile zorluyor.
+- [x] Local OpenRouter fotoğraf AI testi araç dışı görselde bulgu üretmeme davranışını doğruluyor.
+- [x] Manuel fotoğraf notu akışı araç/araç parçası onayı olmadan bulgu eklemiyor.
 - [x] Kural geri bildirimi ve kullanıcı testi issue şablonları hazır.
 - [x] İlk 5 kullanıcı testi planı ve issue taslakları hazır.
 - [x] Kullanıcı testi ham notlarını triage taslağına çeviren yerel komut ve kontrol komutu hazır.
@@ -38,6 +41,8 @@ npm run launch:audit
 - [x] Hostinger statik zip paketi ve zip içerik kontrolü var.
 - [x] Vercel canlı sağlık kontrolü var.
 - [x] Canlı Vercel üzerinde mobil analizden sonuca temel akış ve satıcı mesajı butonu doğrulandı.
+- [x] Vercel production fotoğraf AI flag kontrolü `npm run ai:photo-prod-check` ile ayrı kalite kapısına alındı.
+- [x] Vercel AI env değerlerini `.env.local` üzerinden secret yazdırmadan senkronlayacak `npm run vercel:sync-ai-env` komutu hazır.
 - [x] GitHub remote/local commit eşleşme kontrolü var.
 - [x] iOS/TestFlight ön kontrol, QA checklist ve iOS repo stratejisi yazıldı.
 - [x] Secret, eski marka ve istenmeyen env taraması yapılıyor.
@@ -49,6 +54,8 @@ npm run launch:audit
 - [ ] Tekrarlanan geri bildirimler gerçek GitHub issue olarak açılacak.
 - [ ] Kanıtı oluşan kural adayları pozitif/negatif unit test ile aktif kurala taşınacak.
 - [ ] Vercel panelinde son deployment commit ile eşleştiği görsel olarak kontrol edilecek.
+- [ ] Vercel projesi local klasöre linklenecek ve production AI env değerleri `npm run vercel:sync-ai-env` ile aktarılacak.
+- [ ] Production deploy sonrası `npm run ai:photo-prod-check` geçecek.
 - [ ] Hostinger kullanılacaksa zip `public_html` içine yüklenip canlı yenileme testi yapılacak.
 - [ ] Apple Developer Program üyeliği açılacak.
 - [ ] macOS üzerinde Xcode 26 veya Apple'ın güncel kabul ettiği sürüm kurulacak.
