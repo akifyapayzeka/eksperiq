@@ -4,17 +4,19 @@ EksperIQ şu anda ücretsiz çalışan responsive web uygulamasıdır. App Store
 
 15 Ağustos 2026 yayın hedefi için ana plan: `docs/launch-plan-2026-08-15.md`
 
-## Mevcut hazırlık durumu
+## Mevcut Hazırlık Durumu
 
 - Uygulama statik export üretebilir.
 - Canlı web adresi: `https://eksperiq.vercel.app`
 - PWA manifest hazırdır.
 - iOS ana ekran ikonu ve Apple web app metadata hazırdır.
 - Capacitor konfigürasyonu hazırdır: `capacitor.config.ts`
-- Kullanıcı verisi sunucuya kaydedilmez.
+- Production OpenRouter AI env değerleri Vercel üzerinde aktiftir.
+- Fotoğraf AI production kontrolü `npm run ai:photo-prod-check` ile geçer.
+- Kullanıcı verisi geliştirici sunucusunda kalıcı hesap kaydı olarak saklanmaz.
 - Analytics, reklam takip kodu ve çerez bannerı gerektiren servis yoktur.
 
-## Hazır native komutlar
+## Hazır Native Komutlar
 
 Windows üzerinde çalıştırılabilir:
 
@@ -33,12 +35,12 @@ npm run ios:open
 
 `ios:add` komutu iOS proje klasörünü üretir. Bu klasör üretildikten sonra Xcode içinde bundle id, signing team, launch screen, app icon set ve deployment target ayarları kontrol edilmelidir.
 
-Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build Xcode 26 veya sonrası ve iOS 26 SDK ile hazırlanmalıdır.
+Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build Apple'ın güncel kabul ettiği Xcode ve iOS SDK sürümüyle hazırlanmalıdır.
 
-## App Store için önerilen yol
+## App Store İçin Önerilen Yol
 
 1. Apple Developer Program üyeliği açılır.
-2. macOS üzerinde Xcode 26 veya sonrası kurulur.
+2. macOS üzerinde güncel Xcode kurulur.
 3. `npm run ios:add` ile Capacitor iOS platformu oluşturulur.
 4. `npm run ios:sync` ile güncel statik web çıktısı iOS projesine aktarılır.
 5. App Store Connect üzerinde uygulama kaydı oluşturulur.
@@ -46,29 +48,27 @@ Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build Xco
 7. TestFlight ile gerçek cihaz testi yapılır.
 8. İnceleme için gönderilir.
 
-## Native wrapper ilkeleri
+## Native Wrapper İlkeleri
 
-- İlk native sürüm, mevcut ilan analizi akışını korumalıdır.
+- İlk native sürüm, mevcut ilan analizi ve karar destek akışını korumalıdır.
 - Rapor paylaşma/kaydetme gibi cihaz deneyimine değer katan aksiyonlar korunmalı ve gerçek cihazda test edilmelidir.
-- Fotoğraf yükleme, bildirim, hesap veya ödeme eklenmeyecekse iOS izinleri istenmemelidir.
+- Fotoğraf kontrolü kullanıcı dosya seçimiyle çalışmalı; kamera veya tüm fotoğraf arşivi izni istenmemelidir.
+- Bildirim, hesap veya ödeme eklenmeyecekse ilgili iOS izinleri istenmemelidir.
 - WebView içinde dış ilan siteleri scrape edilmemelidir.
 - Kullanıcıya kesin ekspertiz, kesin hasar veya satın alma garantisi verilmemelidir.
 - App Store sürümü ile web sürümü aynı gizlilik sınırlarını kullanmalıdır.
 
-## App Store gizlilik beyanı taslağı
-
-İlk native sürüm mevcut web MVP ile aynı kalırsa:
+## App Store Gizlilik Beyanı Taslağı
 
 - Kullanıcı hesabı yok.
-- Kullanıcı verisi geliştirici sunucusuna gönderilmez.
 - Reklam takibi yok.
 - Üçüncü taraf analytics yok.
-- Konum, kamera, mikrofon, rehber veya fotoğraf izni yok.
-- Analiz verisi cihaz/tarayıcı oturumunda geçici tutulur.
+- Konum, kamera, mikrofon veya rehber izni yok.
+- Fotoğraf erişimi yalnızca kullanıcının dosya seçmesiyle ve fotoğraf kontrolü talebiyle sınırlı.
+- AI karar destek ve fotoğraf kontrolü OpenRouter üzerinden geçici işleme yapabilir.
+- Analiz verisi cihaz/tarayıcı oturumunda geçici tutulur; geliştirici sunucusunda kalıcı hesap kaydı olarak saklanmaz.
 
-Native wrapper ileride fotoğraf analizi, bildirim veya hesap özellikleri eklerse bu beyan yeniden güncellenmelidir.
-
-## Mağaza varlık checklist'i
+## Mağaza Varlık Checklist'i
 
 - Uygulama adı: EksperIQ
 - Bundle ID önerisi: `com.eksperiq.app`
@@ -77,33 +77,36 @@ Native wrapper ileride fotoğraf analizi, bildirim veya hesap özellikleri ekler
 - Destek URL'si: `https://eksperiq.vercel.app/geri-bildirim`
 - Pazarlama URL'si: `https://eksperiq.vercel.app`
 - Gizlilik politikası URL'si: `https://eksperiq.vercel.app/gizlilik`
-- Ekran görüntüleri: `npm run screenshots` ile `test-results/screenshots` altında ana sayfa, analiz formu, sonuç raporu ve offline ekran üretilir.
+- Ekran görüntüleri: `npm run screenshots` ile `test-results/screenshots` altında ana sayfa, analiz formu, sonuç raporu, analizlerim ve offline ekran üretilir.
 - Uygulama ikonu: `npm run appstore:prepare` ile `public/app-store-icon-1024.png` üretilir ve alpha kanalı içermeyen 1024x1024 PNG olarak doğrulanır. Xcode asset catalog içinde AppIcon alanına bu dosya yerleştirilmelidir.
-- TestFlight notu: Uygulama yalnızca karar desteği sağlar; girilen bilgiler sunucuya kaydedilmez.
+- TestFlight notu: Uygulama yalnızca karar desteği sağlar; girilen bilgiler kalıcı hesap kaydı olarak saklanmaz.
 
-## İlk TestFlight test senaryoları
+## İlk TestFlight Test Senaryoları
 
 1. Uygulama ilk açılışta ana ekranı taşma olmadan gösteriyor mu?
-2. Analiz formu iPhone küçük ekranda tek elle doldurulabiliyor mu; şehir, araç detayları ve hasar parça seçimleri gereksiz klavye açmadan çalışıyor mu?
-3. Zod hata mesajları ekranda anlaşılır çıkıyor mu?
-4. Sonuç sayfası risk skorunu ve yasal uyarıyı görünür gösteriyor mu?
-5. Raporu paylaş, kısa özet ve satıcı mesajı aksiyonları iOS paylaşım panelini açıyor veya güvenli şekilde kopyalama davranışına düşüyor mu?
-6. Oturum verisi kapat/aç davranışında beklenen şekilde korunuyor veya temizleniyor mu?
-7. Dış linkler native kabuk içinde kullanıcıyı sıkıştırmadan açılıyor mu?
-8. iOS geri dönüş hareketi ve güvenli alanlar layout'u bozmuyor mu?
-9. `/offline` ekranından üretilen `out/offline.html` native fallback olarak kullanılabiliyor mu?
+2. Analiz formu iPhone küçük ekranda tek elle doldurulabiliyor mu?
+3. Şehir, araç detayları ve hasar parça seçimleri gereksiz klavye açmadan çalışıyor mu?
+4. Zod hata mesajları ekranda anlaşılır çıkıyor mu?
+5. Sonuç sayfası risk skorunu ve yasal uyarıyı görünür gösteriyor mu?
+6. Raporu paylaş, kısa özet ve satıcı mesajı aksiyonları iOS paylaşım panelini açıyor veya güvenli şekilde kopyalama davranışına düşüyor mu?
+7. Fotoğraf AI kontrolü araç dışı görselde hasar bulgusu üretmiyor mu?
+8. Oturum verisi kapat/aç davranışında beklenen şekilde korunuyor veya temizleniyor mu?
+9. Dış linkler native kabuk içinde kullanıcıyı sıkıştırmadan açılıyor mu?
+10. iOS geri dönüş hareketi ve güvenli alanlar layout'u bozmuyor mu?
+11. `/offline` ekranından üretilen `out/offline.html` native fallback olarak kullanılabiliyor mu?
 
-## İnceleme riski
+## İnceleme Riski
 
 Apple, yalnızca web sitesini gösteren ve ek native değer sunmayan uygulamaları reddedebilir. Bu riski azaltmak için iOS sürümünde en azından aşağıdaki native kalite beklentileri karşılanmalıdır:
 
 - Hızlı açılış ve stabil offline hata ekranı
 - iOS güvenli alanlarına uyumlu layout
 - Paylaşılabilir rapor çıktısı veya cihaz içi kaydetme akışı
+- Fotoğraf kontrolünde izin istemeyen kullanıcı dosya seçimi davranışı
 - TestFlight üzerinde gerçek cihaz testi
 - Net gizlilik ve sorumluluk reddi metni
 
-## App Store ürün metni taslağı
+## App Store Ürün Metni Taslağı
 
 Kısa açıklama:
 
@@ -112,6 +115,8 @@ Kısa açıklama:
 Uzun açıklama:
 
 EksperIQ, ikinci el araç ilanlarını daha bilinçli değerlendirmenize yardımcı olan karar destek uygulamasıdır. Araç, hasar, bakım ve satıcı açıklaması bilgilerini manuel girerek kural tabanlı risk skoru, güçlü taraflar, riskli noktalar, olası masraf sinyalleri, satıcı soruları, satıcıya gönderilecek kısa mesaj ve ekspertiz kontrol listesi oluşturabilirsiniz.
+
+AI karar destek notu ve fotoğraf kontrolü yalnızca kullanıcı talebiyle çalışır. Bu özellikler kesin ekspertiz, kesin hasar veya satın alma garantisi vermez.
 
 EksperIQ profesyonel araç ekspertizinin, servis kontrolünün, resmi kayıt sorgularının veya hukuki incelemenin yerine geçmez. Hiçbir aracın güvenli, hasarsız veya satın almaya uygun olduğunu garanti etmez.
 

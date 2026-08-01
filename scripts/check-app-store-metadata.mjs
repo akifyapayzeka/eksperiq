@@ -11,6 +11,9 @@ const requiredSnippets = [
   "Reklam takibi: Yok",
   "Üçüncü taraf analytics: Yok",
   "Konum izni: Yok",
+  "OpenRouter",
+  "Fotoğraf erişimi",
+  "AI karar destek",
   "Destek URL'si: `https://eksperiq.vercel.app/geri-bildirim`",
 ];
 
