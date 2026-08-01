@@ -90,7 +90,7 @@ test("report action buttons show visible feedback", async ({ page, context }) =>
 test("maintenance and payment calendar tracks upcoming dates and syncs to the garage widget", async ({ page }) => {
   await page.goto("/bakim-odeme-takvimi");
 
-  await expect(page.getByText("Bildirim servisi henüz yapılandırılmadı.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Bildirimler" })).toBeVisible();
 
   await page.getByRole("button", { name: "MTV taksitlerini ekle (Ocak/Temmuz)" }).click();
   await expect(page.getByText("MTV 1. taksit")).toBeVisible();

@@ -1,10 +1,12 @@
 import { createRequire } from "node:module";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const require = createRequire(import.meta.url);
 
 delete process.env.UPSTASH_REDIS_REST_URL;
 delete process.env.UPSTASH_REDIS_REST_TOKEN;
+delete process.env.UPSTASH_REDIS_REST_KV_REST_API_URL;
+delete process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN;
 
 const pushStore = require("../../api/_lib/push-store.js") as {
   saveSubscription: (input: {
@@ -18,6 +20,7 @@ const pushStore = require("../../api/_lib/push-store.js") as {
   removeSubscriptionByEndpoint: (endpoint: string) => Promise<void>;
   listSubscriptions: () => Promise<Array<{ hash: string }>>;
   hashEndpoint: (endpoint: string) => string;
+  getUpstashConfig: () => { url: string; token: string } | null;
 };
 
 function uniqueEndpoint(label: string): string {
@@ -119,9 +122,35 @@ describe("push-store beforeEach guard", () => {
   beforeEach(() => {
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    delete process.env.UPSTASH_REDIS_REST_KV_REST_API_URL;
+    delete process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN;
+    vi.unstubAllGlobals();
   });
 
   it("has no Upstash config so it always exercises the memory path", () => {
     expect(pushStore.hashEndpoint("https://example.com/a")).toHaveLength(32);
+  });
+
+  it("accepts Vercel Upstash integration env names", async () => {
+    process.env.UPSTASH_REDIS_REST_KV_REST_API_URL = "https://vercel-upstash";
+    process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN = "vercel-token";
+    const fetcher = vi.fn(async () => Response.json([{ result: "OK" }, { result: 1 }]));
+    vi.stubGlobal("fetch", fetcher);
+
+    const endpoint = uniqueEndpoint("vercel-env");
+    const result = await pushStore.saveSubscription({
+      endpoint,
+      subscription: { endpoint, keys: { p256dh: "p", auth: "a" } },
+      reminders: [],
+    });
+
+    expect(result.store).toBe("upstash");
+    expect(pushStore.getUpstashConfig()).toEqual({ url: "https://vercel-upstash", token: "vercel-token" });
+    expect(fetcher).toHaveBeenCalledWith(
+      "https://vercel-upstash/pipeline",
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: "Bearer vercel-token" }) as HeadersInit,
+      }),
+    );
   });
 });

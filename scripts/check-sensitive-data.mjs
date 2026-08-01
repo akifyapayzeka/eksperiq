@@ -19,7 +19,7 @@ const checks = [
   },
 ];
 
-const sensitiveEnvNames = ["OPENROUTER_API_KEY", "UPSTASH_REDIS_REST_TOKEN"];
+const sensitiveEnvNames = ["OPENROUTER_API_KEY", "UPSTASH_REDIS_REST_TOKEN", "VAPID_PRIVATE_KEY"];
 
 function trackedFiles() {
   return execFileSync("git", ["ls-files"], { encoding: "utf8" })

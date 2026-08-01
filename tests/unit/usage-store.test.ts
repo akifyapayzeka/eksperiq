@@ -74,4 +74,26 @@ describe("usage store", () => {
       reason: "Günlük AI deneme limiti doldu.",
     });
   });
+
+  it("accepts Vercel Upstash integration env names", async () => {
+    const fetcher = vi.fn(async () => Response.json([{ result: 2 }, { result: 1 }]));
+    const result = await reserveDailyAiUsage("photo-damage", 10, {
+      env: {
+        UPSTASH_REDIS_REST_KV_REST_API_URL: "https://vercel-upstash",
+        UPSTASH_REDIS_REST_KV_REST_API_TOKEN: "vercel-token",
+      } as unknown as NodeJS.ProcessEnv,
+      fetcher,
+      date: new Date("2026-08-01T10:00:00.000Z"),
+    });
+
+    expect(result).toMatchObject({ allowed: true, remaining: 8, used: 2, store: "upstash" });
+    expect(fetcher).toHaveBeenCalledWith(
+      "https://vercel-upstash/pipeline",
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: "Bearer vercel-token",
+        }) as HeadersInit,
+      }),
+    );
+  });
 });

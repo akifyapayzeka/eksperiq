@@ -25,7 +25,10 @@ function isAuthorized(request) {
 }
 
 function isVapidConfigured() {
-  return Boolean(process.env.VAPID_PUBLIC_KEY?.trim() && process.env.VAPID_PRIVATE_KEY?.trim());
+  return Boolean(
+    (process.env.VAPID_PUBLIC_KEY || process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY)?.trim() &&
+    process.env.VAPID_PRIVATE_KEY?.trim(),
+  );
 }
 
 function buildNotificationPayload(reminder, days) {
@@ -51,7 +54,7 @@ async function handler(request, response) {
 
   webPush.setVapidDetails(
     process.env.VAPID_SUBJECT?.trim() || "mailto:destek@eksperiq.vercel.app",
-    process.env.VAPID_PUBLIC_KEY.trim(),
+    (process.env.VAPID_PUBLIC_KEY || process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY).trim(),
     process.env.VAPID_PRIVATE_KEY.trim(),
   );
 

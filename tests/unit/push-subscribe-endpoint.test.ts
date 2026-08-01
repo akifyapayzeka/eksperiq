@@ -1,11 +1,13 @@
-import { Readable, Writable } from "node:stream";
 import { createRequire } from "node:module";
+import { Readable, Writable } from "node:stream";
 import { describe, expect, it } from "vitest";
 
 const require = createRequire(import.meta.url);
 
 delete process.env.UPSTASH_REDIS_REST_URL;
 delete process.env.UPSTASH_REDIS_REST_TOKEN;
+delete process.env.UPSTASH_REDIS_REST_KV_REST_API_URL;
+delete process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN;
 
 type MockResponse = Writable & {
   statusCode?: number;
