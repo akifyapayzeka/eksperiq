@@ -140,6 +140,30 @@ test("official lookup guide tracks which sources the user has checked", async ({
   ).toBeChecked();
 });
 
+test("expense ledger tracks totals and computes an approximate cost per km", async ({ page }) => {
+  await page.goto("/gider-defteri");
+  await expect(page.getByText("Bilgi yetersiz")).toBeVisible();
+
+  await page.getByLabel("Tür").selectOption("yakit");
+  await page.getByLabel("Tutar (TL)").fill("1000");
+  await page.getByLabel("Tarih").fill("2026-08-01");
+  await page.getByLabel("Kilometre (opsiyonel)").fill("10000");
+  await page.getByRole("button", { name: "Gideri kaydet" }).click();
+  await expect(page.getByText("Gider eklendi.")).toBeVisible();
+
+  await page.getByLabel("Tür").selectOption("bakim");
+  await page.getByLabel("Tutar (TL)").fill("500");
+  await page.getByLabel("Tarih").fill("2026-08-15");
+  await page.getByLabel("Kilometre (opsiyonel)").fill("10500");
+  await page.getByRole("button", { name: "Gideri kaydet" }).click();
+
+  await expect(page.getByText("Toplam gider").locator("..").getByText("1.500 TL")).toBeVisible();
+  await expect(page.getByText("3 TL/km")).toBeVisible();
+  const categorySection = page.locator("section", { hasText: "Kategoriye göre toplam" });
+  await expect(categorySection.getByText("Yakıt", { exact: true })).toBeVisible();
+  await expect(categorySection.getByText("Bakım", { exact: true })).toBeVisible();
+});
+
 test("photo damage tool refuses non-vehicle photos", async ({ page }) => {
   await page.goto("/fotograf-hasar");
   await page.locator('input[type="file"]').setInputFiles({

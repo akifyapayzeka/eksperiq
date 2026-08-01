@@ -145,6 +145,25 @@ export const productModules: ProductModule[] = [
     certaintyPolicy: "Sorgu sonuçlarını garanti etmez; yalnızca nereden bakılacağını hatırlatır.",
   },
   {
+    id: "expense-ledger",
+    title: "Gider Defteri",
+    status: "active",
+    href: "/gider-defteri",
+    summary: "Yakıt, bakım, sigorta ve diğer masrafları kaydedip aylık toplam ve yaklaşık km başı maliyeti gösterir.",
+    capabilities: [
+      {
+        title: "Aylık takip",
+        description: "Son 12 ayın gider toplamını basit bir grafikle gösterir.",
+      },
+      {
+        title: "Km başı maliyet",
+        description: "Kilometre girilen kayıtlardan yaklaşık km başı maliyeti hesaplar.",
+      },
+    ],
+    dataPolicy: "Kayıtlar yalnızca cihazda saklanır; sunucuya gönderilmez.",
+    certaintyPolicy: "Resmi mali kayıt değildir; yalnızca kullanıcının girdiği verilerle yaklaşık gösterge sunar.",
+  },
+  {
     id: "vehicle-health-record",
     title: "Araç Sağlık Karnesi",
     status: "active",

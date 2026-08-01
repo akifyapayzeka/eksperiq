@@ -9,6 +9,7 @@ export type ModuleId =
   | "maintenance-payment-calendar"
   | "test-drive-checklist"
   | "official-lookup-guide"
+  | "expense-ledger"
   | "vehicle-health-record"
   | "vehicle-value-tracking"
   | "smart-sale-preparation";
