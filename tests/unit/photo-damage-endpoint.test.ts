@@ -110,4 +110,48 @@ describe("photo damage AI endpoint", () => {
     expect(payload.analysis.findings).toEqual([]);
     expect(requestBody.response_format?.type).toBe("json_schema");
   });
+
+  it("accepts vehicle responses that report no visible damage without signal fields", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                isVehiclePhoto: true,
+                summary: "Fotoğrafta araç var, görünür hasar sinyali yok.",
+                findings: [
+                  {
+                    area: "Ön tampon",
+                    confidence: "high",
+                    explanation: "No visible damage or scratches are detected.",
+                    recommendation: "No action required.",
+                  },
+                ],
+              }),
+            },
+          },
+        ],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const previousEnv = process.env;
+    process.env = {
+      ...previousEnv,
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+      OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
+    };
+    const response = createResponse();
+
+    await handler(createRequest(validBody), response);
+
+    process.env = previousEnv;
+    vi.unstubAllGlobals();
+    const payload = JSON.parse(response.body) as { analysis: { isVehiclePhoto: boolean; findings: unknown[] } };
+    expect(response.statusCode).toBe(200);
+    expect(payload.analysis.isVehiclePhoto).toBe(true);
+    expect(payload.analysis.findings).toEqual([]);
+  });
 });

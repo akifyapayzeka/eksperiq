@@ -105,6 +105,29 @@ function extractJson(text) {
   }
 }
 
+function looksLikeNoDamageFinding(finding) {
+  if (!isRecord(finding)) return false;
+  const text = [finding.signal, finding.label, finding.explanation, finding.recommendation]
+    .filter((value) => typeof value === "string")
+    .join(" ")
+    .toLocaleLowerCase("tr-TR");
+  return (
+    text.includes("no visible damage") ||
+    text.includes("no signs") ||
+    text.includes("no action required") ||
+    text.includes("hasar yok") ||
+    text.includes("bulgu yok") ||
+    text.includes("işlem gerekmiyor")
+  );
+}
+
+function normalizeSignal(finding) {
+  if (!isRecord(finding)) return "Olası kontrol notu";
+  if (typeof finding.signal === "string" && finding.signal.trim()) return finding.signal.slice(0, 80);
+  if (typeof finding.label === "string" && finding.label.trim()) return finding.label.slice(0, 80);
+  return "Olası kontrol notu";
+}
+
 function normalizeAnalysis(value) {
   if (!isRecord(value)) return null;
   const isVehiclePhoto = value.isVehiclePhoto === true;
@@ -118,25 +141,51 @@ function normalizeAnalysis(value) {
         ? "Fotoğrafta araçla ilgili kontrol edilebilecek alanlar var."
         : "Fotoğrafta araç veya araç parçası güvenle tespit edilemedi."),
     findings: isVehiclePhoto
-      ? findings.slice(0, 8).map((finding, index) => ({
-          id: `ai-photo-${index + 1}`,
-          area: isRecord(finding) && typeof finding.area === "string" ? finding.area.slice(0, 80) : "Belirsiz alan",
-          signal: isRecord(finding) && typeof finding.signal === "string" ? finding.signal.slice(0, 80) : "Olası bulgu",
-          confidence:
-            isRecord(finding) && ["low", "medium", "high"].includes(finding.confidence) ? finding.confidence : "low",
-          explanation:
-            isRecord(finding) && typeof finding.explanation === "string"
-              ? finding.explanation.slice(0, 500)
-              : "Görselden kesin hüküm verilemez; ekspertizde doğrulanmalıdır.",
-          recommendation:
-            isRecord(finding) && typeof finding.recommendation === "string"
-              ? finding.recommendation.slice(0, 300)
-              : "Bağımsız ekspertizde kontrol ettirin.",
-        }))
+      ? findings
+          .filter((finding) => !looksLikeNoDamageFinding(finding))
+          .slice(0, 8)
+          .map((finding, index) => ({
+            id: `ai-photo-${index + 1}`,
+            area: isRecord(finding) && typeof finding.area === "string" ? finding.area.slice(0, 80) : "Genel dış gövde",
+            signal: normalizeSignal(finding),
+            confidence:
+              isRecord(finding) && ["low", "medium", "high"].includes(finding.confidence) ? finding.confidence : "low",
+            explanation:
+              isRecord(finding) && typeof finding.explanation === "string"
+                ? finding.explanation.slice(0, 500)
+                : "Görselden kesin hüküm verilemez; ekspertizde doğrulanmalıdır.",
+            recommendation:
+              isRecord(finding) && typeof finding.recommendation === "string" && !looksLikeNoDamageFinding(finding)
+                ? finding.recommendation.slice(0, 300)
+                : "Bağımsız ekspertizde kontrol ettirin.",
+          }))
       : [],
     disclaimer:
       "Bu AI fotoğraf kontrolü kesin hasar tespiti değildir. Işık, açı, çözünürlük ve kir gibi etkenler sonucu değiştirebilir.",
   };
+}
+
+function normalizeTextFallback(text) {
+  const normalized = text.toLocaleLowerCase("tr-TR");
+  const saysNoVehicle =
+    normalized.includes("araç yok") ||
+    normalized.includes("araç bulunmamaktadır") ||
+    normalized.includes("araç fotoğrafı değil") ||
+    normalized.includes("no vehicle") ||
+    normalized.includes("not a vehicle");
+  const saysVehicle =
+    normalized.includes("araç") ||
+    normalized.includes("araba") ||
+    normalized.includes("car") ||
+    normalized.includes("vehicle");
+
+  if (!saysNoVehicle && !saysVehicle) return null;
+
+  return normalizeAnalysis({
+    isVehiclePhoto: !saysNoVehicle,
+    summary: text.slice(0, 500),
+    findings: [],
+  });
 }
 
 const photoDamageResponseFormat = {
@@ -177,7 +226,7 @@ function buildMessages(input) {
     {
       role: "system",
       content:
-        "Sen EksperIQ için çalışan dikkatli bir araç fotoğraf kontrol asistanısın. Kesin hasar, kesin parça değişimi veya satın alma kararı verme. Fotoğrafta araç yoksa bunu açıkça söyle ve bulgu üretme. Yanıtı sadece geçerli JSON olarak ver.",
+        "Sen EksperIQ için çalışan dikkatli bir araç fotoğraf kontrol asistanısın. Kesin hasar, kesin parça değişimi veya satın alma kararı verme. Fotoğrafta araç yoksa bunu açıkça söyle ve bulgu üretme. Görünür hasar yoksa findings boş dizi olsun. Yanıtı sadece geçerli JSON olarak ver.",
     },
     {
       role: "user",
@@ -201,7 +250,8 @@ JSON şeması:
   ]
 }
 
-Fotoğrafta araç veya araç parçası yoksa isVehiclePhoto=false ve findings=[] döndür.`,
+Fotoğrafta araç veya araç parçası yoksa isVehiclePhoto=false ve findings=[] döndür.
+Araç varsa ama görünür hasar sinyali yoksa isVehiclePhoto=true ve findings=[] döndür.`,
         },
         ...input.images.map((image) => ({
           type: "image_url",
@@ -242,8 +292,7 @@ async function requestOpenRouterVision(input) {
   const text = extractText(payload);
   if (!text) return { error: "AI yanıtı okunamadı." };
   const json = extractJson(text);
-  if (!json) return { error: "AI yanıtı beklenen JSON formatında değil." };
-  const analysis = normalizeAnalysis(json);
+  const analysis = json ? normalizeAnalysis(json) : normalizeTextFallback(text);
   if (!analysis) return { error: "AI fotoğraf sonucu işlenemedi." };
   return { analysis, model };
 }
