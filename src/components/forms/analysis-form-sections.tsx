@@ -393,12 +393,6 @@ export function VehicleInfoSection({ register, errors }: SectionProps) {
           {...register("ownerInfo")}
         />
         <SelectField id="tradeStatus" label="Takas durumu" options={tradeStatuses} {...register("tradeStatus")} />
-        <Field
-          id="listingUrl"
-          label="Opsiyonel ilan bağlantısı"
-          {...register("listingUrl")}
-          error={errors.listingUrl?.message}
-        />
       </div>
     </SectionCard>
   );

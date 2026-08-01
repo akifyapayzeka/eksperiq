@@ -1,15 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ClipboardCheck, FileText, Sparkles, ShieldCheck, Wrench } from "lucide-react";
+import { ClipboardCheck, FileText, LinkIcon, ShieldCheck, Wrench } from "lucide-react";
 import { saveAnalysis } from "@/lib/storage/analysis-storage";
 import { vehicleSchema, type VehicleFormData, type VehicleFormInput } from "@/lib/schemas/vehicle";
 import { createAnalysis } from "@/lib/services/analysis-service";
 import { appConfig } from "@/lib/constants/app";
-import { demoVehicleInput } from "@/lib/constants/demo-vehicle";
 import {
   BooleanInfoSection,
   DamageInfoSection,
@@ -150,8 +148,15 @@ function FormProgress({ values }: { values: Partial<Record<ProgressField, unknow
 function FormStepOverview({ values }: { values: Partial<Record<ProgressField, unknown>> }) {
   const requiredCompleted = requiredProgressFields.filter((field) => isFilled(values[field.name])).length;
   const detailsCompleted = detailProgressFields.filter((field) => isFilled(values[field.name])).length;
+  const hasListingUrl = isFilled(values.listingUrl);
 
   const steps = [
+    {
+      title: "İlan linki",
+      description: "Link raporda referans olarak tutulur.",
+      icon: LinkIcon,
+      stat: hasListingUrl ? "Eklendi" : "Opsiyonel",
+    },
     {
       title: "Temel ilan",
       description: "Marka, model, yıl, km ve fiyat.",
@@ -160,20 +165,20 @@ function FormStepOverview({ values }: { values: Partial<Record<ProgressField, un
     },
     {
       title: "Risk kayıtları",
-      description: "Hasar, tramer ve airbag iddiaları.",
+      description: "Hasar, bakım ve evrak iddiaları.",
       icon: ShieldCheck,
       stat: `${detailsCompleted} detay`,
     },
     {
       title: "Ekspertiz hazırlığı",
-      description: "Bakım, evrak ve kontrol listesi.",
+      description: "Sorular ve kontrol listesi üretilir.",
       icon: Wrench,
-      stat: "Raporla",
+      stat: "Analiz et",
     },
   ] as const;
 
   return (
-    <section className="grid gap-3 sm:grid-cols-3" aria-label="Analiz adımları">
+    <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Analiz adımları">
       {steps.map((step, index) => {
         const Icon = step.icon;
         return (
@@ -220,7 +225,6 @@ function FormSectionLinks() {
 
 export function AnalysisForm() {
   const router = useRouter();
-  const [demoStatus, setDemoStatus] = useState<"idle" | "filled">("idle");
   const {
     register,
     handleSubmit,
@@ -252,48 +256,46 @@ export function AnalysisForm() {
     router.push("/sonuc");
   }
 
-  function fillDemoVehicle() {
-    for (const [name, value] of Object.entries(demoVehicleInput)) {
-      setValue(name as keyof VehicleFormInput, value, {
-        shouldDirty: true,
-        shouldTouch: true,
-        shouldValidate: true,
-      });
-    }
-    setDemoStatus("filled");
-  }
-
   return (
     <form className="grid gap-6" onSubmit={handleSubmit(onSubmit)} noValidate>
       <div className="rounded-2xl border border-teal-200 bg-teal-50 p-4 text-sm leading-6 text-teal-950">
         {appConfig.privacy}
       </div>
-      <div className="rounded-2xl border border-sky-100 bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm" aria-labelledby="listing-start">
+        <div className="flex items-start gap-3">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-teal-50 text-teal-800">
+            <LinkIcon aria-hidden="true" className="h-5 w-5" />
+          </span>
           <div>
-            <h2 className="font-semibold text-slate-950">Hızlı deneme</h2>
+            <h2 id="listing-start" className="font-semibold text-slate-950">
+              İlan linkiyle başla
+            </h2>
             <p className="mt-1 text-sm leading-6 text-slate-600">
-              Gerçek ilan girmeden önce örnek veriyle rapor akışını test edebilirsiniz.
+              Linki raporda referans olarak gösteririz. İlan sitelerini otomatik okumadan, eksik araç bilgilerini
+              aşağıdaki seçeneklerle tamamlarsınız.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={fillDemoVehicle}
-            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-sky-50 px-4 text-sm font-semibold text-slate-950 ring-1 ring-sky-100 hover:ring-teal-700"
-          >
-            <Sparkles aria-hidden="true" className="h-4 w-4 text-teal-700" />
-            Örnek ilanla doldur
-          </button>
         </div>
-        {demoStatus === "filled" ? (
-          <p
-            className="mt-3 rounded-xl border border-teal-200 bg-teal-50 px-3 py-2 text-sm font-medium text-teal-900"
-            role="status"
-          >
-            Örnek ilan dolduruldu. Aşağıdaki “Analiz oluştur” butonuyla raporu oluşturabilirsiniz.
-          </p>
-        ) : null}
-      </div>
+        <div className="mt-4">
+          <label htmlFor="listingUrl" className="text-sm font-medium text-slate-800">
+            İlan bağlantısı
+          </label>
+          <input
+            id="listingUrl"
+            type="url"
+            inputMode="url"
+            placeholder="https://www.sahibinden.com/..."
+            className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-base text-slate-950 shadow-sm outline-none focus:border-teal-700 focus:ring-4 focus:ring-teal-100"
+            {...register("listingUrl")}
+            aria-invalid={Boolean(errors.listingUrl)}
+          />
+          {errors.listingUrl?.message ? (
+            <p className="mt-2 text-sm text-red-700" role="alert">
+              {errors.listingUrl.message}
+            </p>
+          ) : null}
+        </div>
+      </section>
       <FormStepOverview values={progressValues} />
       <FormProgress values={progressValues} />
       <FormSectionLinks />

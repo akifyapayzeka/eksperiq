@@ -15,7 +15,7 @@ import { appConfig } from "@/lib/constants/app";
 
 const summaryItems = [
   { value: "0", label: "kayıtlı veri" },
-  { value: "58", label: "demo risk skoru" },
+  { value: "100", label: "puanlık risk skoru" },
   { value: "8", label: "aktif modül" },
 ];
 
@@ -99,7 +99,7 @@ export default function Home() {
               <div>
                 <p className="text-xs font-bold uppercase tracking-wide text-slate-500">En son inceleme</p>
                 <h2 id="latest-title" className="mt-1 text-2xl font-semibold text-slate-950">
-                  Son analiz örneği
+                  İlanı linkle başlat
                 </h2>
               </div>
               <Link href="/analiz" className="text-sm font-semibold text-teal-700 hover:text-teal-900">
@@ -117,7 +117,7 @@ export default function Home() {
                     <h3 className="mt-4 text-2xl font-semibold leading-tight text-slate-950">
                       2020 Volkswagen Passat 1.6 TDI
                     </h3>
-                    <p className="mt-2 text-sm text-slate-600">İlan analizi demo kartı</p>
+                    <p className="mt-2 text-sm text-slate-600">Linki ekle, bilgileri seçeneklerle tamamla.</p>
                   </div>
                   <div className="flex h-24 w-32 shrink-0 items-center justify-center rounded-xl bg-white/70">
                     <CarFront aria-hidden="true" className="h-14 w-14 text-slate-500" />
@@ -138,7 +138,7 @@ export default function Home() {
                   href="/analiz"
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 text-base font-semibold text-white hover:bg-slate-800"
                 >
-                  Rapor oluştur
+                  Analize başla
                   <ArrowUpRight aria-hidden="true" className="h-5 w-5" />
                 </Link>
               </div>

@@ -77,14 +77,20 @@ test("shows validation errors", async ({ page }) => {
   await expect(page.getByText("İlan açıklaması en az 20 karakter olmalı.")).toBeVisible();
 });
 
-test("fills form with demo listing", async ({ page }) => {
+test("starts analysis with listing link and manual choices", async ({ page }) => {
   await page.goto("/analiz");
-  await page.getByRole("button", { name: "Örnek ilanla doldur" }).click();
-  await expect(page.getByLabel("Marka")).toHaveValue(demoVehicleInput.brand);
-  await expect(page.locator("#model")).toHaveValue(demoVehicleInput.model);
+  await expect(page.getByRole("heading", { name: "İlan linkiyle başla" })).toBeVisible();
+  await expect(page.getByText("İlan sitelerini otomatik okumadan")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Örnek ilanla doldur" })).toHaveCount(0);
+  await page.getByLabel("İlan bağlantısı").fill("https://www.sahibinden.com/ilan/vasita-otomobil-test");
+  await page.getByLabel("Marka").selectOption(demoVehicleInput.brand);
+  await page.locator("#model").selectOption(demoVehicleInput.model);
+  await expect(page.getByLabel("İlan bağlantısı")).toHaveValue("https://www.sahibinden.com/ilan/vasita-otomobil-test");
+  await expect(page.getByRole("heading", { name: "İlan linki", exact: true })).toBeVisible();
+  await expect(page.getByText("Eklendi")).toBeVisible();
   await expect(page.getByRole("progressbar", { name: "Zorunlu alan ilerlemesi" })).toHaveAttribute(
     "aria-valuenow",
-    "9",
+    "2",
   );
 });
 
