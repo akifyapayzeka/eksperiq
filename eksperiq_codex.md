@@ -185,6 +185,17 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
    `scoreTrend()` artık kaydın kendi id'sini taşıyor; grafik ve tablo
    `point.id` üzerinden anahtarlanıyor (`src/app/arac-saglik-karnesi/page.tsx`).
    Regresyon testi `tests/unit/health-record-trend.test.ts`'e eklendi.
+10. "Akıllı Satış Hazırlığı" (`/satis-hazirligi`) sayfasındaki 10 maddelik
+    hazırlık listesi yalnızca component `useState`'te tutuluyordu; sayfadan
+    ayrılıp geri dönmek (hatta yanlışlıkla sayfayı yenilemek) tüm işaretli
+    kutucukları sıfırlıyordu. Diğer kardeş modüller (Test Sürüşü Kontrol
+    Listesi, Resmi Sorgu Rehberi) aynı desenle `sessionStorage`'a
+    yazıyorken bu sayfa dışarıda kalmıştı — tutarsızlık ve gereksiz kullanıcı
+    yorgunluğuydu. Düzeltme: `createSessionChecklistStore` paylaşılan
+    yardımcısı yeniden kullanılarak `src/lib/storage/sale-checklist-storage.ts`
+    eklendi, sayfa artık işaretleri oturum boyunca koruyor
+    (`src/app/satis-hazirligi/page.tsx`). Test:
+    `tests/unit/sale-checklist-storage.test.ts`.
 
 ## Bu oturumda eklenen yeni özellikler (kullanıcı isteğiyle)
 
