@@ -96,6 +96,8 @@ test("photo damage tool refuses non-vehicle photos", async ({ page }) => {
   });
   await page.getByLabel("Araç görünmüyor veya emin değilim").check();
   await expect(page.getByText("Araç görünmeyen fotoğraflar için hasar bulgusu oluşturulmaz.")).toBeVisible();
+  await expect(page.getByText("Araç görünmüyor seçildiği için AI hasar analizi kapatıldı.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "AI ile fotoğrafı analiz et" })).toBeDisabled();
   await expect(page.getByRole("button", { name: "Bulguyu ekle" })).toBeDisabled();
   await expect(page.getByText("Ön tampon: Çizik")).toHaveCount(0);
 });

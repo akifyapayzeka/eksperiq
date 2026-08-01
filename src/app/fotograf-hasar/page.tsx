@@ -59,6 +59,7 @@ export default function PhotoDamagePage() {
   const [aiStatus, setAiStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [aiMessage, setAiMessage] = useState("");
   const [aiAnalysis, setAiAnalysis] = useState<AiPhotoAnalysis | null>(null);
+  const canRunAi = isPhotoAiEnabled && Boolean(files.length) && isVehiclePhoto !== "no" && aiStatus !== "loading";
 
   const priority = useMemo(() => {
     if (items.some((item) => item.confidence === "Yüksek olasılık")) return "Ekspertizde öncelikli kontrol edilmeli";
@@ -103,7 +104,13 @@ export default function PhotoDamagePage() {
   async function analyzePhotosWithAi() {
     if (!files.length) {
       setAiStatus("error");
-      setAiMessage("Önce araç fotoğrafı seçin.");
+      setAiMessage("Önce araç fotoğrafı seçin. Araç görünmüyorsa bu ekranda hasar bulgusu oluşturmayın.");
+      return;
+    }
+
+    if (isVehiclePhoto === "no") {
+      setAiStatus("error");
+      setAiMessage("Araç görünmediğini belirttiğiniz fotoğraf için AI hasar analizi çalıştırılmaz.");
       return;
     }
 
@@ -140,7 +147,7 @@ export default function PhotoDamagePage() {
       const payload = (await response.json()) as { analysis?: AiPhotoAnalysis; error?: string; remaining?: number };
       if (!response.ok || !payload.analysis) {
         setAiStatus("error");
-        setAiMessage(payload.error ?? "AI fotoğraf analizi şu anda tamamlanamadı.");
+        setAiMessage(formatAiError(payload.error, response.status));
         return;
       }
 
@@ -153,8 +160,28 @@ export default function PhotoDamagePage() {
       );
     } catch {
       setAiStatus("error");
-      setAiMessage("Fotoğraf okunamadı veya AI servisine ulaşılamadı.");
+      setAiMessage(
+        "AI fotoğraf kontrolüne şu anda ulaşılamadı. Fotoğrafınız kaybolmadı; manuel bulgu ekleyebilir veya biraz sonra tekrar deneyebilirsiniz.",
+      );
     }
+  }
+
+  function formatAiError(error: string | undefined, status: number) {
+    if (status === 429) {
+      return error?.includes("limit")
+        ? "Bugünkü AI fotoğraf kontrol hakkı doldu. Manuel bulgu ekleyerek devam edebilirsiniz."
+        : "AI fotoğraf kontrolü şu anda kapalı. Manuel bulgu ekleyerek devam edebilirsiniz.";
+    }
+
+    if (status === 400) {
+      return "Fotoğraf işlenemedi. Lütfen araç görünen JPG/PNG fotoğraf seçin veya manuel bulgu ekleyin.";
+    }
+
+    if (error?.toLocaleLowerCase("tr-TR").includes("openrouter")) {
+      return "AI servisinden şu anda güvenilir yanıt alınamadı. Manuel bulgu ekleyerek rapora devam edebilirsiniz.";
+    }
+
+    return "AI fotoğraf analizi şu anda tamamlanamadı. Manuel bulgu ekleyerek devam edebilirsiniz.";
   }
 
   function confidenceLabel(value: AiPhotoFinding["confidence"]) {
@@ -215,7 +242,7 @@ export default function PhotoDamagePage() {
             <h2 className="text-xl font-semibold text-slate-950">AI fotoğraf kontrolü</h2>
           </div>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Seçtiğiniz fotoğraf OpenRouter üzerinden görüntü anlayan modele gönderilir. Araç görünmüyorsa sistem bulgu
+            Seçtiğiniz araç fotoğrafı görüntü anlayan AI modeline gönderilir. Araç görünmüyorsa AI hasar bulgusu
             üretmemelidir.
           </p>
           {!isPhotoAiEnabled ? (
@@ -226,11 +253,17 @@ export default function PhotoDamagePage() {
           <button
             type="button"
             onClick={analyzePhotosWithAi}
-            disabled={!isPhotoAiEnabled || !files.length || aiStatus === "loading"}
+            disabled={!canRunAi}
             className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-teal-700 px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             {aiStatus === "loading" ? "AI inceliyor" : "AI ile fotoğrafı analiz et"}
           </button>
+          {files.length && isVehiclePhoto === "no" ? (
+            <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-950">
+              Araç görünmüyor seçildiği için AI hasar analizi kapatıldı. Araç fotoğrafı seçip “araç görünüyor”
+              seçeneğini işaretleyerek tekrar deneyebilirsiniz.
+            </p>
+          ) : null}
           {aiMessage ? (
             <p
               className={`mt-3 rounded-xl px-3 py-2 text-sm font-medium ${
