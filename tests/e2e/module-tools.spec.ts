@@ -5,6 +5,16 @@ test("module cards open usable assistant tools", async ({ page }) => {
 
   await page.locator('a[href="/fotograf-hasar"]').click();
   await expect(page).toHaveURL(/\/fotograf-hasar$/);
+  await expect(page.getByRole("button", { name: "Bulguyu ekle" })).toBeDisabled();
+  await page.locator('input[type="file"]').setInputFiles({
+    name: "arac-on-tampon.jpg",
+    mimeType: "image/jpeg",
+    buffer: Buffer.from("fake-image"),
+  });
+  await page.getByLabel("Fotoğrafta araç veya araç parçası görünüyor").check();
+  await page.getByLabel("Bölge").selectOption("Ön tampon");
+  await page.getByLabel("Bulgu").selectOption("Çizik");
+  await page.getByLabel("Güven seviyesi").selectOption("Orta olasılık");
   await page.getByRole("button", { name: "Bulguyu ekle" }).click();
   await expect(page.getByText("Ön tampon: Çizik")).toBeVisible();
 
@@ -35,4 +45,17 @@ test("report action buttons show visible feedback", async ({ page, context }) =>
 
   await page.getByRole("button", { name: "Raporu yazdır" }).click();
   await expect(page.getByText(/Yazdırma penceresi açıldı/)).toBeVisible();
+});
+
+test("photo damage tool refuses non-vehicle photos", async ({ page }) => {
+  await page.goto("/fotograf-hasar");
+  await page.locator('input[type="file"]').setInputFiles({
+    name: "yumurta.jpg",
+    mimeType: "image/jpeg",
+    buffer: Buffer.from("fake-egg-image"),
+  });
+  await page.getByLabel("Araç görünmüyor veya emin değilim").check();
+  await expect(page.getByText("Araç görünmeyen fotoğraflar için hasar bulgusu oluşturulmaz.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Bulguyu ekle" })).toBeDisabled();
+  await expect(page.getByText("Ön tampon: Çizik")).toHaveCount(0);
 });

@@ -30,12 +30,14 @@ type DamageFinding = {
 };
 
 export default function PhotoDamagePage() {
-  const [area, setArea] = useState(areas[0]);
-  const [finding, setFinding] = useState(findings[0]);
-  const [confidence, setConfidence] = useState(confidenceLevels[1]);
+  const [area, setArea] = useState("");
+  const [finding, setFinding] = useState("");
+  const [confidence, setConfidence] = useState("");
   const [note, setNote] = useState("");
   const [items, setItems] = useState<DamageFinding[]>([]);
   const [fileCount, setFileCount] = useState(0);
+  const [isVehiclePhoto, setIsVehiclePhoto] = useState<"" | "yes" | "no">("");
+  const [formMessage, setFormMessage] = useState("");
 
   const priority = useMemo(() => {
     if (items.some((item) => item.confidence === "Yüksek olasılık")) return "Ekspertizde öncelikli kontrol edilmeli";
@@ -44,7 +46,26 @@ export default function PhotoDamagePage() {
   }, [items]);
 
   function addFinding() {
+    if (!fileCount) {
+      setFormMessage("Önce araç fotoğrafı seçin. Araç dışı görseller için hasar raporu oluşturmayın.");
+      return;
+    }
+
+    if (isVehiclePhoto !== "yes") {
+      setFormMessage("Bu ekran yalnızca araç fotoğrafları içindir. Fotoğrafta araç görünmüyorsa bulgu eklenmez.");
+      return;
+    }
+
+    if (!area || !finding || !confidence) {
+      setFormMessage("Bölge, bulgu ve güven seviyesi seçmeden rapora madde eklenmez.");
+      return;
+    }
+
     setItems((current) => [...current, { area, finding, confidence, note: note.trim() }]);
+    setFormMessage("Bulgu eklendi. Bu madde kesin hasar kararı değil, ekspertizde kontrol notudur.");
+    setArea("");
+    setFinding("");
+    setConfidence("");
     setNote("");
   }
 
@@ -71,18 +92,56 @@ export default function PhotoDamagePage() {
               accept="image/*"
               multiple
               className="sr-only"
-              onChange={(event) => setFileCount(event.currentTarget.files?.length ?? 0)}
+              onChange={(event) => {
+                setFileCount(event.currentTarget.files?.length ?? 0);
+                setIsVehiclePhoto("");
+                setFormMessage("");
+                setItems([]);
+              }}
             />
           </label>
           {fileCount ? (
-            <p className="mt-3 rounded-xl bg-teal-50 px-3 py-2 text-sm font-medium text-teal-900" role="status">
-              {fileCount} fotoğraf seçildi. Şimdi görünen olası bulguları aşağıdan işaretleyin.
-            </p>
+            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
+              <p className="text-sm font-semibold text-amber-950">{fileCount} fotoğraf seçildi.</p>
+              <p className="mt-1 text-sm leading-6 text-amber-900">
+                Devam etmeden önce fotoğrafta araç göründüğünü doğrulayın. Araç dışı görseller analiz notuna çevrilmez.
+              </p>
+            </div>
           ) : null}
         </section>
 
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-xl font-semibold text-slate-950">Olası bulgu ekle</h2>
+          <fieldset className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <legend className="px-1 text-sm font-semibold text-slate-950">Fotoğraf doğrulaması</legend>
+            <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm font-medium text-slate-800">
+              <input
+                type="radio"
+                name="vehicle-photo"
+                checked={isVehiclePhoto === "yes"}
+                onChange={() => {
+                  setIsVehiclePhoto("yes");
+                  setFormMessage("");
+                }}
+                className="h-5 w-5 accent-teal-700"
+              />
+              Fotoğrafta araç veya araç parçası görünüyor
+            </label>
+            <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm font-medium text-slate-800">
+              <input
+                type="radio"
+                name="vehicle-photo"
+                checked={isVehiclePhoto === "no"}
+                onChange={() => {
+                  setIsVehiclePhoto("no");
+                  setItems([]);
+                  setFormMessage("Araç görünmeyen fotoğraflar için hasar bulgusu oluşturulmaz.");
+                }}
+                className="h-5 w-5 accent-red-600"
+              />
+              Araç görünmüyor veya emin değilim
+            </label>
+          </fieldset>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <label className="grid gap-2 text-sm font-medium text-slate-800">
               Bölge
@@ -91,6 +150,7 @@ export default function PhotoDamagePage() {
                 onChange={(event) => setArea(event.target.value)}
                 className="min-h-12 rounded-xl border border-slate-300 px-3"
               >
+                <option value="">Bölge seçin</option>
                 {areas.map((item) => (
                   <option key={item}>{item}</option>
                 ))}
@@ -103,6 +163,7 @@ export default function PhotoDamagePage() {
                 onChange={(event) => setFinding(event.target.value)}
                 className="min-h-12 rounded-xl border border-slate-300 px-3"
               >
+                <option value="">Bulgu seçin</option>
                 {findings.map((item) => (
                   <option key={item}>{item}</option>
                 ))}
@@ -115,6 +176,7 @@ export default function PhotoDamagePage() {
                 onChange={(event) => setConfidence(event.target.value)}
                 className="min-h-12 rounded-xl border border-slate-300 px-3"
               >
+                <option value="">Güven seviyesi seçin</option>
                 {confidenceLevels.map((item) => (
                   <option key={item}>{item}</option>
                 ))}
@@ -133,10 +195,21 @@ export default function PhotoDamagePage() {
           <button
             type="button"
             onClick={addFinding}
-            className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-slate-950 px-5 font-semibold text-white sm:w-auto"
+            disabled={!fileCount || isVehiclePhoto !== "yes"}
+            className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-slate-950 px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             Bulguyu ekle
           </button>
+          {formMessage ? (
+            <p
+              className={`mt-3 rounded-xl px-3 py-2 text-sm font-medium ${
+                formMessage.includes("eklendi") ? "bg-teal-50 text-teal-900" : "bg-amber-50 text-amber-950"
+              }`}
+              role="status"
+            >
+              {formMessage}
+            </p>
+          ) : null}
         </section>
 
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">

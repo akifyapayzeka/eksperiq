@@ -19,8 +19,9 @@ async function fillRequiredForm(page: Page) {
 
 test("home to analysis form", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Ücretsiz analiz et" }).click();
-  await expect(page).toHaveURL(/\/analiz$/);
+  const analysisLink = page.getByRole("link", { name: "Ücretsiz analiz et" });
+  await expect(analysisLink).toHaveAttribute("href", "/analiz");
+  await Promise.all([page.waitForURL(/\/analiz$/), analysisLink.click()]);
   await expect(page.getByRole("heading", { name: "Araç ilanı analizi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Form ilerlemesi" })).toBeVisible();
   await expect(page.getByRole("progressbar", { name: "Zorunlu alan ilerlemesi" })).toHaveAttribute(

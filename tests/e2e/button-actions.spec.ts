@@ -19,8 +19,9 @@ async function fillRequiredForm(page: Page) {
 
 test("garage add action opens analysis form", async ({ page }) => {
   await page.goto("/moduller");
-  await page.locator('section[aria-labelledby="garage"] a[href="/analiz"]').click();
-  await expect(page).toHaveURL(/\/analiz$/);
+  const addVehicleLink = page.locator('section[aria-labelledby="garage"] a[href="/analiz"]');
+  await expect(addVehicleLink).toHaveAttribute("href", "/analiz");
+  await Promise.all([page.waitForURL(/\/analiz$/), addVehicleLink.click()]);
   await expect(page.getByRole("heading", { name: /ilan.*analizi/i })).toBeVisible();
 });
 
