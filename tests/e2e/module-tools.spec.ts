@@ -150,6 +150,20 @@ test("comparison page lists analyses added from the result screen and enforces t
   await expect(page.getByRole("cell", { name: "1.200.000 TL" })).toHaveCount(0);
 });
 
+test("clicking 'Karşılaştırmaya ekle' twice on the same result only adds one entry", async ({ page }) => {
+  await page.goto("/analiz");
+  await fillRequiredForm(page);
+  await page.getByLabel("İstenen fiyat").fill("999000");
+  await page.getByRole("button", { name: "Analiz oluştur" }).click();
+  await expect(page).toHaveURL(/\/sonuc$/);
+
+  await page.getByRole("button", { name: "Karşılaştırmaya ekle" }).click();
+  await expect(page.getByRole("button", { name: "Karşılaştırmaya eklendi" })).toBeDisabled();
+
+  await page.goto("/karsilastirma");
+  await expect(page.getByRole("cell", { name: "999.000 TL" })).toHaveCount(1);
+});
+
 test("maintenance and payment calendar tracks upcoming dates and syncs to the garage widget", async ({ page }) => {
   await page.goto("/bakim-odeme-takvimi");
 

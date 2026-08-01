@@ -154,6 +154,7 @@ export function ResultClient() {
     | "comparison-added"
     | "comparison-full"
   >("idle");
+  const [addedToComparison, setAddedToComparison] = useState(false);
   const [findingFilter, setFindingFilter] = useState<FindingFilter>("all");
   const [checkedChecklist, setCheckedChecklist] = useState<Set<string>>(new Set());
   const [aiNote, setAiNote] = useState<string | null>(null);
@@ -275,9 +276,10 @@ export function ResultClient() {
   }
 
   function addCurrentToComparison() {
-    if (!result) return;
+    if (!result || addedToComparison) return;
     const outcome = addToComparison(result);
     setCopyStatus(outcome.ok ? "comparison-added" : "comparison-full");
+    if (outcome.ok) setAddedToComparison(true);
   }
 
   async function requestAiNote() {
@@ -529,10 +531,11 @@ export function ResultClient() {
             <button
               type="button"
               onClick={addCurrentToComparison}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800"
+              disabled={addedToComparison}
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <GitCompareArrows aria-hidden="true" className="h-4 w-4" />
-              Karşılaştırmaya ekle
+              {addedToComparison ? "Karşılaştırmaya eklendi" : "Karşılaştırmaya ekle"}
             </button>
             <button
               type="button"
