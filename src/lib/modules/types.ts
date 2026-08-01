@@ -7,6 +7,7 @@ export type ModuleId =
   | "expertise-report-analysis"
   | "maintenance-tracking"
   | "maintenance-payment-calendar"
+  | "test-drive-checklist"
   | "vehicle-health-record"
   | "vehicle-value-tracking"
   | "smart-sale-preparation";

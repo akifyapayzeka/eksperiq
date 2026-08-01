@@ -163,12 +163,13 @@ test("shows product module roadmap", async ({ page }) => {
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "Garajım" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Aktif modüller" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Modülü aç/ })).toHaveCount(9);
+  await expect(page.getByRole("link", { name: /Modülü aç/ })).toHaveCount(10);
   await expect(page.getByRole("heading", { name: "İlan Analizi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Fotoğraftan Hasar Analizi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Araç Sağlık Karnesi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Bakım ve Ödeme Takvimi" })).toBeVisible();
-  await expect(page.getByText("Kesinlik sınırı:")).toHaveCount(9);
+  await expect(page.getByRole("heading", { name: "Test Sürüşü Kontrol Listesi" })).toBeVisible();
+  await expect(page.getByText("Kesinlik sınırı:")).toHaveCount(10);
 });
 
 test("expertise report accepts report files and text", async ({ page }) => {

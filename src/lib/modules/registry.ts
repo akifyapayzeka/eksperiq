@@ -111,6 +111,23 @@ export const productModules: ProductModule[] = [
     certaintyPolicy: "Tutarları kullanıcı girer; güncel resmi tutarları garanti etmez.",
   },
   {
+    id: "test-drive-checklist",
+    title: "Test Sürüşü Kontrol Listesi",
+    status: "active",
+    href: "/test-surusu-kontrol",
+    summary:
+      "Test sürüşü öncesi, sırası ve sonrasında dikkat edilecek noktaları adım adım işaretlenebilir liste olarak sunar.",
+    capabilities: [
+      {
+        title: "Adım adım kontrol",
+        description:
+          "Başlamadan önce, sürüş sırasında, farklı yol koşullarında ve sürüş sonrasında bakılacak noktaları gruplar.",
+      },
+    ],
+    dataPolicy: "İşaretler yalnızca mevcut tarayıcı oturumunda tutulur; sunucuya kaydedilmez.",
+    certaintyPolicy: "Teknik arıza teşhisi yapmaz; şüpheli bulguları bağımsız ekspertize yönlendirir.",
+  },
+  {
     id: "vehicle-health-record",
     title: "Araç Sağlık Karnesi",
     status: "active",

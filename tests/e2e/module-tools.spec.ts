@@ -113,6 +113,19 @@ test("maintenance and payment calendar tracks upcoming dates and syncs to the ga
   await expect(page.getByText("10 gün kaldı")).toBeVisible();
 });
 
+test("test drive checklist tracks progress and persists within the session", async ({ page }) => {
+  await page.goto("/test-surusu-kontrol");
+  await expect(page.getByRole("heading", { name: "Tamamlanan: 0 / 18" })).toBeVisible();
+
+  await page.getByLabel("Motoru soğukken çalıştırdım (satıcı önceden çalıştırmamış olmalı)").check();
+  await page.getByLabel("Fren pedalının hissini ve düz durup durmadığını kontrol ettim").check();
+  await expect(page.getByRole("heading", { name: "Tamamlanan: 2 / 18" })).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Tamamlanan: 2 / 18" })).toBeVisible();
+  await expect(page.getByLabel("Motoru soğukken çalıştırdım (satıcı önceden çalıştırmamış olmalı)")).toBeChecked();
+});
+
 test("photo damage tool refuses non-vehicle photos", async ({ page }) => {
   await page.goto("/fotograf-hasar");
   await page.locator('input[type="file"]').setInputFiles({
