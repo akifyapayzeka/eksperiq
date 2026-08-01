@@ -79,7 +79,7 @@ Tüm adımların denetlenebilir durum listesi: `docs/all-steps-status.md`
 - [x] iOS/TestFlight ön kontrol dosyası hazır.
 - [ ] Apple Developer Program üyeliği açılacak.
 - [ ] macOS üzerinde Xcode 26 veya Apple'ın güncel kabul ettiği sürüm kurulacak.
-- [ ] `npm run ios:add` ile iOS proje klasörü oluşturulacak.
+- [x] `npm run ios:add` ile Capacitor iOS proje klasörü oluşturuldu; final arşivleme/signing macOS/Xcode ortamında yapılacak.
 - [ ] Xcode signing team ve Bundle ID ayarlanacak.
 - [ ] Gerçek iPhone üzerinde TestFlight QA checklist işaretlenecek.
 - [ ] App Store Connect metadata, privacy ve screenshot alanları girilecek.

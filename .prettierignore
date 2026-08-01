@@ -1,0 +1,13 @@
+.next
+out
+dist
+coverage
+test-results
+playwright-report
+
+# Capacitor generated outputs
+ios/App/App/public
+ios/App/App/capacitor.config.json
+ios/App/App/config.xml
+ios/App/App/Assets.xcassets
+ios/App/CapApp-SPM

@@ -15,7 +15,7 @@ Windows üzerinde `native:build` ile web çıktısı ve Capacitor sync doğrulan
 
 ## Commit stratejisi
 
-`ios/` klasörü üretildikten sonra ayrı bir commit ile eklenmelidir:
+`ios/` klasörü üretildikten sonra ayrı bir commit ile eklenmelidir. Windows üzerinde `npm run ios:add` başarıyla çalıştıysa commit yalnızca Xcode proje iskeletini içermeli; `ios/App/App/public`, Pods, build çıktıları ve kişisel Xcode state dosyaları commitlenmemelidir.
 
 ```bash
 git status --short
