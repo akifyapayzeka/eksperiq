@@ -154,6 +154,18 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
    slotluk karşılaştırma listesine birden fazla kez eklenebiliyordu →
    ilk başarılı eklemeden sonra buton devre dışı bırakılıp "Karşılaştırmaya
    eklendi" olarak değişiyor.
+7. Tekrarlayan hatırlatmalar (örn. yıllık MTV taksiti) son tarihi geçince
+   `loadReminders()` tarihi bir sonraki döneme ilerletip localStorage'a
+   yazıyordu, ama `bakim-odeme-takvimi` sayfası bu güncellenmiş listeyi push
+   bildirim sunucusuna hiç senkronize etmiyordu → bildirimler açıksa sunucuda
+   eski (geçmiş) son tarih kalıyor ve o hatırlatma için 30/15 gün eşiği bir
+   daha asla tutmuyordu, yani tekrarlayan hatırlatmalar ilk döngüden sonra
+   sessizce bildirim göndermeyi bırakıyordu. Düzeltme: sayfa açılışında
+   hatırlatmalar yüklendikten ve push durumu "subscribed" olduğu
+   doğrulandıktan sonra `syncRemindersToPush(loaded)` çağrılıyor
+   (`src/app/bakim-odeme-takvimi/page.tsx`). Ayrıca `reminders-storage.ts`
+   için hiç birim testi yoktu → `tests/unit/reminders-storage.test.ts`
+   eklendi (ekleme/silme + tarih ilerletme + kalıcılık senaryoları).
 
 ## Bu oturumda eklenen yeni özellikler (kullanıcı isteğiyle)
 
