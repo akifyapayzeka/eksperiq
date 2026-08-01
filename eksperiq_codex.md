@@ -176,6 +176,15 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
    reddetmiyor. `push/client.ts` için hiç birim testi yoktu →
    `tests/unit/push-client.test.ts` eklendi (bozulma senaryosu dahil, önce
    düzeltmeden önce başarısız olduğu doğrulandı).
+9. Araç Sağlık Karnesi'nin skor trend grafiğinde ve tablo görünümünde React
+   `key` olarak `point.date` (gün hassasiyetinde) kullanılıyordu; aynı gün
+   içinde birden fazla skorlu kayıt eklenirse (ör. "Şu anki analiz skorunu
+   ekle" iki kez veya aynı gün için elle iki kayıt) anahtarlar çakışıyor, bu
+   da yanlış/duplicate render veya React uyarısına yol açabiliyordu. Düzeltme:
+   `ScorePoint` tipine `id` eklendi (`src/lib/health-record/model.ts`),
+   `scoreTrend()` artık kaydın kendi id'sini taşıyor; grafik ve tablo
+   `point.id` üzerinden anahtarlanıyor (`src/app/arac-saglik-karnesi/page.tsx`).
+   Regresyon testi `tests/unit/health-record-trend.test.ts`'e eklendi.
 
 ## Bu oturumda eklenen yeni özellikler (kullanıcı isteğiyle)
 

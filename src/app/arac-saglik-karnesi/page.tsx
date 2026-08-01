@@ -321,7 +321,7 @@ export default function VehicleHealthRecordPage() {
   );
 }
 
-function ScoreTrendChart({ points }: { points: { date: string; score: number }[] }) {
+function ScoreTrendChart({ points }: { points: { id: string; date: string; score: number }[] }) {
   const width = 320;
   const height = 120;
   const padding = 16;
@@ -353,7 +353,7 @@ function ScoreTrendChart({ points }: { points: { date: string; score: number }[]
         />
         <path d={path} fill="none" stroke="#0f766e" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
         {coordinates.map((coord) => (
-          <circle key={coord.point.date} cx={coord.x} cy={coord.y} r={4} fill="#0f766e">
+          <circle key={coord.point.id} cx={coord.x} cy={coord.y} r={4} fill="#0f766e">
             <title>
               {new Date(`${coord.point.date}T00:00:00`).toLocaleDateString("tr-TR")}: {coord.point.score}
             </title>
@@ -371,7 +371,7 @@ function ScoreTrendChart({ points }: { points: { date: string; score: number }[]
           </thead>
           <tbody>
             {points.map((point) => (
-              <tr key={point.date} className="border-t border-slate-100">
+              <tr key={point.id} className="border-t border-slate-100">
                 <td className="py-1 text-slate-800">
                   {new Date(`${point.date}T00:00:00`).toLocaleDateString("tr-TR")}
                 </td>
