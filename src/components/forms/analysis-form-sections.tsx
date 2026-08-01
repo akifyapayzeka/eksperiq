@@ -272,6 +272,7 @@ function DamagePartPicker({
   watch?: UseFormWatch<VehicleFormInput>;
 }) {
   const selectedParts = parseParts(watch?.(name));
+  const hiddenValue = selectedParts.join(", ");
 
   function togglePart(part: string) {
     if (!setValue) return;
@@ -290,7 +291,7 @@ function DamagePartPicker({
   return (
     <fieldset className="grid gap-3 md:col-span-2">
       <legend className="text-sm font-medium text-slate-800">{label}</legend>
-      <input type="hidden" {...register(name)} />
+      <input type="hidden" {...register(name)} value={hiddenValue} readOnly />
       <div className="flex flex-wrap gap-2" aria-label={`${label} seçenekleri`}>
         {damagePartOptions.map((part) => {
           const checked = selectedParts.includes(part);
