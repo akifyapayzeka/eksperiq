@@ -29,15 +29,35 @@ type DamageFinding = {
   note: string;
 };
 
+type AiPhotoFinding = {
+  id: string;
+  area: string;
+  signal: string;
+  confidence: "low" | "medium" | "high";
+  explanation: string;
+  recommendation: string;
+};
+
+type AiPhotoAnalysis = {
+  isVehiclePhoto: boolean;
+  summary: string;
+  findings: AiPhotoFinding[];
+  disclaimer: string;
+};
+
 export default function PhotoDamagePage() {
   const [area, setArea] = useState("");
   const [finding, setFinding] = useState("");
   const [confidence, setConfidence] = useState("");
   const [note, setNote] = useState("");
   const [items, setItems] = useState<DamageFinding[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
   const [fileCount, setFileCount] = useState(0);
   const [isVehiclePhoto, setIsVehiclePhoto] = useState<"" | "yes" | "no">("");
   const [formMessage, setFormMessage] = useState("");
+  const [aiStatus, setAiStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  const [aiMessage, setAiMessage] = useState("");
+  const [aiAnalysis, setAiAnalysis] = useState<AiPhotoAnalysis | null>(null);
 
   const priority = useMemo(() => {
     if (items.some((item) => item.confidence === "Yüksek olasılık")) return "Ekspertizde öncelikli kontrol edilmeli";
@@ -69,6 +89,73 @@ export default function PhotoDamagePage() {
     setNote("");
   }
 
+  async function fileToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () =>
+        typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Dosya okunamadı."));
+      reader.onerror = () => reject(new Error("Dosya okunamadı."));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function analyzePhotosWithAi() {
+    if (!files.length) {
+      setAiStatus("error");
+      setAiMessage("Önce araç fotoğrafı seçin.");
+      return;
+    }
+
+    setAiStatus("loading");
+    setAiMessage("");
+    setAiAnalysis(null);
+
+    try {
+      const images = await Promise.all(
+        files.slice(0, 4).map(async (file) => ({
+          name: file.name,
+          mimeType: file.type || "image/jpeg",
+          dataUrl: await fileToDataUrl(file),
+        })),
+      );
+
+      const response = await fetch("/api/ai/photo-damage", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          images,
+          userNote: note,
+        }),
+      });
+
+      const payload = (await response.json()) as { analysis?: AiPhotoAnalysis; error?: string; remaining?: number };
+      if (!response.ok || !payload.analysis) {
+        setAiStatus("error");
+        setAiMessage(payload.error ?? "AI fotoğraf analizi şu anda tamamlanamadı.");
+        return;
+      }
+
+      setAiAnalysis(payload.analysis);
+      setAiStatus("ready");
+      setAiMessage(
+        payload.analysis.isVehiclePhoto
+          ? `AI fotoğraf kontrolü tamamlandı.${typeof payload.remaining === "number" ? ` Bugün kalan hak: ${payload.remaining}` : ""}`
+          : "AI bu görselde araç veya araç parçası güvenle tespit edemedi. Hasar bulgusu oluşturulmadı.",
+      );
+    } catch {
+      setAiStatus("error");
+      setAiMessage("Fotoğraf okunamadı veya AI servisine ulaşılamadı.");
+    }
+  }
+
+  function confidenceLabel(value: AiPhotoFinding["confidence"]) {
+    if (value === "high") return "Yüksek güven";
+    if (value === "medium") return "Orta güven";
+    return "Düşük güven";
+  }
+
   return (
     <main className="flex-1 bg-slate-50">
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
@@ -93,10 +180,15 @@ export default function PhotoDamagePage() {
               multiple
               className="sr-only"
               onChange={(event) => {
-                setFileCount(event.currentTarget.files?.length ?? 0);
+                const selectedFiles = Array.from(event.currentTarget.files ?? []).slice(0, 4);
+                setFiles(selectedFiles);
+                setFileCount(selectedFiles.length);
                 setIsVehiclePhoto("");
                 setFormMessage("");
                 setItems([]);
+                setAiStatus("idle");
+                setAiMessage("");
+                setAiAnalysis(null);
               }}
             />
           </label>
@@ -106,6 +198,59 @@ export default function PhotoDamagePage() {
               <p className="mt-1 text-sm leading-6 text-amber-900">
                 Devam etmeden önce fotoğrafta araç göründüğünü doğrulayın. Araç dışı görseller analiz notuna çevrilmez.
               </p>
+            </div>
+          ) : null}
+        </section>
+
+        <section className="mt-5 rounded-2xl border border-teal-100 bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-2">
+            <Camera aria-hidden="true" className="h-5 w-5 text-teal-700" />
+            <h2 className="text-xl font-semibold text-slate-950">AI fotoğraf kontrolü</h2>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Seçtiğiniz fotoğraf OpenRouter üzerinden görüntü anlayan modele gönderilir. Araç görünmüyorsa sistem bulgu
+            üretmemelidir.
+          </p>
+          <button
+            type="button"
+            onClick={analyzePhotosWithAi}
+            disabled={!files.length || aiStatus === "loading"}
+            className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-teal-700 px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            {aiStatus === "loading" ? "AI inceliyor" : "AI ile fotoğrafı analiz et"}
+          </button>
+          {aiMessage ? (
+            <p
+              className={`mt-3 rounded-xl px-3 py-2 text-sm font-medium ${
+                aiStatus === "error" ? "bg-red-50 text-red-700" : "bg-teal-50 text-teal-900"
+              }`}
+              role="status"
+            >
+              {aiMessage}
+            </p>
+          ) : null}
+          {aiAnalysis ? (
+            <div className="mt-4 grid gap-3">
+              <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700">
+                {aiAnalysis.summary}
+              </p>
+              {aiAnalysis.findings.length ? (
+                aiAnalysis.findings.map((item) => (
+                  <article key={item.id} className="rounded-xl border border-slate-200 bg-white p-4">
+                    <p className="text-xs font-semibold uppercase text-teal-800">{confidenceLabel(item.confidence)}</p>
+                    <h3 className="mt-1 font-semibold text-slate-950">
+                      {item.area}: {item.signal}
+                    </h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{item.explanation}</p>
+                    <p className="mt-2 text-sm font-medium text-slate-800">{item.recommendation}</p>
+                  </article>
+                ))
+              ) : (
+                <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                  AI bu fotoğraf için hasar bulgusu üretmedi.
+                </p>
+              )}
+              <p className="text-xs leading-5 text-slate-500">{aiAnalysis.disclaimer}</p>
             </div>
           ) : null}
         </section>

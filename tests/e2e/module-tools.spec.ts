@@ -1,6 +1,31 @@
 import { expect, test } from "@playwright/test";
 
 test("module cards open usable assistant tools", async ({ page }) => {
+  await page.route("**/api/ai/photo-damage", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        analysis: {
+          isVehiclePhoto: true,
+          summary: "Fotoğrafta araç ön bölgesi görünüyor.",
+          findings: [
+            {
+              id: "ai-photo-1",
+              area: "Ön tampon",
+              signal: "Çizik",
+              confidence: "medium",
+              explanation: "Ön tampon bölgesinde çizik benzeri yüzey izi seçiliyor.",
+              recommendation: "Boya kalınlığı ve tampon bağlantı noktalarını ekspertizde kontrol ettirin.",
+            },
+          ],
+          disclaimer: "Bu AI fotoğraf kontrolü kesin hasar tespiti değildir.",
+        },
+        remaining: 9,
+      }),
+    });
+  });
+
   await page.goto("/moduller");
 
   await page.locator('a[href="/fotograf-hasar"]').click();
@@ -17,6 +42,9 @@ test("module cards open usable assistant tools", async ({ page }) => {
   await page.getByLabel("Güven seviyesi").selectOption("Orta olasılık");
   await page.getByRole("button", { name: "Bulguyu ekle" }).click();
   await expect(page.getByText("Ön tampon: Çizik")).toBeVisible();
+  await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
+  await expect(page.getByText("AI fotoğraf kontrolü tamamlandı. Bugün kalan hak: 9")).toBeVisible();
+  await expect(page.getByText("Ön tampon: Çizik")).toHaveCount(2);
 
   await page.goto("/bakim-takibi");
   await page.getByLabel("Güncel kilometre").fill("98000");
