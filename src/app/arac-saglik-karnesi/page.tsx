@@ -64,7 +64,7 @@ export default function VehicleHealthRecordPage() {
             </div>
           ) : (
             <p className="mt-3 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
-              Henüz oturumda analiz yok. İlan analizi oluşturduğunuzda burada araç özeti görünecek.
+              Henüz oturumda analiz yok. Yeni araç analizi oluşturduğunuzda burada araç özeti görünecek.
             </p>
           )}
         </section>

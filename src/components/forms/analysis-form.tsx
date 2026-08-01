@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ClipboardCheck, FileText, LinkIcon, ShieldCheck, Wrench } from "lucide-react";
+import { Camera, ClipboardCheck, FileSearch, FileText, ShieldCheck, Wrench } from "lucide-react";
 import { saveAnalysis } from "@/lib/storage/analysis-storage";
 import { vehicleSchema, type VehicleFormData, type VehicleFormInput } from "@/lib/schemas/vehicle";
 import { createAnalysis } from "@/lib/services/analysis-service";
 import { appConfig } from "@/lib/constants/app";
-import { extractListingFields, type ExtractedListingFields } from "@/lib/listings/extract-listing";
 import {
   BooleanInfoSection,
   DamageInfoSection,
@@ -27,9 +26,9 @@ const requiredProgressFields: Array<{ name: ProgressField; label: string }> = [
   { name: "fuelType", label: "Yakıt türü" },
   { name: "transmission", label: "Vites türü" },
   { name: "mileage", label: "Kilometre" },
-  { name: "price", label: "İlan fiyatı" },
+  { name: "price", label: "İstenen fiyat" },
   { name: "city", label: "Şehir" },
-  { name: "sellerDescription", label: "İlan açıklaması" },
+  { name: "sellerDescription", label: "Satıcı açıklaması" },
 ];
 
 const detailProgressFields: Array<{ name: ProgressField; label: string }> = [
@@ -51,7 +50,6 @@ const detailProgressFields: Array<{ name: ProgressField; label: string }> = [
   { name: "tireStatus", label: "Lastik" },
   { name: "inspectionEndDate", label: "Muayene" },
   { name: "lpgStatus", label: "LPG" },
-  { name: "listingUrl", label: "İlan bağlantısı" },
 ];
 
 const formSections = [
@@ -150,20 +148,19 @@ function FormProgress({ values }: { values: Partial<Record<ProgressField, unknow
 function FormStepOverview({ values }: { values: Partial<Record<ProgressField, unknown>> }) {
   const requiredCompleted = requiredProgressFields.filter((field) => isFilled(values[field.name])).length;
   const detailsCompleted = detailProgressFields.filter((field) => isFilled(values[field.name])).length;
-  const hasListingUrl = isFilled(values.listingUrl);
 
   const steps = [
     {
-      title: "İlan linki",
-      description: "Link raporda referans olarak tutulur.",
-      icon: LinkIcon,
-      stat: hasListingUrl ? "Eklendi" : "Opsiyonel",
-    },
-    {
-      title: "Temel ilan",
+      title: "Araç bilgileri",
       description: "Marka, model, yıl, km ve fiyat.",
       icon: FileText,
       stat: `${requiredCompleted}/${requiredProgressFields.length}`,
+    },
+    {
+      title: "Fotoğraf",
+      description: "Çizik veya hasar notu ayrı ekranda.",
+      icon: Camera,
+      stat: "Opsiyonel",
     },
     {
       title: "Risk kayıtları",
@@ -227,8 +224,6 @@ function FormSectionLinks() {
 
 export function AnalysisForm() {
   const router = useRouter();
-  const [listingText, setListingText] = useState("");
-  const [extractMessage, setExtractMessage] = useState("");
   const {
     register,
     handleSubmit,
@@ -260,99 +255,34 @@ export function AnalysisForm() {
     router.push("/sonuc");
   }
 
-  function applyExtractedFields(fields: ExtractedListingFields) {
-    const entries = Object.entries(fields) as Array<[keyof ExtractedListingFields, string | number | boolean]>;
-    let appliedCount = 0;
-
-    for (const [name, value] of entries) {
-      if (value === undefined || value === "") continue;
-      setValue(name as keyof VehicleFormInput, value, {
-        shouldDirty: true,
-        shouldTouch: true,
-        shouldValidate: true,
-      });
-      appliedCount += 1;
-    }
-
-    setExtractMessage(
-      appliedCount
-        ? `${appliedCount} alan ilandan çıkarıldı. Eksik kalanları seçeneklerden tamamlayın.`
-        : "İlan metninden güvenilir araç bilgisi çıkarılamadı. Bilgileri seçeneklerden tamamlayın.",
-    );
-  }
-
-  function extractFromListingText() {
-    const trimmedText = listingText.trim();
-    if (trimmedText.length < 20) {
-      setExtractMessage("İlan açıklamasını veya ilan detay metnini en az 20 karakter olacak şekilde yapıştırın.");
-      return;
-    }
-
-    applyExtractedFields(extractListingFields(trimmedText));
-  }
-
   return (
     <form className="grid gap-6" onSubmit={handleSubmit(onSubmit)} noValidate>
       <div className="rounded-2xl border border-teal-200 bg-teal-50 p-4 text-sm leading-6 text-teal-950">
         {appConfig.privacy}
       </div>
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm" aria-labelledby="listing-start">
-        <div className="flex items-start gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-teal-50 text-teal-800">
-            <LinkIcon aria-hidden="true" className="h-5 w-5" />
-          </span>
-          <div>
-            <h2 id="listing-start" className="font-semibold text-slate-950">
-              İlan metninden otomatik doldur
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
-              İlan başlığını, açıklamasını veya detay metnini yapıştırın; marka, model, yıl, km, fiyat ve şehir gibi
-              alanları otomatik çıkaralım. Linki de raporda referans olarak saklarız.
-            </p>
-          </div>
-        </div>
-        <div className="mt-4">
-          <label htmlFor="listingText" className="text-sm font-medium text-slate-800">
-            İlan metni veya açıklaması
-          </label>
-          <textarea
-            id="listingText"
-            value={listingText}
-            onChange={(event) => setListingText(event.target.value)}
-            placeholder="İlan başlığını, açıklamasını ve teknik detaylarını buraya yapıştırın. Örn: 2020 Volkswagen Passat 1.6 TDI, 87.400 km, İstanbul, 1.250.000 TL..."
-            className="mt-2 min-h-32 w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-base text-slate-950 shadow-sm outline-none focus:border-teal-700 focus:ring-4 focus:ring-teal-100"
-          />
-          <button
-            type="button"
-            onClick={extractFromListingText}
-            className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 sm:w-auto"
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm" aria-labelledby="analysis-start">
+        <h2 id="analysis-start" className="font-semibold text-slate-950">
+          Analiz için araç bilgilerini doldurun
+        </h2>
+        <p className="mt-1 text-sm leading-6 text-slate-600">
+          Link gerekmez. Araç almadan önce bildiğiniz bilgileri seçin; eksik kalanlar raporda satıcıya sorulacak bilgi
+          olarak yer alır.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <Link
+            href="/fotograf-hasar"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-900 hover:border-teal-700"
           >
-            İlan bilgilerini otomatik doldur
-          </button>
-          {extractMessage ? (
-            <p className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-800">
-              {extractMessage}
-            </p>
-          ) : null}
-        </div>
-        <div className="mt-4">
-          <label htmlFor="listingUrl" className="text-sm font-medium text-slate-800">
-            Opsiyonel ilan bağlantısı
-          </label>
-          <input
-            id="listingUrl"
-            type="url"
-            inputMode="url"
-            placeholder="https://www.sahibinden.com/..."
-            className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-base text-slate-950 shadow-sm outline-none focus:border-teal-700 focus:ring-4 focus:ring-teal-100"
-            {...register("listingUrl")}
-            aria-invalid={Boolean(errors.listingUrl)}
-          />
-          {errors.listingUrl?.message ? (
-            <p className="mt-2 text-sm text-red-700" role="alert">
-              {errors.listingUrl.message}
-            </p>
-          ) : null}
+            <Camera aria-hidden="true" className="h-4 w-4" />
+            Fotoğrafla hasar notu
+          </Link>
+          <Link
+            href="/ekspertiz-raporu"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-900 hover:border-teal-700"
+          >
+            <FileSearch aria-hidden="true" className="h-4 w-4" />
+            Ekspertiz raporu ekle
+          </Link>
         </div>
       </section>
       <FormStepOverview values={progressValues} />

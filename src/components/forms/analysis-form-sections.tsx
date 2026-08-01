@@ -326,7 +326,7 @@ function DamagePartPicker({
 
 export function VehicleInfoSection({ register, errors }: SectionProps) {
   return (
-    <SectionCard id="vehicle-info" title="Araç bilgileri" description="İlandaki temel araç bilgilerini manuel girin.">
+    <SectionCard id="vehicle-info" title="Araç bilgileri" description="Temel araç bilgilerini seçin veya yazın.">
       <div className="grid gap-4 md:grid-cols-2">
         <SelectField
           id="brand"
@@ -375,7 +375,7 @@ export function VehicleInfoSection({ register, errors }: SectionProps) {
         />
         <Field
           id="price"
-          label="İlan fiyatı"
+          label="İstenen fiyat"
           type="number"
           inputMode="numeric"
           {...register("price")}
@@ -486,11 +486,11 @@ export function BooleanInfoSection({ register }: SectionProps) {
 
 export function SellerDescriptionSection({ register, errors }: SectionProps) {
   return (
-    <SectionCard id="seller-description" title="Satıcı açıklaması">
+    <SectionCard id="seller-description" title="Satıcı açıklaması ve notlar">
       <div className="grid gap-4 md:grid-cols-2">
         <TextareaField
           id="sellerDescription"
-          label="İlan açıklaması"
+          label="Satıcı açıklaması veya araç notu"
           {...register("sellerDescription")}
           error={errors.sellerDescription?.message}
         />

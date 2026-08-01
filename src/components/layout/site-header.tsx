@@ -3,11 +3,9 @@ import { CarFront } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
 
 const links = [
-  { href: "/analiz", label: "Analiz" },
-  { href: "/moduller", label: "Modüller" },
-  { href: "/nasil-calisir", label: "Nasıl çalışır" },
-  { href: "/hakkinda", label: "Hakkında" },
-  { href: "/gizlilik", label: "Gizlilik" },
+  { href: "/analiz", label: "Yeni Analiz" },
+  { href: "/analizlerim", label: "Analizlerim" },
+  { href: "/arac-saglik-karnesi", label: "Garaj" },
 ];
 
 export function SiteHeader() {

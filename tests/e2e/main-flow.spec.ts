@@ -8,27 +8,26 @@ async function fillRequiredForm(page: Page) {
   await page.getByLabel("Yakıt türü").selectOption(demoVehicleInput.fuelType);
   await page.getByLabel("Vites türü").selectOption(demoVehicleInput.transmission);
   await page.getByLabel("Kilometre").fill(String(demoVehicleInput.mileage));
-  await page.getByLabel("İlan fiyatı").fill(String(demoVehicleInput.price));
+  await page.getByLabel("İstenen fiyat").fill(String(demoVehicleInput.price));
   await page.getByLabel("Şehir").selectOption(demoVehicleInput.city);
   await page.getByLabel("Tramer tutarı").fill(String(demoVehicleInput.tramerAmount));
   await page.getByLabel("Bakım faturaları var").check();
   await page.getByLabel("Ekspertiz raporu var").check();
   await page.getByLabel("Yedek anahtar var").check();
-  await page.getByLabel("İlan açıklaması").fill(demoVehicleInput.sellerDescription);
+  await page.getByLabel("Satıcı açıklaması veya araç notu").fill(demoVehicleInput.sellerDescription);
 }
 
 test("home to analysis form", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Araban için tek asistan." })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Ne yapmak istiyorsun?" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "İlan analizi" })).toHaveAttribute("href", "/analiz");
-  await expect(page.getByRole("link", { name: "Rapor incele" })).toHaveAttribute("href", "/ekspertiz-raporu");
-  await expect(page.getByRole("link", { name: "Fotoğraf kontrolü" })).toHaveAttribute("href", "/fotograf-hasar");
-  await expect(page.getByRole("link", { name: "Aracımı ekle" })).toHaveAttribute("href", "/arac-saglik-karnesi");
-  const analysisLink = page.getByRole("main").getByRole("link", { name: "Başla" });
+  await expect(page.getByRole("heading", { name: /Araç almadan/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Ana ekran" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Yeni Analiz" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Analizlerim" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Garaj" })).toBeVisible();
+  const analysisLink = page.getByRole("main").getByRole("link", { name: "Yeni analiz başlat" });
   await expect(analysisLink).toHaveAttribute("href", "/analiz");
   await Promise.all([page.waitForURL(/\/analiz$/), analysisLink.click()]);
-  await expect(page.getByRole("heading", { name: "Araç ilanı analizi" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Yeni araç analizi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Form ilerlemesi" })).toBeVisible();
   await expect(page.getByRole("progressbar", { name: "Zorunlu alan ilerlemesi" })).toHaveAttribute(
     "aria-valuenow",
@@ -37,7 +36,7 @@ test("home to analysis form", async ({ page }) => {
   await expect(page.getByRole("navigation", { name: "Analiz formu bölümleri" })).toBeVisible();
   await page.getByRole("link", { name: "Açıklama" }).click();
   await expect(page).toHaveURL(/#seller-description$/);
-  await expect(page.getByRole("heading", { name: "Satıcı açıklaması" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Satıcı açıklaması ve notlar" })).toBeVisible();
 });
 
 test("mobile bottom navigation opens app actions", async ({ page, isMobile }) => {
@@ -46,34 +45,21 @@ test("mobile bottom navigation opens app actions", async ({ page, isMobile }) =>
   await page.goto("/");
   const mobileNav = page.getByRole("navigation", { name: "Mobil alt menü" });
   await expect(mobileNav).toBeVisible();
-  await expect(mobileNav.getByRole("link", { name: "Profil" })).toBeVisible();
   await expect(mobileNav.getByRole("link", { name: "Yeni Analiz" })).toBeVisible();
-  await expect(mobileNav.getByRole("link", { name: "Analiz Raporu" })).toBeVisible();
-  await expect(mobileNav.getByRole("link", { name: "Uzmanlık kontrol listesi" })).toBeVisible();
-  await expect(mobileNav.getByText("Kontrol", { exact: true })).toBeVisible();
-
-  await mobileNav.getByRole("link", { name: "Profil" }).click();
-  await expect(page).toHaveURL(/\/profil$/);
-  await expect(page.getByRole("heading", { name: "EksperIQ hesabı olmadan kullanılabilir." })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Destek ve geri bildirim" })).toBeVisible();
-  await page.getByRole("link", { name: "Geri bildirim gönder" }).click();
-  await expect(page).toHaveURL(/\/geri-bildirim$/);
-  await expect(page.getByRole("heading", { name: "Geri bildirim", exact: true })).toBeVisible();
+  await expect(mobileNav.getByRole("link", { name: "Analizlerim" })).toBeVisible();
+  await expect(mobileNav.getByRole("link", { name: "Garaj" })).toBeVisible();
 
   await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Yeni Analiz" }).click();
   await expect(page).toHaveURL(/\/analiz$/);
-  await expect(page.getByRole("heading", { name: "Araç ilanı analizi" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Yeni araç analizi" })).toBeVisible();
 
-  await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Analiz Raporu" }).click();
+  await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Analizlerim" }).click();
   await expect(page).toHaveURL(/\/analizlerim$/);
   await expect(page.getByRole("heading", { name: "Analizlerim" })).toBeVisible();
 
-  await page
-    .getByRole("navigation", { name: "Mobil alt menü" })
-    .getByRole("link", { name: "Uzmanlık kontrol listesi" })
-    .click();
-  await expect(page).toHaveURL(/\/kontrol-listesi$/);
-  await expect(page.getByRole("heading", { name: "Satın alma öncesi son kontroller" })).toBeVisible();
+  await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Garaj" }).click();
+  await expect(page).toHaveURL(/\/arac-saglik-karnesi$/);
+  await expect(page.getByRole("heading", { name: "Analiz, bakım ve notları tek ekranda tut" })).toBeVisible();
 });
 
 test("shows validation errors", async ({ page }) => {
@@ -83,28 +69,16 @@ test("shows validation errors", async ({ page }) => {
   await expect(page.getByText("İlan açıklaması en az 20 karakter olmalı.")).toBeVisible();
 });
 
-test("starts analysis with listing link and manual choices", async ({ page }) => {
+test("starts analysis with manual vehicle choices", async ({ page }) => {
   await page.goto("/analiz");
-  await expect(page.getByRole("heading", { name: "İlan metninden otomatik doldur" })).toBeVisible();
-  await expect(page.getByText("marka, model, yıl, km, fiyat ve şehir")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Analiz için araç bilgilerini doldurun" })).toBeVisible();
+  await expect(page.getByText("Link gerekmez.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Örnek ilanla doldur" })).toHaveCount(0);
-  await page.getByLabel("Opsiyonel ilan bağlantısı").fill("https://www.sahibinden.com/ilan/vasita-otomobil-test");
-  await page
-    .getByLabel("İlan metni veya açıklaması")
-    .fill("2020 Toyota Corolla 1.6 Benzin Otomatik İstanbul 87.400 km fiyat 1.250.000 TL ekspertiz mevcut.");
-  await page.getByRole("button", { name: "İlan bilgilerini otomatik doldur" }).click();
-  await expect(page.getByLabel("Opsiyonel ilan bağlantısı")).toHaveValue(
-    "https://www.sahibinden.com/ilan/vasita-otomobil-test",
-  );
+  await expect(page.getByRole("link", { name: "Fotoğrafla hasar notu" })).toHaveAttribute("href", "/fotograf-hasar");
+  await expect(page.getByRole("link", { name: "Ekspertiz raporu ekle" })).toHaveAttribute("href", "/ekspertiz-raporu");
+  await fillRequiredForm(page);
   await expect(page.getByLabel("Marka")).toHaveValue("Toyota");
   await expect(page.locator("#model")).toHaveValue("Corolla");
-  await expect(page.getByLabel("Model yılı")).toHaveValue("2020");
-  await expect(page.getByLabel("Yakıt türü")).toHaveValue("Benzin");
-  await expect(page.getByLabel("Vites türü")).toHaveValue("Otomatik");
-  await expect(page.getByLabel("Şehir")).toHaveValue("İstanbul");
-  await expect(page.getByText(/alan ilandan çıkarıldı/)).toBeVisible();
-  await expect(page.getByRole("heading", { name: "İlan linki", exact: true })).toBeVisible();
-  await expect(page.getByText("Eklendi")).toBeVisible();
   await expect(page.getByRole("progressbar", { name: "Zorunlu alan ilerlemesi" })).toHaveAttribute(
     "aria-valuenow",
     "9",

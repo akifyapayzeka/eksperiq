@@ -31,7 +31,6 @@ async function fillDemoVehicle(page: Page) {
     price: String(demoVehicleInput.price),
     engineSize: demoVehicleInput.engineSize,
     enginePower: demoVehicleInput.enginePower,
-    listingUrl: demoVehicleInput.listingUrl,
     tramerAmount: String(demoVehicleInput.tramerAmount),
     lastMaintenanceDate: demoVehicleInput.lastMaintenanceDate,
     inspectionEndDate: demoVehicleInput.inspectionEndDate,
@@ -90,7 +89,7 @@ test("captures release screenshots", async ({ page }, testInfo) => {
 
   await page.goto("/");
   await prepareScreenshotPage(page);
-  await expect(page.getByRole("heading", { name: "Araban için tek asistan." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Araç almadan/ })).toBeVisible();
   await captureReleaseScreenshot(page, prefix, "home");
 
   await page.goto("/analiz");

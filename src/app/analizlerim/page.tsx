@@ -92,14 +92,14 @@ export default function MyAnalysesPage() {
           <div className="mt-5 flex min-h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4">
             <Search aria-hidden="true" className="h-5 w-5 text-slate-500" />
             <label htmlFor="analysis-search" className="sr-only">
-              Marka, model veya ilan ara
+              Marka veya model ara
             </label>
             <input
               id="analysis-search"
               type="search"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Marka, model veya ilan ara"
+              placeholder="Marka veya model ara"
               className="min-h-11 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-500"
             />
             <button
@@ -215,7 +215,7 @@ export default function MyAnalysesPage() {
               <p className="mt-3 text-sm leading-6 text-slate-600">
                 {result
                   ? "Bu arama veya filtreyle eşleşen analiz bulunamadı. Filtreleri temizleyip tekrar deneyin."
-                  : "Henüz analiz oluşturulmadı. Bir ilan girerek ilk raporu oluşturabilirsiniz."}
+                  : "Henüz analiz oluşturulmadı. Araç bilgilerini girerek ilk raporu oluşturabilirsiniz."}
               </p>
               {result ? (
                 <button

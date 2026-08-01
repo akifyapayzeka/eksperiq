@@ -2,16 +2,15 @@ import { expect, test } from "@playwright/test";
 import { demoVehicleInput } from "../fixtures/demo-vehicle";
 
 async function fillRequiredForm(page: import("@playwright/test").Page) {
-  await page.getByLabel("İlan bağlantısı").fill("https://www.sahibinden.com/ilan/vasita-otomobil-test");
   await page.getByLabel("Marka").selectOption(demoVehicleInput.brand);
   await page.locator("#model").selectOption(demoVehicleInput.model);
   await page.getByLabel("Model yılı").fill(String(demoVehicleInput.year));
   await page.getByLabel("Yakıt türü").selectOption(demoVehicleInput.fuelType);
   await page.getByLabel("Vites türü").selectOption(demoVehicleInput.transmission);
   await page.getByLabel("Kilometre").fill(String(demoVehicleInput.mileage));
-  await page.getByLabel("İlan fiyatı").fill(String(demoVehicleInput.price));
+  await page.getByLabel("İstenen fiyat").fill(String(demoVehicleInput.price));
   await page.getByLabel("Şehir").selectOption(demoVehicleInput.city);
-  await page.getByLabel("İlan açıklaması").fill(demoVehicleInput.sellerDescription);
+  await page.getByLabel("Satıcı açıklaması veya araç notu").fill(demoVehicleInput.sellerDescription);
 }
 
 test("module cards open usable assistant tools", async ({ page }) => {

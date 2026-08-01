@@ -1,8 +1,8 @@
 const baseUrl = (process.env.DEPLOY_CHECK_BASE_URL ?? "https://eksperiq.vercel.app").replace(/\/$/, "");
 
 const pages = [
-  { path: "/", expected: ["EksperIQ", "Araban i\u00e7in tek asistan."] },
-  { path: "/analiz", expected: ["Ara\u00e7 ilan\u0131 analizi", "Analiz olu\u015ftur"] },
+  { path: "/", expected: ["EksperIQ", "Ara\u00e7 almadan ya da kendi arac\u0131n\u0131 takip ederken"] },
+  { path: "/analiz", expected: ["Yeni ara\u00e7 analizi", "Analiz olu\u015ftur"] },
   { path: "/sonuc", expected: ["EksperIQ", "\u0130kinci el ara\u00e7 ilan\u0131 risk analizi"] },
   {
     path: "/geri-bildirim",

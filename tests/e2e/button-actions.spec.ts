@@ -17,12 +17,12 @@ async function fillRequiredForm(page: Page) {
   await page.locator("#sellerDescription").fill(demoVehicleInput.sellerDescription);
 }
 
-test("garage add action opens analysis form", async ({ page }) => {
-  await page.goto("/moduller");
-  const addVehicleLink = page.locator('section[aria-labelledby="garage"] a[href="/analiz"]');
-  await expect(addVehicleLink).toHaveAttribute("href", "/analiz");
-  await Promise.all([page.waitForURL(/\/analiz$/), addVehicleLink.click()]);
-  await expect(page.getByRole("heading", { name: /ilan.*analizi/i })).toBeVisible();
+test("garage entry opens vehicle record page", async ({ page }) => {
+  await page.goto("/");
+  const garageLink = page.getByRole("link", { name: "Garajı aç" });
+  await expect(garageLink).toHaveAttribute("href", "/arac-saglik-karnesi");
+  await Promise.all([page.waitForURL(/\/arac-saglik-karnesi$/), garageLink.click()]);
+  await expect(page.getByRole("heading", { name: "Analiz, bakım ve notları tek ekranda tut" })).toBeVisible();
 });
 
 test("analysis list filters and search controls update results", async ({ page }) => {
