@@ -256,7 +256,14 @@ export function AnalysisForm() {
   }
 
   return (
-    <form className="grid gap-6" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form
+      className="grid gap-6"
+      onSubmit={(event) => {
+        event.preventDefault();
+        void handleSubmit(onSubmit)(event);
+      }}
+      noValidate
+    >
       <div className="rounded-2xl border border-teal-200 bg-teal-50 p-4 text-sm leading-6 text-teal-950">
         {appConfig.privacy}
       </div>
@@ -294,7 +301,8 @@ export function AnalysisForm() {
       <BooleanInfoSection register={register} errors={errors} />
       <SellerDescriptionSection register={register} errors={errors} />
       <button
-        type="submit"
+        type="button"
+        onClick={() => void handleSubmit(onSubmit)()}
         disabled={isSubmitting}
         className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-6 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
       >

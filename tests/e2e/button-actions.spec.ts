@@ -28,7 +28,7 @@ test("garage entry opens vehicle record page", async ({ page }) => {
 test("analysis list filters and search controls update results", async ({ page }) => {
   await page.goto("/analiz");
   await fillRequiredForm(page);
-  await page.locator('button[type="submit"]').click();
+  await page.getByRole("button", { name: "Analiz oluştur" }).click();
   await expect(page).toHaveURL(/\/sonuc$/);
 
   await page.goto("/analizlerim");
