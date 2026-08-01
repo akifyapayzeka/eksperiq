@@ -45,6 +45,7 @@ const requiredFiles = [
   "scripts/prepare-rule-feedback-issues.mjs",
   "scripts/triage-user-test-note.mjs",
   "scripts/check-user-test-triage.mjs",
+  "scripts/check-photo-ai-production.mjs",
   "scripts/audit-launch-checklist.mjs",
   "public/app-store-icon-1024.png",
 ];
@@ -80,6 +81,7 @@ const requiredPackageScripts = [
   "rule-feedback:check",
   "launch:audit",
   "ai:staging-check",
+  "ai:photo-prod-check",
   "launch:check",
 ];
 
