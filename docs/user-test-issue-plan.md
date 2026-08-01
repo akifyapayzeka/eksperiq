@@ -26,7 +26,7 @@ npm run user-tests:package
 
 4. `[Kullanıcı testi] Yüksek riskli ilan değerlendirmesi`
    - Senaryo: Hasar, bakım ve belge bilgisi zayıf ilanla rapor okuma.
-   - Kanıt: Kullanıcının ilk üç aksiyonu anlayıp anlamadığı.
+   - Kanıt: Kullanıcının ilk üç aksiyonu anlayıp anlamadığı; fotoğraf AI denendiyse araç dışı görselde hasar bulgusu üretilmediği.
 
 5. `[Kullanıcı testi] Paylaşma ve ekspertize hazırlık`
    - Senaryo: Kısa özeti kopyalama, satıcı sorularını okuma, checklist işaretleme.
@@ -37,4 +37,5 @@ npm run user-tests:package
 - Issue kişisel veri içermemeli.
 - Her issue en az bir ekran, bir takılma noktası ve bir beklenen iyileştirme içermeli.
 - Tekrarlanan kural önerileri `docs/rule-backlog.md` dosyasına bağlanmalı.
+- Fotoğraf AI araç dışı görselde hasar bulgusu üretirse P1 issue olarak ayrılmalı.
 - P0/P1 bug çıkarsa release öncesi düzeltilmeden App Store/TestFlight ilerletilmemeli.

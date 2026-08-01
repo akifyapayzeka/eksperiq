@@ -13,6 +13,26 @@ const rawNote = readFileSync(inputPath, "utf8");
 
 const categories = [
   {
+    type: "fotoğraf AI doğrulama riski",
+    priority: "P1",
+    patterns: [
+      "fotoğraf",
+      "fotograf",
+      "görsel",
+      "gorsel",
+      "yumurta",
+      "araç değil",
+      "arac degil",
+      "araç dışı",
+      "arac disi",
+      "hasar dedi",
+      "yanlış hasar",
+      "yanlis hasar",
+    ],
+    action:
+      "Fotoğraf AI aracının araç dışı görselde bulgu üretmediğini, karar destek sınırını ve güven mesajını doğrula.",
+  },
+  {
     type: "kritik hata",
     priority: "P0",
     patterns: ["acilmadi", "açılmadı", "calismadi", "çalışmadı", "rapora ulasamadim", "sonuc yok", "hata verdi"],
@@ -87,10 +107,32 @@ const affectedAreaPatterns = [
     patterns: ["geri bildirim", "feedback", "not gonder", "not gönder", "kullanici testi", "kullanıcı testi"],
     verification: "Geri bildirim sayfası metinlerinin kişisel veri istemediğini ve CTA'ların göründüğünü doğrula.",
   },
+  {
+    area: "Fotoğraf hasar analizi",
+    patterns: [
+      "fotoğraf",
+      "fotograf",
+      "görsel",
+      "gorsel",
+      "yumurta",
+      "araç değil",
+      "arac degil",
+      "araç dışı",
+      "arac disi",
+      "hasar dedi",
+    ],
+    verification:
+      "Fotoğraf hasar aracında araç dışı görselin hasar bulgusuna dönüşmediğini ve kullanıcıya sınır mesajı gösterildiğini doğrula.",
+  },
 ];
 
 const categoryVerificationCommands = {
   "kritik hata": ["npm run release:check", "npm run e2e"],
+  "fotoğraf AI doğrulama riski": [
+    "npm run ai:photo-prod-check",
+    'npx playwright test tests/e2e/module-tools.spec.ts --grep "photo damage tool refuses non-vehicle photos"',
+    "npm run appstore:metadata-check",
+  ],
   "güven ve dil riski": ["npm run release:check", "npm run appstore:metadata-check"],
   "App Store riski": ["npm run privacy:check", "npm run appstore:metadata-check", "npm run release:check"],
   "kullanıcı deneyimi": [
@@ -109,10 +151,14 @@ const areaVerificationCommands = {
   ],
   "Paylaşma ve kopyalama": ['npx playwright test tests/e2e/main-flow.spec.ts --grep "copies seller-ready message"'],
   "Geri bildirim": ['npx playwright test tests/e2e/main-flow.spec.ts --grep "feedback collection"'],
+  "Fotoğraf hasar analizi": [
+    'npx playwright test tests/e2e/module-tools.spec.ts --grep "photo damage tool refuses non-vehicle photos"',
+  ],
 };
 
 const categoryIssueLabels = {
   "kritik hata": ["bug", "p0"],
+  "fotoğraf AI doğrulama riski": ["ai-photo", "trust-language", "p1", "app-store"],
   "güven ve dil riski": ["trust-language", "p1", "app-store"],
   "App Store riski": ["app-store", "privacy", "p1"],
   "kullanıcı deneyimi": ["ux", "mobile", "p1"],
@@ -125,6 +171,7 @@ const areaIssueLabels = {
   "Mobil alt menü": ["mobile-nav"],
   "Paylaşma ve kopyalama": ["sharing"],
   "Geri bildirim": ["feedback-page"],
+  "Fotoğraf hasar analizi": ["photo-damage"],
   "Genel kullanıcı akışı": ["flow"],
 };
 
@@ -187,6 +234,26 @@ function findPersonalDataWarnings(note) {
 
 function inferAffectedArea(note) {
   const normalizedNote = normalize(note);
+  const hasPhotoAiSignal = [
+    "fotoğraf",
+    "fotograf",
+    "görsel",
+    "gorsel",
+    "yumurta",
+    "araç değil",
+    "arac degil",
+    "araç dışı",
+    "arac disi",
+    "hasar dedi",
+  ].some((term) => normalizedNote.includes(normalize(term)));
+
+  if (hasPhotoAiSignal) {
+    return {
+      area: "Fotoğraf hasar analizi",
+      verification:
+        "Fotoğraf hasar aracında araç dışı görselin hasar bulgusuna dönüşmediğini ve kullanıcıya sınır mesajı gösterildiğini doğrula.",
+    };
+  }
 
   return (
     affectedAreaPatterns.find((item) =>
@@ -288,6 +355,13 @@ function slugify(value) {
 function inferRuleModule(note) {
   const normalizedNote = normalize(note);
 
+  if (
+    ["fotograf", "fotoğraf", "gorsel", "görsel", "yumurta", "arac disi", "araç dışı"].some((term) =>
+      normalizedNote.includes(normalize(term)),
+    )
+  ) {
+    return "hasar";
+  }
   if (["tramer", "hasar", "boya", "degisen", "sasi", "airbag", "pert"].some((term) => normalizedNote.includes(term))) {
     return "hasar";
   }

@@ -31,7 +31,7 @@ Issue başlıkları ve beklenen kanıt: `docs/user-test-issue-plan.md`
 
 - Amaç: Hasar, bakım ve belge risklerinin yeterince görünür olup olmadığını görmek.
 - Senaryo: Ağır hasar, belirsiz bakım ve eksik ekspertiz içeren anonim ilan girilir.
-- Ölçüm: Kullanıcı hangi üç aksiyonu önce yapacağını anlayabildi mi?
+- Ölçüm: Kullanıcı hangi üç aksiyonu önce yapacağını anlayabildi mi? Fotoğraf hasar analizi denendiyse araç dışı görsellerde sistem hasar bulgusu üretmeden duruyor mu?
 - Beklenen çıktı: Kural önceliği veya sonuç ekranı iyileştirmesi.
 
 ## Test 5: Paylaşma ve ekspertize hazırlık
@@ -44,6 +44,7 @@ Issue başlıkları ve beklenen kanıt: `docs/user-test-issue-plan.md`
 ## Haftalık değerlendirme
 
 - P0/P1 bug varsa önce düzeltilir.
+- Fotoğraf AI aracı araç dışı görselde hasar bulgusu üretirse P1 güven ve App Store riski olarak aynı gün düzeltilir.
 - Aynı kural önerisi iki farklı testte tekrarlanırsa `docs/rule-backlog.md` içine aday olarak eklenir.
 - "Kesin al", "kesin alma", "hasarsızdır" algısı oluşturan her metin aynı gün düzeltilir.
 - Kullanıcı testlerinden çıkan işlerin kapatılması `npm run launch:check` ve ilgili e2e/unit testlerle doğrulanır.

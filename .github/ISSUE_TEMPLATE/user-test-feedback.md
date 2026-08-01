@@ -27,6 +27,7 @@ Plaka, telefon, açık adres, satıcı adı, kimlik bilgisi veya ilan sahibine a
 - [ ] Sonuç raporu okundu
 - [ ] Ekspertiz kontrol listesi işaretlendi
 - [ ] Satıcı mesajı, satıcı soruları veya rapor özeti kopyalama denendi
+- [ ] Fotoğraf hasar analizi araç dışı görselle veya anonim araç fotoğrafıyla denendi
 
 ## Takıldığı yer
 
@@ -47,6 +48,10 @@ Risk skoru ve rapor dili güven verdi mi, fazla kesin mi hissettirdi, yoksa yete
 ## Eksik kural veya soru
 
 Eksik görülen risk uyarısı, satıcı sorusu veya ekspertiz kontrol başlığı var mı?
+
+## Fotoğraf AI kontrol notu
+
+Araç dışı bir görsel kullanıldıysa sistem hasar bulgusu üretmeden durdu mu? Araç fotoğrafı kullanıldıysa sonuç olasılık ve güven seviyesi olarak mı anlatıldı?
 
 ## Beklenen iyileştirme
 
