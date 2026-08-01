@@ -21,6 +21,7 @@ const areas = [
 
 const findings = ["Çizik", "Göçük", "Boya çatlağı", "Renk farkı", "Panel hizasızlığı", "Pas", "Çatlak", "Kırık"];
 const confidenceLevels = ["Düşük olasılık", "Orta olasılık", "Yüksek olasılık"];
+const isPhotoAiEnabled = process.env.NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED === "true";
 
 type DamageFinding = {
   area: string;
@@ -106,6 +107,12 @@ export default function PhotoDamagePage() {
       return;
     }
 
+    if (!isPhotoAiEnabled) {
+      setAiStatus("error");
+      setAiMessage("AI fotoğraf kontrolü şu anda kapalı. Manuel kontrol notu ekleyebilirsiniz.");
+      return;
+    }
+
     setAiStatus("loading");
     setAiMessage("");
     setAiAnalysis(null);
@@ -164,8 +171,8 @@ export default function PhotoDamagePage() {
           <p className="mt-5 text-sm font-semibold text-teal-200">Fotoğraftan Hasar Analizi</p>
           <h1 className="mt-2 text-3xl font-semibold">Fotoğrafları inceleme notuna çevir</h1>
           <p className="mt-3 text-sm leading-6 text-slate-300">
-            Bu MVP fotoğrafları sunucuya yüklemez ve AI hasar tespiti yapmaz. Görselde gördüğünüz olası bulguları seçip
-            ekspertize götürülecek kısa bir kontrol listesi üretir.
+            Fotoğrafta araç görünüyorsa AI destekli ön kontrol isteyebilir veya gördüğünüz olası bulguları manuel seçip
+            ekspertize götürülecek kısa bir kontrol listesi oluşturabilirsiniz.
           </p>
         </section>
 
@@ -211,10 +218,15 @@ export default function PhotoDamagePage() {
             Seçtiğiniz fotoğraf OpenRouter üzerinden görüntü anlayan modele gönderilir. Araç görünmüyorsa sistem bulgu
             üretmemelidir.
           </p>
+          {!isPhotoAiEnabled ? (
+            <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-950">
+              Canlı AI fotoğraf kontrolü şu anda kapalı. Bu ekranda manuel kontrol notu oluşturabilirsiniz.
+            </p>
+          ) : null}
           <button
             type="button"
             onClick={analyzePhotosWithAi}
-            disabled={!files.length || aiStatus === "loading"}
+            disabled={!isPhotoAiEnabled || !files.length || aiStatus === "loading"}
             className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-teal-700 px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             {aiStatus === "loading" ? "AI inceliyor" : "AI ile fotoğrafı analiz et"}
