@@ -5,6 +5,7 @@ export const productModules: ProductModule[] = [
     id: "listing-analysis",
     title: "İlan Analizi",
     status: "active",
+    href: "/analiz",
     summary: "Kullanıcının manuel girdiği ilan ve araç bilgileriyle ikinci el araç karar desteği üretir.",
     capabilities: [
       {
@@ -26,7 +27,8 @@ export const productModules: ProductModule[] = [
   {
     id: "photo-damage-analysis",
     title: "Fotoğraftan Hasar Analizi",
-    status: "planned",
+    status: "active",
+    href: "/fotograf-hasar",
     summary: "Araç fotoğraflarında olası kozmetik ve parça risklerini güven seviyesiyle işaretler.",
     capabilities: [
       {
@@ -45,7 +47,8 @@ export const productModules: ProductModule[] = [
   {
     id: "repair-cost-estimation",
     title: "Tahmini Onarım Maliyeti",
-    status: "planned",
+    status: "active",
+    href: "/onarim-maliyeti",
     summary: "Olası hasar bulgularına göre şehir, servis ve parça değişkenliğini belirten maliyet aralıkları sunar.",
     capabilities: [
       {
@@ -60,7 +63,8 @@ export const productModules: ProductModule[] = [
   {
     id: "expertise-report-analysis",
     title: "Ekspertiz Raporu Analizi",
-    status: "planned",
+    status: "active",
+    href: "/ekspertiz-raporu",
     summary: "PDF veya fotoğraf formatındaki ekspertiz raporunu sadeleştirip kritik riskleri özetler.",
     capabilities: [
       {
@@ -74,7 +78,8 @@ export const productModules: ProductModule[] = [
   {
     id: "maintenance-tracking",
     title: "Bakım Takibi",
-    status: "planned",
+    status: "active",
+    href: "/bakim-takibi",
     summary: "Kullanıcının kendi aracı için bakım, muayene, vergi ve sigorta hatırlatmaları üretir.",
     capabilities: [
       {
@@ -89,7 +94,8 @@ export const productModules: ProductModule[] = [
   {
     id: "vehicle-health-record",
     title: "Araç Sağlık Karnesi",
-    status: "planned",
+    status: "active",
+    href: "/arac-saglik-karnesi",
     summary: "Araçla ilgili bakım, hasar, ekspertiz, masraf, servis geçmişi ve hatırlatmaları tek ekranda toplar.",
     capabilities: [
       {
@@ -103,7 +109,8 @@ export const productModules: ProductModule[] = [
   {
     id: "vehicle-value-tracking",
     title: "Araç Değer Takibi",
-    status: "planned",
+    status: "active",
+    href: "/arac-deger-takibi",
     summary: "Aracın yaklaşık piyasa değişimini ve fiyat trendini karar desteği olarak gösterir.",
     capabilities: [
       {
@@ -117,7 +124,8 @@ export const productModules: ProductModule[] = [
   {
     id: "smart-sale-preparation",
     title: "Akıllı Satış Hazırlığı",
-    status: "planned",
+    status: "active",
+    href: "/satis-hazirligi",
     summary: "Satış öncesi eksik bakım, kozmetik kusur, yaklaşan masraf, fotoğraf ve evrak önerilerini listeler.",
     capabilities: [
       {

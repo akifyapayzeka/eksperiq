@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BellPlus, CheckCircle2, Clock3, Plus } from "lucide-react";
+import { ArrowUpRight, BellPlus, CheckCircle2, Clock3, Plus } from "lucide-react";
 import { activeModules, plannedModules } from "@/lib/modules/registry";
 import type { ProductModule } from "@/lib/modules/types";
 
@@ -39,6 +39,13 @@ function ModuleCard({ module }: { module: ProductModule }) {
           <span className="font-semibold text-slate-900">Kesinlik sınırı:</span> {module.certaintyPolicy}
         </p>
       </div>
+      <Link
+        href={module.href}
+        className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800"
+      >
+        {isActive ? "Modülü aç" : "Detayları gör"}
+        <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+      </Link>
     </article>
   );
 }
@@ -56,8 +63,8 @@ export default function ModulesPage() {
             Sadece ilan analizi değil, araç yolculuğu asistanı.
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-slate-200">
-            İlk sürüm ilan analizini aktif tutar. Fotoğraftan hasar analizi, bakım takibi, sağlık karnesi ve satış
-            hazırlığı bağımsız modüller olarak eklenecek.
+            İlan analizi ana akıştır. Fotoğraftan hasar notu, bakım takibi, sağlık karnesi, değer takibi ve satış
+            hazırlığı ücretsiz karar destek modülleri olarak ayrı çalışır.
           </p>
         </section>
 
@@ -91,28 +98,30 @@ export default function ModulesPage() {
 
         <section className="mt-8" aria-labelledby="active-modules-title">
           <h2 id="active-modules-title" className="text-2xl font-semibold text-slate-950">
-            Aktif modül
+            Aktif modüller
           </h2>
-          <div className="mt-4 grid gap-4">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             {active.map((module) => (
               <ModuleCard key={module.id} module={module} />
             ))}
           </div>
         </section>
 
-        <section className="mt-10" aria-labelledby="planned-modules-title">
-          <h2 id="planned-modules-title" className="text-2xl font-semibold text-slate-950">
-            Yakında gelecek özellikler
-          </h2>
-          <p className="mt-2 text-base leading-7 text-slate-600">
-            Aracını tanıdıkça daha faydalı öneriler sunacak bağımsız modüller.
-          </p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            {planned.map((module) => (
-              <ModuleCard key={module.id} module={module} />
-            ))}
-          </div>
-        </section>
+        {planned.length ? (
+          <section className="mt-10" aria-labelledby="planned-modules-title">
+            <h2 id="planned-modules-title" className="text-2xl font-semibold text-slate-950">
+              Yakında gelecek özellikler
+            </h2>
+            <p className="mt-2 text-base leading-7 text-slate-600">
+              Aracını tanıdıkça daha faydalı öneriler sunacak bağımsız modüller.
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              {planned.map((module) => (
+                <ModuleCard key={module.id} module={module} />
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <section className="mt-8 rounded-2xl bg-slate-900 p-6 text-white">
           <BellPlus aria-hidden="true" className="h-8 w-8 text-teal-200" />

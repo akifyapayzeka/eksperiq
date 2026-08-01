@@ -142,7 +142,7 @@ export function ResultClient() {
   const [isReady, setIsReady] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [copyStatus, setCopyStatus] = useState<
-    "idle" | "questions-copied" | "seller-message-copied" | "summary-copied" | "shared" | "failed"
+    "idle" | "questions-copied" | "seller-message-copied" | "summary-copied" | "shared" | "print-opened" | "failed"
   >("idle");
   const [findingFilter, setFindingFilter] = useState<FindingFilter>("all");
   const [checkedChecklist, setCheckedChecklist] = useState<Set<string>>(new Set());
@@ -169,11 +169,41 @@ export function ResultClient() {
     successStatus: "questions-copied" | "seller-message-copied" | "summary-copied",
   ) {
     try {
-      await navigator.clipboard.writeText(text);
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        copyTextWithFallback(text);
+      }
       setCopyStatus(successStatus);
     } catch {
-      setCopyStatus("failed");
+      try {
+        copyTextWithFallback(text);
+        setCopyStatus(successStatus);
+      } catch {
+        setCopyStatus("failed");
+      }
     }
+  }
+
+  function copyTextWithFallback(text: string) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "true");
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    document.body.removeChild(textarea);
+
+    if (!copied) {
+      throw new Error("Copy fallback failed");
+    }
+  }
+
+  function printReport() {
+    setCopyStatus("print-opened");
+    window.setTimeout(() => window.print(), 0);
   }
 
   async function copyQuestions() {
@@ -218,6 +248,17 @@ export function ResultClient() {
     } catch {
       setCopyStatus("failed");
     }
+  }
+
+  function actionStatusMessage() {
+    if (copyStatus === "questions-copied") return "Satıcı soruları panoya kopyalandı.";
+    if (copyStatus === "seller-message-copied") return "Satıcı mesajı panoya kopyalandı.";
+    if (copyStatus === "summary-copied") return "Rapor özeti panoya kopyalandı.";
+    if (copyStatus === "shared") return "Rapor özeti paylaşım paneline gönderildi.";
+    if (copyStatus === "print-opened")
+      return "Yazdırma penceresi açıldı. Açılmadıysa tarayıcının paylaş menüsünden yazdırmayı deneyin.";
+    if (copyStatus === "failed") return "Paylaşma veya kopyalama tarayıcı tarafından engellendi.";
+    return "";
   }
 
   async function requestAiNote() {
@@ -421,7 +462,7 @@ export function ResultClient() {
           <div className="no-print grid gap-3 border-t border-slate-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-4">
             <button
               type="button"
-              onClick={() => window.print()}
+              onClick={printReport}
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800"
             >
               <FileText aria-hidden="true" className="h-4 w-4" />
@@ -475,6 +516,14 @@ export function ResultClient() {
               Oturum verisini sil
             </button>
           </div>
+          <p
+            className={`no-print min-h-5 px-4 pb-4 text-sm font-medium ${
+              copyStatus === "failed" ? "text-red-700" : "text-teal-800"
+            }`}
+            role="status"
+          >
+            {actionStatusMessage()}
+          </p>
           <div className="no-print border-t border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -493,13 +542,6 @@ export function ResultClient() {
               </Link>
             </div>
           </div>
-          <p className="no-print min-h-5 px-4 pb-4 text-sm text-slate-600" role="status">
-            {copyStatus === "questions-copied" ? "Satıcı soruları panoya kopyalandı." : null}
-            {copyStatus === "seller-message-copied" ? "Satıcı mesajı panoya kopyalandı." : null}
-            {copyStatus === "summary-copied" ? "Rapor özeti panoya kopyalandı." : null}
-            {copyStatus === "shared" ? "Rapor özeti paylaşım paneline gönderildi." : null}
-            {copyStatus === "failed" ? "Paylaşma veya kopyalama tarayıcı tarafından engellendi." : null}
-          </p>
         </section>
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
           <div className="flex gap-3">

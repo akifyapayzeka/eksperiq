@@ -19,6 +19,7 @@ export type ProductModule = {
   id: ModuleId;
   title: string;
   status: ModuleStatus;
+  href: string;
   summary: string;
   capabilities: ModuleCapability[];
   dataPolicy: string;

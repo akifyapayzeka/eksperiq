@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -219,6 +220,7 @@ function FormSectionLinks() {
 
 export function AnalysisForm() {
   const router = useRouter();
+  const [demoStatus, setDemoStatus] = useState<"idle" | "filled">("idle");
   const {
     register,
     handleSubmit,
@@ -258,6 +260,7 @@ export function AnalysisForm() {
         shouldValidate: true,
       });
     }
+    setDemoStatus("filled");
   }
 
   return (
@@ -282,6 +285,14 @@ export function AnalysisForm() {
             Örnek ilanla doldur
           </button>
         </div>
+        {demoStatus === "filled" ? (
+          <p
+            className="mt-3 rounded-xl border border-teal-200 bg-teal-50 px-3 py-2 text-sm font-medium text-teal-900"
+            role="status"
+          >
+            Örnek ilan dolduruldu. Aşağıdaki “Analiz oluştur” butonuyla raporu oluşturabilirsiniz.
+          </p>
+        ) : null}
       </div>
       <FormStepOverview values={progressValues} />
       <FormProgress values={progressValues} />

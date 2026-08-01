@@ -152,8 +152,8 @@ test("shows product module roadmap", async ({ page }) => {
     page.getByRole("heading", { name: "Sadece ilan analizi değil, araç yolculuğu asistanı." }),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "Garajım" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Aktif modül" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Yakında gelecek özellikler" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Aktif modüller" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Modülü aç/ })).toHaveCount(8);
   await expect(page.getByRole("heading", { name: "İlan Analizi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Fotoğraftan Hasar Analizi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Araç Sağlık Karnesi" })).toBeVisible();
