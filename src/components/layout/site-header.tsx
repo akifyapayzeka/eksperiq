@@ -3,9 +3,10 @@ import { CarFront } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
 
 const links = [
-  { href: "/analiz", label: "Yeni Analiz" },
+  { href: "/arac-saglik-karnesi", label: "Garajım" },
   { href: "/analizlerim", label: "Analizlerim" },
-  { href: "/arac-saglik-karnesi", label: "Garaj" },
+  { href: "/sonuc", label: "Raporlarım" },
+  { href: "/profil", label: "Profil" },
 ];
 
 export function SiteHeader() {
@@ -31,7 +32,7 @@ export function SiteHeader() {
           href="/analiz"
           className="inline-flex min-h-11 items-center rounded-lg bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
         >
-          Başla
+          Yeni Analiz
         </Link>
       </div>
     </header>

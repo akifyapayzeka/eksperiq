@@ -23,7 +23,9 @@ test("home to analysis form", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Ana ekran" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Yeni Analiz" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Analizlerim" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Garaj" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Garajım" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Raporlarım" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Profil" })).toBeVisible();
   const analysisLink = page.getByRole("main").getByRole("link", { name: "Yeni analiz başlat" });
   await expect(analysisLink).toHaveAttribute("href", "/analiz");
   await Promise.all([page.waitForURL(/\/analiz$/), analysisLink.click()]);
@@ -43,11 +45,17 @@ test("mobile bottom navigation opens app actions", async ({ page, isMobile }) =>
   test.skip(!isMobile, "Mobile bottom navigation is only visible on small screens.");
 
   await page.goto("/");
+  await page.addStyleTag({
+    content:
+      "nextjs-portal, [data-nextjs-devtools-button] { display: none !important; pointer-events: none !important; }",
+  });
   const mobileNav = page.getByRole("navigation", { name: "Mobil alt menü" });
   await expect(mobileNav).toBeVisible();
   await expect(mobileNav.getByRole("link", { name: "Yeni Analiz" })).toBeVisible();
+  await expect(mobileNav.getByRole("link", { name: "Garajım" })).toBeVisible();
   await expect(mobileNav.getByRole("link", { name: "Analizlerim" })).toBeVisible();
-  await expect(mobileNav.getByRole("link", { name: "Garaj" })).toBeVisible();
+  await expect(mobileNav.getByRole("link", { name: "Raporlarım" })).toBeVisible();
+  await expect(mobileNav.getByRole("link", { name: "Profil" })).toBeVisible();
 
   await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Yeni Analiz" }).click();
   await expect(page).toHaveURL(/\/analiz$/);
@@ -57,9 +65,13 @@ test("mobile bottom navigation opens app actions", async ({ page, isMobile }) =>
   await expect(page).toHaveURL(/\/analizlerim$/);
   await expect(page.getByRole("heading", { name: "Analizlerim" })).toBeVisible();
 
-  await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Garaj" }).click();
+  await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Garajım" }).click();
   await expect(page).toHaveURL(/\/arac-saglik-karnesi$/);
   await expect(page.getByRole("heading", { name: "Analiz, bakım ve notları tek ekranda tut" })).toBeVisible();
+
+  await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Profil" }).click();
+  await expect(page).toHaveURL(/\/profil$/);
+  await expect(page.getByRole("heading", { name: "EksperIQ hesabı olmadan kullanılabilir." })).toBeVisible();
 });
 
 test("shows validation errors", async ({ page }) => {

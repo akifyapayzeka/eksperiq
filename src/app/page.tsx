@@ -1,5 +1,16 @@
 import Link from "next/link";
-import { ArrowUpRight, Camera, CarFront, FileSearch, FileText, Plus, ShieldCheck, Wrench } from "lucide-react";
+import {
+  ArrowUpRight,
+  Camera,
+  CarFront,
+  FileCheck2,
+  FileSearch,
+  FileText,
+  Plus,
+  ShieldCheck,
+  UserRound,
+  Wrench,
+} from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
 
 const primaryActions = [
@@ -11,18 +22,32 @@ const primaryActions = [
     cta: "Analiz başlat",
   },
   {
-    icon: FileText,
-    title: "Analizlerim",
-    description: "Son oluşturduğunuz raporu, risk skorunu, satıcı sorularını ve kontrol listesini görün.",
-    href: "/analizlerim",
-    cta: "Raporlara git",
-  },
-  {
     icon: CarFront,
-    title: "Garaj",
+    title: "Garajım",
     description: "Kendi aracınız için bakım, ekspertiz, hasar notu ve hatırlatma kayıtlarını takip edin.",
     href: "/arac-saglik-karnesi",
     cta: "Garajı aç",
+  },
+  {
+    icon: FileText,
+    title: "Analizlerim",
+    description: "Daha önce oluşturduğunuz analizleri ve araç özetlerini görün.",
+    href: "/analizlerim",
+    cta: "Analizlere git",
+  },
+  {
+    icon: FileCheck2,
+    title: "Raporlarım",
+    description: "Son risk raporunu, satıcı sorularını ve ekspertiz kontrol listesini açın.",
+    href: "/sonuc",
+    cta: "Raporu aç",
+  },
+  {
+    icon: UserRound,
+    title: "Profil",
+    description: "Gizlilik, geri bildirim ve uygulama kullanım bilgilerine ulaşın.",
+    href: "/profil",
+    cta: "Profili aç",
   },
 ];
 
@@ -71,12 +96,14 @@ export default function Home() {
           <h2 id="main-actions" className="text-2xl font-semibold text-slate-950">
             Ana ekran
           </h2>
-          <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {primaryActions.map((item) => (
               <Link
                 key={item.title}
                 href={item.href}
-                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-teal-700"
+                className={`group rounded-2xl border bg-white p-5 shadow-sm transition hover:border-teal-700 ${
+                  item.title === "Yeni Analiz" ? "border-slate-900 ring-1 ring-slate-900" : "border-slate-200"
+                }`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <span className="grid h-12 w-12 place-items-center rounded-xl bg-sky-50 text-teal-800">
