@@ -82,4 +82,37 @@ describe("analysis engine", () => {
     const claims = detectedClaims("Acil satılık, masrafsız, doktordan, fiyat son.");
     expect(claims).toEqual(expect.arrayContaining(["Acil satılık", "Masrafsız", "Doktordan", "Fiyat son"]));
   });
+
+  it("adds diesel-specific questions for diesel vehicles", () => {
+    const questions = generateSellerQuestions({ ...baseInput, fuelType: "Dizel" }, []);
+    expect(questions).toContain("Partikül filtresi (DPF) temizliği veya değişimi yapıldı mı?");
+    expect(questions).toContain("Turbo arızası veya bakımı geçmişi var mı?");
+  });
+
+  it("does not add diesel-specific questions for petrol vehicles", () => {
+    const questions = generateSellerQuestions({ ...baseInput, fuelType: "Benzin" }, []);
+    expect(questions).not.toContain("Partikül filtresi (DPF) temizliği veya değişimi yapıldı mı?");
+  });
+
+  it("adds a battery health question for hybrid and electric vehicles", () => {
+    const hybridQuestions = generateSellerQuestions({ ...baseInput, fuelType: "Hibrit" }, []);
+    const electricQuestions = generateSellerQuestions({ ...baseInput, fuelType: "Elektrik" }, []);
+    expect(hybridQuestions).toContain("Batarya sağlık durumu veya garantisi hakkında belge var mı?");
+    expect(electricQuestions).toContain("Batarya sağlık durumu veya garantisi hakkında belge var mı?");
+  });
+
+  it("adds a drivetrain question for 4x4/AWD vehicles", () => {
+    const questions = generateSellerQuestions({ ...baseInput, drivetrain: "4x4" }, []);
+    expect(questions).toContain("Aktarma organları (transfer kutusu, diferansiyel) yağ bakımı yapıldı mı?");
+  });
+
+  it("adds a wear-item question for high-mileage vehicles", () => {
+    const questions = generateSellerQuestions({ ...baseInput, mileage: 180000 }, []);
+    expect(questions).toContain("Süspansiyon burçları ve motor takozlarında değişim yapıldı mı?");
+  });
+
+  it("adds a corrosion question for vehicles older than 10 years", () => {
+    const questions = generateSellerQuestions({ ...baseInput, year: 2010 }, []);
+    expect(questions).toContain("Kaporta veya alt takımda pas/korozyon var mı?");
+  });
 });

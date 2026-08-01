@@ -24,6 +24,9 @@ const BASE_QUESTIONS = [
   "Satış sebebiniz nedir?",
 ];
 
+const HIGH_MILEAGE_KM = 150_000;
+const OLD_VEHICLE_AGE_YEARS = 10;
+
 export function generateSellerQuestions(input: VehicleFormData, findings: AnalysisFinding[]): string[] {
   const priority = new Set<string>();
   if (findings.some((finding) => finding.category === "Hasar")) {
@@ -37,5 +40,24 @@ export function generateSellerQuestions(input: VehicleFormData, findings: Analys
   }
   if (input.transmission === "Otomatik") priority.add("Otomatik şanzıman yağı değişti mi?");
   if (/var/i.test(input.lpgStatus ?? "")) priority.add("LPG varsa ruhsata işli mi?");
+
+  if (input.fuelType === "Dizel") {
+    priority.add("Partikül filtresi (DPF) temizliği veya değişimi yapıldı mı?");
+    priority.add("Turbo arızası veya bakımı geçmişi var mı?");
+  }
+  if (input.fuelType === "Hibrit" || input.fuelType === "Elektrik") {
+    priority.add("Batarya sağlık durumu veya garantisi hakkında belge var mı?");
+  }
+  if (input.drivetrain === "4x4" || input.drivetrain === "AWD") {
+    priority.add("Aktarma organları (transfer kutusu, diferansiyel) yağ bakımı yapıldı mı?");
+  }
+  if (input.mileage >= HIGH_MILEAGE_KM) {
+    priority.add("Süspansiyon burçları ve motor takozlarında değişim yapıldı mı?");
+  }
+  const vehicleAge = new Date().getFullYear() - input.year;
+  if (vehicleAge >= OLD_VEHICLE_AGE_YEARS) {
+    priority.add("Kaporta veya alt takımda pas/korozyon var mı?");
+  }
+
   return [...priority, ...BASE_QUESTIONS.filter((question) => !priority.has(question))].slice(0, 20);
 }
