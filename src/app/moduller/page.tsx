@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BellPlus, CheckCircle2, Clock3, Plus } from "lucide-react";
 import { activeModules, plannedModules } from "@/lib/modules/registry";
 import type { ProductModule } from "@/lib/modules/types";
@@ -68,10 +69,13 @@ export default function ModulesPage() {
                 Garajım
               </h2>
             </div>
-            <span className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white">
+            <Link
+              href="/analiz"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-800"
+            >
               <Plus aria-hidden="true" className="h-4 w-4" />
               Araç Ekle
-            </span>
+            </Link>
           </div>
           <div className="mt-5 rounded-2xl bg-sky-50 p-5">
             <p className="text-sm font-semibold text-teal-800">Sağlık Karnesi: Hazırlanıyor</p>

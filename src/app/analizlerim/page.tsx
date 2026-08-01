@@ -17,7 +17,15 @@ import {
 import { loadAnalysis } from "@/lib/storage/analysis-storage";
 import type { AnalysisResult } from "@/lib/analysis/types";
 
-const filters = ["Tümü", "Yüksek Risk", "Orta Risk", "Düşük Risk"];
+type AnalysisFilter = "all" | "high" | "medium" | "low";
+
+const filters: Array<{ id: AnalysisFilter; label: string }> = [
+  { id: "all", label: "Tümü" },
+  { id: "high", label: "Yüksek Risk" },
+  { id: "medium", label: "Orta Risk" },
+  { id: "low", label: "Düşük Risk" },
+];
+
 const upcomingModules = [
   ["Fotoğraftan Hasar Analizi", "Olası çizik, göçük ve panel uyumsuzluğu işaretleri."],
   ["Bakım Takibi", "Periyodik bakım ve yaklaşan işlemleri tek yerde izle."],
@@ -27,6 +35,8 @@ const upcomingModules = [
 
 export default function MyAnalysesPage() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [activeFilter, setActiveFilter] = useState<AnalysisFilter>("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -37,6 +47,14 @@ export default function MyAnalysesPage() {
   }, []);
 
   const completedCount = result ? 1 : 0;
+  const visibleResult =
+    result && matchesSearch(result, searchQuery) && matchesFilter(result, activeFilter) ? result : null;
+  const filteredCount = visibleResult ? 1 : 0;
+
+  function clearFilters() {
+    setActiveFilter("all");
+    setSearchQuery("");
+  }
 
   return (
     <main className="flex-1 bg-slate-50">
@@ -73,20 +91,41 @@ export default function MyAnalysesPage() {
 
           <div className="mt-5 flex min-h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4">
             <Search aria-hidden="true" className="h-5 w-5 text-slate-500" />
-            <span className="text-sm text-slate-500">Marka, model veya ilan ara</span>
-            <SlidersHorizontal aria-hidden="true" className="ml-auto h-5 w-5 text-slate-500" />
+            <label htmlFor="analysis-search" className="sr-only">
+              Marka, model veya ilan ara
+            </label>
+            <input
+              id="analysis-search"
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Marka, model veya ilan ara"
+              className="min-h-11 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-500"
+            />
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="ml-auto inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl text-slate-500 hover:bg-white hover:text-slate-900"
+              aria-label="Filtreleri temizle"
+            >
+              <SlidersHorizontal aria-hidden="true" className="h-5 w-5" />
+            </button>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-2 sm:flex" aria-label="Analiz filtreleri">
-            {filters.map((filter, index) => (
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:flex" role="group" aria-label="Analiz filtreleri">
+            {filters.map((filter) => (
               <button
-                key={filter}
+                key={filter.id}
                 type="button"
+                aria-pressed={activeFilter === filter.id}
+                onClick={() => setActiveFilter(filter.id)}
                 className={`min-h-11 rounded-full border px-3 text-sm font-semibold sm:shrink-0 sm:px-4 ${
-                  index === 0 ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white text-slate-700"
+                  activeFilter === filter.id
+                    ? "border-slate-900 bg-slate-900 text-white"
+                    : "border-slate-200 bg-white text-slate-700 hover:border-teal-700 hover:text-teal-800"
                 }`}
               >
-                {filter}
+                {filter.label}
               </button>
             ))}
           </div>
@@ -101,11 +140,11 @@ export default function MyAnalysesPage() {
               </p>
             </div>
             <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600">
-              {completedCount} analiz
+              {filteredCount} / {completedCount} analiz
             </span>
           </div>
 
-          {result ? (
+          {visibleResult ? (
             <article className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
               <div className="bg-sky-50 p-5">
                 <div className="flex gap-4">
@@ -115,16 +154,16 @@ export default function MyAnalysesPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between">
                       <h3 className="text-xl font-semibold leading-tight text-slate-950">
-                        {result.input.year} {result.input.brand} {result.input.model}
+                        {visibleResult.input.year} {visibleResult.input.brand} {visibleResult.input.model}
                       </h3>
                       <span className="shrink-0 rounded-full bg-amber-50 px-2 py-1 text-sm font-semibold text-amber-700 ring-1 ring-amber-200">
-                        {result.totalScore} - {result.riskLabel}
+                        {visibleResult.totalScore} - {visibleResult.riskLabel}
                       </span>
                     </div>
                     <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-600">
-                      <span>{result.input.city || "Şehir belirtilmedi"}</span>
-                      <span>{result.input.mileage.toLocaleString("tr-TR")} km</span>
-                      <span>{result.input.fuelType}</span>
+                      <span>{visibleResult.input.city || "Şehir belirtilmedi"}</span>
+                      <span>{visibleResult.input.mileage.toLocaleString("tr-TR")} km</span>
+                      <span>{visibleResult.input.fuelType}</span>
                     </p>
                   </div>
                 </div>
@@ -132,7 +171,7 @@ export default function MyAnalysesPage() {
               <div className="p-5">
                 <p className="flex items-start gap-2 text-sm font-semibold text-slate-700">
                   <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-                  {result.findings[0]?.title ?? "Öncelikli bulgu bulunamadı"}
+                  {visibleResult.findings[0]?.title ?? "Öncelikli bulgu bulunamadı"}
                 </p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-3">
                   <div className="rounded-xl bg-slate-50 p-3">
@@ -142,13 +181,13 @@ export default function MyAnalysesPage() {
                   <div className="rounded-xl bg-slate-50 p-3">
                     <ShieldCheck aria-hidden="true" className="h-4 w-4 text-slate-500" />
                     <p className="mt-2 text-sm font-semibold text-slate-950">
-                      {result.completeness.completed}/{result.completeness.total} bilgi dolu
+                      {visibleResult.completeness.completed}/{visibleResult.completeness.total} bilgi dolu
                     </p>
                   </div>
                   <div className="rounded-xl bg-slate-50 p-3">
                     <Wrench aria-hidden="true" className="h-4 w-4 text-slate-500" />
                     <p className="mt-2 text-sm font-semibold text-slate-950">
-                      {result.inspectionFocus.length} kontrol başlığı
+                      {visibleResult.inspectionFocus.length} kontrol başlığı
                     </p>
                   </div>
                 </div>
@@ -174,14 +213,26 @@ export default function MyAnalysesPage() {
             <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
               <FileText aria-hidden="true" className="mx-auto h-10 w-10 text-slate-400" />
               <p className="mt-3 text-sm leading-6 text-slate-600">
-                Henüz analiz oluşturulmadı. Bir ilan girerek ilk raporu oluşturabilirsiniz.
+                {result
+                  ? "Bu arama veya filtreyle eşleşen analiz bulunamadı. Filtreleri temizleyip tekrar deneyin."
+                  : "Henüz analiz oluşturulmadı. Bir ilan girerek ilk raporu oluşturabilirsiniz."}
               </p>
-              <Link
-                href="/analiz"
-                className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-teal-700 px-4 text-sm font-semibold text-white"
-              >
-                Analiz başlat
-              </Link>
+              {result ? (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-teal-700 px-4 text-sm font-semibold text-white"
+                >
+                  Filtreleri temizle
+                </button>
+              ) : (
+                <Link
+                  href="/analiz"
+                  className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-teal-700 px-4 text-sm font-semibold text-white"
+                >
+                  Analiz başlat
+                </Link>
+              )}
             </div>
           )}
         </section>
@@ -206,4 +257,37 @@ export default function MyAnalysesPage() {
       </div>
     </main>
   );
+}
+
+function normalize(value: string): string {
+  return value.toLocaleLowerCase("tr-TR").trim();
+}
+
+function matchesSearch(result: AnalysisResult, query: string): boolean {
+  const normalizedQuery = normalize(query);
+  if (!normalizedQuery) return true;
+
+  const haystack = normalize(
+    [
+      result.input.brand,
+      result.input.model,
+      result.input.year,
+      result.input.city,
+      result.input.fuelType,
+      result.input.sellerDescription,
+    ].join(" "),
+  );
+
+  return haystack.includes(normalizedQuery);
+}
+
+function riskBucket(score: number): Exclude<AnalysisFilter, "all"> {
+  if (score >= 80) return "low";
+  if (score >= 60) return "medium";
+  return "high";
+}
+
+function matchesFilter(result: AnalysisResult, filter: AnalysisFilter): boolean {
+  if (filter === "all") return true;
+  return riskBucket(result.totalScore) === filter;
 }
