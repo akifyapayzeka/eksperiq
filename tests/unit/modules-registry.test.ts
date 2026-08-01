@@ -9,6 +9,7 @@ describe("product module registry", () => {
       "repair-cost-estimation",
       "expertise-report-analysis",
       "maintenance-tracking",
+      "maintenance-payment-calendar",
       "vehicle-health-record",
       "vehicle-value-tracking",
       "smart-sale-preparation",
@@ -16,7 +17,7 @@ describe("product module registry", () => {
   });
 
   it("keeps all modules independent and routed", () => {
-    expect(productModules).toHaveLength(8);
+    expect(productModules).toHaveLength(9);
     expect(plannedModules()).toEqual([]);
     for (const productModule of productModules) {
       expect(productModule.href).toMatch(/^\//);

@@ -7,6 +7,7 @@ export const appConfig = {
   newRuleFeedbackUrl: "https://github.com/akifyapayzeka/eksperiq/issues/new?template=rule-feedback.md",
   newUserTestFeedbackUrl: "https://github.com/akifyapayzeka/eksperiq/issues/new?template=user-test-feedback.md",
   storageKey: "eksperiq:last-analysis",
+  remindersStorageKey: "eksperiq:reminders",
   disclaimer:
     "Bu analiz yalnızca bilgilendirme ve karar desteği amacıyla hazırlanır. Profesyonel araç ekspertizinin, servis kontrolünün, resmî kayıt sorgularının veya hukuki incelemenin yerine geçmez. Son satın alma kararı kullanıcıya aittir.",
   privacy:

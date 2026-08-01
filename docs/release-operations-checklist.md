@@ -111,7 +111,7 @@ Kontrol edilecekler:
 - App adı: `EksperIQ`
 - Build ortamı: Xcode 26 veya sonrası, iOS 26 SDK
 - Gizlilik politikası URL'si: `https://eksperiq.vercel.app/gizlilik`
-- Kamera, konum, fotoğraf veya bildirim izni gerekmedikçe istenmiyor.
+- Konum izni istenmiyor. Kamera/fotoğraf izni yalnızca fotoğraf kontrolü ekranında, bildirim izni yalnızca Bakım ve Ödeme Takvimi'nde kullanıcı açıkça "Bildirimleri aç" derse isteniyor.
 - Raporu paylaş aksiyonu gerçek iOS cihazda çalışıyor.
 - `/offline` ekranından üretilen `out/offline.html` fallback ekranı olarak native projeye taşınmış olmalı.
 - `safe-area-shell` sınıfı iOS güvenli alanlarında içerik taşmasını engellemeli.

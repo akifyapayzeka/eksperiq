@@ -60,6 +60,7 @@ Recommended review flow:
 - Konum izni: Yok.
 - Kamera izni: Yalnızca kullanıcı fotoğraf ekleme ekranında "Fotoğraf çek" seçeneğini kullandığı anda, tek bir fotoğraf için istenir; sürekli veya arka planda erişim yoktur.
 - Fotoğraf erişimi: Yalnızca kullanıcının dosya seçmesiyle ve AI fotoğraf kontrolü talebiyle sınırlı.
+- Bildirim izni: Yalnızca kullanıcı Bakım ve Ödeme Takvimi'nde "Bildirimleri aç" derse istenir; MTV/sigorta/muayene/bakım hatırlatmalarıyla sınırlıdır.
 - AI işleme: OpenRouter üzerinden kullanıcı aksiyonuyla geçici karar destek işleme.
 - Mikrofon/rehber izni: Yok.
 - Hassas kişisel veri işleme: Yok.

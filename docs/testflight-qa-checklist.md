@@ -1,6 +1,6 @@
 # TestFlight QA Checklist
 
-Bu checklist App Store hesabı, macOS ve Xcode hazır olduktan sonra gerçek iPhone üzerinde çalıştırılır. İlk sürümde konum, bildirim veya hesap izni istenmemelidir. Kamera ve fotoğraf izni yalnızca kullanıcı fotoğraf kontrolü ekranında çekim veya galeri seçimi başlattığında, o tek fotoğraf için istenir.
+Bu checklist App Store hesabı, macOS ve Xcode hazır olduktan sonra gerçek iPhone üzerinde çalıştırılır. İlk sürümde konum veya hesap izni istenmemelidir. Kamera ve fotoğraf izni yalnızca kullanıcı fotoğraf kontrolü ekranında çekim veya galeri seçimi başlattığında, o tek fotoğraf için istenir. Bildirim izni yalnızca kullanıcı Bakım ve Ödeme Takvimi'nde "Bildirimleri aç" derse istenir.
 
 ## Hazırlık
 
@@ -49,6 +49,16 @@ Bu checklist App Store hesabı, macOS ve Xcode hazır olduktan sonra gerçek iPh
 - [ ] Fotoğraf ekleme ekranında galeriden seçim yapılınca gerekiyorsa fotoğraf kitaplığı izni diyaloğu çıkıyor ve uygulama çökmüyor.
 - [ ] İzin reddedilirse uygulama anlaşılır bir uyarı gösteriyor, çökmüyor.
 - [ ] Fotoğraf AI kontrolü araç dışı görselde hasar bulgusu üretmiyor.
+
+## Bakım ve Ödeme Takvimi ve Bildirimler
+
+- [ ] MTV taksitlerini ekle butonu Ocak/Temmuz tarihlerini doğru ekliyor.
+- [ ] Kayıt ekleme/düzenleme/silme çalışıyor; tutarlar TL olarak doğru gösteriliyor.
+- [ ] Yaklaşan tarihler Garajım (Araç Sağlık Karnesi) ekranında da görünüyor.
+- [ ] "Bildirimleri aç" seçilince izin diyaloğu çıkıyor, izin verilince "Bildirimler açık" mesajı görünüyor.
+- [ ] Gerçek cihazda: bir tarihe 30 gün ve 15 gün kala bildirim geliyor mu (test için yakın bir tarih girilerek doğrulanabilir).
+- [ ] Bildirime dokunulduğunda uygulama Bakım ve Ödeme Takvimi ekranına açılıyor.
+- [ ] Bu bildirim akışı yalnızca web/PWA sürümünde çalışır; native iOS Capacitor uygulamasında aynı davranış için ayrı APNs kurulumu gerektiği not edilmiştir (`docs/app-store-readiness.md`).
 
 ## Offline ve Hata Durumları
 

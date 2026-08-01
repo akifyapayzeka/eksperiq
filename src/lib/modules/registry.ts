@@ -92,6 +92,25 @@ export const productModules: ProductModule[] = [
     certaintyPolicy: "Bakım önerileri üretir; servis teşhisi veya teknik garanti vermez.",
   },
   {
+    id: "maintenance-payment-calendar",
+    title: "Bakım ve Ödeme Takvimi",
+    status: "active",
+    href: "/bakim-odeme-takvimi",
+    summary: "MTV, trafik sigortası, kasko, muayene ve bakım gibi tarihleri tek ekranda takip eder.",
+    capabilities: [
+      {
+        title: "Tek takvim",
+        description: "Tüm ödeme ve bakım tarihlerini yaklaşan/geciken sırayla listeler.",
+      },
+      {
+        title: "Bildirim",
+        description: "Son tarihe 30 ve 15 gün kala isteğe bağlı push bildirimi gönderir.",
+      },
+    ],
+    dataPolicy: "Kayıtlar cihazda saklanır; bildirim açıksa yalnızca bildirim için sunucuda tutulur.",
+    certaintyPolicy: "Tutarları kullanıcı girer; güncel resmi tutarları garanti etmez.",
+  },
+  {
     id: "vehicle-health-record",
     title: "Araç Sağlık Karnesi",
     status: "active",

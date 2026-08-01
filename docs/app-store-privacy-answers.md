@@ -9,6 +9,7 @@ Bu dosya App Store Connect gizlilik formu doldurulurken kullanılacak ilk sürü
 - Konum verisi: Toplanmaz.
 - Kişiler, mikrofon: Erişim istenmez.
 - Kamera, fotoğraflar: Yalnızca kullanıcı fotoğraf ekleme ekranında kamerayla çekim veya galeriden seçim başlattığı anda, tek bir fotoğraf için erişilir; sürekli veya arka planda erişim yoktur.
+- Bildirim: Yalnızca kullanıcı Bakım ve Ödeme Takvimi ekranında "Bildirimleri aç" derse istenir; kullanıcı hesabı olmadığından bildirim aboneliği yalnızca cihaz/tarayıcı push aboneliğine ve kullanıcının kendi eklediği MTV/sigorta/muayene/bakım kayıtlarına bağlıdır.
 - Reklam takibi: Yok.
 - Üçüncü taraf analytics: Yok.
 - Geliştirici sunucusuna kalıcı analiz kaydı: Yok.
@@ -18,6 +19,10 @@ Bu dosya App Store Connect gizlilik formu doldurulurken kullanılacak ilk sürü
 ## Cihazda Geçici Veri
 
 Kullanıcının manuel girdiği araç ve ilan bilgileri mevcut tarayıcı/native oturumunda karar destek raporu üretmek için tutulur. Kullanıcı oturum verisini silebilir. Bu veri geliştirici sunucusuna kalıcı kayıt olarak gönderilmez.
+
+## Bakım ve Ödeme Takvimi Bildirimleri
+
+Bakım ve Ödeme Takvimi kayıtları (MTV, sigorta, muayene, bakım gibi başlık/tarih/tutar bilgileri) cihazda kalıcı olarak saklanır (hesaba değil, yalnızca cihaza). Kullanıcı bildirimleri açarsa, son tarihe 30 ve 15 gün kala bildirim gönderebilmek için bu kayıtların bir kopyası ve push aboneliği bilgisi (kullanıcı kimliğiyle ilişkilendirilmeden) sunucuda tutulur; bildirimler kapatılırsa veya kayıt silinirse bu kopya da silinir. Bu veri üçüncü taraflarla paylaşılmaz veya reklam/analitik amacıyla kullanılmaz.
 
 ## AI Karar Destek ve Fotoğraf Kontrolü
 
