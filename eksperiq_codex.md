@@ -150,6 +150,10 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
 5. Araç Sağlık Karnesi'ndeki "Kayıt ekle" kayıtları yalnızca component
    state'te tutuluyordu, sayfa yenilenince siliniyordu → localStorage'a
    taşındı.
+6. "Karşılaştırmaya ekle" butonuna art arda basılınca aynı analiz 3
+   slotluk karşılaştırma listesine birden fazla kez eklenebiliyordu →
+   ilk başarılı eklemeden sonra buton devre dışı bırakılıp "Karşılaştırmaya
+   eklendi" olarak değişiyor.
 
 ## Bu oturumda eklenen yeni özellikler (kullanıcı isteğiyle)
 
