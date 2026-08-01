@@ -303,17 +303,41 @@ export function AnalysisForm() {
           </span>
           <div>
             <h2 id="listing-start" className="font-semibold text-slate-950">
-              İlan linkiyle başla
+              İlan metninden otomatik doldur
             </h2>
             <p className="mt-1 text-sm leading-6 text-slate-600">
-              Linki raporda referans olarak gösteririz. İlan sitelerini otomatik okumadan, eksik araç bilgilerini
-              aşağıdaki seçeneklerle tamamlarsınız.
+              İlan başlığını, açıklamasını veya detay metnini yapıştırın; marka, model, yıl, km, fiyat ve şehir gibi
+              alanları otomatik çıkaralım. Linki de raporda referans olarak saklarız.
             </p>
           </div>
         </div>
         <div className="mt-4">
+          <label htmlFor="listingText" className="text-sm font-medium text-slate-800">
+            İlan metni veya açıklaması
+          </label>
+          <textarea
+            id="listingText"
+            value={listingText}
+            onChange={(event) => setListingText(event.target.value)}
+            placeholder="İlan başlığını, açıklamasını ve teknik detaylarını buraya yapıştırın. Örn: 2020 Volkswagen Passat 1.6 TDI, 87.400 km, İstanbul, 1.250.000 TL..."
+            className="mt-2 min-h-32 w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-base text-slate-950 shadow-sm outline-none focus:border-teal-700 focus:ring-4 focus:ring-teal-100"
+          />
+          <button
+            type="button"
+            onClick={extractFromListingText}
+            className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 sm:w-auto"
+          >
+            İlan bilgilerini otomatik doldur
+          </button>
+          {extractMessage ? (
+            <p className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-800">
+              {extractMessage}
+            </p>
+          ) : null}
+        </div>
+        <div className="mt-4">
           <label htmlFor="listingUrl" className="text-sm font-medium text-slate-800">
-            İlan bağlantısı
+            Opsiyonel ilan bağlantısı
           </label>
           <input
             id="listingUrl"
@@ -327,30 +351,6 @@ export function AnalysisForm() {
           {errors.listingUrl?.message ? (
             <p className="mt-2 text-sm text-red-700" role="alert">
               {errors.listingUrl.message}
-            </p>
-          ) : null}
-        </div>
-        <div className="mt-4">
-          <label htmlFor="listingText" className="text-sm font-medium text-slate-800">
-            İlan metni veya açıklaması
-          </label>
-          <textarea
-            id="listingText"
-            value={listingText}
-            onChange={(event) => setListingText(event.target.value)}
-            placeholder="İlan başlığı, açıklaması ve detaylarını buraya yapıştırın. Marka, model, yıl, km, fiyat gibi alanları otomatik doldurmaya çalışırız."
-            className="mt-2 min-h-32 w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-base text-slate-950 shadow-sm outline-none focus:border-teal-700 focus:ring-4 focus:ring-teal-100"
-          />
-          <button
-            type="button"
-            onClick={extractFromListingText}
-            className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800 sm:w-auto"
-          >
-            İlan bilgilerini çıkar
-          </button>
-          {extractMessage ? (
-            <p className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-800">
-              {extractMessage}
             </p>
           ) : null}
         </div>

@@ -85,15 +85,17 @@ test("shows validation errors", async ({ page }) => {
 
 test("starts analysis with listing link and manual choices", async ({ page }) => {
   await page.goto("/analiz");
-  await expect(page.getByRole("heading", { name: "İlan linkiyle başla" })).toBeVisible();
-  await expect(page.getByText("İlan sitelerini otomatik okumadan")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "İlan metninden otomatik doldur" })).toBeVisible();
+  await expect(page.getByText("marka, model, yıl, km, fiyat ve şehir")).toBeVisible();
   await expect(page.getByRole("button", { name: "Örnek ilanla doldur" })).toHaveCount(0);
-  await page.getByLabel("İlan bağlantısı").fill("https://www.sahibinden.com/ilan/vasita-otomobil-test");
+  await page.getByLabel("Opsiyonel ilan bağlantısı").fill("https://www.sahibinden.com/ilan/vasita-otomobil-test");
   await page
     .getByLabel("İlan metni veya açıklaması")
     .fill("2020 Toyota Corolla 1.6 Benzin Otomatik İstanbul 87.400 km fiyat 1.250.000 TL ekspertiz mevcut.");
-  await page.getByRole("button", { name: "İlan bilgilerini çıkar" }).click();
-  await expect(page.getByLabel("İlan bağlantısı")).toHaveValue("https://www.sahibinden.com/ilan/vasita-otomobil-test");
+  await page.getByRole("button", { name: "İlan bilgilerini otomatik doldur" }).click();
+  await expect(page.getByLabel("Opsiyonel ilan bağlantısı")).toHaveValue(
+    "https://www.sahibinden.com/ilan/vasita-otomobil-test",
+  );
   await expect(page.getByLabel("Marka")).toHaveValue("Toyota");
   await expect(page.locator("#model")).toHaveValue("Corolla");
   await expect(page.getByLabel("Model yılı")).toHaveValue("2020");
