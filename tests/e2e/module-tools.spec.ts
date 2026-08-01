@@ -73,6 +73,35 @@ test("module cards open usable assistant tools", async ({ page }) => {
   await expect(page.getByText(/piyasa aralığının üzerinde/)).toBeVisible();
 });
 
+test("health record entries persist across reloads and build a score trend", async ({ page }) => {
+  await page.goto("/arac-saglik-karnesi");
+
+  await page.getByLabel("Tür").selectOption("Sağlık Skoru");
+  await page.getByLabel("Başlık").fill("İlk kontrol");
+  await page.getByLabel("Tarih", { exact: true }).fill("2026-06-01");
+  await page.getByLabel("Skor (opsiyonel, 0-100)").fill("60");
+  await page.getByRole("button", { name: "Kaydı ekle" }).click();
+  await expect(page.getByRole("heading", { name: "İlk kontrol" })).toBeVisible();
+
+  await page.getByLabel("Başlık").fill("İkinci kontrol");
+  await page.getByLabel("Tarih", { exact: true }).fill("2026-08-01");
+  await page.getByLabel("Skor (opsiyonel, 0-100)").fill("80");
+  await page.getByRole("button", { name: "Kaydı ekle" }).click();
+
+  await expect(page.getByRole("heading", { name: "Sağlık skoru trendi" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Zaman içinde sağlık skoru trendi" })).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "İlk kontrol" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "İkinci kontrol" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sağlık skoru trendi" })).toBeVisible();
+
+  await page.locator("article", { hasText: "İlk kontrol" }).getByRole("button", { name: "Sil" }).click();
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "İlk kontrol" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "İkinci kontrol" })).toBeVisible();
+});
+
 test("report action buttons show visible feedback", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: "http://127.0.0.1:3000" });
   await page.goto("/analiz");

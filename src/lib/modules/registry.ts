@@ -174,8 +174,12 @@ export const productModules: ProductModule[] = [
         title: "Zaman çizelgesi",
         description: "Araç geçmişini modüllerden gelen bilgilerle bağımsız kayıtlar halinde gösterir.",
       },
+      {
+        title: "Sağlık skoru trendi",
+        description: "Kayıtlara eklenen isteğe bağlı skorların zaman içindeki değişimini basit bir grafikle gösterir.",
+      },
     ],
-    dataPolicy: "Kalıcı kayıtlar için kullanıcı hesabı, veri dışa aktarma ve silme seçenekleri gerekir.",
+    dataPolicy: "Kayıtlar hesaba değil, yalnızca cihaza kaydedilir; kullanıcı istediği zaman silebilir.",
     certaintyPolicy: "Geçmiş kayıtları düzenler; aracın genel durumunu garanti etmez.",
   },
   {
