@@ -154,6 +154,37 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
    slotluk karşılaştırma listesine birden fazla kez eklenebiliyordu →
    ilk başarılı eklemeden sonra buton devre dışı bırakılıp "Karşılaştırmaya
    eklendi" olarak değişiyor.
+7. Tekrarlayan hatırlatmalar (örn. yıllık MTV taksiti) son tarihi geçince
+   `loadReminders()` tarihi bir sonraki döneme ilerletip localStorage'a
+   yazıyordu, ama `bakim-odeme-takvimi` sayfası bu güncellenmiş listeyi push
+   bildirim sunucusuna hiç senkronize etmiyordu → bildirimler açıksa sunucuda
+   eski (geçmiş) son tarih kalıyor ve o hatırlatma için 30/15 gün eşiği bir
+   daha asla tutmuyordu, yani tekrarlayan hatırlatmalar ilk döngüden sonra
+   sessizce bildirim göndermeyi bırakıyordu. Düzeltme: sayfa açılışında
+   hatırlatmalar yüklendikten ve push durumu "subscribed" olduğu
+   doğrulandıktan sonra `syncRemindersToPush(loaded)` çağrılıyor
+   (`src/app/bakim-odeme-takvimi/page.tsx`). Ayrıca `reminders-storage.ts`
+   için hiç birim testi yoktu → `tests/unit/reminders-storage.test.ts`
+   eklendi (ekleme/silme + tarih ilerletme + kalıcılık senaryoları).
+8. `unsubscribeFromPush()` (`src/lib/push/client.ts`), tarayıcının
+   `PushSubscription.unsubscribe()` çağrısı reddedilirse (nadir ama gerçek bir
+   tarayıcı/izin durumu) hiçbir try/catch olmadan hatayı yukarı fırlatıyordu;
+   sayfadaki `disableNotifications()` bunu yakalamadığı için `pushBusy`
+   sonsuza kadar `true` kalıp "Bildirimleri kapat" butonu kalıcı olarak devre
+   dışı kalıyordu. Düzeltme: `unsubscribeFromPush()` artık local unsubscribe
+   hatasını yutup yine de sunucuya kaldırma isteği gönderiyor ve asla
+   reddetmiyor. `push/client.ts` için hiç birim testi yoktu →
+   `tests/unit/push-client.test.ts` eklendi (bozulma senaryosu dahil, önce
+   düzeltmeden önce başarısız olduğu doğrulandı).
+9. Araç Sağlık Karnesi'nin skor trend grafiğinde ve tablo görünümünde React
+   `key` olarak `point.date` (gün hassasiyetinde) kullanılıyordu; aynı gün
+   içinde birden fazla skorlu kayıt eklenirse (ör. "Şu anki analiz skorunu
+   ekle" iki kez veya aynı gün için elle iki kayıt) anahtarlar çakışıyor, bu
+   da yanlış/duplicate render veya React uyarısına yol açabiliyordu. Düzeltme:
+   `ScorePoint` tipine `id` eklendi (`src/lib/health-record/model.ts`),
+   `scoreTrend()` artık kaydın kendi id'sini taşıyor; grafik ve tablo
+   `point.id` üzerinden anahtarlanıyor (`src/app/arac-saglik-karnesi/page.tsx`).
+   Regresyon testi `tests/unit/health-record-trend.test.ts`'e eklendi.
 
 ## Bu oturumda eklenen yeni özellikler (kullanıcı isteğiyle)
 

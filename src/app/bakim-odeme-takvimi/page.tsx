@@ -66,11 +66,23 @@ export default function MaintenancePaymentCalendarPage() {
   const [formMessage, setFormMessage] = useState("");
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => setReminders(loadReminders()));
-    getPushState()
-      .then(setPushState)
-      .catch(() => setPushState("unsupported"));
-    return () => window.cancelAnimationFrame(frame);
+    let cancelled = false;
+    const frame = window.requestAnimationFrame(() => {
+      const loaded = loadReminders();
+      if (cancelled) return;
+      setReminders(loaded);
+      getPushState()
+        .then((state) => {
+          if (cancelled) return;
+          setPushState(state);
+          if (state === "subscribed") void syncRemindersToPush(loaded);
+        })
+        .catch(() => setPushState("unsupported"));
+    });
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(frame);
+    };
   }, []);
 
   const sorted = useMemo(() => sortByUrgency(reminders), [reminders]);

@@ -17,7 +17,7 @@ function makeRecord(overrides: Partial<HealthRecord>): HealthRecord {
 describe("scoreTrend", () => {
   it("excludes records without a score", () => {
     const records = [makeRecord({ id: "a", score: 70 }), makeRecord({ id: "b", score: undefined })];
-    expect(scoreTrend(records)).toEqual([{ date: "2026-08-01", score: 70 }]);
+    expect(scoreTrend(records)).toEqual([{ id: "a", date: "2026-08-01", score: 70 }]);
   });
 
   it("sorts points chronologically regardless of input order", () => {
@@ -28,13 +28,28 @@ describe("scoreTrend", () => {
     ];
 
     expect(scoreTrend(records)).toEqual([
-      { date: "2026-06-01", score: 40 },
-      { date: "2026-07-15", score: 55 },
-      { date: "2026-08-10", score: 60 },
+      { id: "b", date: "2026-06-01", score: 40 },
+      { id: "c", date: "2026-07-15", score: 55 },
+      { id: "a", date: "2026-08-10", score: 60 },
     ]);
   });
 
   it("returns an empty list when there are no scored records", () => {
     expect(scoreTrend([makeRecord({ score: undefined })])).toEqual([]);
+  });
+
+  it("keeps each record's own id so two same-day scores don't collide on a shared React key", () => {
+    const records = [
+      makeRecord({ id: "morning", date: "2026-08-01", score: 60 }),
+      makeRecord({ id: "evening", date: "2026-08-01", score: 65 }),
+    ];
+
+    const trend = scoreTrend(records);
+
+    expect(trend).toEqual([
+      { id: "morning", date: "2026-08-01", score: 60 },
+      { id: "evening", date: "2026-08-01", score: 65 },
+    ]);
+    expect(new Set(trend.map((point) => point.id)).size).toBe(2);
   });
 });

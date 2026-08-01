@@ -85,15 +85,19 @@ export async function syncRemindersToPush(reminders: ReminderRecord[]): Promise<
 export async function unsubscribeFromPush(): Promise<void> {
   if (!isPushSupported()) return;
 
-  const registration = await navigator.serviceWorker.getRegistration();
-  const subscription = await registration?.pushManager.getSubscription();
-  if (!subscription) return;
+  try {
+    const registration = await navigator.serviceWorker.getRegistration();
+    const subscription = await registration?.pushManager.getSubscription();
+    if (!subscription) return;
 
-  const endpoint = subscription.endpoint;
-  await subscription.unsubscribe();
-  await fetch("/api/push/unsubscribe", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ endpoint }),
-  }).catch(() => undefined);
+    const endpoint = subscription.endpoint;
+    await subscription.unsubscribe().catch(() => undefined);
+    await fetch("/api/push/unsubscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ endpoint }),
+    }).catch(() => undefined);
+  } catch {
+    // Best effort: never leave the caller's UI stuck on a rejected promise.
+  }
 }
