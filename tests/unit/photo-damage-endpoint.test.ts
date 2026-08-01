@@ -29,8 +29,8 @@ function createResponse(): MockResponse {
   }) as MockResponse;
   response.headers = {};
   response.body = "";
-  response.setHeader = (name: string, value: string) => {
-    response.headers[name] = value;
+  response.setHeader = (name: string, value) => {
+    response.headers[name] = String(value);
   };
   return response;
 }
@@ -102,8 +102,12 @@ describe("photo damage AI endpoint", () => {
     process.env = previousEnv;
     vi.unstubAllGlobals();
     const payload = JSON.parse(response.body) as { analysis: { isVehiclePhoto: boolean; findings: unknown[] } };
+    const requestBody = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)) as {
+      response_format?: { type?: string };
+    };
     expect(response.statusCode).toBe(200);
     expect(payload.analysis.isVehiclePhoto).toBe(false);
     expect(payload.analysis.findings).toEqual([]);
+    expect(requestBody.response_format?.type).toBe("json_schema");
   });
 });

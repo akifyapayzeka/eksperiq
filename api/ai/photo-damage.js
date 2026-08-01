@@ -117,25 +117,60 @@ function normalizeAnalysis(value) {
       (isVehiclePhoto
         ? "Fotoğrafta araçla ilgili kontrol edilebilecek alanlar var."
         : "Fotoğrafta araç veya araç parçası güvenle tespit edilemedi."),
-    findings: findings.slice(0, 8).map((finding, index) => ({
-      id: `ai-photo-${index + 1}`,
-      area: isRecord(finding) && typeof finding.area === "string" ? finding.area.slice(0, 80) : "Belirsiz alan",
-      signal: isRecord(finding) && typeof finding.signal === "string" ? finding.signal.slice(0, 80) : "Olası bulgu",
-      confidence:
-        isRecord(finding) && ["low", "medium", "high"].includes(finding.confidence) ? finding.confidence : "low",
-      explanation:
-        isRecord(finding) && typeof finding.explanation === "string"
-          ? finding.explanation.slice(0, 500)
-          : "Görselden kesin hüküm verilemez; ekspertizde doğrulanmalıdır.",
-      recommendation:
-        isRecord(finding) && typeof finding.recommendation === "string"
-          ? finding.recommendation.slice(0, 300)
-          : "Bağımsız ekspertizde kontrol ettirin.",
-    })),
+    findings: isVehiclePhoto
+      ? findings.slice(0, 8).map((finding, index) => ({
+          id: `ai-photo-${index + 1}`,
+          area: isRecord(finding) && typeof finding.area === "string" ? finding.area.slice(0, 80) : "Belirsiz alan",
+          signal: isRecord(finding) && typeof finding.signal === "string" ? finding.signal.slice(0, 80) : "Olası bulgu",
+          confidence:
+            isRecord(finding) && ["low", "medium", "high"].includes(finding.confidence) ? finding.confidence : "low",
+          explanation:
+            isRecord(finding) && typeof finding.explanation === "string"
+              ? finding.explanation.slice(0, 500)
+              : "Görselden kesin hüküm verilemez; ekspertizde doğrulanmalıdır.",
+          recommendation:
+            isRecord(finding) && typeof finding.recommendation === "string"
+              ? finding.recommendation.slice(0, 300)
+              : "Bağımsız ekspertizde kontrol ettirin.",
+        }))
+      : [],
     disclaimer:
       "Bu AI fotoğraf kontrolü kesin hasar tespiti değildir. Işık, açı, çözünürlük ve kir gibi etkenler sonucu değiştirebilir.",
   };
 }
+
+const photoDamageResponseFormat = {
+  type: "json_schema",
+  json_schema: {
+    name: "eksperiq_photo_damage_analysis",
+    strict: true,
+    schema: {
+      type: "object",
+      additionalProperties: false,
+      required: ["isVehiclePhoto", "summary", "findings"],
+      properties: {
+        isVehiclePhoto: { type: "boolean" },
+        summary: { type: "string" },
+        findings: {
+          type: "array",
+          maxItems: 8,
+          items: {
+            type: "object",
+            additionalProperties: false,
+            required: ["area", "signal", "confidence", "explanation", "recommendation"],
+            properties: {
+              area: { type: "string" },
+              signal: { type: "string" },
+              confidence: { type: "string", enum: ["low", "medium", "high"] },
+              explanation: { type: "string" },
+              recommendation: { type: "string" },
+            },
+          },
+        },
+      },
+    },
+  },
+};
 
 function buildMessages(input) {
   return [
@@ -196,6 +231,7 @@ async function requestOpenRouterVision(input) {
     body: JSON.stringify({
       model,
       messages: buildMessages(input),
+      response_format: photoDamageResponseFormat,
       temperature: 0.1,
       max_tokens: 900,
     }),

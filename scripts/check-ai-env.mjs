@@ -1,8 +1,14 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const requiredServerVars = ["OPENROUTER_API_KEY", "OPENROUTER_MODEL", "OPENROUTER_DAILY_REQUEST_LIMIT"];
-const requiredPublicVars = ["NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED"];
+const requiredServerVars = [
+  "OPENROUTER_API_KEY",
+  "OPENROUTER_MODEL",
+  "OPENROUTER_DAILY_REQUEST_LIMIT",
+  "OPENROUTER_VISION_MODEL",
+  "OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT",
+];
+const requiredPublicVars = ["NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED", "NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED"];
 
 function loadEnvFile(fileName) {
   const filePath = resolve(process.cwd(), fileName);
@@ -34,7 +40,9 @@ loadEnvFile(".env.local");
 const missingServer = requiredServerVars.filter((name) => !hasValue(name));
 const missingPublic = requiredPublicVars.filter((name) => !hasValue(name));
 const flagValue = process.env.NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED;
+const photoFlagValue = process.env.NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED;
 const limit = Number.parseInt(process.env.OPENROUTER_DAILY_REQUEST_LIMIT ?? "", 10);
+const photoLimit = Number.parseInt(process.env.OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT ?? "", 10);
 const problems = [];
 
 if (missingServer.length) problems.push(`Eksik server env: ${missingServer.join(", ")}`);
@@ -42,8 +50,14 @@ if (missingPublic.length) problems.push(`Eksik public env: ${missingPublic.join(
 if (flagValue && !["true", "false"].includes(flagValue)) {
   problems.push("NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED sadece true veya false olmali.");
 }
+if (photoFlagValue && !["true", "false"].includes(photoFlagValue)) {
+  problems.push("NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED sadece true veya false olmali.");
+}
 if (hasValue("OPENROUTER_DAILY_REQUEST_LIMIT") && (!Number.isFinite(limit) || limit <= 0)) {
   problems.push("OPENROUTER_DAILY_REQUEST_LIMIT pozitif sayi olmali.");
+}
+if (hasValue("OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT") && (!Number.isFinite(photoLimit) || photoLimit <= 0)) {
+  problems.push("OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT pozitif sayi olmali.");
 }
 
 if (problems.length) {
