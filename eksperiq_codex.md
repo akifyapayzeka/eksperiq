@@ -151,6 +151,20 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
    state'te tutuluyordu, sayfa yenilenince siliniyordu → localStorage'a
    taşındı.
 
+## Bu oturumda eklenen yeni özellikler (kullanıcı isteğiyle)
+
+- Karşılaştırmalı İlan Analizi (`/karsilastirma`)
+- Gider Defteri (`/gider-defteri`)
+- Test Sürüşü Kontrol Listesi (`/test-surusu-kontrol`)
+- Model/marka bazlı sık sorulan noktalar → **yeni bir sayfa olarak değil**,
+  mevcut dinamik satıcı soruları motoruna (`src/lib/analysis/questions.ts`)
+  araç özelliklerine göre (yakıt türü, çekiş, kilometre, yaş) soru ekleyerek
+  entegre edildi. Uygulamayı sadeleştirme ilkesi gereği yeni bir sayfa/modül
+  açılmadı.
+- Resmi Sorgu Rehberi (`/resmi-sorgu-rehberi`)
+- Araç Sağlık Karnesi'nde sağlık skoru trend grafiği (yukarıda bug fix ile
+  birlikte)
+
 ## Test ve doğrulama komutları
 
 İş bitmeden önce hepsi geçmeli:
@@ -169,13 +183,18 @@ Not: Bu sandbox ortamında Playwright'ın pinlediği Chromium build'i
 çalıştırmak için geçici bir `playwright.local.config.ts` (executablePath
 override) kullanılıp iş bitince silindi — repoya commit edilmedi.
 
-## Devam eden görevler (bu oturumda henüz bitmemiş)
+## Devam eden / yapılamayan görevler
 
-- **Model bazlı sık sorulan noktalar**: Marka/model bazlı "dikkat edilecek
-  noktalar" özelliği — kesin arıza iddiası olmadan, soru önerisi formatında
-  planlanıyor. Henüz yazılmadı.
-- **iOS ana ekran widget'ı**: WidgetKit/Swift + Xcode gerektirir, bu ortamda
-  gerçek şekilde build/test edilemez; yalnızca not/scaffold bırakılacak.
+- **iOS ana ekran widget'ı (WidgetKit)**: İstendi ama yapılamadı. Gerçek bir
+  WidgetKit uzantısı Swift ile yazılmalı, bir Xcode target'ı olarak
+  `ios/App` projesine eklenmeli ve App Group ile ana uygulamayla veri
+  paylaşmalıdır (Bakım ve Ödeme Takvimi'nin en yakın tarihini göstermek
+  için). Bu, gerçek bir macOS + Xcode ortamı ve derleme/test döngüsü
+  gerektirir; bu bulut/Linux ortamında Swift kodu yazılıp _hiç
+  derlenmeden/test edilmeden_ bırakmak yanlış/çalışmayan kod riski taşır,
+  bu yüzden bilerek yapılmadı. macOS + Xcode erişimi olan biri tarafından
+  yapılmalı. Bu, önceki "native push (APNs)" sınırlamasıyla aynı kategoride
+  bir Apple-araçları eksikliğidir.
 
 ## Genel ilkeler (her yeni özellikte hatırlanmalı)
 
