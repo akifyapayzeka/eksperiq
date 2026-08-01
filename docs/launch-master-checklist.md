@@ -67,7 +67,7 @@ Tüm adımların denetlenebilir durum listesi: `docs/all-steps-status.md`
 - [x] Canlı Vercel ana akış sayfaları `npm run deploy:check` ile doğrulanıyor.
 - [x] Canlı Vercel mobil analiz-sonuç akışında satıcı mesajı aksiyonu doğrulandı.
 - [x] GitHub `origin/master` ile yerel HEAD `npm run repo:check` ile doğrulanıyor.
-- [x] Vercel son deployment commit ile eşleştiği canlı panelden manuel kontrol edildi: `ba5a11b`, Production, Ready.
+- [x] Vercel son deployment commit ile eşleştiği canlı panelden manuel kontrol edildi; son kontrol Production ve Ready durumundaydı.
 - [ ] Hostinger kullanılacaksa zip `public_html` içine açılıp canlı yenileme testi yapılacak.
 
 ## 6. iOS / TestFlight
