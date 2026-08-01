@@ -26,11 +26,11 @@ const filters: Array<{ id: AnalysisFilter; label: string }> = [
   { id: "low", label: "Düşük Risk" },
 ];
 
-const upcomingModules = [
-  ["Fotoğraftan Hasar Analizi", "Olası çizik, göçük ve panel uyumsuzluğu işaretleri."],
-  ["Bakım Takibi", "Periyodik bakım ve yaklaşan işlemleri tek yerde izle."],
-  ["Araç Sağlık Karnesi", "Bakım, ekspertiz ve kontrol geçmişini sade ekranda tut."],
-  ["Araç Değer Takibi", "Piyasa hareketlerini karar desteği olarak takip et."],
+const assistantModules = [
+  ["/fotograf-hasar", "Fotoğraftan Hasar Analizi", "Olası çizik, göçük ve panel uyumsuzluğu işaretleri."],
+  ["/bakim-takibi", "Bakım Takibi", "Periyodik bakım ve yaklaşan işlemleri tek yerde izle."],
+  ["/arac-saglik-karnesi", "Araç Sağlık Karnesi", "Bakım, ekspertiz ve kontrol geçmişini sade ekranda tut."],
+  ["/arac-deger-takibi", "Araç Değer Takibi", "Piyasa hareketlerini karar desteği olarak takip et."],
 ] as const;
 
 export default function MyAnalysesPage() {
@@ -238,19 +238,19 @@ export default function MyAnalysesPage() {
         </section>
 
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-2xl font-semibold text-slate-950">Yakında EksperIQ&apos;da</h2>
+          <h2 className="text-2xl font-semibold text-slate-950">EksperIQ araçları</h2>
           <p className="mt-1 text-sm leading-6 text-slate-600">
-            Araç yolculuğunu daha şeffaf kılacak ücretsiz modüller.
+            Araç yolculuğunu daha şeffaf kılacak ücretsiz karar destek ekranları.
           </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            {upcomingModules.map(([title, description]) => (
-              <article key={title} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-500 ring-1 ring-slate-200">
-                  Yakında
+            {assistantModules.map(([href, title, description]) => (
+              <Link key={title} href={href} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-teal-800 ring-1 ring-slate-200">
+                  Aç
                 </span>
                 <h3 className="mt-4 font-semibold text-slate-950">{title}</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
-              </article>
+              </Link>
             ))}
           </div>
         </section>

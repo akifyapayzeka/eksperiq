@@ -16,13 +16,13 @@ import { appConfig } from "@/lib/constants/app";
 const summaryItems = [
   { value: "0", label: "kayıtlı veri" },
   { value: "58", label: "demo risk skoru" },
-  { value: "3", label: "yakında modül" },
+  { value: "8", label: "aktif modül" },
 ];
 
-const upcomingModules = [
-  { icon: Camera, title: "Fotoğraftan Hasar Analizi" },
-  { icon: Wrench, title: "Bakım Takibi" },
-  { icon: ChartNoAxesCombined, title: "Araç Değer Takibi" },
+const quickModules = [
+  { icon: Camera, title: "Fotoğraftan Hasar Analizi", href: "/fotograf-hasar" },
+  { icon: Wrench, title: "Bakım Takibi", href: "/bakim-takibi" },
+  { icon: ChartNoAxesCombined, title: "Araç Değer Takibi", href: "/arac-deger-takibi" },
 ];
 
 const garageSignals = [
@@ -181,22 +181,24 @@ export default function Home() {
 
           <section aria-labelledby="upcoming-title">
             <h2 id="upcoming-title" className="text-2xl font-semibold text-slate-950">
-              Yakında EksperIQ içinde
+              EksperIQ araçları
             </h2>
-            <p className="mt-2 text-base leading-7 text-slate-600">Araç yolculuğunu daha şeffaf kılacak araçlar.</p>
+            <p className="mt-2 text-base leading-7 text-slate-600">
+              İlan, fotoğraf, bakım ve değer takibi için ayrı karar destek ekranları.
+            </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {upcomingModules.map((item) => (
-                <article key={item.title} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              {quickModules.map((item) => (
+                <Link key={item.title} href={item.href} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                   <div className="flex items-start justify-between gap-4">
                     <span className="grid h-12 w-12 place-items-center rounded-full bg-sky-50 text-teal-800">
                       <item.icon aria-hidden="true" className="h-6 w-6" />
                     </span>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">
-                      Yakında
+                    <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-800">
+                      Aç
                     </span>
                   </div>
                   <h3 className="mt-5 text-lg font-semibold leading-snug text-slate-900">{item.title}</h3>
-                </article>
+                </Link>
               ))}
             </div>
           </section>
@@ -209,7 +211,7 @@ export default function Home() {
               Aracını ekle, zaman içinde bakım ve değerini takip et
             </h2>
             <p className="mt-3 max-w-md text-sm leading-6 text-slate-300">
-              Bu bölüm ileride bakım takibi, sağlık karnesi ve satış hazırlığı modülleriyle açılacak.
+              Bakım takibi, sağlık karnesi ve satış hazırlığı modülleri ayrı ekranlarda karar desteği sunar.
             </p>
           </section>
 
