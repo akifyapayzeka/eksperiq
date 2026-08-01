@@ -74,7 +74,7 @@ for (const id of dateFieldIds) {
 for (const name of damagePartFieldNames) {
   if (
     !includesAcrossWhitespace(`name="${name}"`) ||
-    !includesAcrossWhitespace(`<input type="hidden" {...register(name)} />`)
+    !includesAcrossWhitespace(`<input type="hidden" {...register(name)} value={hiddenValue} readOnly />`)
   ) {
     fail(`${name} must stay a tappable option picker backed by a hidden field.`);
   }
