@@ -46,6 +46,7 @@ const requiredFiles = [
   "scripts/triage-user-test-note.mjs",
   "scripts/check-user-test-triage.mjs",
   "scripts/check-photo-ai-production.mjs",
+  "scripts/sync-vercel-ai-env.mjs",
   "scripts/audit-launch-checklist.mjs",
   "public/app-store-icon-1024.png",
 ];
@@ -82,6 +83,7 @@ const requiredPackageScripts = [
   "launch:audit",
   "ai:staging-check",
   "ai:photo-prod-check",
+  "vercel:sync-ai-env",
   "launch:check",
 ];
 

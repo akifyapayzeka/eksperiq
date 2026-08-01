@@ -22,6 +22,7 @@
     "ai:staging-check": "node scripts/check-ai-staging.mjs",
     "ai:live-check": "node scripts/check-ai-live-once.mjs",
     "ai:photo-prod-check": "node scripts/check-photo-ai-production.mjs",
+    "vercel:sync-ai-env": "node scripts/sync-vercel-ai-env.mjs",
     "launch:check": "node scripts/check-launch-readiness.mjs",
     "appstore:icon": "node scripts/generate-app-store-icon.mjs",
     "appstore:package": "node scripts/prepare-app-store-package.mjs",
