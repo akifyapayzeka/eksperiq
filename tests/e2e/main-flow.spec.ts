@@ -163,15 +163,16 @@ test("shows product module roadmap", async ({ page }) => {
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "Garajım" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Aktif modüller" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Modülü aç/ })).toHaveCount(12);
-  await expect(page.getByRole("heading", { name: "İlan Analizi" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Modülü aç/ })).toHaveCount(13);
+  await expect(page.getByRole("heading", { name: "İlan Analizi", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Fotoğraftan Hasar Analizi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Araç Sağlık Karnesi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Bakım ve Ödeme Takvimi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Test Sürüşü Kontrol Listesi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Resmi Sorgu Rehberi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Gider Defteri" })).toBeVisible();
-  await expect(page.getByText("Kesinlik sınırı:")).toHaveCount(12);
+  await expect(page.getByRole("heading", { name: "Karşılaştırmalı İlan Analizi" })).toBeVisible();
+  await expect(page.getByText("Kesinlik sınırı:")).toHaveCount(13);
 });
 
 test("expertise report accepts report files and text", async ({ page }) => {

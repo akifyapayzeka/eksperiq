@@ -10,6 +10,7 @@ export type ModuleId =
   | "test-drive-checklist"
   | "official-lookup-guide"
   | "expense-ledger"
+  | "listing-comparison"
   | "vehicle-health-record"
   | "vehicle-value-tracking"
   | "smart-sale-preparation";

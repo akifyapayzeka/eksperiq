@@ -116,6 +116,40 @@ test("report action buttons show visible feedback", async ({ page, context }) =>
   await expect(page.getByText(/Yazdırma penceresi açıldı/)).toBeVisible();
 });
 
+test("comparison page lists analyses added from the result screen and enforces the 3-entry cap", async ({ page }) => {
+  async function createAndAddAnalysis(price: string) {
+    await page.goto("/analiz");
+    await fillRequiredForm(page);
+    await page.getByLabel("İstenen fiyat").fill(price);
+    await page.getByRole("button", { name: "Analiz oluştur" }).click();
+    await expect(page).toHaveURL(/\/sonuc$/);
+    await page.getByRole("button", { name: "Karşılaştırmaya ekle" }).click();
+  }
+
+  await createAndAddAnalysis("1200000");
+  await expect(page.getByText("İlan karşılaştırma listesine eklendi.")).toBeVisible();
+
+  await createAndAddAnalysis("1350000");
+  await createAndAddAnalysis("1450000");
+
+  await page.goto("/karsilastirma");
+  await expect(page.getByRole("cell", { name: "1.200.000 TL" })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "1.350.000 TL" })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "1.450.000 TL" })).toBeVisible();
+
+  await createAndAddAnalysis("1500000");
+  await expect(
+    page.getByText("Karşılaştırma listesi dolu (en fazla 3 ilan). Karşılaştırma sayfasından bir kaydı kaldırın."),
+  ).toBeVisible();
+
+  await page.goto("/karsilastirma");
+  await page
+    .getByRole("button", { name: /karşılaştırmadan kaldır/ })
+    .first()
+    .click();
+  await expect(page.getByRole("cell", { name: "1.200.000 TL" })).toHaveCount(0);
+});
+
 test("maintenance and payment calendar tracks upcoming dates and syncs to the garage widget", async ({ page }) => {
   await page.goto("/bakim-odeme-takvimi");
 

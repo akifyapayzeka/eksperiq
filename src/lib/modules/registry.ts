@@ -164,6 +164,21 @@ export const productModules: ProductModule[] = [
     certaintyPolicy: "Resmi mali kayıt değildir; yalnızca kullanıcının girdiği verilerle yaklaşık gösterge sunar.",
   },
   {
+    id: "listing-comparison",
+    title: "Karşılaştırmalı İlan Analizi",
+    status: "active",
+    href: "/karsilastirma",
+    summary: "En fazla 3 analiz sonucunu risk skoru, fiyat, kilometre ve bulgu sayısıyla yan yana gösterir.",
+    capabilities: [
+      {
+        title: "Yan yana özet",
+        description: "Sonuç sayfasından eklenen ilanları tek tabloda karşılaştırır.",
+      },
+    ],
+    dataPolicy: "Karşılaştırma listesi yalnızca cihazda saklanır; sunucuya gönderilmez.",
+    certaintyPolicy: "Hangi ilanın alınacağına karar vermez; yalnızca yan yana özet sunar.",
+  },
+  {
     id: "vehicle-health-record",
     title: "Araç Sağlık Karnesi",
     status: "active",
