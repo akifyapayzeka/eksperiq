@@ -571,7 +571,24 @@ kullanıcı uygulamayı yalnızca %100 bittiğinde kendisi test edecek.
 
 PR #11 `merge` metoduyla (squash değil, PR #10 ile aynı konvansiyon)
 merge edildi, PR aktivite aboneliği iptal edildi, dal `origin/master`'a
-resetlenip force-with-lease ile push edildi.
+resetlenip force-with-lease ile push edildi. Ardından yalnızca
+`eksperiq_codex.md` güncellemesini içeren PR #12 de aynı şekilde
+(doğrudan, onay beklenmeden) merge edildi — yeni standing yetkinin ilk
+uygulanışı.
+
+## README.md'deki bayatlamış modül listesi ve roadmap düzeltildi (2026-08-02)
+
+`/loop` taraması sırasında bulundu: "Uzun vadeli vizyon" bölümündeki aktif
+modül listesi 13 aktif modülden yalnızca 9'unu sayıyordu — Test Sürüşü
+Kontrol Listesi, Resmi Sorgu Rehberi, Gider Defteri ve Karşılaştırmalı İlan
+Analizi eksikti. Ayrıca "Gelecek geliştirmeler" bölümü "Resmî kayıt kontrolü
+için kullanıcı yönlendirme rehberleri"ni hâlâ gelecek özellik olarak
+listeliyordu — oysa bu tam olarak Resmi Sorgu Rehberi modülünün kendisi ve
+uzun süredir aktif. Düzeltme: modül listesi tamamlandı (çoklu araç desteği
+olan üçü de işaretlendi), o roadmap maddesi kaldırıldı, yerine gerçek ve
+hâlâ geçerli bir gelecek maddesi ("Gerçek Apple/Google IAP ile Pro
+abonelik") eklendi. `Özellikler` listesine kaydedilen fotoğraf
+analizlerinin Analizlerim'de listelendiği notu eklendi.
 
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 

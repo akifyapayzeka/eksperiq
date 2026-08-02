@@ -17,7 +17,7 @@ EksperIQ, ikinci el araç ilanı giren kullanıcıya kural tabanlı risk değerl
 - Yazdırma/PDF çıktısına uygun sonuç raporu
 - Raporu yazdırma, rapor özetini, satıcı sorularını ve satıcıya gönderilecek kısa mesajı panoya kopyalama
 - Oturumdaki analiz sonucunu tek tıkla silme
-- Fotoğraftan olası hasar kontrolü (opsiyonel AI destekli, feature flag ile kapalı/açık)
+- Fotoğraftan olası hasar kontrolü (opsiyonel AI destekli, feature flag ile kapalı/açık); kaydedilen analizler fotoğraflarıyla birlikte Analizlerim'de listelenir
 - Ekspertiz raporu metnini sadeleştirme
 - Bakım ve Ödeme Takvimi: MTV, trafik sigortası, kasko, muayene ve bakım tarihlerini tek ekranda takip etme; isteğe bağlı olarak son tarihten 30 ve 15 gün kala push bildirimi
 - Analiz sonucu sunucuya kaydedilmeyen sessionStorage tabanlı ilk sürüm; Bakım ve Ödeme Takvimi kayıtları ise aylar boyunca takip edilebilmesi için cihazda localStorage ile saklanır (bildirim açılırsa sunucuda yalnızca push aboneliği ve ilgili tarih kopyası tutulur)
@@ -46,8 +46,12 @@ Aşağıdaki modüllerin tamamı aktif ve birbirinden bağımsız `src/lib/modul
 - Tahmini Onarım Maliyeti
 - Ekspertiz Raporu Analizi
 - Bakım Takibi
-- Bakım ve Ödeme Takvimi (MTV, sigorta, muayene, bakım — push bildirimli)
-- Araç Sağlık Karnesi
+- Bakım ve Ödeme Takvimi (MTV, sigorta, muayene, bakım — push bildirimli, çoklu araç)
+- Test Sürüşü Kontrol Listesi
+- Resmi Sorgu Rehberi
+- Gider Defteri (çoklu araç)
+- Karşılaştırmalı İlan Analizi
+- Araç Sağlık Karnesi (çoklu araç)
 - Araç Değer Takibi
 - Akıllı Satış Hazırlığı
 
@@ -203,5 +207,5 @@ Vercel, Hostinger ve App Store/TestFlight hazırlığı için ana operasyon list
 - Supabase ile isteğe bağlı kullanıcı hesabı ve kayıtlı analizler
 - Native iOS uygulamasında APNs ile push bildirimi (`@capacitor/push-notifications`)
 - Daha gelişmiş PDF dışa aktarma
-- Resmî kayıt kontrolü için kullanıcı yönlendirme rehberleri
 - Daha kapsamlı erişilebilirlik ve tarayıcı uyumluluk testleri
+- Gerçek Apple/Google uygulama içi satın alma (IAP) ile Pro abonelik (Apple Developer Program + Xcode gerektirir, henüz yapılmamıştır)
