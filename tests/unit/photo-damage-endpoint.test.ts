@@ -69,6 +69,50 @@ describe("photo damage AI endpoint", () => {
     expect(withDefault.DEFAULT_VISION_MODEL).toMatch(/:free$/);
   });
 
+  it('only uses the pro vision model when EKSPERIQ_FORCE_PRO is exactly "true"', () => {
+    const { resolveVisionModel } = handler as unknown as { resolveVisionModel: () => string };
+    const previousEnv = process.env;
+
+    process.env = {
+      ...previousEnv,
+      EKSPERIQ_FORCE_PRO: "true",
+      OPENROUTER_VISION_MODEL_PRO: "openai/gpt-4o-mini",
+    };
+    expect(resolveVisionModel()).toBe("openai/gpt-4o-mini");
+
+    // A regular client can never set this server-only env var, but if it were
+    // ever anything other than the exact string "true" (unset, "false", "1",
+    // a stray client-supplied value, etc.), the paid model must never be used.
+    for (const value of [undefined, "false", "1", "TRUE", ""]) {
+      process.env = {
+        ...previousEnv,
+        ...(value === undefined ? {} : { EKSPERIQ_FORCE_PRO: value }),
+        OPENROUTER_VISION_MODEL_PRO: "openai/gpt-4o-mini",
+      };
+      delete process.env.OPENROUTER_VISION_MODEL;
+      delete process.env.OPENROUTER_MODEL;
+      expect(resolveVisionModel()).not.toBe("openai/gpt-4o-mini");
+    }
+
+    process.env = previousEnv;
+  });
+
+  it("falls back to the normal free model when EKSPERIQ_FORCE_PRO is set but no pro model is configured", () => {
+    const { resolveVisionModel, DEFAULT_VISION_MODEL } = handler as unknown as {
+      resolveVisionModel: () => string;
+      DEFAULT_VISION_MODEL: string;
+    };
+    const previousEnv = process.env;
+
+    process.env = { ...previousEnv, EKSPERIQ_FORCE_PRO: "true" };
+    delete process.env.OPENROUTER_VISION_MODEL_PRO;
+    delete process.env.OPENROUTER_VISION_MODEL;
+    delete process.env.OPENROUTER_MODEL;
+
+    expect(resolveVisionModel()).toBe(DEFAULT_VISION_MODEL);
+    process.env = previousEnv;
+  });
+
   it("stays disabled unless the photo AI flag is enabled", async () => {
     const response = await callEndpoint(validBody, {
       NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "false",

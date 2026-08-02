@@ -487,6 +487,52 @@ Eklenenler:
   strict-mode çakışmasına yol açtı (`main-flow.spec.ts`, `button-actions.spec.ts`,
   `screenshots.spec.ts`) — hepsi `{ exact: true }` ile düzeltildi.
 
+Bu değişiklikler PR #11'e taşındı (draft, `claude/eksperiq-app-development-mr9eed` → `master`).
+
+## Pro kullanıcılar için farklı/güçlü AI modeli — güvenli iskelet (2026-08-02)
+
+Kullanıcı "Pro kullanıcıya foto analizinde daha güçlü/ücretli bir AI kullansak"
+dedi. Buradaki gerçek engel açıklandı: uygulamada hesap/giriş yok, yani
+sunucu tarafında "bu istek gerçekten Pro'dan mı geliyor" diye doğrulayacak
+hiçbir mekanizma yok. Client tarafında bir bayrakla ("isPro") model seçmek,
+herkesin o bayrağı taklit edip bedavaya pahalı modeli kullanabileceği **gerçek
+bir güvenlik/maliyet açığı** olurdu — OpenRouter faturasını admin öder, hiç
+gelir gelmez.
+
+Kullanıcı admin olarak kendi kendine test etmek istediğini belirtti; Apple/Google
+sandbox test satın almalarının gerçekten ücretsiz olduğu doğrulandı (bu bilgi
+kullanıcıya iletildi), ama bu, native StoreKit/Play Billing kodunu Mac+Xcode'da
+yazma zorunluluğunu ortadan kaldırmıyor (aynı, önceden belgelenen engel).
+
+Kullanıcı bunun yerine **yalnızca sunucu tarafında, admin kontrolündeki ayrı
+bir test ortamında** aktif olan bir çözümü onayladı ("Test için OpenRouter
+kredisini kullanabiliriz, içeride var kredi" diyerek gerçek API çağrısı
+maliyetini de kabul etti). Eklenen:
+
+- `api/ai/photo-damage.js`'e `resolveVisionModel()` fonksiyonu eklendi.
+  Yalnızca `process.env.EKSPERIQ_FORCE_PRO === "true"` (tam string eşitliği,
+  başka hiçbir değer — "1", "TRUE", boş, tanımsız — kabul edilmez) VE
+  `OPENROUTER_VISION_MODEL_PRO` ayarlıysa güçlü modeli kullanır; aksi halde
+  mevcut ücretsiz model mantığı aynen çalışır. Her iki değişken de yalnızca
+  Vercel ortam değişkeni olarak ayarlanır — client hiçbir zaman bunu okuyamaz
+  veya değiştiremez, bu yüzden production'da hiçbir kullanıcı bunu tetikleyemez.
+- `.env.example`'a `EKSPERIQ_FORCE_PRO` ve `OPENROUTER_VISION_MODEL_PRO`
+  eklendi, production'da boş bırakılması gerektiği açıkça yazıldı.
+- `tests/unit/photo-damage-endpoint.test.ts`'e iki regresyon testi eklendi:
+  (1) `EKSPERIQ_FORCE_PRO` tam olarak `"true"` değilse (unset/"false"/"1"/
+  "TRUE"/boş) pro model asla seçilmez, (2) `EKSPERIQ_FORCE_PRO=true` ama pro
+  model ayarlı değilse normal ücretsiz modele düşer.
+
+**Kalan adım (kullanıcı admin olarak kendi test ortamını kurmak isterse):**
+Vercel'de bu branch/preview için ayrı bir deployment/environment açıp
+`EKSPERIQ_FORCE_PRO=true` ve `OPENROUTER_VISION_MODEL_PRO=<gerçek paid model
+id>` ortam değişkenlerini yalnızca o deployment'a eklemek yeterli — production
+ortamı (eksperiq.vercel.app) bu değişkenlerden habersiz kalıp herkese
+ücretsiz modeli sunmaya devam eder. Gerçek Pro kullanıcı segmentasyonu
+(satın alma bazlı) hâlâ IAP + sunucu taraflı makbuz doğrulaması gerektiriyor
+(bkz. "Abonelik/Pro planı" bölümü) — bu iskelet yalnızca admin'in kendi
+testine hizmet eder, gerçek bir ödeme/entitlement sistemi değildir.
+
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 
 Kullanıcı "uygulamayı tamamen test ettin mi" diye sorunca şu tam tarama

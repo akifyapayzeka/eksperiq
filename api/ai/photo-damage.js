@@ -295,12 +295,24 @@ Araç varsa ama görünür hasar sinyali yoksa isVehiclePhoto=true ve findings=[
   ];
 }
 
+function resolveVisionModel() {
+  // EKSPERIQ_FORCE_PRO is a server-only env var the admin sets on a separate
+  // (non-production) deployment to test the stronger/paid model. It is never
+  // read from the client, so a regular user can never trigger the paid model
+  // by themselves — there is no real Pro purchase/entitlement system yet
+  // (no accounts, no verified IAP receipts), so this must stay server-only
+  // until one exists.
+  const isForcedPro = process.env.EKSPERIQ_FORCE_PRO === "true";
+  const proModel = process.env.OPENROUTER_VISION_MODEL_PRO?.trim();
+  if (isForcedPro && proModel) return proModel;
+  return process.env.OPENROUTER_VISION_MODEL?.trim() || process.env.OPENROUTER_MODEL?.trim() || DEFAULT_VISION_MODEL;
+}
+
 async function requestOpenRouterVision(input) {
   const apiKey = process.env.OPENROUTER_API_KEY?.trim();
   if (!apiKey) return { error: "OpenRouter API key tanımlı değil." };
 
-  const model =
-    process.env.OPENROUTER_VISION_MODEL?.trim() || process.env.OPENROUTER_MODEL?.trim() || DEFAULT_VISION_MODEL;
+  const model = resolveVisionModel();
   const response = await fetch(OPENROUTER_CHAT_COMPLETIONS_URL, {
     method: "POST",
     headers: {
@@ -378,3 +390,4 @@ async function handler(request, response) {
 
 module.exports = handler;
 module.exports.DEFAULT_VISION_MODEL = DEFAULT_VISION_MODEL;
+module.exports.resolveVisionModel = resolveVisionModel;
