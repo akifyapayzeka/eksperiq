@@ -347,6 +347,15 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     "Evet, sil" / "Vazgeç"); `tests/unit/vehicle-switcher.test.tsx` eklendi
     (ilk tıklamada silinmediğini, yalnızca onaydan sonra silindiğini ve
     vazgeçilince hiç silinmediğini doğrulayan 3 test).
+22. Bakım ve Ödeme Takvimi ile Gider Defteri'ndeki `formMessage` durum
+    paragrafları (`"Kayıt eklendi."`, `"Son araç profili silinemez."` gibi)
+    hiçbir ARIA rolü taşımıyordu — ekran okuyucu kullanan biri için bu
+    mesajlar sessizce görünüp kaybolabiliyordu (Fotoğraftan Hasar Analizi
+    sayfası aynı desende zaten `role="status"` kullanıyordu, bu ikisi
+    tutarsız kalmıştı). Ayrıca yeni eklenen araç silme onay uyarısı da
+    (madde 21) bir ARIA rolü taşımıyordu. Düzeltme: her iki sayfadaki durum
+    paragrafına `role="status"`, `VehicleSwitcher`'daki onay kutusuna
+    `role="alert"` eklendi.
 
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 

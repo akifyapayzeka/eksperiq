@@ -419,7 +419,11 @@ export default function MaintenancePaymentCalendarPage() {
               </button>
             ) : null}
           </div>
-          {formMessage ? <p className="mt-3 text-sm font-medium text-slate-700">{formMessage}</p> : null}
+          {formMessage ? (
+            <p role="status" className="mt-3 text-sm font-medium text-slate-700">
+              {formMessage}
+            </p>
+          ) : null}
         </section>
 
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">

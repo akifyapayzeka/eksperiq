@@ -105,7 +105,7 @@ export function VehicleSwitcher({
           ) : null}
         </div>
       ) : mode === "confirming-delete" ? (
-        <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3">
+        <div role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3">
           <p className="text-sm text-red-900">
             {selectedVehicle?.label ?? "Bu araç"} silinecek; bu araca ait tüm hatırlatma, gider ve sağlık kaydı da
             birlikte silinecek. Bu işlem geri alınamaz.
