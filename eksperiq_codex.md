@@ -443,6 +443,122 @@ Diğer bulgular (Tramer uygulamasının "güvenle sorgula" gibi güven-inşa ede
 dili, Findeks'in şeffaf gecikme/itiraz süreci açıklaması) EksperIQ'ın zaten
 sahip olduğu yaklaşımla tutarlıydı, ek değişiklik gerektirmedi.
 
+## PR #10 merge edildi (2026-08-02)
+
+Kullanıcı PR #10'u kendisi merge etti. Dal (`claude/eksperiq-app-development-mr9eed`)
+`origin/master`'a resetlenip force-with-lease ile push edildi — artık master
+ile birebir aynı, yeni değişiklikler bu temiz temelden devam ediyor.
+
+## Fotoğraf analizlerinin kaydedilip Analizlerim'de listelenmesi (2026-08-02)
+
+Kullanıcı gerçek kullanımda şunu fark etti: "Fotoğraftan Hasar Analizi"nde
+birkaç fotoğraf analiz ettirdi ama bu analizler `/analizlerim` sayfasında hiç
+görünmüyordu — sayfa yalnızca component state'te tutuluyordu, hiçbir kalıcı
+kayıt yoktu. Kullanıcı analiz ettiği fotoğrafların, fotoğrafları da göstererek
+Analizlerim'de listelenmesini istedi.
+
+Eklenenler:
+
+- `src/lib/photo-analysis/types.ts` — `PhotoAnalysisRecord` tipi (id,
+  createdAt, thumbnails, findings, aiSummary?).
+- `src/lib/photo-analysis/downscale-image.ts` — fotoğrafı canvas ile küçük
+  bir JPEG thumbnail'e (maks. 480px genişlik, %60 kalite) çevirir. Bilinçli
+  tasarım kararı: gerçek telefon kamerası fotoğrafları (2-8 MB) ham hâlde
+  localStorage'a yazılırsa tarayıcı depolama kotası (genelde 5-10 MB) hızla
+  aşılır — bu yüzden orijinal değil, küçültülmüş thumbnail saklanıyor.
+  Decode başarısız olursa (bozuk/sahte veri) `null` döner ve çağıran taraf
+  o fotoğrafı sessizce atlar; hata fırlatmaz.
+- `src/lib/storage/photo-analysis-storage.ts` — localStorage CRUD (diğer
+  storage modülleriyle aynı desen). En fazla 20 kayıt tutulur (en eskiler
+  otomatik düşer). `writeRaw` kota hatası alırsa önce thumbnail'leri boşaltıp
+  tekrar dener; o da başarısız olursa sayfa çökmesin diye sessizce vazgeçer.
+- `src/app/fotograf-hasar/page.tsx` — "Analizi kaydet" butonu eklendi
+  (dosya seçili VE en az bir manuel bulgu ya da AI analizi varken aktif).
+  Kaydedince fotoğraflar küçültülüp bulgularla birlikte kaydediliyor.
+- `src/app/analizlerim/page.tsx` — yeni "Fotoğraf analizlerim" bölümü:
+  kaydedilen her analizi tarih, küçük fotoğraflar, AI özeti ve bulgu
+  listesiyle gösterir; her kaydın yanında "Sil" butonu var.
+- Testler: `tests/unit/photo-analysis-storage.test.ts` (kayıt/liste/silme/20
+  kayıt sınırı) ve `tests/e2e/module-tools.spec.ts`'e "saved photo analysis
+  appears in Analizlerim" testi eklendi (kaydet → Analizlerim'de gör → sil →
+  boş duruma dön akışının tamamını doğruluyor).
+- Yan etki: `/analizlerim` sayfasında artık iki "Analizlerim" metni geçen
+  başlık var ("Analizlerim" ve "Fotoğraf analizlerim"), bu üç e2e testte
+  strict-mode çakışmasına yol açtı (`main-flow.spec.ts`, `button-actions.spec.ts`,
+  `screenshots.spec.ts`) — hepsi `{ exact: true }` ile düzeltildi.
+
+Bu değişiklikler PR #11'e taşındı (draft, `claude/eksperiq-app-development-mr9eed` → `master`).
+
+## Pro kullanıcılar için farklı/güçlü AI modeli — güvenli iskelet (2026-08-02)
+
+Kullanıcı "Pro kullanıcıya foto analizinde daha güçlü/ücretli bir AI kullansak"
+dedi. Buradaki gerçek engel açıklandı: uygulamada hesap/giriş yok, yani
+sunucu tarafında "bu istek gerçekten Pro'dan mı geliyor" diye doğrulayacak
+hiçbir mekanizma yok. Client tarafında bir bayrakla ("isPro") model seçmek,
+herkesin o bayrağı taklit edip bedavaya pahalı modeli kullanabileceği **gerçek
+bir güvenlik/maliyet açığı** olurdu — OpenRouter faturasını admin öder, hiç
+gelir gelmez.
+
+Kullanıcı admin olarak kendi kendine test etmek istediğini belirtti; Apple/Google
+sandbox test satın almalarının gerçekten ücretsiz olduğu doğrulandı (bu bilgi
+kullanıcıya iletildi), ama bu, native StoreKit/Play Billing kodunu Mac+Xcode'da
+yazma zorunluluğunu ortadan kaldırmıyor (aynı, önceden belgelenen engel).
+
+Kullanıcı bunun yerine **yalnızca sunucu tarafında, admin kontrolündeki ayrı
+bir test ortamında** aktif olan bir çözümü onayladı ("Test için OpenRouter
+kredisini kullanabiliriz, içeride var kredi" diyerek gerçek API çağrısı
+maliyetini de kabul etti). Eklenen:
+
+- `api/ai/photo-damage.js`'e `resolveVisionModel()` fonksiyonu eklendi.
+  Yalnızca `process.env.EKSPERIQ_FORCE_PRO === "true"` (tam string eşitliği,
+  başka hiçbir değer — "1", "TRUE", boş, tanımsız — kabul edilmez) VE
+  `OPENROUTER_VISION_MODEL_PRO` ayarlıysa güçlü modeli kullanır; aksi halde
+  mevcut ücretsiz model mantığı aynen çalışır. Her iki değişken de yalnızca
+  Vercel ortam değişkeni olarak ayarlanır — client hiçbir zaman bunu okuyamaz
+  veya değiştiremez, bu yüzden production'da hiçbir kullanıcı bunu tetikleyemez.
+- `.env.example`'a `EKSPERIQ_FORCE_PRO` ve `OPENROUTER_VISION_MODEL_PRO`
+  eklendi, production'da boş bırakılması gerektiği açıkça yazıldı.
+- `tests/unit/photo-damage-endpoint.test.ts`'e iki regresyon testi eklendi:
+  (1) `EKSPERIQ_FORCE_PRO` tam olarak `"true"` değilse (unset/"false"/"1"/
+  "TRUE"/boş) pro model asla seçilmez, (2) `EKSPERIQ_FORCE_PRO=true` ama pro
+  model ayarlı değilse normal ücretsiz modele düşer.
+
+**Kalan adım (kullanıcı admin olarak kendi test ortamını kurmak isterse):**
+Vercel'de bu branch/preview için ayrı bir deployment/environment açıp
+`EKSPERIQ_FORCE_PRO=true` ve `OPENROUTER_VISION_MODEL_PRO=<gerçek paid model
+id>` ortam değişkenlerini yalnızca o deployment'a eklemek yeterli — production
+ortamı (eksperiq.vercel.app) bu değişkenlerden habersiz kalıp herkese
+ücretsiz modeli sunmaya devam eder. Gerçek Pro kullanıcı segmentasyonu
+(satın alma bazlı) hâlâ IAP + sunucu taraflı makbuz doğrulaması gerektiriyor
+(bkz. "Abonelik/Pro planı" bölümü) — bu iskelet yalnızca admin'in kendi
+testine hizmet eder, gerçek bir ödeme/entitlement sistemi değildir.
+
+Kullanıcı bunu kendi Preview ortamında kurdu (`EKSPERIQ_FORCE_PRO=true`,
+`OPENROUTER_VISION_MODEL_PRO=openai/gpt-4o-mini`, yalnızca Preview/Sensitive
+olarak işaretli) ve Vercel'in "Protection Bypass for Automation" token'ını
+paylaştı. Bu token ile Preview URL'sine gerçek bir istek gönderilip
+doğrulandı: yanıttaki `model` alanı `"openai/gpt-4o-mini"` döndü — gate
+çalışıyor. Test scripti geçiciydi, token hiçbir yere kaydedilmedi/commit
+edilmedi.
+
+## `/moduller` sayfasındaki eski/yanlış içerik kaldırıldı (2026-08-02)
+
+`/loop` dinamik modunda tarama sırasında bulundu: `/moduller` sayfasında iki
+ayrı, artık **yanlış** bölüm vardı:
+
+1. "Garajım" teaser kutusu "Sağlık Karnesi: Hazırlanıyor" ve "MVP aşamasında
+   veriler kalıcı kaydedilmez... kullanıcı hesabı eklendiğinde aktif olacak"
+   diyordu — oysa Araç Sağlık Karnesi aylardır aktif ve localStorage'da
+   kalıcı, hesap gerektirmiyor. Bu, aynı sayfadaki "Aktif modüller"
+   listesindeki doğru bilgiyle doğrudan çelişiyordu.
+2. Sayfa altındaki mavi CTA kutusu "çoklu araç, bakım hatırlatma ve satış
+   hazırlığı özellikleri sonraki sürümlerin ana odağı olacak" diyordu — bu
+   üçü de (PR #10 ile çoklu araç dahil) zaten aktif ve kayıtlı.
+
+İkisi de kaldırıldı (README'de daha önce düzeltilen aynı tür "bayatlamış
+roadmap içeriği" hatası). `tests/e2e/main-flow.spec.ts`'teki artık var
+olmayan "Garajım" başlığı assertion'ı kaldırıldı.
+
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 
 Kullanıcı "uygulamayı tamamen test ettin mi" diye sorunca şu tam tarama

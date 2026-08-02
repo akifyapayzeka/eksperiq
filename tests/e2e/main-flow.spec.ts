@@ -63,7 +63,7 @@ test("mobile bottom navigation opens app actions", async ({ page, isMobile }) =>
 
   await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Analizlerim" }).click();
   await expect(page).toHaveURL(/\/analizlerim$/);
-  await expect(page.getByRole("heading", { name: "Analizlerim" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Analizlerim", exact: true })).toBeVisible();
 
   await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Garajım" }).click();
   await expect(page).toHaveURL(/\/arac-saglik-karnesi$/);
@@ -178,7 +178,6 @@ test("shows product module roadmap", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Sadece ilan analizi değil, araç yolculuğu asistanı." }),
   ).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Garajım" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Aktif modüller" })).toBeVisible();
   await expect(page.getByRole("link", { name: /Modülü aç/ })).toHaveCount(13);
   await expect(page.getByRole("heading", { name: "İlan Analizi", exact: true })).toBeVisible();
