@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, BellPlus, CheckCircle2, Clock3, Plus } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, Clock3 } from "lucide-react";
 import { activeModules, plannedModules } from "@/lib/modules/registry";
 import type { ProductModule } from "@/lib/modules/types";
 
@@ -68,34 +68,6 @@ export default function ModulesPage() {
           </p>
         </section>
 
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" aria-labelledby="garage">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm font-medium text-slate-500">Kayıtlı araçların</p>
-              <h2 id="garage" className="mt-1 text-3xl font-semibold text-slate-950">
-                Garajım
-              </h2>
-            </div>
-            <Link
-              href="/analiz"
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-800"
-            >
-              <Plus aria-hidden="true" className="h-4 w-4" />
-              Araç Ekle
-            </Link>
-          </div>
-          <div className="mt-5 rounded-2xl bg-sky-50 p-5">
-            <p className="text-sm font-semibold text-teal-800">Sağlık Karnesi: Hazırlanıyor</p>
-            <h3 className="mt-5 max-w-sm text-2xl font-semibold leading-tight text-slate-950">
-              Araç geçmişini bakım, evrak ve analiz kayıtlarıyla takip et
-            </h3>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">
-              MVP aşamasında veriler kalıcı kaydedilmez. Bu garaj alanı ileride kullanıcı hesabı ve izinli veri saklama
-              eklendiğinde aktif olacak.
-            </p>
-          </div>
-        </section>
-
         <section className="mt-8" aria-labelledby="active-modules-title">
           <h2 id="active-modules-title" className="text-2xl font-semibold text-slate-950">
             Aktif modüller
@@ -122,17 +94,6 @@ export default function ModulesPage() {
             </div>
           </section>
         ) : null}
-
-        <section className="mt-8 rounded-2xl bg-slate-900 p-6 text-white">
-          <BellPlus aria-hidden="true" className="h-8 w-8 text-teal-200" />
-          <h2 className="mt-5 max-w-lg text-2xl font-semibold leading-tight">
-            Aracını ekle, zaman içinde bakım ve değerini takip et
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-            Birden fazla araç için ayrı kayıt, bakım hatırlatma ve satış hazırlığı özellikleri sonraki sürümlerin ana
-            odağı olacak.
-          </p>
-        </section>
       </div>
     </main>
   );

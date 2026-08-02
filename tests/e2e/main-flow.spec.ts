@@ -178,7 +178,6 @@ test("shows product module roadmap", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Sadece ilan analizi değil, araç yolculuğu asistanı." }),
   ).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Garajım" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Aktif modüller" })).toBeVisible();
   await expect(page.getByRole("link", { name: /Modülü aç/ })).toHaveCount(13);
   await expect(page.getByRole("heading", { name: "İlan Analizi", exact: true })).toBeVisible();

@@ -533,6 +533,32 @@ ortamı (eksperiq.vercel.app) bu değişkenlerden habersiz kalıp herkese
 (bkz. "Abonelik/Pro planı" bölümü) — bu iskelet yalnızca admin'in kendi
 testine hizmet eder, gerçek bir ödeme/entitlement sistemi değildir.
 
+Kullanıcı bunu kendi Preview ortamında kurdu (`EKSPERIQ_FORCE_PRO=true`,
+`OPENROUTER_VISION_MODEL_PRO=openai/gpt-4o-mini`, yalnızca Preview/Sensitive
+olarak işaretli) ve Vercel'in "Protection Bypass for Automation" token'ını
+paylaştı. Bu token ile Preview URL'sine gerçek bir istek gönderilip
+doğrulandı: yanıttaki `model` alanı `"openai/gpt-4o-mini"` döndü — gate
+çalışıyor. Test scripti geçiciydi, token hiçbir yere kaydedilmedi/commit
+edilmedi.
+
+## `/moduller` sayfasındaki eski/yanlış içerik kaldırıldı (2026-08-02)
+
+`/loop` dinamik modunda tarama sırasında bulundu: `/moduller` sayfasında iki
+ayrı, artık **yanlış** bölüm vardı:
+
+1. "Garajım" teaser kutusu "Sağlık Karnesi: Hazırlanıyor" ve "MVP aşamasında
+   veriler kalıcı kaydedilmez... kullanıcı hesabı eklendiğinde aktif olacak"
+   diyordu — oysa Araç Sağlık Karnesi aylardır aktif ve localStorage'da
+   kalıcı, hesap gerektirmiyor. Bu, aynı sayfadaki "Aktif modüller"
+   listesindeki doğru bilgiyle doğrudan çelişiyordu.
+2. Sayfa altındaki mavi CTA kutusu "çoklu araç, bakım hatırlatma ve satış
+   hazırlığı özellikleri sonraki sürümlerin ana odağı olacak" diyordu — bu
+   üçü de (PR #10 ile çoklu araç dahil) zaten aktif ve kayıtlı.
+
+İkisi de kaldırıldı (README'de daha önce düzeltilen aynı tür "bayatlamış
+roadmap içeriği" hatası). `tests/e2e/main-flow.spec.ts`'teki artık var
+olmayan "Garajım" başlığı assertion'ı kaldırıldı.
+
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 
 Kullanıcı "uygulamayı tamamen test ettin mi" diye sorunca şu tam tarama
