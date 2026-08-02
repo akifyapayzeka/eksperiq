@@ -1,7 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Camera, ImagePlus } from "lucide-react";
+import { Camera, ImagePlus, Save } from "lucide-react";
+import { downscaleImage } from "@/lib/photo-analysis/downscale-image";
+import { createPhotoAnalysisId, upsertPhotoAnalysis } from "@/lib/storage/photo-analysis-storage";
+import type { PhotoAnalysisRecord } from "@/lib/photo-analysis/types";
 
 const areas = [
   "Ön tampon",
@@ -58,7 +61,10 @@ export default function PhotoDamagePage() {
   const [aiStatus, setAiStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [aiMessage, setAiMessage] = useState("");
   const [aiAnalysis, setAiAnalysis] = useState<AiPhotoAnalysis | null>(null);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [saveMessage, setSaveMessage] = useState("");
   const canRunAi = isPhotoAiEnabled && Boolean(files.length) && aiStatus !== "loading";
+  const canSave = Boolean(fileCount) && (items.length > 0 || Boolean(aiAnalysis)) && saveStatus !== "saving";
 
   const priority = useMemo(() => {
     if (items.some((item) => item.confidence === "Yüksek olasılık")) return "Ekspertizde öncelikli kontrol edilmeli";
@@ -83,6 +89,39 @@ export default function PhotoDamagePage() {
     setFinding("");
     setConfidence("");
     setNote("");
+  }
+
+  async function saveAnalysis() {
+    if (!fileCount) {
+      setSaveStatus("error");
+      setSaveMessage("Önce fotoğraf seçin.");
+      return;
+    }
+
+    if (!items.length && !aiAnalysis) {
+      setSaveStatus("error");
+      setSaveMessage("Kaydedilecek bir bulgu yok. Önce bulgu ekleyin veya AI ile analiz edin.");
+      return;
+    }
+
+    setSaveStatus("saving");
+    setSaveMessage("");
+
+    const thumbnails = (await Promise.all(files.map(downscaleImage))).filter((value): value is string =>
+      Boolean(value),
+    );
+
+    const record: PhotoAnalysisRecord = {
+      id: createPhotoAnalysisId(),
+      createdAt: new Date().toISOString(),
+      thumbnails,
+      findings: items,
+      aiSummary: aiAnalysis?.summary,
+    };
+
+    upsertPhotoAnalysis(record);
+    setSaveStatus("saved");
+    setSaveMessage("Analiz kaydedildi. Analizlerim sayfasında görebilirsiniz.");
   }
 
   async function fileToDataUrl(file: File): Promise<string> {
@@ -361,6 +400,25 @@ export default function PhotoDamagePage() {
               </p>
             )}
           </div>
+          <button
+            type="button"
+            onClick={saveAnalysis}
+            disabled={!canSave}
+            className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-teal-700 px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            <Save aria-hidden="true" className="h-4 w-4" />
+            {saveStatus === "saving" ? "Kaydediliyor" : "Analizi kaydet"}
+          </button>
+          {saveMessage ? (
+            <p
+              className={`mt-3 rounded-xl px-3 py-2 text-sm font-medium ${
+                saveStatus === "error" ? "bg-amber-50 text-amber-950" : "bg-teal-50 text-teal-900"
+              }`}
+              role="status"
+            >
+              {saveMessage}
+            </p>
+          ) : null}
           <p className="mt-4 text-sm leading-6 text-slate-500">Bu ekran kesin hasar kararı vermez.</p>
         </section>
       </div>

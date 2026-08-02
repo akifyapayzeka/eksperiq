@@ -7,15 +7,19 @@ import {
   ArrowUpRight,
   CalendarDays,
   CarFront,
+  Camera,
   FileText,
   Plus,
   Search,
   ShieldCheck,
   SlidersHorizontal,
+  Trash2,
   Wrench,
 } from "lucide-react";
 import { loadAnalysis } from "@/lib/storage/analysis-storage";
+import { deletePhotoAnalysis, loadPhotoAnalyses } from "@/lib/storage/photo-analysis-storage";
 import type { AnalysisResult } from "@/lib/analysis/types";
+import type { PhotoAnalysisRecord } from "@/lib/photo-analysis/types";
 
 type AnalysisFilter = "all" | "high" | "medium" | "low";
 
@@ -37,14 +41,24 @@ export default function MyAnalysesPage() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [activeFilter, setActiveFilter] = useState<AnalysisFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [photoAnalyses, setPhotoAnalyses] = useState<PhotoAnalysisRecord[]>([]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
       setResult(loadAnalysis());
+      setPhotoAnalyses(loadPhotoAnalyses());
     });
 
     return () => window.cancelAnimationFrame(frame);
   }, []);
+
+  function removePhotoAnalysis(id: string) {
+    setPhotoAnalyses(deletePhotoAnalysis(id));
+  }
+
+  function formatPhotoAnalysisDate(value: string) {
+    return new Date(value).toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" });
+  }
 
   const completedCount = result ? 1 : 0;
   const visibleResult =
@@ -233,6 +247,68 @@ export default function MyAnalysesPage() {
                   Analiz başlat
                 </Link>
               )}
+            </div>
+          )}
+        </section>
+
+        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="text-2xl font-semibold text-slate-950">Fotoğraf analizlerim</h2>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            Fotoğraftan Hasar Analizi ekranında kaydettiğiniz analizler burada listelenir.
+          </p>
+          {photoAnalyses.length ? (
+            <div className="mt-4 grid gap-3">
+              {photoAnalyses.map((record) => (
+                <article key={record.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="text-sm font-semibold text-slate-950">{formatPhotoAnalysisDate(record.createdAt)}</p>
+                    <button
+                      type="button"
+                      onClick={() => removePhotoAnalysis(record.id)}
+                      className="inline-flex items-center gap-1 text-sm font-semibold text-red-700 hover:underline"
+                    >
+                      <Trash2 aria-hidden="true" className="h-4 w-4" />
+                      Sil
+                    </button>
+                  </div>
+                  {record.thumbnails.length ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {record.thumbnails.map((thumbnail, index) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          key={`${record.id}-${index}`}
+                          src={thumbnail}
+                          alt="Kaydedilen fotoğraf"
+                          className="h-20 w-20 rounded-lg object-cover"
+                        />
+                      ))}
+                    </div>
+                  ) : null}
+                  {record.aiSummary ? (
+                    <p className="mt-3 text-sm leading-6 text-slate-700">{record.aiSummary}</p>
+                  ) : null}
+                  {record.findings.length ? (
+                    <ul className="mt-3 grid gap-1 text-sm text-slate-700">
+                      {record.findings.map((item, index) => (
+                        <li key={index}>
+                          {item.area}: {item.finding}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-4 flex items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4">
+              <Camera aria-hidden="true" className="h-6 w-6 shrink-0 text-slate-400" />
+              <p className="text-sm text-slate-600">
+                Henüz kaydedilmiş fotoğraf analizi yok.{" "}
+                <Link href="/fotograf-hasar" className="font-semibold text-teal-800 hover:underline">
+                  Fotoğraftan Hasar Analizi&apos;ni aç
+                </Link>
+                .
+              </p>
             </div>
           )}
         </section>

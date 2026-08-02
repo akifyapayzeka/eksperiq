@@ -347,3 +347,29 @@ test("photo damage tool refuses non-vehicle photos via the AI's own check", asyn
   ).toBeVisible();
   await expect(page.getByText("Ön tampon: Çizik")).toHaveCount(0);
 });
+
+test("saved photo analysis appears in Analizlerim", async ({ page }) => {
+  await page.goto("/fotograf-hasar");
+  await page.locator('input[type="file"]').setInputFiles({
+    name: "arac-on-tampon.jpg",
+    mimeType: "image/jpeg",
+    buffer: Buffer.from("fake-image"),
+  });
+  await page.getByLabel("Bölge").selectOption("Ön tampon");
+  await page.getByLabel("Bulgu").selectOption("Çizik");
+  await page.getByLabel("Güven seviyesi").selectOption("Orta olasılık");
+  await page.getByRole("button", { name: "Bulguyu ekle" }).click();
+  await expect(page.getByText("Ön tampon: Çizik")).toBeVisible();
+
+  await expect(page.getByRole("button", { name: "Analizi kaydet" })).toBeEnabled();
+  await page.getByRole("button", { name: "Analizi kaydet" }).click();
+  await expect(page.getByText("Analiz kaydedildi. Analizlerim sayfasında görebilirsiniz.")).toBeVisible();
+
+  await page.goto("/analizlerim");
+  await expect(page.getByRole("heading", { name: "Fotoğraf analizlerim" })).toBeVisible();
+  await expect(page.getByText("Ön tampon: Çizik")).toBeVisible();
+  await expect(page.getByText("Henüz kaydedilmiş fotoğraf analizi yok.")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Sil" }).click();
+  await expect(page.getByText("Henüz kaydedilmiş fotoğraf analizi yok.")).toBeVisible();
+});

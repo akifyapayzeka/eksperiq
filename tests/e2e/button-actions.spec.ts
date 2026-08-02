@@ -32,7 +32,7 @@ test("analysis list filters and search controls update results", async ({ page }
   await expect(page).toHaveURL(/\/sonuc$/);
 
   await page.goto("/analizlerim");
-  await expect(page.getByRole("heading", { name: "Analizlerim" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Analizlerim", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: /Toyota Corolla/ })).toBeVisible();
 
   await page.getByRole("button", { name: /Y.ksek Risk/ }).click();

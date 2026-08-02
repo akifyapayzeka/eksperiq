@@ -63,7 +63,7 @@ test("mobile bottom navigation opens app actions", async ({ page, isMobile }) =>
 
   await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Analizlerim" }).click();
   await expect(page).toHaveURL(/\/analizlerim$/);
-  await expect(page.getByRole("heading", { name: "Analizlerim" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Analizlerim", exact: true })).toBeVisible();
 
   await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Garajım" }).click();
   await expect(page).toHaveURL(/\/arac-saglik-karnesi$/);

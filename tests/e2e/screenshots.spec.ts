@@ -106,7 +106,7 @@ test("captures release screenshots", async ({ page }, testInfo) => {
 
   await page.goto("/analizlerim");
   await prepareScreenshotPage(page);
-  await expect(page.getByRole("heading", { name: "Analizlerim" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Analizlerim", exact: true })).toBeVisible();
   await captureReleaseScreenshot(page, prefix, "my-analyses");
 
   await page.goto("/offline");

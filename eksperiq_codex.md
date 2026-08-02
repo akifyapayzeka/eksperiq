@@ -443,6 +443,50 @@ Diğer bulgular (Tramer uygulamasının "güvenle sorgula" gibi güven-inşa ede
 dili, Findeks'in şeffaf gecikme/itiraz süreci açıklaması) EksperIQ'ın zaten
 sahip olduğu yaklaşımla tutarlıydı, ek değişiklik gerektirmedi.
 
+## PR #10 merge edildi (2026-08-02)
+
+Kullanıcı PR #10'u kendisi merge etti. Dal (`claude/eksperiq-app-development-mr9eed`)
+`origin/master`'a resetlenip force-with-lease ile push edildi — artık master
+ile birebir aynı, yeni değişiklikler bu temiz temelden devam ediyor.
+
+## Fotoğraf analizlerinin kaydedilip Analizlerim'de listelenmesi (2026-08-02)
+
+Kullanıcı gerçek kullanımda şunu fark etti: "Fotoğraftan Hasar Analizi"nde
+birkaç fotoğraf analiz ettirdi ama bu analizler `/analizlerim` sayfasında hiç
+görünmüyordu — sayfa yalnızca component state'te tutuluyordu, hiçbir kalıcı
+kayıt yoktu. Kullanıcı analiz ettiği fotoğrafların, fotoğrafları da göstererek
+Analizlerim'de listelenmesini istedi.
+
+Eklenenler:
+
+- `src/lib/photo-analysis/types.ts` — `PhotoAnalysisRecord` tipi (id,
+  createdAt, thumbnails, findings, aiSummary?).
+- `src/lib/photo-analysis/downscale-image.ts` — fotoğrafı canvas ile küçük
+  bir JPEG thumbnail'e (maks. 480px genişlik, %60 kalite) çevirir. Bilinçli
+  tasarım kararı: gerçek telefon kamerası fotoğrafları (2-8 MB) ham hâlde
+  localStorage'a yazılırsa tarayıcı depolama kotası (genelde 5-10 MB) hızla
+  aşılır — bu yüzden orijinal değil, küçültülmüş thumbnail saklanıyor.
+  Decode başarısız olursa (bozuk/sahte veri) `null` döner ve çağıran taraf
+  o fotoğrafı sessizce atlar; hata fırlatmaz.
+- `src/lib/storage/photo-analysis-storage.ts` — localStorage CRUD (diğer
+  storage modülleriyle aynı desen). En fazla 20 kayıt tutulur (en eskiler
+  otomatik düşer). `writeRaw` kota hatası alırsa önce thumbnail'leri boşaltıp
+  tekrar dener; o da başarısız olursa sayfa çökmesin diye sessizce vazgeçer.
+- `src/app/fotograf-hasar/page.tsx` — "Analizi kaydet" butonu eklendi
+  (dosya seçili VE en az bir manuel bulgu ya da AI analizi varken aktif).
+  Kaydedince fotoğraflar küçültülüp bulgularla birlikte kaydediliyor.
+- `src/app/analizlerim/page.tsx` — yeni "Fotoğraf analizlerim" bölümü:
+  kaydedilen her analizi tarih, küçük fotoğraflar, AI özeti ve bulgu
+  listesiyle gösterir; her kaydın yanında "Sil" butonu var.
+- Testler: `tests/unit/photo-analysis-storage.test.ts` (kayıt/liste/silme/20
+  kayıt sınırı) ve `tests/e2e/module-tools.spec.ts`'e "saved photo analysis
+  appears in Analizlerim" testi eklendi (kaydet → Analizlerim'de gör → sil →
+  boş duruma dön akışının tamamını doğruluyor).
+- Yan etki: `/analizlerim` sayfasında artık iki "Analizlerim" metni geçen
+  başlık var ("Analizlerim" ve "Fotoğraf analizlerim"), bu üç e2e testte
+  strict-mode çakışmasına yol açtı (`main-flow.spec.ts`, `button-actions.spec.ts`,
+  `screenshots.spec.ts`) — hepsi `{ exact: true }` ile düzeltildi.
+
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 
 Kullanıcı "uygulamayı tamamen test ettin mi" diye sorunca şu tam tarama
