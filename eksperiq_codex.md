@@ -306,6 +306,15 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     bağımsız bir modül olarak kalmaya devam ediyor, silinmedi). Düzeltme:
     `src/app/analizlerim/page.tsx`'teki ilgili satır
     `/bakim-odeme-takvimi` → "Bakım ve Ödeme Takvimi" olarak güncellendi.
+18. `/bakim-takibi` (eski, kayıtsız, tek seferlik km/tarih hesaplayıcısı)
+    sayfasından, kalıcı ve çoklu araç destekli Bakım ve Ödeme Takvimi'ne hiç
+    link verilmiyordu — bu sayfaya gelen bir kullanıcı daha iyi aracın var
+    olduğunu fark edemeyebilirdi. Bu sayfa tamamen kaldırılmadı çünkü tek
+    seferlik hızlı tahmin ihtiyacı için hâlâ geçerli, farklı bir kullanım
+    senaryosu sunuyor (bkz. madde 17'nin notu). Düzeltme:
+    `src/app/bakim-takibi/page.tsx`'e "Bakım ve Ödeme Takvimi'ne git" çapraz
+    linki eklendi; `tests/e2e/module-tools.spec.ts`'e bu linkin
+    `/bakim-odeme-takvimi`'ye gittiğini doğrulayan bir assertion eklendi.
 
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 
