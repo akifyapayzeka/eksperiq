@@ -23,4 +23,9 @@ describe("official lookup guide", () => {
   it("does not guarantee query results", () => {
     expect(officialLookupDisclaimer).toContain("garanti etmez");
   });
+
+  it("warns that a clean damage record does not prove the vehicle was never damaged", () => {
+    const damageItem = officialLookupItems.find((item) => item.id === "damage-record");
+    expect(damageItem?.note).toContain("hiç hasar görmediği anlamına gelmez");
+  });
 });

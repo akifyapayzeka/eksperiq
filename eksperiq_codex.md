@@ -389,6 +389,38 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     `isVehiclePhoto:false` senaryosunu doğruluyor; `main-flow.spec.ts`'teki
     profil başlık assertion'ı güncellendi).
 
+## Rakip/benzer uygulama araştırması ve entegre edilen bulgular (2026-08-02)
+
+Kullanıcı "başka uygulamalara bak, dil ve tasarımlarını araştır, kendini
+geliştir ve EksperIQ'a entegre et" dedi. sahibinden.com ve arabam.com
+otomatik erişimi engelliyor (403 — `WebFetch` ile doğrulandı). Bunun yerine
+erişilebilen kaynaklar araştırıldı: App Store'daki "Tramer" uygulaması (hasar
+sorgulama), RS Oto Ekspertiz'in hasar kaydı sorgulama rehberi ve Findeks risk
+raporu sayfası.
+
+**Somut, entegre edilen bulgu:** Gerçek ekspertiz/hasar-sorgu kaynakları
+tutarlı şekilde şu uyarıyı veriyor: _"hasar kaydı bulunmaması aracın hiç
+hasar görmediği anlamına gelmez"_ (sigortasız/nakit onarılan hasarlar
+TRAMER'e hiç yansımayabilir). EksperIQ'ta bu nüans hem `/resmi-sorgu-rehberi`
+sayfasında hem de sonuç ekranındaki "Güçlü taraflar" (strengths) listesinde
+eksikti — "Ağır hasar kaydı belirtilmemiş" gibi maddeler hiçbir uyarı
+olmadan gösteriliyordu, oysa bunlar kullanıcının kendi girdiği/satıcı
+beyanına dayanan, resmi kayıtla doğrulanmamış bilgiler. Bu, uygulamanın
+"asla kesin hüküm verme" ilkesiyle doğrudan ilgili gerçek bir içerik
+eksikliğiydi. Düzeltme:
+
+- `src/lib/vehicle-checks/official-lookup.ts`'teki "Hasar/TRAMER kaydı"
+  maddesinin notuna bu uyarı eklendi.
+- `src/components/results/result-client.tsx`'teki "Güçlü taraflar"
+  bölümüne "Bu maddeler girdiğiniz bilgiye dayanır; TRAMER veya e-Devlet'ten
+  doğrulanmadıkça kesin kabul edilmemelidir." açıklaması eklendi.
+- Regresyon testleri: `tests/unit/official-lookup-guide.test.ts` ve
+  `tests/e2e/main-flow.spec.ts`'e eklendi.
+
+Diğer bulgular (Tramer uygulamasının "güvenle sorgula" gibi güven-inşa eden
+dili, Findeks'in şeffaf gecikme/itiraz süreci açıklaması) EksperIQ'ın zaten
+sahip olduğu yaklaşımla tutarlıydı, ek değişiklik gerektirmedi.
+
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 
 Kullanıcı "uygulamayı tamamen test ettin mi" diye sorunca şu tam tarama

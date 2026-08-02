@@ -872,7 +872,10 @@ export function ResultClient() {
             </div>
           </div>
         </SectionCard>
-        <SectionCard title="Güçlü taraflar">
+        <SectionCard
+          title="Güçlü taraflar"
+          description="Bu maddeler girdiğiniz bilgiye dayanır; TRAMER veya e-Devlet'ten doğrulanmadıkça kesin kabul edilmemelidir."
+        >
           <ul className="grid gap-2">
             {result.strengths.map((item) => (
               <li key={item} className="flex gap-2">

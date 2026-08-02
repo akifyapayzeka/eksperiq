@@ -11,7 +11,7 @@ export const officialLookupItems: OfficialLookupItem[] = [
     title: "Hasar/TRAMER kaydı",
     where:
       "e-Devlet Kapısı (turkiye.gov.tr) üzerinden ilgili sorgu hizmetini arayın, veya sigorta şirketinizden isteyin.",
-    note: "Hasar tutarı ve tarihleri resmi kayıtla doğrulanmadan satın alma kararı vermeyin.",
+    note: "Hasar tutarı ve tarihleri resmi kayıtla doğrulanmadan satın alma kararı vermeyin. Kayıt bulunmaması aracın hiç hasar görmediği anlamına gelmez; sigortasız veya nakit onarılan hasarlar bu kayda hiç yansımayabilir.",
   },
   {
     id: "inspection-status",
