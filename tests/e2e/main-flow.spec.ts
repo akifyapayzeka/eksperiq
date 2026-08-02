@@ -296,6 +296,13 @@ test("clears current session result", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Analiz bulunamadı" })).toBeVisible();
 });
 
+test("shows a friendly not-found page for unknown routes", async ({ page }) => {
+  await page.goto("/bu-sayfa-yok");
+  await expect(page.getByRole("heading", { name: "Sayfa bulunamadı" })).toBeVisible();
+  await page.getByRole("link", { name: "Ana sayfaya dön" }).click();
+  await expect(page).toHaveURL("/");
+});
+
 test("mobile pages do not create horizontal overflow", async ({ page, isMobile }) => {
   test.skip(!isMobile, "Mobile overflow is covered by the mobile project.");
 

@@ -324,6 +324,16 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     eksikti (madde 12'nin tamamlanmamış hâli). Düzeltme:
     `src/app/gizlilik/page.tsx`'e bu özelliği açıklayan bir paragraf
     eklendi.
+20. Uygulamada hiç özel `not-found.tsx` veya `error.tsx` yoktu — var olmayan
+    bir rota veya beklenmeyen bir client hatası, Next.js'in stilsiz/İngilizce
+    varsayılan sayfalarına düşüyordu (uygulamanın geri kalanıyla tutarsız,
+    kullanıcıyı sakinleştirmeyen bir deneyim). Düzeltme:
+    `src/app/not-found.tsx` (Türkçe "Sayfa bulunamadı" + ana sayfaya dön
+    linki) ve `src/app/error.tsx` (Türkçe "Bir şeyler ters gitti" + "Tekrar
+    dene"/"Ana sayfaya dön") eklendi; ikisi de `offline` sayfasıyla aynı
+    görsel dil ve sakin, kesin hüküm içermeyen tonu kullanıyor. e2e testi
+    (`tests/e2e/main-flow.spec.ts`, "shows a friendly not-found page for
+    unknown routes") eklendi.
 
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 
