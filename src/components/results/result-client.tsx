@@ -384,6 +384,10 @@ export function ResultClient() {
   return (
     <main className="flex-1 bg-slate-50">
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 lg:px-8">
+        <div className="print-only mb-2 flex items-center justify-between border-b border-slate-300 pb-3">
+          <p className="text-lg font-semibold text-slate-950">{appConfig.name}</p>
+          <p className="text-sm text-slate-600">Rapor oluşturma: {formatReportDate(result.generatedAt)}</p>
+        </div>
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="bg-sky-50 p-5 sm:p-7">
             <div className="flex items-start justify-between gap-4">

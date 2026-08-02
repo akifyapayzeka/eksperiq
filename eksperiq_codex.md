@@ -269,6 +269,20 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     ve push bildirimi açıldığında sunucuda tutulan hatırlatma kopyası
     hakkında `docs/app-store-privacy-answers.md` ile tutarlı, doğru bilgi
     veriyor.
+13. Çoklu araç profili özelliği eklenirken bulunan 2 gerçek bug:
+    "MTV taksitlerini ekle" butonu eklenen kayıtları hiç `localStorage`'a
+    yazmıyordu (yalnızca React state'e) — sayfa yenilenince kayboluyorlardı.
+    Ayrıca sayfa açılışında araç yüklemesi bir `requestAnimationFrame` ile
+    geciktiriliyor; bu dar pencerede bir kayıt eklenirse boş string
+    `vehicleId` ile kalıcı olarak damgalanıp filtrelemede kalıcı olarak
+    kayboluyordu (e2e testiyle reprodüklendi, mobile projede tutarlı şekilde
+    tetiklendi). Düzeltme: `addMtvInstallments` artık her kaydı
+    `upsertReminder` ile yazıyor; ilgili formlar araç profili yüklenene
+    kadar (`selectedVehicleId` boşken) devre dışı.
+14. AI karar destek notu üretiminde canlı bir denemede **"User Safety: safe"**
+    gibi anlamsız bir çıktı geldi — bkz. yukarıdaki "AI servisleri canlıya
+    alındı" bölümündeki ayrıntılı açıklama (`openrouter/free` router'ının
+    rastgele seçtiği bir moderasyon modeli).
 
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 
@@ -333,6 +347,62 @@ Not: Bu sandbox ortamında Playwright'ın pinlediği Chromium build'i
 çalıştırmak için geçici bir `playwright.local.config.ts` (executablePath
 override) kullanılıp iş bitince silindi — repoya commit edilmedi.
 
+## Abonelik/Pro planı (2026-08-02'de başlandı)
+
+Kullanıcı "1'den fazla aracı olanlar abone olsun" fikrini önerdi; birlikte
+değerlendirilip şu abonelik/Pro fikirleri üzerinde duruldu: bulut
+yedekleme/senkron, çoklu araç, yüksek AI limiti, markalı PDF rapor, galeri/filo
+modu. Ödeme yöntemi olarak kullanıcı **Apple/Google uygulama içi satın alma
+(IAP)**'yı seçti (Stripe web checkout değil).
+
+**Önemli kısıt:** Apple/Google IAP yalnızca native uygulama içinde çalışır —
+web sitesinde (eksperiq.vercel.app) hiçbir şekilde çalışamaz. StoreKit/Play
+Billing kodu ancak gerçek bir Mac + Xcode + Apple Developer Program hesabı
+(yıllık ücretli) ile derlenip test edilebilir; bunların hiçbiri bu Linux
+sandbox'ta yok. Bu yüzden gerçek satın alma butonu ve StoreKit/Play Billing
+entegrasyonu **bilerek yapılmadı** — bu, iOS widget'ı ve native push (APNs)
+ile aynı kategoride bir Apple-araçları eksikliği.
+
+Bu ortamda tam olarak yapılıp test edilebilen kısımlar tamamlandı:
+
+1. **Çoklu araç profili** (`src/lib/vehicles/`, `src/lib/storage/vehicle-storage.ts`,
+   `src/components/vehicles/vehicle-switcher.tsx`) — Bakım ve Ödeme Takvimi,
+   Gider Defteri ve Araç Sağlık Karnesi'ne entegre edildi. **Şu an tamamen
+   ücretsiz ve sınırsız** (henüz gerçek satın alma yolu olmadığı için bir
+   sınır koymak kullanıcıyı özellikten tamamen mahrum bırakır — bu yanlış
+   olur). Gelecekte gerçek IAP çalışınca, `MAX_FREE_VEHICLES` gibi bir sabit
+   ve `isPro()` kontrolüyle ikinci araçtan itibaren kısıtlama eklenebilir.
+   Bu sırada iki gerçek bug bulunup düzeltildi (bkz. bug listesi altında).
+2. **Yazdırma/PDF raporu iyileştirmesi** — `/sonuc` sayfasının print
+   görünümüne markalı bir başlık eklendi (`.print-only` CSS sınıfı,
+   `src/app/globals.css`): "EksperIQ" adı + rapor oluşturma tarihi, yalnızca
+   yazdırma/PDF çıktısında görünür, ekranda görünmez. Böylece yazdırılan
+   rapor bağlamından koparılsa bile hangi uygulamadan geldiği belli olur.
+3. **Pro altyapısı** (`src/lib/pro/entitlement.ts`) — `isPro()` fonksiyonu
+   şimdilik her zaman `false` döner, net bir yorumla neden ve ne zaman
+   gerçek hale geleceği açıklanıyor. **Bilinçli olarak herhangi bir "Pro'ya
+   geç" / satın alma ekranı eklenmedi** — çalışmayan bir buton göstermek
+   kullanıcıyı yanıltır ve güven kırar; bunun yerine bu bölüm gelecekteki
+   çalışma için referans.
+
+**Gerçek IAP'yi bağlamak için (macOS + Xcode + Apple Developer hesabı olan biri
+tarafından) gereken adımlar:**
+
+- Apple Developer Program'a kayıt (App Store Connect'te abonelik ürünleri
+  tanımlamak için).
+- App Store Connect'te bir abonelik grubu ve ürün(ler) oluşturma (örn.
+  "eksperiq_pro_monthly").
+- `ios/App` projesine StoreKit 2 entegrasyonu (native Swift kodu veya bir
+  Capacitor IAP eklentisi, örn. `@capacitor-community/in-app-purchases` —
+  seçim ve kurulum bu ortamda doğrulanamadı).
+- Satın alma/restore akışını `src/lib/pro/entitlement.ts`'e bağlamak
+  (`isPro()`'yu gerçek StoreKit `Transaction.currentEntitlements`
+  sonucuna göre döndürecek şekilde güncellemek).
+- Gerçek cihaz/TestFlight üzerinde sandbox test hesabıyla satın alma akışını
+  test etmek.
+- Ancak bunlardan sonra: çoklu araç sınırı, yüksek AI limiti gibi
+  özellikleri `isPro()` ile kısıtlamak ve bir "Pro'ya geç" ekranı eklemek.
+
 ## Devam eden / yapılamayan görevler
 
 - **iOS ana ekran widget'ı (WidgetKit)**: İstendi ama yapılamadı. Gerçek bir
@@ -345,6 +415,8 @@ override) kullanılıp iş bitince silindi — repoya commit edilmedi.
   bu yüzden bilerek yapılmadı. macOS + Xcode erişimi olan biri tarafından
   yapılmalı. Bu, önceki "native push (APNs)" sınırlamasıyla aynı kategoride
   bir Apple-araçları eksikliğidir.
+- **Apple/Google IAP (abonelik satın alma)**: Yukarıdaki "Abonelik/Pro planı"
+  bölümüne bakın — aynı Apple-araçları eksikliği kategorisi.
 
 ## Genel ilkeler (her yeni özellikte hatırlanmalı)
 

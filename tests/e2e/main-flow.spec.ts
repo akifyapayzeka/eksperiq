@@ -284,6 +284,8 @@ test("prepares a clean print report", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Raporu yazdır" })).toBeHidden();
   await expect(page.getByText("Araç Risk Skoru")).toBeVisible();
   await expect(page.getByText("Satıcıya sorulacak sorular")).toBeVisible();
+  await expect(page.getByRole("main").getByText("EksperIQ", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Rapor oluşturma:/)).toBeVisible();
 });
 
 test("clears current session result", async ({ page }) => {
