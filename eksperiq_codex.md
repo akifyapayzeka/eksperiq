@@ -296,6 +296,16 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     bahsetmiyordu — `/moduller` sayfasına bakan bir kullanıcı bu özelliğin
     var olduğunu fark edemezdi. Her üçüne de "Çoklu araç" capability'si
     eklendi.
+17. `/analizlerim` sayfasındaki hızlı erişim kartları (`assistantModules`)
+    eski, basit `/bakim-takibi` (kalıcı kayıt yok, çoklu araç yok) sayfasına
+    bağlıydı; daha zengin ve artık çoklu araç + push bildirimi destekleyen
+    `/bakim-odeme-takvimi` sayfasına bu bölümden hiç link verilmiyordu. Bu,
+    en çok kullanılan hızlı erişim alanının zayıf/eski modülü öne çıkarıp
+    daha iyi olanı gizlemesi anlamına geliyordu (bir keşfedilebilirlik
+    sorunu; `/bakim-takibi` sayfası ayrıca `src/lib/modules/registry.ts`'de
+    bağımsız bir modül olarak kalmaya devam ediyor, silinmedi). Düzeltme:
+    `src/app/analizlerim/page.tsx`'teki ilgili satır
+    `/bakim-odeme-takvimi` → "Bakım ve Ödeme Takvimi" olarak güncellendi.
 
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 
