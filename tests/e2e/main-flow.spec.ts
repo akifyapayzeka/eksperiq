@@ -71,7 +71,7 @@ test("mobile bottom navigation opens app actions", async ({ page, isMobile }) =>
 
   await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Profil" }).click();
   await expect(page).toHaveURL(/\/profil$/);
-  await expect(page.getByRole("heading", { name: "EksperIQ hesabı olmadan kullanılabilir." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "EksperIQ ücretsiz kullanılabilir." })).toBeVisible();
 });
 
 test("shows validation errors", async ({ page }) => {
@@ -95,6 +95,23 @@ test("starts analysis with manual vehicle choices", async ({ page }) => {
     "aria-valuenow",
     "9",
   );
+});
+
+test("model list only shows models that belong to the selected brand", async ({ page }) => {
+  await page.goto("/analiz");
+
+  await expect(page.locator("#model")).toBeDisabled();
+
+  await page.getByLabel("Marka").selectOption("Fiat");
+  await expect(page.locator("#model")).toBeEnabled();
+  await expect(page.locator("#model option", { hasText: /^Egea$/ })).toHaveCount(1);
+  await expect(page.locator("#model option", { hasText: /^i20$/ })).toHaveCount(0);
+
+  await page.locator("#model").selectOption("Egea");
+  await page.getByLabel("Marka").selectOption("Hyundai");
+  await expect(page.locator("#model")).toHaveValue("");
+  await expect(page.locator("#model option", { hasText: /^i20$/ })).toHaveCount(1);
+  await expect(page.locator("#model option", { hasText: /^Egea$/ })).toHaveCount(0);
 });
 
 test("uses select controls for fixed-choice vehicle details", async ({ page }) => {
@@ -193,9 +210,14 @@ test("shows feedback collection flow", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: "http://127.0.0.1:3000" });
   await page.goto("/geri-bildirim");
   await expect(page.getByRole("heading", { name: "Geri bildirim", exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Kullanıcı testi notu gönder" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Kural geri bildirimi gönder" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "İlk kullanıcı testi issue'su" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Kullanıcı testi notu gönder" })).toHaveAttribute(
+    "href",
+    /^mailto:ruzgar\.mesavo@gmail\.com\?/,
+  );
+  await expect(page.getByRole("link", { name: "Kural geri bildirimi gönder" })).toHaveAttribute(
+    "href",
+    /^mailto:ruzgar\.mesavo@gmail\.com\?/,
+  );
   await expect(page.getByText("kişisel veri eklemeden")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Anonim test notu şablonu" })).toBeVisible();
   await page.getByRole("button", { name: "Anonim not şablonunu kopyala" }).click();
@@ -237,6 +259,7 @@ test("creates analysis result", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Raporu paylaş" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Geri bildirim gönder" })).toBeVisible();
   await expect(page.getByText("Garaj kullanımı iddiası doğrulanmalı")).toBeVisible();
+  await expect(page.getByText("TRAMER veya e-Devlet'ten doğrulanmadıkça kesin kabul edilmemelidir.")).toBeVisible();
   await expect(page.getByText("Öncelikli ilk aksiyonlar")).toBeVisible();
   await expect(page.getByLabel("Risk bulgusu dağılımı")).toBeVisible();
   await expect(page.getByText("Yüksek riskli bulgu")).toBeVisible();
@@ -284,6 +307,8 @@ test("prepares a clean print report", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Raporu yazdır" })).toBeHidden();
   await expect(page.getByText("Araç Risk Skoru")).toBeVisible();
   await expect(page.getByText("Satıcıya sorulacak sorular")).toBeVisible();
+  await expect(page.getByRole("main").getByText("EksperIQ", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Rapor oluşturma:/)).toBeVisible();
 });
 
 test("clears current session result", async ({ page }) => {
@@ -292,6 +317,13 @@ test("clears current session result", async ({ page }) => {
   await page.getByRole("button", { name: "Analiz oluştur" }).click();
   await page.getByRole("button", { name: "Oturum verisini sil" }).click();
   await expect(page.getByRole("heading", { name: "Analiz bulunamadı" })).toBeVisible();
+});
+
+test("shows a friendly not-found page for unknown routes", async ({ page }) => {
+  await page.goto("/bu-sayfa-yok");
+  await expect(page.getByRole("heading", { name: "Sayfa bulunamadı" })).toBeVisible();
+  await page.getByRole("link", { name: "Ana sayfaya dön" }).click();
+  await expect(page).toHaveURL("/");
 });
 
 test("mobile pages do not create horizontal overflow", async ({ page, isMobile }) => {

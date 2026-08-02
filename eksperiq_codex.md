@@ -5,7 +5,7 @@ tamamlanmış işten sonra günceller; amaç, ChatGPT Codex veya başka bir asis
 devam edilirse bağlamın kaybolmamasıdır. Yeni bir oturuma başlarken önce bu
 dosyayı okuyun.
 
-Son güncelleme: 2026-08-01 (Claude Code)
+Son güncelleme: 2026-08-02 (Claude Code)
 
 ## Ürün özeti
 
@@ -269,6 +269,179 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     ve push bildirimi açıldığında sunucuda tutulan hatırlatma kopyası
     hakkında `docs/app-store-privacy-answers.md` ile tutarlı, doğru bilgi
     veriyor.
+13. Çoklu araç profili özelliği eklenirken bulunan 2 gerçek bug:
+    "MTV taksitlerini ekle" butonu eklenen kayıtları hiç `localStorage`'a
+    yazmıyordu (yalnızca React state'e) — sayfa yenilenince kayboluyorlardı.
+    Ayrıca sayfa açılışında araç yüklemesi bir `requestAnimationFrame` ile
+    geciktiriliyor; bu dar pencerede bir kayıt eklenirse boş string
+    `vehicleId` ile kalıcı olarak damgalanıp filtrelemede kalıcı olarak
+    kayboluyordu (e2e testiyle reprodüklendi, mobile projede tutarlı şekilde
+    tetiklendi). Düzeltme: `addMtvInstallments` artık her kaydı
+    `upsertReminder` ile yazıyor; ilgili formlar araç profili yüklenene
+    kadar (`selectedVehicleId` boşken) devre dışı.
+14. AI karar destek notu üretiminde canlı bir denemede **"User Safety: safe"**
+    gibi anlamsız bir çıktı geldi — bkz. yukarıdaki "AI servisleri canlıya
+    alındı" bölümündeki ayrıntılı açıklama (`openrouter/free` router'ının
+    rastgele seçtiği bir moderasyon modeli).
+15. Bakım ve Ödeme Takvimi'nde bir hatırlatmayı düzenlerken ("Düzenle")
+    kullanıcı araç değiştirirse (araç ekleme/seçme), düzenleme formu eski
+    aracın kaydına bağlı kalmaya devam ediyordu — form hâlâ eski kaydın
+    bilgilerini gösteriyor, altındaki takvim listesi ise farklı (yeni) aracın
+    kayıtlarını gösteriyordu. "Kaydı güncelle"ye basılsa, görünmeyen bir
+    kayıt sessizce güncellenirdi. Düzeltme: `selectVehicle`, `addVehicle` ve
+    `removeVehicle` artık araç değişince `resetForm()` çağırıp düzenleme
+    durumunu iptal ediyor. Regresyon testi eklendi.
+16. `src/lib/modules/registry.ts`'deki Bakım ve Ödeme Takvimi, Gider Defteri
+    ve Araç Sağlık Karnesi modül tanımları çoklu araç desteğinden hiç
+    bahsetmiyordu — `/moduller` sayfasına bakan bir kullanıcı bu özelliğin
+    var olduğunu fark edemezdi. Her üçüne de "Çoklu araç" capability'si
+    eklendi.
+17. `/analizlerim` sayfasındaki hızlı erişim kartları (`assistantModules`)
+    eski, basit `/bakim-takibi` (kalıcı kayıt yok, çoklu araç yok) sayfasına
+    bağlıydı; daha zengin ve artık çoklu araç + push bildirimi destekleyen
+    `/bakim-odeme-takvimi` sayfasına bu bölümden hiç link verilmiyordu. Bu,
+    en çok kullanılan hızlı erişim alanının zayıf/eski modülü öne çıkarıp
+    daha iyi olanı gizlemesi anlamına geliyordu (bir keşfedilebilirlik
+    sorunu; `/bakim-takibi` sayfası ayrıca `src/lib/modules/registry.ts`'de
+    bağımsız bir modül olarak kalmaya devam ediyor, silinmedi). Düzeltme:
+    `src/app/analizlerim/page.tsx`'teki ilgili satır
+    `/bakim-odeme-takvimi` → "Bakım ve Ödeme Takvimi" olarak güncellendi.
+18. `/bakim-takibi` (eski, kayıtsız, tek seferlik km/tarih hesaplayıcısı)
+    sayfasından, kalıcı ve çoklu araç destekli Bakım ve Ödeme Takvimi'ne hiç
+    link verilmiyordu — bu sayfaya gelen bir kullanıcı daha iyi aracın var
+    olduğunu fark edemeyebilirdi. Bu sayfa tamamen kaldırılmadı çünkü tek
+    seferlik hızlı tahmin ihtiyacı için hâlâ geçerli, farklı bir kullanım
+    senaryosu sunuyor (bkz. madde 17'nin notu). Düzeltme:
+    `src/app/bakim-takibi/page.tsx`'e "Bakım ve Ödeme Takvimi'ne git" çapraz
+    linki eklendi; `tests/e2e/module-tools.spec.ts`'e bu linkin
+    `/bakim-odeme-takvimi`'ye gittiğini doğrulayan bir assertion eklendi.
+19. `/gizlilik` sayfası yalnızca Fotoğraftan Hasar Analizi'nin OpenRouter'a
+    veri gönderdiğinden bahsediyordu; sonuç ekranındaki isteğe bağlı "AI
+    karar destek notu" özelliği de (araç yıl/marka/model, risk skoru ve
+    bulgu başlıkları — fotoğrafsız) OpenRouter'a gönderiliyor ama gizlilik
+    sayfasında hiç geçmiyordu. `docs/app-store-privacy-answers.md` bunu
+    zaten doğru şekilde kapsıyordu, yalnızca uygulama içi gizlilik sayfası
+    eksikti (madde 12'nin tamamlanmamış hâli). Düzeltme:
+    `src/app/gizlilik/page.tsx`'e bu özelliği açıklayan bir paragraf
+    eklendi.
+20. Uygulamada hiç özel `not-found.tsx` veya `error.tsx` yoktu — var olmayan
+    bir rota veya beklenmeyen bir client hatası, Next.js'in stilsiz/İngilizce
+    varsayılan sayfalarına düşüyordu (uygulamanın geri kalanıyla tutarsız,
+    kullanıcıyı sakinleştirmeyen bir deneyim). Düzeltme:
+    `src/app/not-found.tsx` (Türkçe "Sayfa bulunamadı" + ana sayfaya dön
+    linki) ve `src/app/error.tsx` (Türkçe "Bir şeyler ters gitti" + "Tekrar
+    dene"/"Ana sayfaya dön") eklendi; ikisi de `offline` sayfasıyla aynı
+    görsel dil ve sakin, kesin hüküm içermeyen tonu kullanıyor. e2e testi
+    (`tests/e2e/main-flow.spec.ts`, "shows a friendly not-found page for
+    unknown routes") eklendi.
+21. **Ciddi bir bug**: `VehicleSwitcher`'daki "Bu aracı ve kayıtlarını sil"
+    butonu tek tıkla, hiçbir onay istemeden aracı ve ona bağlı TÜM
+    hatırlatma/gider/sağlık kayıtlarını kalıcı olarak siliyordu. Uygulamadaki
+    tek-kayıt silme butonları (`Sil`) için onay istenmemesi bilinçli bir
+    tercih (küçük, kolayca yeniden eklenebilir kayıtlar), ama bir araç
+    profilini silmek üç farklı modüldeki aylarca birikmiş veriyi tek seferde
+    yok ediyor — bu, aynı davranışı hak etmeyen çok daha büyük ve geri
+    alınamaz bir işlem. Ayrıca bu buton için hiç unit veya e2e testi de
+    yoktu. Düzeltme: `src/components/vehicles/vehicle-switcher.tsx`'e
+    inline bir onay adımı eklendi ("... bu işlem geri alınamaz" uyarısı +
+    "Evet, sil" / "Vazgeç"); `tests/unit/vehicle-switcher.test.tsx` eklendi
+    (ilk tıklamada silinmediğini, yalnızca onaydan sonra silindiğini ve
+    vazgeçilince hiç silinmediğini doğrulayan 3 test).
+22. Bakım ve Ödeme Takvimi ile Gider Defteri'ndeki `formMessage` durum
+    paragrafları (`"Kayıt eklendi."`, `"Son araç profili silinemez."` gibi)
+    hiçbir ARIA rolü taşımıyordu — ekran okuyucu kullanan biri için bu
+    mesajlar sessizce görünüp kaybolabiliyordu (Fotoğraftan Hasar Analizi
+    sayfası aynı desende zaten `role="status"` kullanıyordu, bu ikisi
+    tutarsız kalmıştı). Ayrıca yeni eklenen araç silme onay uyarısı da
+    (madde 21) bir ARIA rolü taşımıyordu. Düzeltme: her iki sayfadaki durum
+    paragrafına `role="status"`, `VehicleSwitcher`'daki onay kutusuna
+    `role="alert"` eklendi.
+23. **Kullanıcının kendi testinde bulduğu gerçek bug**: `/analiz` formundaki
+    Model listesi Marka'ya göre hiç filtrelenmiyordu — `Fiat` seçilse bile
+    Model listesinde `i20` (Hyundai) gibi o markaya ait olmayan seçenekler
+    görünüyordu, çünkü tek bir düz `modelOptions` dizisi tüm markalar için
+    ortak kullanılıyordu. Kullanıcı sahibinden.com'un detaylı arama
+    filtresinden doğru marka→model eşlemesini öğrenmemi istedi; ancak
+    sahibinden.com otomatik erişimi engelliyor (403, bot koruması) —
+    `WebFetch` ile doğrulandı, kullanıcıya bildirildi. Bunun yerine
+    `src/components/forms/analysis-form-sections.tsx`'e gerçek, doğru
+    marka→model eşlemesi (`modelsByBrand`, 30 marka) eklendi; Model alanı
+    artık Marka seçilene kadar devre dışı, Marka değişince Model otomatik
+    sıfırlanıyor (`VehicleInfoSection` artık `watch`/`setValue` kullanıyor).
+    Regresyon testleri: `tests/unit/analysis-form-sections.test.ts`
+    (`modelOptionsForBrand` için) ve `tests/e2e/main-flow.spec.ts`'e "model
+    list only shows models that belong to the selected brand" testi eklendi.
+24. **Kullanıcı isteğiyle aşırı sadeleştirme**: Kullanıcı Fotoğraftan Hasar
+    Analizi ekranındaki "Fotoğrafta araç veya araç parçası görünüyor" manuel
+    onay kutusunu gereksiz buldu (zaten AI kendisi `isVehiclePhoto` ile bunu
+    güvenilir şekilde tespit ediyor — backend zaten araç değilse
+    `findings=[]` döndürüyor). Ayrıca sayfadaki ek açıklama/ipucu metinlerinin
+    ve `/profil` sayfasındaki "EksperIQ hesabı olmadan kullanılabilir" /
+    "Kullanım özeti" (Üyelik, Veri saklama, Aktif modül) bölümünün gereksiz
+    olduğunu belirtti. Düzeltme: `src/app/fotograf-hasar/page.tsx`'ten
+    `isVehiclePhoto` state'i ve radio grubu tamamen kaldırıldı (manuel
+    "Bulguyu ekle" artık yalnızca fotoğraf + bölge/bulgu/güven seviyesi
+    ister; AI butonu yalnızca fotoğraf ister), açıklama metinleri kısaltıldı.
+    `src/app/profil/page.tsx`'teki başlık "EksperIQ ücretsiz kullanılabilir."
+    olarak değiştirildi, "Kullanım özeti" bölümü tamamen kaldırıldı. e2e
+    testleri güncellendi (`module-tools.spec.ts`'teki "photo damage tool
+    refuses non-vehicle photos" testi artık mock'lanmış AI yanıtıyla
+    `isVehiclePhoto:false` senaryosunu doğruluyor; `main-flow.spec.ts`'teki
+    profil başlık assertion'ı güncellendi).
+25. **Kullanıcının sorusuyla ortaya çıkan ciddi bug**: Kullanıcı "geri
+    bildirim yaparlarsa biz nereden görürüz" diye sordu. Kontrol edilince
+    `akifyapayzeka/eksperiq` GitHub reposunun **private** olduğu görüldü
+    (`mcp__github__search_repositories` ile doğrulandı). `/geri-bildirim`
+    sayfasındaki "Kullanıcı testi notu gönder" / "Kural geri bildirimi
+    gönder" butonları private repoda GitHub issue oluşturma linkine
+    gidiyordu — repo'ya erişimi olmayan gerçek bir uygulama kullanıcısı bu
+    linke tıkladığında GitHub 404 döndürür, yani **geri bildirim hiçbir
+    yere ulaşmıyordu**. Kullanıcıya sorulup e-posta tabanlı bir çözüm
+    istendi (hedef adres: ruzgar.mesavo@gmail.com). Düzeltme:
+    `src/lib/constants/app.ts`'teki üç GitHub URL'i (`feedbackIssueUrl`,
+    `newRuleFeedbackUrl`, `newUserTestFeedbackUrl`) kaldırılıp yerine
+    `feedbackEmail` eklendi; `src/app/geri-bildirim/page.tsx`'teki iki
+    buton artık kategoriye özel önceden doldurulmuş konu/gövde metniyle
+    `mailto:` linkine gidiyor. Redundant olan üçüncü "İlk kullanıcı testi
+    issue'su" butonu (mailto ile karşılığı olmadığı için) kaldırıldı.
+    `tests/e2e/main-flow.spec.ts`'teki test artık her iki linkin doğru
+    `mailto:ruzgar.mesavo@gmail.com?...` adresine gittiğini doğruluyor.
+    Not: `.github/ISSUE_TEMPLATE/` ve `docs/user-test-feedback-triage.md`
+    değiştirilmedi — bunlar geliştiricinin e-postayla gelen notu kendi
+    repo'sunda manuel olarak issue'a çevirme sürecini anlatan iç
+    dokümanlar, kullanıcıya gösterilmiyor.
+
+## Rakip/benzer uygulama araştırması ve entegre edilen bulgular (2026-08-02)
+
+Kullanıcı "başka uygulamalara bak, dil ve tasarımlarını araştır, kendini
+geliştir ve EksperIQ'a entegre et" dedi. sahibinden.com ve arabam.com
+otomatik erişimi engelliyor (403 — `WebFetch` ile doğrulandı). Bunun yerine
+erişilebilen kaynaklar araştırıldı: App Store'daki "Tramer" uygulaması (hasar
+sorgulama), RS Oto Ekspertiz'in hasar kaydı sorgulama rehberi ve Findeks risk
+raporu sayfası.
+
+**Somut, entegre edilen bulgu:** Gerçek ekspertiz/hasar-sorgu kaynakları
+tutarlı şekilde şu uyarıyı veriyor: _"hasar kaydı bulunmaması aracın hiç
+hasar görmediği anlamına gelmez"_ (sigortasız/nakit onarılan hasarlar
+TRAMER'e hiç yansımayabilir). EksperIQ'ta bu nüans hem `/resmi-sorgu-rehberi`
+sayfasında hem de sonuç ekranındaki "Güçlü taraflar" (strengths) listesinde
+eksikti — "Ağır hasar kaydı belirtilmemiş" gibi maddeler hiçbir uyarı
+olmadan gösteriliyordu, oysa bunlar kullanıcının kendi girdiği/satıcı
+beyanına dayanan, resmi kayıtla doğrulanmamış bilgiler. Bu, uygulamanın
+"asla kesin hüküm verme" ilkesiyle doğrudan ilgili gerçek bir içerik
+eksikliğiydi. Düzeltme:
+
+- `src/lib/vehicle-checks/official-lookup.ts`'teki "Hasar/TRAMER kaydı"
+  maddesinin notuna bu uyarı eklendi.
+- `src/components/results/result-client.tsx`'teki "Güçlü taraflar"
+  bölümüne "Bu maddeler girdiğiniz bilgiye dayanır; TRAMER veya e-Devlet'ten
+  doğrulanmadıkça kesin kabul edilmemelidir." açıklaması eklendi.
+- Regresyon testleri: `tests/unit/official-lookup-guide.test.ts` ve
+  `tests/e2e/main-flow.spec.ts`'e eklendi.
+
+Diğer bulgular (Tramer uygulamasının "güvenle sorgula" gibi güven-inşa eden
+dili, Findeks'in şeffaf gecikme/itiraz süreci açıklaması) EksperIQ'ın zaten
+sahip olduğu yaklaşımla tutarlıydı, ek değişiklik gerektirmedi.
 
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 
@@ -333,6 +506,62 @@ Not: Bu sandbox ortamında Playwright'ın pinlediği Chromium build'i
 çalıştırmak için geçici bir `playwright.local.config.ts` (executablePath
 override) kullanılıp iş bitince silindi — repoya commit edilmedi.
 
+## Abonelik/Pro planı (2026-08-02'de başlandı)
+
+Kullanıcı "1'den fazla aracı olanlar abone olsun" fikrini önerdi; birlikte
+değerlendirilip şu abonelik/Pro fikirleri üzerinde duruldu: bulut
+yedekleme/senkron, çoklu araç, yüksek AI limiti, markalı PDF rapor, galeri/filo
+modu. Ödeme yöntemi olarak kullanıcı **Apple/Google uygulama içi satın alma
+(IAP)**'yı seçti (Stripe web checkout değil).
+
+**Önemli kısıt:** Apple/Google IAP yalnızca native uygulama içinde çalışır —
+web sitesinde (eksperiq.vercel.app) hiçbir şekilde çalışamaz. StoreKit/Play
+Billing kodu ancak gerçek bir Mac + Xcode + Apple Developer Program hesabı
+(yıllık ücretli) ile derlenip test edilebilir; bunların hiçbiri bu Linux
+sandbox'ta yok. Bu yüzden gerçek satın alma butonu ve StoreKit/Play Billing
+entegrasyonu **bilerek yapılmadı** — bu, iOS widget'ı ve native push (APNs)
+ile aynı kategoride bir Apple-araçları eksikliği.
+
+Bu ortamda tam olarak yapılıp test edilebilen kısımlar tamamlandı:
+
+1. **Çoklu araç profili** (`src/lib/vehicles/`, `src/lib/storage/vehicle-storage.ts`,
+   `src/components/vehicles/vehicle-switcher.tsx`) — Bakım ve Ödeme Takvimi,
+   Gider Defteri ve Araç Sağlık Karnesi'ne entegre edildi. **Şu an tamamen
+   ücretsiz ve sınırsız** (henüz gerçek satın alma yolu olmadığı için bir
+   sınır koymak kullanıcıyı özellikten tamamen mahrum bırakır — bu yanlış
+   olur). Gelecekte gerçek IAP çalışınca, `MAX_FREE_VEHICLES` gibi bir sabit
+   ve `isPro()` kontrolüyle ikinci araçtan itibaren kısıtlama eklenebilir.
+   Bu sırada iki gerçek bug bulunup düzeltildi (bkz. bug listesi altında).
+2. **Yazdırma/PDF raporu iyileştirmesi** — `/sonuc` sayfasının print
+   görünümüne markalı bir başlık eklendi (`.print-only` CSS sınıfı,
+   `src/app/globals.css`): "EksperIQ" adı + rapor oluşturma tarihi, yalnızca
+   yazdırma/PDF çıktısında görünür, ekranda görünmez. Böylece yazdırılan
+   rapor bağlamından koparılsa bile hangi uygulamadan geldiği belli olur.
+3. **Pro altyapısı** (`src/lib/pro/entitlement.ts`) — `isPro()` fonksiyonu
+   şimdilik her zaman `false` döner, net bir yorumla neden ve ne zaman
+   gerçek hale geleceği açıklanıyor. **Bilinçli olarak herhangi bir "Pro'ya
+   geç" / satın alma ekranı eklenmedi** — çalışmayan bir buton göstermek
+   kullanıcıyı yanıltır ve güven kırar; bunun yerine bu bölüm gelecekteki
+   çalışma için referans.
+
+**Gerçek IAP'yi bağlamak için (macOS + Xcode + Apple Developer hesabı olan biri
+tarafından) gereken adımlar:**
+
+- Apple Developer Program'a kayıt (App Store Connect'te abonelik ürünleri
+  tanımlamak için).
+- App Store Connect'te bir abonelik grubu ve ürün(ler) oluşturma (örn.
+  "eksperiq_pro_monthly").
+- `ios/App` projesine StoreKit 2 entegrasyonu (native Swift kodu veya bir
+  Capacitor IAP eklentisi, örn. `@capacitor-community/in-app-purchases` —
+  seçim ve kurulum bu ortamda doğrulanamadı).
+- Satın alma/restore akışını `src/lib/pro/entitlement.ts`'e bağlamak
+  (`isPro()`'yu gerçek StoreKit `Transaction.currentEntitlements`
+  sonucuna göre döndürecek şekilde güncellemek).
+- Gerçek cihaz/TestFlight üzerinde sandbox test hesabıyla satın alma akışını
+  test etmek.
+- Ancak bunlardan sonra: çoklu araç sınırı, yüksek AI limiti gibi
+  özellikleri `isPro()` ile kısıtlamak ve bir "Pro'ya geç" ekranı eklemek.
+
 ## Devam eden / yapılamayan görevler
 
 - **iOS ana ekran widget'ı (WidgetKit)**: İstendi ama yapılamadı. Gerçek bir
@@ -345,6 +574,8 @@ override) kullanılıp iş bitince silindi — repoya commit edilmedi.
   bu yüzden bilerek yapılmadı. macOS + Xcode erişimi olan biri tarafından
   yapılmalı. Bu, önceki "native push (APNs)" sınırlamasıyla aynı kategoride
   bir Apple-araçları eksikliğidir.
+- **Apple/Google IAP (abonelik satın alma)**: Yukarıdaki "Abonelik/Pro planı"
+  bölümüne bakın — aynı Apple-araçları eksikliği kategorisi.
 
 ## Genel ilkeler (her yeni özellikte hatırlanmalı)
 

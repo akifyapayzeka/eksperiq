@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CalendarClock, Wrench } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, CalendarClock, Wrench } from "lucide-react";
 
 const maintenanceItems = [
   { name: "Motor yağı ve filtreler", intervalKm: 10000, intervalMonths: 12 },
@@ -108,6 +109,20 @@ export default function MaintenanceTrackingPage() {
               </article>
             ))}
           </div>
+        </section>
+
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+          <p className="text-sm text-slate-700">
+            Bu ekran tek seferlik, kayıtsız bir tahmindir. Tarihleri hatırlatmalı ve birden fazla araç için ayrı ayrı
+            takip etmek isterseniz Bakım ve Ödeme Takvimi&apos;ni kullanabilirsiniz.
+          </p>
+          <Link
+            href="/bakim-odeme-takvimi"
+            className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-teal-800 hover:underline"
+          >
+            Bakım ve Ödeme Takvimi&apos;ne git
+            <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+          </Link>
         </section>
       </div>
     </main>

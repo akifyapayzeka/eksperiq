@@ -295,7 +295,7 @@ export function AnalysisForm() {
       <FormStepOverview values={progressValues} />
       <FormProgress values={progressValues} />
       <FormSectionLinks />
-      <VehicleInfoSection register={register} errors={errors} />
+      <VehicleInfoSection register={register} errors={errors} setValue={setValue} watch={watch} />
       <DamageInfoSection register={register} errors={errors} setValue={setValue} watch={watch} />
       <MaintenanceInfoSection register={register} errors={errors} />
       <BooleanInfoSection register={register} errors={errors} />

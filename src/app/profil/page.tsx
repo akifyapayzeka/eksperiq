@@ -1,16 +1,8 @@
 import Link from "next/link";
 import { CarFront, MessageSquareText, ShieldCheck, UserRound } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
-import { activeModules } from "@/lib/modules/registry";
 
 export default function ProfilePage() {
-  const activeModuleCount = activeModules().length;
-  const profileItems = [
-    { label: "Üyelik", value: "Hesapsız kullanım" },
-    { label: "Veri saklama", value: "Tarayıcı oturumu" },
-    { label: "Aktif modül", value: `${activeModuleCount} modül` },
-  ];
-
   return (
     <main className="flex-1 bg-slate-50">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
@@ -19,23 +11,7 @@ export default function ProfilePage() {
             <UserRound aria-hidden="true" className="h-7 w-7" />
           </div>
           <p className="mt-6 text-sm font-semibold text-teal-200">Profil</p>
-          <h1 className="mt-2 text-3xl font-semibold">EksperIQ hesabı olmadan kullanılabilir.</h1>
-          <p className="mt-4 text-sm leading-6 text-slate-300">
-            İlk sürümde giriş yapılmaz. Analiz bilgileri hesabınıza kaydedilmez ve yalnızca mevcut tarayıcı oturumunda
-            tutulur.
-          </p>
-        </section>
-
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-950">Kullanım özeti</h2>
-          <div className="mt-4 grid gap-3">
-            {profileItems.map((item) => (
-              <div key={item.label} className="flex items-center justify-between gap-4 rounded-xl bg-slate-50 p-4">
-                <span className="text-sm font-medium text-slate-600">{item.label}</span>
-                <span className="text-right text-sm font-semibold text-slate-950">{item.value}</span>
-              </div>
-            ))}
-          </div>
+          <h1 className="mt-2 text-3xl font-semibold">EksperIQ ücretsiz kullanılabilir.</h1>
         </section>
 
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">

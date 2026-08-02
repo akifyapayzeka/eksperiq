@@ -18,6 +18,10 @@ import { healthRecordTypes } from "@/lib/health-record/types";
 import type { ReminderRecord } from "@/lib/reminders/types";
 import type { HealthRecord, HealthRecordType } from "@/lib/health-record/types";
 import type { AnalysisResult } from "@/lib/analysis/types";
+import { VehicleSwitcher } from "@/components/vehicles/vehicle-switcher";
+import { filterByVehicle, recordVehicleId } from "@/lib/vehicles/model";
+import { createVehicleId, deleteVehicle, loadVehicles, upsertVehicle } from "@/lib/storage/vehicle-storage";
+import type { VehicleProfile } from "@/lib/vehicles/types";
 
 const urgencyStyles: Record<string, string> = {
   overdue: "bg-red-50 text-red-700",
@@ -41,9 +45,14 @@ export default function VehicleHealthRecordPage() {
   const [score, setScore] = useState("");
   const [records, setRecords] = useState<HealthRecord[]>([]);
   const [reminders, setReminders] = useState<ReminderRecord[]>([]);
+  const [vehicles, setVehicles] = useState<VehicleProfile[]>([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState("");
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
+      const loadedVehicles = loadVehicles();
+      setVehicles(loadedVehicles);
+      setSelectedVehicleId(loadedVehicles[0]?.id ?? "");
       setAnalysis(loadAnalysis());
       setReminders(loadReminders());
       setRecords(loadHealthRecords());
@@ -51,10 +60,45 @@ export default function VehicleHealthRecordPage() {
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
-  const upcomingReminders = useMemo(() => sortByUrgency(reminders).slice(0, 4), [reminders]);
-  const trend = useMemo(() => scoreTrend(records), [records]);
+  const remindersForVehicle = useMemo(
+    () => filterByVehicle(reminders, selectedVehicleId, vehicles),
+    [reminders, selectedVehicleId, vehicles],
+  );
+  const recordsForVehicle = useMemo(
+    () => filterByVehicle(records, selectedVehicleId, vehicles),
+    [records, selectedVehicleId, vehicles],
+  );
+  const upcomingReminders = useMemo(() => sortByUrgency(remindersForVehicle).slice(0, 4), [remindersForVehicle]);
+  const trend = useMemo(() => scoreTrend(recordsForVehicle), [recordsForVehicle]);
+
+  function selectVehicle(id: string) {
+    setSelectedVehicleId(id);
+  }
+
+  function addVehicle(label: string) {
+    const vehicle: VehicleProfile = { id: createVehicleId(), label, createdAt: new Date().toISOString() };
+    setVehicles(upsertVehicle(vehicle));
+    setSelectedVehicleId(vehicle.id);
+  }
+
+  function renameVehicle(id: string, label: string) {
+    const existing = vehicles.find((item) => item.id === id);
+    if (!existing) return;
+    setVehicles(upsertVehicle({ ...existing, label }));
+  }
+
+  function removeVehicle(id: string) {
+    const result = deleteVehicle(id);
+    if (!result.ok) return;
+    setVehicles(result.vehicles);
+    const idsToRemove = records.filter((item) => recordVehicleId(item, vehicles) === id).map((item) => item.id);
+    for (const recordId of idsToRemove) deleteHealthRecord(recordId);
+    setRecords(records.filter((item) => !idsToRemove.includes(item.id)));
+    setSelectedVehicleId(result.vehicles[0]?.id ?? "");
+  }
 
   function addRecord() {
+    if (!selectedVehicleId) return;
     if (!title.trim()) return;
     const parsedScore = score.trim() ? Number(score) : undefined;
     if (
@@ -72,6 +116,7 @@ export default function VehicleHealthRecordPage() {
       date,
       score: parsedScore,
       createdAt: new Date().toISOString(),
+      vehicleId: selectedVehicleId,
     };
 
     upsertHealthRecord(record);
@@ -87,7 +132,7 @@ export default function VehicleHealthRecordPage() {
   }
 
   function addCurrentScore() {
-    if (!analysis) return;
+    if (!analysis || !selectedVehicleId) return;
     const record: HealthRecord = {
       id: createHealthRecordId(),
       type: "Sağlık Skoru",
@@ -96,6 +141,7 @@ export default function VehicleHealthRecordPage() {
       date: new Date().toISOString().slice(0, 10),
       score: analysis.totalScore,
       createdAt: new Date().toISOString(),
+      vehicleId: selectedVehicleId,
     };
     upsertHealthRecord(record);
     setRecords((current) => [record, ...current]);
@@ -113,6 +159,17 @@ export default function VehicleHealthRecordPage() {
             oturumundaki son analiz raporundan gelir.
           </p>
         </section>
+
+        <div className="mt-5">
+          <VehicleSwitcher
+            vehicles={vehicles}
+            selectedVehicleId={selectedVehicleId}
+            onSelect={selectVehicle}
+            onAdd={addVehicle}
+            onRename={renameVehicle}
+            onDelete={removeVehicle}
+          />
+        </div>
 
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-xl font-semibold text-slate-950">Araç özeti</h2>
@@ -213,7 +270,8 @@ export default function VehicleHealthRecordPage() {
             <button
               type="button"
               onClick={addCurrentScore}
-              className="mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-teal-700 px-4 text-sm font-semibold text-teal-800"
+              disabled={!selectedVehicleId}
+              className="mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-teal-700 px-4 text-sm font-semibold text-teal-800 disabled:opacity-50"
             >
               Şu anki analiz skorunu ({analysis.totalScore}) trende ekle
             </button>
@@ -272,7 +330,8 @@ export default function VehicleHealthRecordPage() {
           <button
             type="button"
             onClick={addRecord}
-            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 font-semibold text-white"
+            disabled={!selectedVehicleId}
+            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 font-semibold text-white disabled:opacity-50"
           >
             <Plus aria-hidden="true" className="h-5 w-5" />
             Kaydı ekle
@@ -282,8 +341,8 @@ export default function VehicleHealthRecordPage() {
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-xl font-semibold text-slate-950">Zaman çizelgesi</h2>
           <div className="mt-4 grid gap-3">
-            {records.length ? (
-              [...records]
+            {recordsForVehicle.length ? (
+              [...recordsForVehicle]
                 .sort((a, b) => (a.date < b.date ? 1 : -1))
                 .map((record) => (
                   <article key={record.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4">

@@ -17,6 +17,8 @@ export type ReminderRecord = {
   recurrence: ReminderRecurrence;
   history: ReminderHistoryEntry[];
   createdAt: string;
+  /** Undefined means the record belongs to the user's default (first) vehicle. */
+  vehicleId?: string;
 };
 
 export type ReminderUrgency = "overdue" | "urgent" | "upcoming" | "later";

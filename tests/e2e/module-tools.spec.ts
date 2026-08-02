@@ -49,7 +49,6 @@ test("module cards open usable assistant tools", async ({ page }) => {
     mimeType: "image/jpeg",
     buffer: Buffer.from("fake-image"),
   });
-  await page.getByLabel("Fotoğrafta araç veya araç parçası görünüyor").check();
   await page.getByLabel("Bölge").selectOption("Ön tampon");
   await page.getByLabel("Bulgu").selectOption("Çizik");
   await page.getByLabel("Güven seviyesi").selectOption("Orta olasılık");
@@ -62,6 +61,10 @@ test("module cards open usable assistant tools", async ({ page }) => {
   await page.goto("/bakim-takibi");
   await page.getByLabel("Güncel kilometre").fill("98000");
   await expect(page.getByText("Yakın kontrol").first()).toBeVisible();
+  await expect(page.getByRole("link", { name: "Bakım ve Ödeme Takvimi'ne git" })).toHaveAttribute(
+    "href",
+    "/bakim-odeme-takvimi",
+  );
 
   await page.goto("/arac-saglik-karnesi");
   await page.getByLabel("Başlık").fill("90 bin km bakımı");
@@ -99,6 +102,15 @@ test("health record entries persist across reloads and build a score trend", asy
   await page.locator("article", { hasText: "İlk kontrol" }).getByRole("button", { name: "Sil" }).click();
   await page.reload();
   await expect(page.getByRole("heading", { name: "İlk kontrol" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "İkinci kontrol" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Araç ekle" }).click();
+  await page.getByLabel("Araç adı").fill("İkinci Arabam");
+  await page.getByRole("button", { name: "Ekle", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "İkinci kontrol" })).toHaveCount(0);
+  await expect(page.getByText("Henüz kayıt eklenmedi.")).toBeVisible();
+
+  await page.locator("#vehicle-switcher-select").selectOption({ label: "Aracım" });
   await expect(page.getByRole("heading", { name: "İkinci kontrol" })).toBeVisible();
 });
 
@@ -188,6 +200,50 @@ test("maintenance and payment calendar tracks upcoming dates and syncs to the ga
   await page.goto("/arac-saglik-karnesi");
   await expect(page.getByText("Araç muayenesi")).toBeVisible();
   await expect(page.getByText("10 gün kaldı")).toBeVisible();
+
+  await page.goto("/bakim-odeme-takvimi");
+  await page.reload();
+  await expect(page.getByText("MTV 1. taksit")).toBeVisible();
+  await expect(page.getByText("MTV 2. taksit")).toBeVisible();
+});
+
+test("maintenance calendar keeps a separate reminder list per vehicle", async ({ page }) => {
+  await page.goto("/bakim-odeme-takvimi");
+
+  await page.getByRole("button", { name: "MTV taksitlerini ekle (Ocak/Temmuz)" }).click();
+  await expect(page.getByText("MTV 1. taksit")).toBeVisible();
+
+  await page.getByRole("button", { name: "Araç ekle" }).click();
+  await page.getByLabel("Araç adı").fill("İkinci Arabam");
+  await page.getByRole("button", { name: "Ekle", exact: true }).click();
+
+  await expect(page.getByText("MTV 1. taksit")).toHaveCount(0);
+  await expect(page.getByText("Henüz takip edilen tarih yok.")).toBeVisible();
+
+  await page.locator("#vehicle-switcher-select").selectOption({ label: "Aracım" });
+  await expect(page.getByText("MTV 1. taksit")).toBeVisible();
+
+  await page.reload();
+  await expect(page.locator("#vehicle-switcher-select option")).toHaveCount(2);
+  await expect(page.getByText("MTV 1. taksit")).toBeVisible();
+});
+
+test("maintenance calendar cancels an in-progress edit when the vehicle changes", async ({ page }) => {
+  await page.goto("/bakim-odeme-takvimi");
+
+  await page.getByLabel("Tür").selectOption("muayene");
+  await page.getByLabel("Başlık").fill("Aracım muayenesi");
+  await page.getByLabel("Son tarih").fill("2026-12-01");
+  await page.getByRole("button", { name: "Kaydı ekle", exact: true }).click();
+  await page.getByText("Düzenle", { exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Kaydı düzenle" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Araç ekle" }).click();
+  await page.getByLabel("Araç adı").fill("İkinci Arabam");
+  await page.getByRole("button", { name: "Ekle", exact: true }).click();
+
+  await expect(page.getByRole("heading", { name: "Kayıt ekle" })).toBeVisible();
+  await expect(page.getByLabel("Başlık")).toHaveValue("MTV taksiti");
 });
 
 test("test drive checklist tracks progress and persists within the session", async ({ page }) => {
@@ -252,19 +308,42 @@ test("expense ledger tracks totals and computes an approximate cost per km", asy
   const categorySection = page.locator("section", { hasText: "Kategoriye göre toplam" });
   await expect(categorySection.getByText("Yakıt", { exact: true })).toBeVisible();
   await expect(categorySection.getByText("Bakım", { exact: true })).toBeVisible();
+
+  await page.getByRole("button", { name: "Araç ekle" }).click();
+  await page.getByLabel("Araç adı").fill("İkinci Arabam");
+  await page.getByRole("button", { name: "Ekle", exact: true }).click();
+  await expect(page.getByText("Henüz gider eklenmedi.")).toBeVisible();
+
+  await page.locator("#vehicle-switcher-select").selectOption({ label: "Aracım" });
+  await expect(page.getByText("Toplam gider").locator("..").getByText("1.500 TL")).toBeVisible();
 });
 
-test("photo damage tool refuses non-vehicle photos", async ({ page }) => {
+test("photo damage tool refuses non-vehicle photos via the AI's own check", async ({ page }) => {
+  await page.route("**/api/ai/photo-damage", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        analysis: {
+          isVehiclePhoto: false,
+          summary: "Fotoğrafta araç veya araç parçası tespit edilemedi.",
+          findings: [],
+          disclaimer: "Bu AI fotoğraf kontrolü kesin hasar tespiti değildir.",
+        },
+        remaining: 9,
+      }),
+    });
+  });
+
   await page.goto("/fotograf-hasar");
   await page.locator('input[type="file"]').setInputFiles({
     name: "yumurta.jpg",
     mimeType: "image/jpeg",
     buffer: Buffer.from("fake-egg-image"),
   });
-  await page.getByLabel("Araç görünmüyor veya emin değilim").check();
-  await expect(page.getByText("Araç görünmeyen fotoğraflar için hasar bulgusu oluşturulmaz.")).toBeVisible();
-  await expect(page.getByText("Araç görünmüyor seçildiği için AI hasar analizi kapatıldı.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "AI ile fotoğrafı analiz et" })).toBeDisabled();
-  await expect(page.getByRole("button", { name: "Bulguyu ekle" })).toBeDisabled();
+  await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
+  await expect(
+    page.getByText("AI bu görselde araç veya araç parçası güvenle tespit edemedi. Hasar bulgusu oluşturulmadı."),
+  ).toBeVisible();
   await expect(page.getByText("Ön tampon: Çizik")).toHaveCount(0);
 });

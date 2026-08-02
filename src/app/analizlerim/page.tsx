@@ -28,7 +28,7 @@ const filters: Array<{ id: AnalysisFilter; label: string }> = [
 
 const assistantModules = [
   ["/fotograf-hasar", "Fotoğraftan Hasar Analizi", "Olası çizik, göçük ve panel uyumsuzluğu işaretleri."],
-  ["/bakim-takibi", "Bakım Takibi", "Periyodik bakım ve yaklaşan işlemleri tek yerde izle."],
+  ["/bakim-odeme-takvimi", "Bakım ve Ödeme Takvimi", "MTV, sigorta, muayene ve bakım tarihlerini bildirimle takip et."],
   ["/arac-saglik-karnesi", "Araç Sağlık Karnesi", "Bakım, ekspertiz ve kontrol geçmişini sade ekranda tut."],
   ["/arac-deger-takibi", "Araç Değer Takibi", "Piyasa hareketlerini karar desteği olarak takip et."],
 ] as const;

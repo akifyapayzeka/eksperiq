@@ -8,6 +8,8 @@ export type ExpenseRecord = {
   odometer?: number;
   note?: string;
   createdAt: string;
+  /** Undefined means the record belongs to the user's default (first) vehicle. */
+  vehicleId?: string;
 };
 
 export const expenseCategoryLabels: Record<ExpenseCategory, string> = {

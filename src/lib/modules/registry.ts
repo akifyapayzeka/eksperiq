@@ -106,6 +106,10 @@ export const productModules: ProductModule[] = [
         title: "Bildirim",
         description: "Son tarihe 30 ve 15 gün kala isteğe bağlı push bildirimi gönderir.",
       },
+      {
+        title: "Çoklu araç",
+        description: "Birden fazla araç için ayrı takvim tutabilirsiniz; araçlar arasında serbestçe geçiş yapın.",
+      },
     ],
     dataPolicy: "Kayıtlar cihazda saklanır; bildirim açıksa yalnızca bildirim için sunucuda tutulur.",
     certaintyPolicy: "Tutarları kullanıcı girer; güncel resmi tutarları garanti etmez.",
@@ -159,6 +163,10 @@ export const productModules: ProductModule[] = [
         title: "Km başı maliyet",
         description: "Kilometre girilen kayıtlardan yaklaşık km başı maliyeti hesaplar.",
       },
+      {
+        title: "Çoklu araç",
+        description: "Birden fazla araç için ayrı gider defteri tutabilirsiniz.",
+      },
     ],
     dataPolicy: "Kayıtlar yalnızca cihazda saklanır; sunucuya gönderilmez.",
     certaintyPolicy: "Resmi mali kayıt değildir; yalnızca kullanıcının girdiği verilerle yaklaşık gösterge sunar.",
@@ -192,6 +200,10 @@ export const productModules: ProductModule[] = [
       {
         title: "Sağlık skoru trendi",
         description: "Kayıtlara eklenen isteğe bağlı skorların zaman içindeki değişimini basit bir grafikle gösterir.",
+      },
+      {
+        title: "Çoklu araç",
+        description: "Birden fazla araç için ayrı sağlık karnesi tutabilirsiniz.",
       },
     ],
     dataPolicy: "Kayıtlar hesaba değil, yalnızca cihaza kaydedilir; kullanıcı istediği zaman silebilir.",
