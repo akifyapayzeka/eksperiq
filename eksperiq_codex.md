@@ -81,10 +81,30 @@ yeni bir production deploy tetikledi:
 - `NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED=true`
 - `NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED=true`
 
-Model adı için kodda hiçbir değişiklik gerekmedi: varsayılan `"openrouter/free"`
-gerçek ve doğru bir OpenRouter model kimliği (OpenRouter'ın resmi "Free Models
-Router"ı — metin + görsel destekliyor, maliyeti $0/$0), ilk bakışta şüpheli
-göründü ama openrouter.ai `/api/v1/models` uç noktasından doğrulandı.
+**Sonradan bulunan ve düzeltilen gerçek bug:** Varsayılan model `"openrouter/free"`
+ilk bakışta OpenRouter'ın resmi "Free Models Router"ı olduğu için doğru
+görünüyordu (openrouter.ai `/api/v1/models` ile doğrulandı, metin+görsel
+destekliyor, $0/$0). Ama gerçek bir canlı AI notu denemesinde router'ın
+rastgele seçtiği model **"User Safety: safe"** gibi anlamsız bir çıktı
+döndürdü — sebebi, bu router'ın ücretsiz modeller arasına
+`nvidia/nemotron-3.5-content-safety:free` gibi sohbet modeli OLMAYAN,
+moderasyon/içerik-güvenliği sınıflandırıcılarını da rastgele dahil etmesi.
+3 denemeden sadece 1'i bozuktu (tutarsız/aralıklı bir hata), bu yüzden ilk
+testlerde fark edilmemişti. Düzeltme: rastgele router yerine, gerçekten
+$0 olan, güvenilir ve isimli iki model sabitlendi:
+
+- Metin (AI karar destek notu): `openai/gpt-oss-20b:free`
+- Görsel (fotoğraf hasar analizi, strict JSON şema gerektiriyor):
+  `google/gemma-4-26b-a4b-it:free`
+
+(Kullanıcı Gemini ve DeepSeek'i de önerdi; ikisi de OpenRouter'da tamamen
+ücretsiz değil — Gemini hiç `:free` seçeneği sunmuyor, DeepSeek'in en ucuzu
+bile token başına küçük de olsa gerçek ücret alıyor. "Herşey ücretsiz olsun"
+ilkesine göre elendiler.) `api/ai/analysis-note.js` ve `api/ai/photo-damage.js`
+artık `DEFAULT_OPENROUTER_MODEL`/`DEFAULT_VISION_MODEL`'i test edilebilir
+olsun diye export ediyor; `tests/unit/analysis-note-endpoint.test.ts` ve
+`tests/unit/photo-damage-endpoint.test.ts`'e bu varsayılanın asla
+`"openrouter/free"` olmadığını doğrulayan regresyon testleri eklendi.
 
 Doğrulama (kullanıcı tarafında ve benim tarafımda, ayrı ayrı, quota harcamadan):
 
@@ -100,8 +120,7 @@ Doğrulama (kullanıcı tarafında ve benim tarafımda, ayrı ayrı, quota harca
 
 Artık `/sonuc` sayfasındaki "AI notu oluştur" butonu ve `/fotograf-hasar`
 sayfasındaki AI destekli fotoğraf kontrolü gerçek kullanıcılar için canlı ve
-çalışır durumda. Günlük limitler `OPENROUTER_DAILY_REQUEST_LIMIT` (varsayılan
-20) ve `OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT` (varsayılan 10) ile korunuyor.
+çalışır durumda. Günlük limitler `OPENROUTER_DAILY_REQUEST_LIMIT` (varsayılan 20) ve `OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT` (varsayılan 10) ile korunuyor.
 
 ## Veri saklama ilkeleri
 

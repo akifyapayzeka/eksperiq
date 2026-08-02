@@ -60,6 +60,15 @@ const validBody = {
 };
 
 describe("photo damage AI endpoint", () => {
+  it("defaults to a named, reliable free vision model instead of the random openrouter/free router", () => {
+    // openrouter/free randomly routes to any free model on OpenRouter, including
+    // moderation/safety classifiers that don't support the strict JSON schema
+    // this endpoint relies on and can return nonsense instead of an analysis.
+    const withDefault = handler as unknown as { DEFAULT_VISION_MODEL: string };
+    expect(withDefault.DEFAULT_VISION_MODEL).not.toBe("openrouter/free");
+    expect(withDefault.DEFAULT_VISION_MODEL).toMatch(/:free$/);
+  });
+
   it("stays disabled unless the photo AI flag is enabled", async () => {
     const response = await callEndpoint(validBody, {
       NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "false",
