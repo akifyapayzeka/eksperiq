@@ -1,5 +1,9 @@
 const OPENROUTER_CHAT_COMPLETIONS_URL = "https://openrouter.ai/api/v1/chat/completions";
-const DEFAULT_OPENROUTER_MODEL = "openrouter/free";
+// "openrouter/free" rastgele bir ücretsiz modele yönlendirir; bunların arasında
+// nvidia/nemotron-3.5-content-safety:free gibi sohbet için uygun olmayan
+// moderasyon/güvenlik modelleri de var ve bunlar anlamsız çıktı üretebiliyor
+// (örn. "User Safety: safe"). Bunun yerine güvenilir, isimli bir ücretsiz model kullan.
+const DEFAULT_OPENROUTER_MODEL = "openai/gpt-oss-20b:free";
 const DEFAULT_AI_DAILY_LIMIT = 20;
 const UPSTASH_TTL_SECONDS = 60 * 60 * 48;
 const usageKey = "analysis-note";
@@ -290,3 +294,4 @@ async function handler(request, response) {
 }
 
 module.exports = handler;
+module.exports.DEFAULT_OPENROUTER_MODEL = DEFAULT_OPENROUTER_MODEL;

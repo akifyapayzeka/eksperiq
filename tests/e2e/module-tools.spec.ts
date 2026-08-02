@@ -203,6 +203,19 @@ test("test drive checklist tracks progress and persists within the session", asy
   await expect(page.getByLabel("Motoru soğukken çalıştırdım (satıcı önceden çalıştırmamış olmalı)")).toBeChecked();
 });
 
+test("sale preparation checklist persists checked items within the session", async ({ page }) => {
+  await page.goto("/satis-hazirligi");
+  await expect(page.getByText("0/10", { exact: true })).toBeVisible();
+
+  await page.getByLabel("Son bakım faturalarını hazırla").check();
+  await page.getByLabel("Yedek anahtarı bul").check();
+  await expect(page.getByText("2/10", { exact: true })).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByText("2/10", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Son bakım faturalarını hazırla")).toBeChecked();
+});
+
 test("official lookup guide tracks which sources the user has checked", async ({ page }) => {
   await page.goto("/resmi-sorgu-rehberi");
   await expect(page.getByRole("heading", { name: "Kontrol ettiklerim: 0 / 6" })).toBeVisible();

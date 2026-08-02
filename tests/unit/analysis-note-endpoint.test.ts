@@ -34,6 +34,14 @@ function createResponse(): MockResponse {
 }
 
 describe("analysis note endpoint", () => {
+  it("defaults to a named, reliable free model instead of the random openrouter/free router", () => {
+    // openrouter/free randomly routes to any free model on OpenRouter, including
+    // moderation/safety classifiers (e.g. nvidia/nemotron-3.5-content-safety:free)
+    // that return nonsense like "User Safety: safe" instead of a real note.
+    expect(handler.DEFAULT_OPENROUTER_MODEL).not.toBe("openrouter/free");
+    expect(handler.DEFAULT_OPENROUTER_MODEL).toMatch(/:free$/);
+  });
+
   it("allows only POST", async () => {
     const response = createResponse();
 

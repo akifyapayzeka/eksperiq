@@ -1,5 +1,10 @@
 const OPENROUTER_CHAT_COMPLETIONS_URL = "https://openrouter.ai/api/v1/chat/completions";
-const DEFAULT_VISION_MODEL = "openrouter/free";
+// "openrouter/free" rastgele bir ücretsiz modele yönlendirir; bunların arasında
+// nvidia/nemotron-3.5-content-safety:free gibi moderasyon/güvenlik modelleri de
+// var ve bunlar görsel girdide de strict JSON şemasını desteklemiyor. Bunun
+// yerine görsel girdiyi ve strict JSON şemasını destekleyen, güvenilir,
+// isimli bir ücretsiz model kullan.
+const DEFAULT_VISION_MODEL = "google/gemma-4-26b-a4b-it:free";
 const DEFAULT_PHOTO_DAILY_LIMIT = 10;
 const usageKey = "photo-damage";
 const productionUrl = "https://eksperiq.vercel.app";
@@ -372,3 +377,4 @@ async function handler(request, response) {
 }
 
 module.exports = handler;
+module.exports.DEFAULT_VISION_MODEL = DEFAULT_VISION_MODEL;

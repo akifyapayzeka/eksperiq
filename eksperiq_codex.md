@@ -36,6 +36,8 @@ fonksiyonlarıdır (Next.js route handler değil).
    opsiyonel AI destekli kontrol (`NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED` flag'i
    ile açılır, `api/ai/photo-damage.js`). AI hiçbir zaman kesin hasar iddiası
    üretmez; kesin dil otomatik yumuşatılır (`hedgeCertainLanguage`).
+   **2026-08-02 itibarıyla production'da AKTİF** (bkz. aşağıdaki "AI servisleri
+   canlıya alındı" bölümü).
 3. **Tahmini Onarım Maliyeti** (`/onarim-maliyeti`)
 4. **Ekspertiz Raporu Analizi** (`/ekspertiz-raporu`)
 5. **Bakım Takibi** (`/bakim-takibi`) — km/tarih bazlı genel hatırlatma
@@ -69,6 +71,56 @@ fonksiyonlarıdır (Next.js route handler değil).
 
 Hiçbir modül "planned"/"yakında" durumunda değil — hepsi aktif ve gerçek
 sayfalara bağlı.
+
+## AI servisleri canlıya alındı (2026-08-02)
+
+Kullanıcı (Codex üzerinden) Vercel production ortamına şunları ekledi ve
+yeni bir production deploy tetikledi:
+
+- `OPENROUTER_API_KEY` (gerçek anahtar; repoya hiçbir zaman yazılmadı)
+- `NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED=true`
+- `NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED=true`
+
+**Sonradan bulunan ve düzeltilen gerçek bug:** Varsayılan model `"openrouter/free"`
+ilk bakışta OpenRouter'ın resmi "Free Models Router"ı olduğu için doğru
+görünüyordu (openrouter.ai `/api/v1/models` ile doğrulandı, metin+görsel
+destekliyor, $0/$0). Ama gerçek bir canlı AI notu denemesinde router'ın
+rastgele seçtiği model **"User Safety: safe"** gibi anlamsız bir çıktı
+döndürdü — sebebi, bu router'ın ücretsiz modeller arasına
+`nvidia/nemotron-3.5-content-safety:free` gibi sohbet modeli OLMAYAN,
+moderasyon/içerik-güvenliği sınıflandırıcılarını da rastgele dahil etmesi.
+3 denemeden sadece 1'i bozuktu (tutarsız/aralıklı bir hata), bu yüzden ilk
+testlerde fark edilmemişti. Düzeltme: rastgele router yerine, gerçekten
+$0 olan, güvenilir ve isimli iki model sabitlendi:
+
+- Metin (AI karar destek notu): `openai/gpt-oss-20b:free`
+- Görsel (fotoğraf hasar analizi, strict JSON şema gerektiriyor):
+  `google/gemma-4-26b-a4b-it:free`
+
+(Kullanıcı Gemini ve DeepSeek'i de önerdi; ikisi de OpenRouter'da tamamen
+ücretsiz değil — Gemini hiç `:free` seçeneği sunmuyor, DeepSeek'in en ucuzu
+bile token başına küçük de olsa gerçek ücret alıyor. "Herşey ücretsiz olsun"
+ilkesine göre elendiler.) `api/ai/analysis-note.js` ve `api/ai/photo-damage.js`
+artık `DEFAULT_OPENROUTER_MODEL`/`DEFAULT_VISION_MODEL`'i test edilebilir
+olsun diye export ediyor; `tests/unit/analysis-note-endpoint.test.ts` ve
+`tests/unit/photo-damage-endpoint.test.ts`'e bu varsayılanın asla
+`"openrouter/free"` olmadığını doğrulayan regresyon testleri eklendi.
+
+Doğrulama (kullanıcı tarafında ve benim tarafımda, ayrı ayrı, quota harcamadan):
+
+- `npm run deploy:check` → geçti.
+- `npm run ai:photo-prod-check` → geçti, production'da fotoğraf AI flag'i açık
+  (quota harcamaz, yalnızca geçersiz input gönderip 400 dönüşünü kontrol eder).
+- `AI_STAGING_BASE_URL=https://eksperiq.vercel.app npm run ai:staging-check`
+  → geçti, AI karar destek notu endpoint'i de production'da aktif (bu da
+  quota harcamaz).
+- `npm run ai:live-check` (kullanıcı tarafında, gerçek bir AI notu üreterek)
+  → geçti; bu komut günlük OpenRouter limitinden düştüğü için ben tekrar
+  çalıştırmadım.
+
+Artık `/sonuc` sayfasındaki "AI notu oluştur" butonu ve `/fotograf-hasar`
+sayfasındaki AI destekli fotoğraf kontrolü gerçek kullanıcılar için canlı ve
+çalışır durumda. Günlük limitler `OPENROUTER_DAILY_REQUEST_LIMIT` (varsayılan 20) ve `OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT` (varsayılan 10) ile korunuyor.
 
 ## Veri saklama ilkeleri
 
@@ -218,6 +270,37 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     hakkında `docs/app-store-privacy-answers.md` ile tutarlı, doğru bilgi
     veriyor.
 
+### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
+
+Kullanıcı "uygulamayı tamamen test ettin mi" diye sorunca şu tam tarama
+yapıldı:
+
+- `npx playwright test` **tüm** e2e paketiyle (4 dosya, 56 test — daha önceki
+  turlarda yalnızca 3 dosyanın hedefli alt kümesi çalıştırılıyordu,
+  `screenshots.spec.ts` hiç çalıştırılmamıştı) → 54 geçti, 2 kasıtlı skip.
+- Dev sunucu açılıp 24 route'un tamamı (tüm sayfalar) gerçek bir Chromium
+  tarayıcısında gezildi; konsol hatası/uyarısı, `pageerror` ve başarısız
+  network isteği/4xx-5xx yanıtı için dinlendi → **sıfır bulgu**.
+- Uçtan uca gerçek kullanıcı akışları elle sürüldü ve konsol izlendi: yeni
+  model + 0 km + yüksek tramer ile analiz oluşturma (skor/karar doğru
+  render oluyor), MTV taksitlerini ekleme (tarihler bugüne göre doğru
+  hesaplanıyor — 2026-08-01 itibarıyla hem Ocak hem Temmuz taksiti geçmiş
+  olduğu için ikisi de 2027'ye kaydı, bu doğru davranış), hatırlatma
+  düzenleme/silme, karşılaştırmaya ekleme → hepsi hatasız çalıştı.
+- Bu tarama sırasında `satis-hazirligi` (Akıllı Satış Hazırlığı) sayfasının
+  hiç e2e testi olmadığı fark edildi — diğer tüm kardeş kontrol listesi
+  sayfalarının (test sürüşü, resmi sorgu rehberi) dedicated e2e testi varken
+  bu sayfa eksikti. `tests/e2e/module-tools.spec.ts`'e "sale preparation
+  checklist persists checked items within the session" testi eklendi.
+- Not: ilk elle test sırasında satış hazırlığı ve test sürüşü kontrol
+  listelerinde reload sonrası "sıfırlanıyor" gibi görünen bir sonuç alındı;
+  detaylı incelemede bunun gerçek bir bug değil, benim tek seferlik
+  doğrulama scriptimin `requestAnimationFrame` ile geciktirilen storage
+  yüklemesini beklemeden okuma yapmasından kaynaklanan bir yarış durumu
+  olduğu doğrulandı (Playwright'ın `expect().toBeVisible()` otomatik
+  yeniden denemesi bu gecikmeyi zaten doğru şekilde bekliyor). Gerçek
+  uygulama davranışında sorun yok.
+
 ## Bu oturumda eklenen yeni özellikler (kullanıcı isteğiyle)
 
 - Karşılaştırmalı İlan Analizi (`/karsilastirma`)
@@ -272,3 +355,6 @@ override) kullanılıp iş bitince silindi — repoya commit edilmedi.
   uygulaması sade ve anlaşılır olacak kullanıcıyı yormayacak").
 - Her yeni özellik: unit test + (mümkünse) e2e test + yukarıdaki tam
   doğrulama komutları + commit + push ile tamamlanmalı.
+- Kullanıcı İngilizce bilmiyor: bundan sonra tüm PR başlıkları, PR açıklamaları
+  ve commit mesajları Türkçe yazılmalı (kod/tanımlayıcılar İngilizce kalabilir,
+  yalnızca insan tarafından okunan metinler Türkçe olmalı).
