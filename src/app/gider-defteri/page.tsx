@@ -6,6 +6,10 @@ import { approximateCostPerKm, monthlyTotals, totalAmount, totalByCategory } fro
 import { expenseCategoryLabels } from "@/lib/expenses/types";
 import type { ExpenseCategory, ExpenseRecord } from "@/lib/expenses/types";
 import { createExpenseId, deleteExpense, loadExpenses, upsertExpense } from "@/lib/storage/expenses-storage";
+import { VehicleSwitcher } from "@/components/vehicles/vehicle-switcher";
+import { filterByVehicle, recordVehicleId } from "@/lib/vehicles/model";
+import { createVehicleId, deleteVehicle, loadVehicles, upsertVehicle } from "@/lib/storage/vehicle-storage";
+import type { VehicleProfile } from "@/lib/vehicles/types";
 
 function formatTl(amount: number): string {
   return `${amount.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} TL`;
@@ -19,6 +23,8 @@ function formatDate(value: string): string {
 
 export default function ExpenseLedgerPage() {
   const [records, setRecords] = useState<ExpenseRecord[]>([]);
+  const [vehicles, setVehicles] = useState<VehicleProfile[]>([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState("");
   const [category, setCategory] = useState<ExpenseCategory>("yakit");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState("");
@@ -27,18 +33,60 @@ export default function ExpenseLedgerPage() {
   const [formMessage, setFormMessage] = useState("");
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => setRecords(loadExpenses()));
+    const frame = window.requestAnimationFrame(() => {
+      const loadedVehicles = loadVehicles();
+      setVehicles(loadedVehicles);
+      setSelectedVehicleId(loadedVehicles[0]?.id ?? "");
+      setRecords(loadExpenses());
+    });
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
-  const months = useMemo(() => monthlyTotals(records), [records]);
+  const recordsForVehicle = useMemo(
+    () => filterByVehicle(records, selectedVehicleId, vehicles),
+    [records, selectedVehicleId, vehicles],
+  );
+  const months = useMemo(() => monthlyTotals(recordsForVehicle), [recordsForVehicle]);
   const maxMonthTotal = useMemo(() => Math.max(1, ...months.map((month) => month.total)), [months]);
-  const categoryTotals = useMemo(() => totalByCategory(records), [records]);
-  const overallTotal = useMemo(() => totalAmount(records), [records]);
-  const costPerKm = useMemo(() => approximateCostPerKm(records), [records]);
-  const sortedRecords = useMemo(() => [...records].sort((a, b) => (a.date < b.date ? 1 : -1)), [records]);
+  const categoryTotals = useMemo(() => totalByCategory(recordsForVehicle), [recordsForVehicle]);
+  const overallTotal = useMemo(() => totalAmount(recordsForVehicle), [recordsForVehicle]);
+  const costPerKm = useMemo(() => approximateCostPerKm(recordsForVehicle), [recordsForVehicle]);
+  const sortedRecords = useMemo(
+    () => [...recordsForVehicle].sort((a, b) => (a.date < b.date ? 1 : -1)),
+    [recordsForVehicle],
+  );
+
+  function selectVehicle(id: string) {
+    setSelectedVehicleId(id);
+  }
+
+  function addVehicle(label: string) {
+    const vehicle: VehicleProfile = { id: createVehicleId(), label, createdAt: new Date().toISOString() };
+    setVehicles(upsertVehicle(vehicle));
+    setSelectedVehicleId(vehicle.id);
+  }
+
+  function renameVehicle(id: string, label: string) {
+    const existing = vehicles.find((item) => item.id === id);
+    if (!existing) return;
+    setVehicles(upsertVehicle({ ...existing, label }));
+  }
+
+  function removeVehicle(id: string) {
+    const result = deleteVehicle(id);
+    if (!result.ok) {
+      setFormMessage("Son araç profili silinemez.");
+      return;
+    }
+    setVehicles(result.vehicles);
+    const idsToRemove = records.filter((item) => recordVehicleId(item, vehicles) === id).map((item) => item.id);
+    for (const recordId of idsToRemove) deleteExpense(recordId);
+    setRecords(records.filter((item) => !idsToRemove.includes(item.id)));
+    setSelectedVehicleId(result.vehicles[0]?.id ?? "");
+  }
 
   function submitExpense() {
+    if (!selectedVehicleId) return;
     const parsedAmount = Number(amount);
     if (!amount.trim() || Number.isNaN(parsedAmount) || parsedAmount <= 0) {
       setFormMessage("Geçerli bir tutar girin.");
@@ -62,6 +110,7 @@ export default function ExpenseLedgerPage() {
       odometer: parsedOdometer,
       note: note.trim() || undefined,
       createdAt: new Date().toISOString(),
+      vehicleId: selectedVehicleId,
     };
 
     upsertExpense(record);
@@ -90,6 +139,17 @@ export default function ExpenseLedgerPage() {
             kayıtlar bilgilendirme amaçlıdır, resmi mali kayıt yerine geçmez ve yalnızca bu cihazda saklanır.
           </p>
         </section>
+
+        <div className="mt-5">
+          <VehicleSwitcher
+            vehicles={vehicles}
+            selectedVehicleId={selectedVehicleId}
+            onSelect={selectVehicle}
+            onAdd={addVehicle}
+            onRename={renameVehicle}
+            onDelete={removeVehicle}
+          />
+        </div>
 
         <section className="mt-5 grid gap-4 sm:grid-cols-2">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -230,7 +290,8 @@ export default function ExpenseLedgerPage() {
           <button
             type="button"
             onClick={submitExpense}
-            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 font-semibold text-white"
+            disabled={!selectedVehicleId}
+            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 font-semibold text-white disabled:opacity-50"
           >
             <Plus aria-hidden="true" className="h-5 w-5" />
             Gideri kaydet

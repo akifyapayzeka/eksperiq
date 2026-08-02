@@ -100,6 +100,15 @@ test("health record entries persist across reloads and build a score trend", asy
   await page.reload();
   await expect(page.getByRole("heading", { name: "İlk kontrol" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "İkinci kontrol" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Araç ekle" }).click();
+  await page.getByLabel("Araç adı").fill("İkinci Arabam");
+  await page.getByRole("button", { name: "Ekle", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "İkinci kontrol" })).toHaveCount(0);
+  await expect(page.getByText("Henüz kayıt eklenmedi.")).toBeVisible();
+
+  await page.locator("#vehicle-switcher-select").selectOption({ label: "Aracım" });
+  await expect(page.getByRole("heading", { name: "İkinci kontrol" })).toBeVisible();
 });
 
 test("report action buttons show visible feedback", async ({ page, context }) => {
@@ -188,6 +197,32 @@ test("maintenance and payment calendar tracks upcoming dates and syncs to the ga
   await page.goto("/arac-saglik-karnesi");
   await expect(page.getByText("Araç muayenesi")).toBeVisible();
   await expect(page.getByText("10 gün kaldı")).toBeVisible();
+
+  await page.goto("/bakim-odeme-takvimi");
+  await page.reload();
+  await expect(page.getByText("MTV 1. taksit")).toBeVisible();
+  await expect(page.getByText("MTV 2. taksit")).toBeVisible();
+});
+
+test("maintenance calendar keeps a separate reminder list per vehicle", async ({ page }) => {
+  await page.goto("/bakim-odeme-takvimi");
+
+  await page.getByRole("button", { name: "MTV taksitlerini ekle (Ocak/Temmuz)" }).click();
+  await expect(page.getByText("MTV 1. taksit")).toBeVisible();
+
+  await page.getByRole("button", { name: "Araç ekle" }).click();
+  await page.getByLabel("Araç adı").fill("İkinci Arabam");
+  await page.getByRole("button", { name: "Ekle", exact: true }).click();
+
+  await expect(page.getByText("MTV 1. taksit")).toHaveCount(0);
+  await expect(page.getByText("Henüz takip edilen tarih yok.")).toBeVisible();
+
+  await page.locator("#vehicle-switcher-select").selectOption({ label: "Aracım" });
+  await expect(page.getByText("MTV 1. taksit")).toBeVisible();
+
+  await page.reload();
+  await expect(page.locator("#vehicle-switcher-select option")).toHaveCount(2);
+  await expect(page.getByText("MTV 1. taksit")).toBeVisible();
 });
 
 test("test drive checklist tracks progress and persists within the session", async ({ page }) => {
@@ -252,6 +287,14 @@ test("expense ledger tracks totals and computes an approximate cost per km", asy
   const categorySection = page.locator("section", { hasText: "Kategoriye göre toplam" });
   await expect(categorySection.getByText("Yakıt", { exact: true })).toBeVisible();
   await expect(categorySection.getByText("Bakım", { exact: true })).toBeVisible();
+
+  await page.getByRole("button", { name: "Araç ekle" }).click();
+  await page.getByLabel("Araç adı").fill("İkinci Arabam");
+  await page.getByRole("button", { name: "Ekle", exact: true }).click();
+  await expect(page.getByText("Henüz gider eklenmedi.")).toBeVisible();
+
+  await page.locator("#vehicle-switcher-select").selectOption({ label: "Aracım" });
+  await expect(page.getByText("Toplam gider").locator("..").getByText("1.500 TL")).toBeVisible();
 });
 
 test("photo damage tool refuses non-vehicle photos", async ({ page }) => {

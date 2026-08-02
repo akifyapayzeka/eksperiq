@@ -8,6 +8,8 @@ export type HealthRecord = {
   date: string;
   score?: number;
   createdAt: string;
+  /** Undefined means the record belongs to the user's default (first) vehicle. */
+  vehicleId?: string;
 };
 
 export const healthRecordTypes: HealthRecordType[] = [

@@ -8,6 +8,10 @@ import { daysUntil, defaultMtvReminders, sortByUrgency, urgencyOf } from "@/lib/
 import { createReminderId, deleteReminder, loadReminders, upsertReminder } from "@/lib/storage/reminders-storage";
 import { reminderCategoryLabels } from "@/lib/reminders/types";
 import type { ReminderCategory, ReminderRecord, ReminderRecurrence } from "@/lib/reminders/types";
+import { VehicleSwitcher } from "@/components/vehicles/vehicle-switcher";
+import { filterByVehicle, recordVehicleId } from "@/lib/vehicles/model";
+import { createVehicleId, deleteVehicle, loadVehicles, upsertVehicle } from "@/lib/storage/vehicle-storage";
+import type { VehicleProfile } from "@/lib/vehicles/types";
 
 const categoryDefaultTitles: Record<ReminderCategory, string> = {
   mtv: "MTV taksiti",
@@ -52,6 +56,8 @@ function formatAmount(amount?: number): string | null {
 
 export default function MaintenancePaymentCalendarPage() {
   const [reminders, setReminders] = useState<ReminderRecord[]>([]);
+  const [vehicles, setVehicles] = useState<VehicleProfile[]>([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState("");
   const [pushState, setPushState] = useState<PushSupportState>("unsupported");
   const [pushMessage, setPushMessage] = useState("");
   const [pushBusy, setPushBusy] = useState(false);
@@ -68,8 +74,11 @@ export default function MaintenancePaymentCalendarPage() {
   useEffect(() => {
     let cancelled = false;
     const frame = window.requestAnimationFrame(() => {
+      const loadedVehicles = loadVehicles();
       const loaded = loadReminders();
       if (cancelled) return;
+      setVehicles(loadedVehicles);
+      setSelectedVehicleId(loadedVehicles[0]?.id ?? "");
       setReminders(loaded);
       getPushState()
         .then((state) => {
@@ -85,7 +94,42 @@ export default function MaintenancePaymentCalendarPage() {
     };
   }, []);
 
-  const sorted = useMemo(() => sortByUrgency(reminders), [reminders]);
+  const remindersForVehicle = useMemo(
+    () => filterByVehicle(reminders, selectedVehicleId, vehicles),
+    [reminders, selectedVehicleId, vehicles],
+  );
+  const sorted = useMemo(() => sortByUrgency(remindersForVehicle), [remindersForVehicle]);
+
+  function selectVehicle(id: string) {
+    setSelectedVehicleId(id);
+  }
+
+  function addVehicle(label: string) {
+    const vehicle: VehicleProfile = { id: createVehicleId(), label, createdAt: new Date().toISOString() };
+    setVehicles(upsertVehicle(vehicle));
+    setSelectedVehicleId(vehicle.id);
+  }
+
+  function renameVehicle(id: string, label: string) {
+    const existing = vehicles.find((item) => item.id === id);
+    if (!existing) return;
+    setVehicles(upsertVehicle({ ...existing, label }));
+  }
+
+  function removeVehicle(id: string) {
+    const result = deleteVehicle(id);
+    if (!result.ok) {
+      setFormMessage("Son araç profili silinemez.");
+      return;
+    }
+    setVehicles(result.vehicles);
+    const remainingReminders = reminders.filter((item) => recordVehicleId(item, vehicles) !== id);
+    for (const removed of reminders.filter((item) => recordVehicleId(item, vehicles) === id)) {
+      deleteReminder(removed.id);
+    }
+    persist(remainingReminders);
+    setSelectedVehicleId(result.vehicles[0]?.id ?? "");
+  }
 
   function resetForm() {
     setCategory("mtv");
@@ -103,7 +147,8 @@ export default function MaintenancePaymentCalendarPage() {
   }
 
   function addMtvInstallments() {
-    const hasMtv = reminders.some((item) => item.category === "mtv");
+    if (!selectedVehicleId) return;
+    const hasMtv = remindersForVehicle.some((item) => item.category === "mtv");
     if (hasMtv) {
       setFormMessage("MTV taksitleri zaten listede. Tutarları güncellemek için ilgili kaydı düzenleyin.");
       return;
@@ -118,15 +163,20 @@ export default function MaintenancePaymentCalendarPage() {
       recurrence: "yearly" as const,
       history: [],
       createdAt: now.toISOString(),
+      vehicleId: selectedVehicleId,
     }));
 
     let next = reminders;
-    for (const record of created) next = [...next, record];
+    for (const record of created) {
+      upsertReminder(record);
+      next = [...next, record];
+    }
     persist(next);
     setFormMessage("MTV taksit tarihleri eklendi. Tutarı ödeme yaklaştıkça kayıttan düzenleyebilirsiniz.");
   }
 
   function submitForm() {
+    if (!selectedVehicleId) return;
     if (!title.trim() || !dueDate) {
       setFormMessage("Başlık ve tarih zorunludur.");
       return;
@@ -149,6 +199,7 @@ export default function MaintenancePaymentCalendarPage() {
       recurrence,
       history: existing?.history ?? [],
       createdAt: existing?.createdAt ?? new Date().toISOString(),
+      vehicleId: existing?.vehicleId ?? selectedVehicleId,
     };
 
     upsertReminder(record);
@@ -208,6 +259,17 @@ export default function MaintenancePaymentCalendarPage() {
           </p>
         </section>
 
+        <div className="mt-5">
+          <VehicleSwitcher
+            vehicles={vehicles}
+            selectedVehicleId={selectedVehicleId}
+            onSelect={selectVehicle}
+            onAdd={addVehicle}
+            onRename={renameVehicle}
+            onDelete={removeVehicle}
+          />
+        </div>
+
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-2">
             <Bell aria-hidden="true" className="h-5 w-5 text-teal-700" />
@@ -258,7 +320,8 @@ export default function MaintenancePaymentCalendarPage() {
             <button
               type="button"
               onClick={addMtvInstallments}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-teal-700 px-4 text-sm font-semibold text-teal-800"
+              disabled={!selectedVehicleId}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-teal-700 px-4 text-sm font-semibold text-teal-800 disabled:opacity-50"
             >
               <Plus aria-hidden="true" className="h-4 w-4" />
               MTV taksitlerini ekle (Ocak/Temmuz)
@@ -337,7 +400,8 @@ export default function MaintenancePaymentCalendarPage() {
             <button
               type="button"
               onClick={submitForm}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 font-semibold text-white"
+              disabled={!selectedVehicleId}
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 font-semibold text-white disabled:opacity-50"
             >
               <Plus aria-hidden="true" className="h-5 w-5" />
               {editingId ? "Kaydı güncelle" : "Kaydı ekle"}
