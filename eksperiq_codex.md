@@ -315,6 +315,15 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     `src/app/bakim-takibi/page.tsx`'e "Bakım ve Ödeme Takvimi'ne git" çapraz
     linki eklendi; `tests/e2e/module-tools.spec.ts`'e bu linkin
     `/bakim-odeme-takvimi`'ye gittiğini doğrulayan bir assertion eklendi.
+19. `/gizlilik` sayfası yalnızca Fotoğraftan Hasar Analizi'nin OpenRouter'a
+    veri gönderdiğinden bahsediyordu; sonuç ekranındaki isteğe bağlı "AI
+    karar destek notu" özelliği de (araç yıl/marka/model, risk skoru ve
+    bulgu başlıkları — fotoğrafsız) OpenRouter'a gönderiliyor ama gizlilik
+    sayfasında hiç geçmiyordu. `docs/app-store-privacy-answers.md` bunu
+    zaten doğru şekilde kapsıyordu, yalnızca uygulama içi gizlilik sayfası
+    eksikti (madde 12'nin tamamlanmamış hâli). Düzeltme:
+    `src/app/gizlilik/page.tsx`'e bu özelliği açıklayan bir paragraf
+    eklendi.
 
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 
