@@ -218,6 +218,37 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     hakkında `docs/app-store-privacy-answers.md` ile tutarlı, doğru bilgi
     veriyor.
 
+### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
+
+Kullanıcı "uygulamayı tamamen test ettin mi" diye sorunca şu tam tarama
+yapıldı:
+
+- `npx playwright test` **tüm** e2e paketiyle (4 dosya, 56 test — daha önceki
+  turlarda yalnızca 3 dosyanın hedefli alt kümesi çalıştırılıyordu,
+  `screenshots.spec.ts` hiç çalıştırılmamıştı) → 54 geçti, 2 kasıtlı skip.
+- Dev sunucu açılıp 24 route'un tamamı (tüm sayfalar) gerçek bir Chromium
+  tarayıcısında gezildi; konsol hatası/uyarısı, `pageerror` ve başarısız
+  network isteği/4xx-5xx yanıtı için dinlendi → **sıfır bulgu**.
+- Uçtan uca gerçek kullanıcı akışları elle sürüldü ve konsol izlendi: yeni
+  model + 0 km + yüksek tramer ile analiz oluşturma (skor/karar doğru
+  render oluyor), MTV taksitlerini ekleme (tarihler bugüne göre doğru
+  hesaplanıyor — 2026-08-01 itibarıyla hem Ocak hem Temmuz taksiti geçmiş
+  olduğu için ikisi de 2027'ye kaydı, bu doğru davranış), hatırlatma
+  düzenleme/silme, karşılaştırmaya ekleme → hepsi hatasız çalıştı.
+- Bu tarama sırasında `satis-hazirligi` (Akıllı Satış Hazırlığı) sayfasının
+  hiç e2e testi olmadığı fark edildi — diğer tüm kardeş kontrol listesi
+  sayfalarının (test sürüşü, resmi sorgu rehberi) dedicated e2e testi varken
+  bu sayfa eksikti. `tests/e2e/module-tools.spec.ts`'e "sale preparation
+  checklist persists checked items within the session" testi eklendi.
+- Not: ilk elle test sırasında satış hazırlığı ve test sürüşü kontrol
+  listelerinde reload sonrası "sıfırlanıyor" gibi görünen bir sonuç alındı;
+  detaylı incelemede bunun gerçek bir bug değil, benim tek seferlik
+  doğrulama scriptimin `requestAnimationFrame` ile geciktirilen storage
+  yüklemesini beklemeden okuma yapmasından kaynaklanan bir yarış durumu
+  olduğu doğrulandı (Playwright'ın `expect().toBeVisible()` otomatik
+  yeniden denemesi bu gecikmeyi zaten doğru şekilde bekliyor). Gerçek
+  uygulama davranışında sorun yok.
+
 ## Bu oturumda eklenen yeni özellikler (kullanıcı isteğiyle)
 
 - Karşılaştırmalı İlan Analizi (`/karsilastirma`)
