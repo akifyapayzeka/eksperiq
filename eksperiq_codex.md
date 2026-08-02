@@ -388,6 +388,28 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     refuses non-vehicle photos" testi artık mock'lanmış AI yanıtıyla
     `isVehiclePhoto:false` senaryosunu doğruluyor; `main-flow.spec.ts`'teki
     profil başlık assertion'ı güncellendi).
+25. **Kullanıcının sorusuyla ortaya çıkan ciddi bug**: Kullanıcı "geri
+    bildirim yaparlarsa biz nereden görürüz" diye sordu. Kontrol edilince
+    `akifyapayzeka/eksperiq` GitHub reposunun **private** olduğu görüldü
+    (`mcp__github__search_repositories` ile doğrulandı). `/geri-bildirim`
+    sayfasındaki "Kullanıcı testi notu gönder" / "Kural geri bildirimi
+    gönder" butonları private repoda GitHub issue oluşturma linkine
+    gidiyordu — repo'ya erişimi olmayan gerçek bir uygulama kullanıcısı bu
+    linke tıkladığında GitHub 404 döndürür, yani **geri bildirim hiçbir
+    yere ulaşmıyordu**. Kullanıcıya sorulup e-posta tabanlı bir çözüm
+    istendi (hedef adres: ruzgar.mesavo@gmail.com). Düzeltme:
+    `src/lib/constants/app.ts`'teki üç GitHub URL'i (`feedbackIssueUrl`,
+    `newRuleFeedbackUrl`, `newUserTestFeedbackUrl`) kaldırılıp yerine
+    `feedbackEmail` eklendi; `src/app/geri-bildirim/page.tsx`'teki iki
+    buton artık kategoriye özel önceden doldurulmuş konu/gövde metniyle
+    `mailto:` linkine gidiyor. Redundant olan üçüncü "İlk kullanıcı testi
+    issue'su" butonu (mailto ile karşılığı olmadığı için) kaldırıldı.
+    `tests/e2e/main-flow.spec.ts`'teki test artık her iki linkin doğru
+    `mailto:ruzgar.mesavo@gmail.com?...` adresine gittiğini doğruluyor.
+    Not: `.github/ISSUE_TEMPLATE/` ve `docs/user-test-feedback-triage.md`
+    değiştirilmedi — bunlar geliştiricinin e-postayla gelen notu kendi
+    repo'sunda manuel olarak issue'a çevirme sürecini anlatan iç
+    dokümanlar, kullanıcıya gösterilmiyor.
 
 ## Rakip/benzer uygulama araştırması ve entegre edilen bulgular (2026-08-02)
 

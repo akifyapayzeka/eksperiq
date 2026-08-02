@@ -210,9 +210,14 @@ test("shows feedback collection flow", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: "http://127.0.0.1:3000" });
   await page.goto("/geri-bildirim");
   await expect(page.getByRole("heading", { name: "Geri bildirim", exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Kullanıcı testi notu gönder" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Kural geri bildirimi gönder" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "İlk kullanıcı testi issue'su" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Kullanıcı testi notu gönder" })).toHaveAttribute(
+    "href",
+    /^mailto:ruzgar\.mesavo@gmail\.com\?/,
+  );
+  await expect(page.getByRole("link", { name: "Kural geri bildirimi gönder" })).toHaveAttribute(
+    "href",
+    /^mailto:ruzgar\.mesavo@gmail\.com\?/,
+  );
   await expect(page.getByText("kişisel veri eklemeden")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Anonim test notu şablonu" })).toBeVisible();
   await page.getByRole("button", { name: "Anonim not şablonunu kopyala" }).click();

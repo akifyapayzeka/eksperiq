@@ -35,8 +35,7 @@ export function FeedbackTemplateCopy() {
     <div className="rounded-lg border border-slate-200 bg-white p-4">
       <h2 className="text-lg font-semibold text-slate-950">Anonim test notu şablonu</h2>
       <p className="mt-2 text-slate-700">
-        GitHub hesabı olmayan test kullanıcısından not alırken bu şablonu kopyalayın. Plaka, telefon, açık adres veya
-        satıcı adı eklemeyin.
+        Test kullanıcısından not alırken bu şablonu kopyalayın. Plaka, telefon, açık adres veya satıcı adı eklemeyin.
       </p>
       <pre className="mt-4 max-h-64 overflow-auto rounded-lg bg-slate-950 p-4 text-xs leading-5 whitespace-pre-wrap text-slate-100">
         {feedbackTemplate}
