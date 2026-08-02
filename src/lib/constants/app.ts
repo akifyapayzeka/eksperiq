@@ -13,6 +13,7 @@ export const appConfig = {
   comparisonStorageKey: "eksperiq:comparison",
   officialLookupChecklistStorageKey: "eksperiq:official-lookup-checklist",
   healthRecordStorageKey: "eksperiq:health-records",
+  saleChecklistStorageKey: "eksperiq:sale-checklist",
   disclaimer:
     "Bu analiz yalnızca bilgilendirme ve karar desteği amacıyla hazırlanır. Profesyonel araç ekspertizinin, servis kontrolünün, resmî kayıt sorgularının veya hukuki incelemenin yerine geçmez. Son satın alma kararı kullanıcıya aittir.",
   privacy:

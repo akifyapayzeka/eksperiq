@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
+import { loadSaleChecklist, saveSaleChecklist } from "@/lib/storage/sale-checklist-storage";
 
 const saleChecklist = [
   "Son bakım faturalarını hazırla",
@@ -19,11 +20,17 @@ const saleChecklist = [
 export default function SmartSalePreparationPage() {
   const [checked, setChecked] = useState<Set<string>>(new Set());
 
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setChecked(new Set(loadSaleChecklist(saleChecklist))));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
   function toggle(item: string) {
     setChecked((current) => {
       const next = new Set(current);
       if (next.has(item)) next.delete(item);
       else next.add(item);
+      saveSaleChecklist([...next]);
       return next;
     });
   }

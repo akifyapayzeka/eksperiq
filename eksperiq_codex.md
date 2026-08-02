@@ -185,6 +185,38 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
    `scoreTrend()` artık kaydın kendi id'sini taşıyor; grafik ve tablo
    `point.id` üzerinden anahtarlanıyor (`src/app/arac-saglik-karnesi/page.tsx`).
    Regresyon testi `tests/unit/health-record-trend.test.ts`'e eklendi.
+10. "Akıllı Satış Hazırlığı" (`/satis-hazirligi`) sayfasındaki 10 maddelik
+    hazırlık listesi yalnızca component `useState`'te tutuluyordu; sayfadan
+    ayrılıp geri dönmek (hatta yanlışlıkla sayfayı yenilemek) tüm işaretli
+    kutucukları sıfırlıyordu. Diğer kardeş modüller (Test Sürüşü Kontrol
+    Listesi, Resmi Sorgu Rehberi) aynı desenle `sessionStorage`'a
+    yazıyorken bu sayfa dışarıda kalmıştı — tutarsızlık ve gereksiz kullanıcı
+    yorgunluğuydu. Düzeltme: `createSessionChecklistStore` paylaşılan
+    yardımcısı yeniden kullanılarak `src/lib/storage/sale-checklist-storage.ts`
+    eklendi, sayfa artık işaretleri oturum boyunca koruyor
+    (`src/app/satis-hazirligi/page.tsx`). Test:
+    `tests/unit/sale-checklist-storage.test.ts`.
+11. `/profil` sayfasındaki "Kullanım özeti" kartı "Aktif modül: İlan Analizi"
+    diye sabit kodlanmıştı — uygulamada artık 13 aktif modül varken sanki tek
+    modül varmış gibi yanlış/eksik bilgi veriyordu (README'nin daha önce
+    düzeltilen aynı tür bayatlamış-içerik sorunu). Düzeltme:
+    `src/app/profil/page.tsx` artık `activeModules().length`'i
+    `src/lib/modules/registry.ts`'den okuyup "N modül" olarak gösteriyor,
+    böylece yeni modül eklendikçe bir daha manuel güncelleme gerekmeyecek.
+12. Uygulama içi **Gizlilik** sayfası (`/gizlilik`) hâlâ "üyelik, reklam
+    takibi, analytics kodu, çerez bannerı gerektirecek üçüncü taraf servis
+    veya **fotoğraf yükleme özelliği bulunmaz**" diyordu — oysa Fotoğraftan
+    Hasar Analizi modülü fotoğrafları üçüncü taraf bir AI görsel servisine
+    (OpenRouter) gönderiyor ve bu özellik uzun süredir aktif. Ayrıca Bakım ve
+    Ödeme Takvimi'nin push bildirimi için sunucuda tutulan hatırlatma
+    kopyasından hiç bahsetmiyordu. Bu, `docs/app-store-privacy-answers.md`'de
+    zaten doğru belgelenen gerçek veri akışıyla kullanıcıya gösterilen metnin
+    çelişmesi anlamına geliyordu — gizlilik sayfası için önemli bir doğruluk
+    sorunu. Düzeltme: `src/app/gizlilik/page.tsx` artık fotoğraf analizi için
+    OpenRouter'a geçici işleme, kamera/galeri izninin yalnızca o an istendiği
+    ve push bildirimi açıldığında sunucuda tutulan hatırlatma kopyası
+    hakkında `docs/app-store-privacy-answers.md` ile tutarlı, doğru bilgi
+    veriyor.
 
 ## Bu oturumda eklenen yeni özellikler (kullanıcı isteğiyle)
 
