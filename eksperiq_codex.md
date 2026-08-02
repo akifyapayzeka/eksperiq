@@ -559,6 +559,20 @@ ayrı, artık **yanlış** bölüm vardı:
 roadmap içeriği" hatası). `tests/e2e/main-flow.spec.ts`'teki artık var
 olmayan "Garajım" başlığı assertion'ı kaldırıldı.
 
+## PR #11 merge edildi, otonom merge yetkisi verildi (2026-08-02)
+
+Kullanıcı PR #11'i (fotoğraf analizi kaydetme + Pro AI model iskeleti +
+moduller sayfası düzeltmesi) merge etmemi istedi ve **standing bir yetki**
+verdi: "Sonrasında Merge de et ben çok anlamam zaten kontrol etmeme gerek
+yok en son uygulama %100 bitince test eder ona göre konuşuruz." Yani
+bundan sonra her PR için "ready for review yap ve merge et" onayı
+beklemeden, CI yeşil ve mergeable olduğunda **doğrudan merge edebilirim**;
+kullanıcı uygulamayı yalnızca %100 bittiğinde kendisi test edecek.
+
+PR #11 `merge` metoduyla (squash değil, PR #10 ile aynı konvansiyon)
+merge edildi, PR aktivite aboneliği iptal edildi, dal `origin/master`'a
+resetlenip force-with-lease ile push edildi.
+
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 
 Kullanıcı "uygulamayı tamamen test ettin mi" diye sorunca şu tam tarama
@@ -705,3 +719,10 @@ tarafından) gereken adımlar:**
 - Kullanıcı İngilizce bilmiyor: bundan sonra tüm PR başlıkları, PR açıklamaları
   ve commit mesajları Türkçe yazılmalı (kod/tanımlayıcılar İngilizce kalabilir,
   yalnızca insan tarafından okunan metinler Türkçe olmalı).
+- **2026-08-02'den itibaren standing yetki**: Kullanıcı PR'ları tek tek
+  onaylamak istemiyor ("Sonrasında Merge de et ben çok anlamam zaten kontrol
+  etmeme gerek yok en son uygulama %100 bitince test eder ona göre
+  konuşuruz"). Yani: CI yeşil ve mergeable olan her PR, tam doğrulama
+  döngüsünden geçtikten sonra kullanıcı onayı beklenmeden doğrudan merge
+  edilebilir. Kullanıcı uygulamayı yalnızca tamamen bittiğinde kendisi test
+  edecek.
