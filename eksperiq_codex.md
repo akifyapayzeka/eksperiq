@@ -36,6 +36,8 @@ fonksiyonlarıdır (Next.js route handler değil).
    opsiyonel AI destekli kontrol (`NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED` flag'i
    ile açılır, `api/ai/photo-damage.js`). AI hiçbir zaman kesin hasar iddiası
    üretmez; kesin dil otomatik yumuşatılır (`hedgeCertainLanguage`).
+   **2026-08-02 itibarıyla production'da AKTİF** (bkz. aşağıdaki "AI servisleri
+   canlıya alındı" bölümü).
 3. **Tahmini Onarım Maliyeti** (`/onarim-maliyeti`)
 4. **Ekspertiz Raporu Analizi** (`/ekspertiz-raporu`)
 5. **Bakım Takibi** (`/bakim-takibi`) — km/tarih bazlı genel hatırlatma
@@ -69,6 +71,37 @@ fonksiyonlarıdır (Next.js route handler değil).
 
 Hiçbir modül "planned"/"yakında" durumunda değil — hepsi aktif ve gerçek
 sayfalara bağlı.
+
+## AI servisleri canlıya alındı (2026-08-02)
+
+Kullanıcı (Codex üzerinden) Vercel production ortamına şunları ekledi ve
+yeni bir production deploy tetikledi:
+
+- `OPENROUTER_API_KEY` (gerçek anahtar; repoya hiçbir zaman yazılmadı)
+- `NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED=true`
+- `NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED=true`
+
+Model adı için kodda hiçbir değişiklik gerekmedi: varsayılan `"openrouter/free"`
+gerçek ve doğru bir OpenRouter model kimliği (OpenRouter'ın resmi "Free Models
+Router"ı — metin + görsel destekliyor, maliyeti $0/$0), ilk bakışta şüpheli
+göründü ama openrouter.ai `/api/v1/models` uç noktasından doğrulandı.
+
+Doğrulama (kullanıcı tarafında ve benim tarafımda, ayrı ayrı, quota harcamadan):
+
+- `npm run deploy:check` → geçti.
+- `npm run ai:photo-prod-check` → geçti, production'da fotoğraf AI flag'i açık
+  (quota harcamaz, yalnızca geçersiz input gönderip 400 dönüşünü kontrol eder).
+- `AI_STAGING_BASE_URL=https://eksperiq.vercel.app npm run ai:staging-check`
+  → geçti, AI karar destek notu endpoint'i de production'da aktif (bu da
+  quota harcamaz).
+- `npm run ai:live-check` (kullanıcı tarafında, gerçek bir AI notu üreterek)
+  → geçti; bu komut günlük OpenRouter limitinden düştüğü için ben tekrar
+  çalıştırmadım.
+
+Artık `/sonuc` sayfasındaki "AI notu oluştur" butonu ve `/fotograf-hasar`
+sayfasındaki AI destekli fotoğraf kontrolü gerçek kullanıcılar için canlı ve
+çalışır durumda. Günlük limitler `OPENROUTER_DAILY_REQUEST_LIMIT` (varsayılan
+20) ve `OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT` (varsayılan 10) ile korunuyor.
 
 ## Veri saklama ilkeleri
 
