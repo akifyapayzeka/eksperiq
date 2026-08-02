@@ -203,6 +203,20 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     `src/app/profil/page.tsx` artık `activeModules().length`'i
     `src/lib/modules/registry.ts`'den okuyup "N modül" olarak gösteriyor,
     böylece yeni modül eklendikçe bir daha manuel güncelleme gerekmeyecek.
+12. Uygulama içi **Gizlilik** sayfası (`/gizlilik`) hâlâ "üyelik, reklam
+    takibi, analytics kodu, çerez bannerı gerektirecek üçüncü taraf servis
+    veya **fotoğraf yükleme özelliği bulunmaz**" diyordu — oysa Fotoğraftan
+    Hasar Analizi modülü fotoğrafları üçüncü taraf bir AI görsel servisine
+    (OpenRouter) gönderiyor ve bu özellik uzun süredir aktif. Ayrıca Bakım ve
+    Ödeme Takvimi'nin push bildirimi için sunucuda tutulan hatırlatma
+    kopyasından hiç bahsetmiyordu. Bu, `docs/app-store-privacy-answers.md`'de
+    zaten doğru belgelenen gerçek veri akışıyla kullanıcıya gösterilen metnin
+    çelişmesi anlamına geliyordu — gizlilik sayfası için önemli bir doğruluk
+    sorunu. Düzeltme: `src/app/gizlilik/page.tsx` artık fotoğraf analizi için
+    OpenRouter'a geçici işleme, kamera/galeri izninin yalnızca o an istendiği
+    ve push bildirimi açıldığında sunucuda tutulan hatırlatma kopyası
+    hakkında `docs/app-store-privacy-answers.md` ile tutarlı, doğru bilgi
+    veriyor.
 
 ## Bu oturumda eklenen yeni özellikler (kullanıcı isteğiyle)
 
