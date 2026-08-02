@@ -291,6 +291,11 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     kayıt sessizce güncellenirdi. Düzeltme: `selectVehicle`, `addVehicle` ve
     `removeVehicle` artık araç değişince `resetForm()` çağırıp düzenleme
     durumunu iptal ediyor. Regresyon testi eklendi.
+16. `src/lib/modules/registry.ts`'deki Bakım ve Ödeme Takvimi, Gider Defteri
+    ve Araç Sağlık Karnesi modül tanımları çoklu araç desteğinden hiç
+    bahsetmiyordu — `/moduller` sayfasına bakan bir kullanıcı bu özelliğin
+    var olduğunu fark edemezdi. Her üçüne de "Çoklu araç" capability'si
+    eklendi.
 
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 
