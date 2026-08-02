@@ -21,7 +21,7 @@ export function VehicleSwitcher({
   onRename,
   onDelete,
 }: VehicleSwitcherProps) {
-  const [mode, setMode] = useState<"idle" | "adding" | "renaming">("idle");
+  const [mode, setMode] = useState<"idle" | "adding" | "renaming" | "confirming-delete">("idle");
   const [draftLabel, setDraftLabel] = useState("");
 
   const selectedVehicle = vehicles.find((vehicle) => vehicle.id === selectedVehicleId);
@@ -46,6 +46,11 @@ export function VehicleSwitcher({
     }
     if (mode === "adding") onAdd(label);
     else if (mode === "renaming" && selectedVehicle) onRename(selectedVehicle.id, label);
+    setMode("idle");
+  }
+
+  function confirmDelete() {
+    onDelete(selectedVehicleId);
     setMode("idle");
   }
 
@@ -91,13 +96,36 @@ export function VehicleSwitcher({
           {canDelete ? (
             <button
               type="button"
-              onClick={() => onDelete(selectedVehicleId)}
+              onClick={() => setMode("confirming-delete")}
               className="inline-flex min-h-11 items-center gap-1 rounded-lg border border-red-200 px-3 text-sm font-semibold text-red-700 hover:border-red-400"
             >
               <Trash2 aria-hidden="true" className="h-4 w-4" />
               Bu aracı ve kayıtlarını sil
             </button>
           ) : null}
+        </div>
+      ) : mode === "confirming-delete" ? (
+        <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3">
+          <p className="text-sm text-red-900">
+            {selectedVehicle?.label ?? "Bu araç"} silinecek; bu araca ait tüm hatırlatma, gider ve sağlık kaydı da
+            birlikte silinecek. Bu işlem geri alınamaz.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={confirmDelete}
+              className="inline-flex min-h-11 items-center rounded-lg bg-red-700 px-4 text-sm font-semibold text-white hover:bg-red-800"
+            >
+              Evet, sil
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("idle")}
+              className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 px-4 text-sm font-semibold text-slate-800"
+            >
+              Vazgeç
+            </button>
+          </div>
         </div>
       ) : (
         <div className="mt-3 flex flex-wrap items-center gap-2">

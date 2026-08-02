@@ -334,6 +334,19 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     görsel dil ve sakin, kesin hüküm içermeyen tonu kullanıyor. e2e testi
     (`tests/e2e/main-flow.spec.ts`, "shows a friendly not-found page for
     unknown routes") eklendi.
+21. **Ciddi bir bug**: `VehicleSwitcher`'daki "Bu aracı ve kayıtlarını sil"
+    butonu tek tıkla, hiçbir onay istemeden aracı ve ona bağlı TÜM
+    hatırlatma/gider/sağlık kayıtlarını kalıcı olarak siliyordu. Uygulamadaki
+    tek-kayıt silme butonları (`Sil`) için onay istenmemesi bilinçli bir
+    tercih (küçük, kolayca yeniden eklenebilir kayıtlar), ama bir araç
+    profilini silmek üç farklı modüldeki aylarca birikmiş veriyi tek seferde
+    yok ediyor — bu, aynı davranışı hak etmeyen çok daha büyük ve geri
+    alınamaz bir işlem. Ayrıca bu buton için hiç unit veya e2e testi de
+    yoktu. Düzeltme: `src/components/vehicles/vehicle-switcher.tsx`'e
+    inline bir onay adımı eklendi ("... bu işlem geri alınamaz" uyarısı +
+    "Evet, sil" / "Vazgeç"); `tests/unit/vehicle-switcher.test.tsx` eklendi
+    (ilk tıklamada silinmediğini, yalnızca onaydan sonra silindiğini ve
+    vazgeçilince hiç silinmediğini doğrulayan 3 test).
 
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 
