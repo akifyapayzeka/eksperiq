@@ -196,6 +196,13 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     eklendi, sayfa artık işaretleri oturum boyunca koruyor
     (`src/app/satis-hazirligi/page.tsx`). Test:
     `tests/unit/sale-checklist-storage.test.ts`.
+11. `/profil` sayfasındaki "Kullanım özeti" kartı "Aktif modül: İlan Analizi"
+    diye sabit kodlanmıştı — uygulamada artık 13 aktif modül varken sanki tek
+    modül varmış gibi yanlış/eksik bilgi veriyordu (README'nin daha önce
+    düzeltilen aynı tür bayatlamış-içerik sorunu). Düzeltme:
+    `src/app/profil/page.tsx` artık `activeModules().length`'i
+    `src/lib/modules/registry.ts`'den okuyup "N modül" olarak gösteriyor,
+    böylece yeni modül eklendikçe bir daha manuel güncelleme gerekmeyecek.
 
 ## Bu oturumda eklenen yeni özellikler (kullanıcı isteğiyle)
 

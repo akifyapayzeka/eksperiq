@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { CarFront, MessageSquareText, ShieldCheck, UserRound } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
-
-const profileItems = [
-  { label: "Üyelik", value: "Hesapsız kullanım" },
-  { label: "Veri saklama", value: "Tarayıcı oturumu" },
-  { label: "Aktif modül", value: "İlan Analizi" },
-];
+import { activeModules } from "@/lib/modules/registry";
 
 export default function ProfilePage() {
+  const activeModuleCount = activeModules().length;
+  const profileItems = [
+    { label: "Üyelik", value: "Hesapsız kullanım" },
+    { label: "Veri saklama", value: "Tarayıcı oturumu" },
+    { label: "Aktif modül", value: `${activeModuleCount} modül` },
+  ];
+
   return (
     <main className="flex-1 bg-slate-50">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
