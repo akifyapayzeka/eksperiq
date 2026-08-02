@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Camera, CheckCircle2, ImagePlus, ShieldAlert } from "lucide-react";
+import { Camera, ImagePlus } from "lucide-react";
 
 const areas = [
   "Ön tampon",
@@ -54,12 +54,11 @@ export default function PhotoDamagePage() {
   const [items, setItems] = useState<DamageFinding[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [fileCount, setFileCount] = useState(0);
-  const [isVehiclePhoto, setIsVehiclePhoto] = useState<"" | "yes" | "no">("");
   const [formMessage, setFormMessage] = useState("");
   const [aiStatus, setAiStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [aiMessage, setAiMessage] = useState("");
   const [aiAnalysis, setAiAnalysis] = useState<AiPhotoAnalysis | null>(null);
-  const canRunAi = isPhotoAiEnabled && Boolean(files.length) && isVehiclePhoto !== "no" && aiStatus !== "loading";
+  const canRunAi = isPhotoAiEnabled && Boolean(files.length) && aiStatus !== "loading";
 
   const priority = useMemo(() => {
     if (items.some((item) => item.confidence === "Yüksek olasılık")) return "Ekspertizde öncelikli kontrol edilmeli";
@@ -69,22 +68,17 @@ export default function PhotoDamagePage() {
 
   function addFinding() {
     if (!fileCount) {
-      setFormMessage("Önce araç fotoğrafı seçin. Araç dışı görseller için hasar raporu oluşturmayın.");
-      return;
-    }
-
-    if (isVehiclePhoto !== "yes") {
-      setFormMessage("Bu ekran yalnızca araç fotoğrafları içindir. Fotoğrafta araç görünmüyorsa bulgu eklenmez.");
+      setFormMessage("Önce fotoğraf seçin.");
       return;
     }
 
     if (!area || !finding || !confidence) {
-      setFormMessage("Bölge, bulgu ve güven seviyesi seçmeden rapora madde eklenmez.");
+      setFormMessage("Bölge, bulgu ve güven seviyesi seçin.");
       return;
     }
 
     setItems((current) => [...current, { area, finding, confidence, note: note.trim() }]);
-    setFormMessage("Bulgu eklendi. Bu madde kesin hasar kararı değil, ekspertizde kontrol notudur.");
+    setFormMessage("Bulgu eklendi.");
     setArea("");
     setFinding("");
     setConfidence("");
@@ -104,13 +98,7 @@ export default function PhotoDamagePage() {
   async function analyzePhotosWithAi() {
     if (!files.length) {
       setAiStatus("error");
-      setAiMessage("Önce araç fotoğrafı seçin. Araç görünmüyorsa bu ekranda hasar bulgusu oluşturmayın.");
-      return;
-    }
-
-    if (isVehiclePhoto === "no") {
-      setAiStatus("error");
-      setAiMessage("Araç görünmediğini belirttiğiniz fotoğraf için AI hasar analizi çalıştırılmaz.");
+      setAiMessage("Önce fotoğraf seçin.");
       return;
     }
 
@@ -197,17 +185,12 @@ export default function PhotoDamagePage() {
           <Camera aria-hidden="true" className="h-9 w-9 text-teal-200" />
           <p className="mt-5 text-sm font-semibold text-teal-200">Fotoğraftan Hasar Analizi</p>
           <h1 className="mt-2 text-3xl font-semibold">Fotoğrafları inceleme notuna çevir</h1>
-          <p className="mt-3 text-sm leading-6 text-slate-300">
-            Fotoğrafta araç görünüyorsa AI destekli ön kontrol isteyebilir veya gördüğünüz olası bulguları manuel seçip
-            ekspertize götürülecek kısa bir kontrol listesi oluşturabilirsiniz.
-          </p>
         </section>
 
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <label className="grid min-h-24 cursor-pointer place-items-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center">
             <ImagePlus aria-hidden="true" className="h-8 w-8 text-teal-700" />
             <span className="mt-2 text-sm font-semibold text-slate-950">Fotoğraf seç</span>
-            <span className="mt-1 text-xs text-slate-600">Dosyalar yalnızca bu cihazda önizleme amacıyla seçilir.</span>
             <input
               type="file"
               accept="image/*"
@@ -217,7 +200,6 @@ export default function PhotoDamagePage() {
                 const selectedFiles = Array.from(event.currentTarget.files ?? []).slice(0, 4);
                 setFiles(selectedFiles);
                 setFileCount(selectedFiles.length);
-                setIsVehiclePhoto("");
                 setFormMessage("");
                 setItems([]);
                 setAiStatus("idle");
@@ -227,12 +209,7 @@ export default function PhotoDamagePage() {
             />
           </label>
           {fileCount ? (
-            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
-              <p className="text-sm font-semibold text-amber-950">{fileCount} fotoğraf seçildi.</p>
-              <p className="mt-1 text-sm leading-6 text-amber-900">
-                Devam etmeden önce fotoğrafta araç göründüğünü doğrulayın. Araç dışı görseller analiz notuna çevrilmez.
-              </p>
-            </div>
+            <p className="mt-3 text-sm font-semibold text-slate-950">{fileCount} fotoğraf seçildi.</p>
           ) : null}
         </section>
 
@@ -241,10 +218,6 @@ export default function PhotoDamagePage() {
             <Camera aria-hidden="true" className="h-5 w-5 text-teal-700" />
             <h2 className="text-xl font-semibold text-slate-950">AI fotoğraf kontrolü</h2>
           </div>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Seçtiğiniz araç fotoğrafı görüntü anlayan AI modeline gönderilir. Araç görünmüyorsa AI hasar bulgusu
-            üretmemelidir.
-          </p>
           {!isPhotoAiEnabled ? (
             <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-950">
               Canlı AI fotoğraf kontrolü şu anda kapalı. Bu ekranda manuel kontrol notu oluşturabilirsiniz.
@@ -258,12 +231,6 @@ export default function PhotoDamagePage() {
           >
             {aiStatus === "loading" ? "AI inceliyor" : "AI ile fotoğrafı analiz et"}
           </button>
-          {files.length && isVehiclePhoto === "no" ? (
-            <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-950">
-              Araç görünmüyor seçildiği için AI hasar analizi kapatıldı. Araç fotoğrafı seçip “araç görünüyor”
-              seçeneğini işaretleyerek tekrar deneyebilirsiniz.
-            </p>
-          ) : null}
           {aiMessage ? (
             <p
               className={`mt-3 rounded-xl px-3 py-2 text-sm font-medium ${
@@ -295,43 +262,12 @@ export default function PhotoDamagePage() {
                   AI bu fotoğraf için hasar bulgusu üretmedi.
                 </p>
               )}
-              <p className="text-xs leading-5 text-slate-500">{aiAnalysis.disclaimer}</p>
             </div>
           ) : null}
         </section>
 
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-xl font-semibold text-slate-950">Olası bulgu ekle</h2>
-          <fieldset className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <legend className="px-1 text-sm font-semibold text-slate-950">Fotoğraf doğrulaması</legend>
-            <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm font-medium text-slate-800">
-              <input
-                type="radio"
-                name="vehicle-photo"
-                checked={isVehiclePhoto === "yes"}
-                onChange={() => {
-                  setIsVehiclePhoto("yes");
-                  setFormMessage("");
-                }}
-                className="h-5 w-5 accent-teal-700"
-              />
-              Fotoğrafta araç veya araç parçası görünüyor
-            </label>
-            <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm font-medium text-slate-800">
-              <input
-                type="radio"
-                name="vehicle-photo"
-                checked={isVehiclePhoto === "no"}
-                onChange={() => {
-                  setIsVehiclePhoto("no");
-                  setItems([]);
-                  setFormMessage("Araç görünmeyen fotoğraflar için hasar bulgusu oluşturulmaz.");
-                }}
-                className="h-5 w-5 accent-red-600"
-              />
-              Araç görünmüyor veya emin değilim
-            </label>
-          </fieldset>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <label className="grid gap-2 text-sm font-medium text-slate-800">
               Bölge
@@ -385,7 +321,7 @@ export default function PhotoDamagePage() {
           <button
             type="button"
             onClick={addFinding}
-            disabled={!fileCount || isVehiclePhoto !== "yes"}
+            disabled={!fileCount}
             className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-slate-950 px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             Bulguyu ekle
@@ -403,10 +339,7 @@ export default function PhotoDamagePage() {
         </section>
 
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center gap-2">
-            <ShieldAlert aria-hidden="true" className="h-5 w-5 text-teal-700" />
-            <h2 className="text-xl font-semibold text-slate-950">Foto kontrol özeti</h2>
-          </div>
+          <h2 className="text-xl font-semibold text-slate-950">Foto kontrol özeti</h2>
           <p className="mt-2 text-sm font-medium text-slate-700">{priority}</p>
           <div className="mt-4 grid gap-3">
             {items.length ? (
@@ -424,15 +357,11 @@ export default function PhotoDamagePage() {
               ))
             ) : (
               <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                Henüz bulgu eklenmedi. Kesin hasar iddiası üretmeyin; görünen işaretleri ekspertizde doğrulatın.
+                Henüz bulgu eklenmedi.
               </p>
             )}
           </div>
-          <p className="mt-4 flex gap-2 text-sm leading-6 text-slate-600">
-            <CheckCircle2 aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-teal-700" />
-            EksperIQ fotoğrafa bakarak kesin hasar kararı vermez; yalnızca kontrol edilmesi gereken olası noktaları
-            düzenler.
-          </p>
+          <p className="mt-4 text-sm leading-6 text-slate-500">Bu ekran kesin hasar kararı vermez.</p>
         </section>
       </div>
     </main>

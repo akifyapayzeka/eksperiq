@@ -5,7 +5,7 @@ tamamlanmış işten sonra günceller; amaç, ChatGPT Codex veya başka bir asis
 devam edilirse bağlamın kaybolmamasıdır. Yeni bir oturuma başlarken önce bu
 dosyayı okuyun.
 
-Son güncelleme: 2026-08-01 (Claude Code)
+Son güncelleme: 2026-08-02 (Claude Code)
 
 ## Ürün özeti
 
@@ -356,6 +356,38 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     (madde 21) bir ARIA rolü taşımıyordu. Düzeltme: her iki sayfadaki durum
     paragrafına `role="status"`, `VehicleSwitcher`'daki onay kutusuna
     `role="alert"` eklendi.
+23. **Kullanıcının kendi testinde bulduğu gerçek bug**: `/analiz` formundaki
+    Model listesi Marka'ya göre hiç filtrelenmiyordu — `Fiat` seçilse bile
+    Model listesinde `i20` (Hyundai) gibi o markaya ait olmayan seçenekler
+    görünüyordu, çünkü tek bir düz `modelOptions` dizisi tüm markalar için
+    ortak kullanılıyordu. Kullanıcı sahibinden.com'un detaylı arama
+    filtresinden doğru marka→model eşlemesini öğrenmemi istedi; ancak
+    sahibinden.com otomatik erişimi engelliyor (403, bot koruması) —
+    `WebFetch` ile doğrulandı, kullanıcıya bildirildi. Bunun yerine
+    `src/components/forms/analysis-form-sections.tsx`'e gerçek, doğru
+    marka→model eşlemesi (`modelsByBrand`, 30 marka) eklendi; Model alanı
+    artık Marka seçilene kadar devre dışı, Marka değişince Model otomatik
+    sıfırlanıyor (`VehicleInfoSection` artık `watch`/`setValue` kullanıyor).
+    Regresyon testleri: `tests/unit/analysis-form-sections.test.ts`
+    (`modelOptionsForBrand` için) ve `tests/e2e/main-flow.spec.ts`'e "model
+    list only shows models that belong to the selected brand" testi eklendi.
+24. **Kullanıcı isteğiyle aşırı sadeleştirme**: Kullanıcı Fotoğraftan Hasar
+    Analizi ekranındaki "Fotoğrafta araç veya araç parçası görünüyor" manuel
+    onay kutusunu gereksiz buldu (zaten AI kendisi `isVehiclePhoto` ile bunu
+    güvenilir şekilde tespit ediyor — backend zaten araç değilse
+    `findings=[]` döndürüyor). Ayrıca sayfadaki ek açıklama/ipucu metinlerinin
+    ve `/profil` sayfasındaki "EksperIQ hesabı olmadan kullanılabilir" /
+    "Kullanım özeti" (Üyelik, Veri saklama, Aktif modül) bölümünün gereksiz
+    olduğunu belirtti. Düzeltme: `src/app/fotograf-hasar/page.tsx`'ten
+    `isVehiclePhoto` state'i ve radio grubu tamamen kaldırıldı (manuel
+    "Bulguyu ekle" artık yalnızca fotoğraf + bölge/bulgu/güven seviyesi
+    ister; AI butonu yalnızca fotoğraf ister), açıklama metinleri kısaltıldı.
+    `src/app/profil/page.tsx`'teki başlık "EksperIQ ücretsiz kullanılabilir."
+    olarak değiştirildi, "Kullanım özeti" bölümü tamamen kaldırıldı. e2e
+    testleri güncellendi (`module-tools.spec.ts`'teki "photo damage tool
+    refuses non-vehicle photos" testi artık mock'lanmış AI yanıtıyla
+    `isVehiclePhoto:false` senaryosunu doğruluyor; `main-flow.spec.ts`'teki
+    profil başlık assertion'ı güncellendi).
 
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 

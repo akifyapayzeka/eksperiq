@@ -55,28 +55,99 @@ const brandOptions = [
   "Volvo",
   "Diğer / listede yok",
 ];
-const modelOptions = [
-  "A3",
-  "Astra",
-  "Civic",
-  "Clio",
-  "Corolla",
-  "Egea",
-  "Fiesta",
-  "Focus",
-  "Golf",
-  "i20",
-  "Megane",
-  "Octavia",
-  "Passat",
-  "Polo",
-  "Qashqai",
-  "Sandero",
-  "Symbol",
-  "Taliant",
-  "Tiguan",
-  "Diğer / listede yok",
-];
+const otherModelOption = "Diğer / listede yok";
+const modelsByBrand: Record<string, string[]> = {
+  Audi: ["A1", "A3", "A4", "A5", "A6", "A7", "A8", "Q2", "Q3", "Q5", "Q7", "Q8", "TT"],
+  BMW: [
+    "1 Serisi",
+    "2 Serisi",
+    "3 Serisi",
+    "4 Serisi",
+    "5 Serisi",
+    "6 Serisi",
+    "7 Serisi",
+    "X1",
+    "X2",
+    "X3",
+    "X4",
+    "X5",
+    "X6",
+  ],
+  BYD: ["Atto 3", "Dolphin", "Han", "Seal", "Song Plus", "Tang"],
+  Chery: ["Tiggo 2", "Tiggo 4", "Tiggo 7", "Tiggo 8", "Tiggo 9"],
+  Chevrolet: ["Aveo", "Captiva", "Cruze", "Epica", "Lacetti", "Malibu", "Spark", "Trax"],
+  Citroen: ["Berlingo", "C-Elysée", "C3", "C4", "C4 Cactus", "C5", "C5 Aircross", "Jumpy"],
+  Cupra: ["Ateca", "Born", "Formentor", "Leon"],
+  Dacia: ["Dokker", "Duster", "Jogger", "Lodgy", "Logan", "Sandero", "Sandero Stepway", "Spring"],
+  Fiat: ["500", "Doblo", "Egea", "Egea Cross", "Fiorino", "Linea", "Panda", "Punto", "Tipo"],
+  Ford: [
+    "B-Max",
+    "C-Max",
+    "Courier",
+    "EcoSport",
+    "Fiesta",
+    "Focus",
+    "Kuga",
+    "Mondeo",
+    "Puma",
+    "Ranger",
+    "Tourneo Connect",
+    "Tourneo Courier",
+  ],
+  Honda: ["City", "Civic", "CR-V", "HR-V", "Jazz"],
+  Hyundai: ["Accent Blue", "Bayon", "Elantra", "i10", "i20", "i30", "Kona", "Santa Fe", "Tucson"],
+  Jeep: ["Cherokee", "Compass", "Grand Cherokee", "Renegade", "Wrangler"],
+  Kia: ["Ceed", "Cerato", "Picanto", "Rio", "Sorento", "Soul", "Sportage", "Stonic"],
+  Lexus: ["CT", "ES", "IS", "NX", "RX", "UX"],
+  Mazda: ["2", "3", "6", "CX-3", "CX-30", "CX-5"],
+  "Mercedes-Benz": [
+    "A Serisi",
+    "B Serisi",
+    "C Serisi",
+    "CLA",
+    "CLS",
+    "E Serisi",
+    "GLA",
+    "GLB",
+    "GLC",
+    "GLE",
+    "S Serisi",
+    "Vito",
+  ],
+  MG: ["HS", "MG3", "MG5", "ZS"],
+  Mini: ["Clubman", "Cooper", "Countryman"],
+  Nissan: ["Juke", "Micra", "Navara", "Note", "Qashqai", "X-Trail"],
+  Opel: ["Astra", "Combo", "Corsa", "Grandland", "Insignia", "Mokka", "Vectra", "Zafira"],
+  Peugeot: ["2008", "208", "3008", "301", "306", "307", "308", "407", "508"],
+  Renault: ["Broadway", "Captur", "Clio", "Fluence", "Kadjar", "Megane", "Symbol", "Taliant", "Talisman"],
+  Seat: ["Arona", "Ateca", "Ibiza", "Leon", "Toledo"],
+  Skoda: ["Fabia", "Kamiq", "Karoq", "Kodiaq", "Octavia", "Rapid", "Superb"],
+  Suzuki: ["Baleno", "Ignis", "S-Cross", "Swift", "Vitara"],
+  Tesla: ["Model 3", "Model S", "Model X", "Model Y"],
+  Toyota: ["Auris", "C-HR", "Corolla", "Corolla Cross", "Hilux", "RAV4", "Yaris", "Yaris Cross"],
+  Volkswagen: [
+    "Bora",
+    "Caddy",
+    "Golf",
+    "Jetta",
+    "Passat",
+    "Polo",
+    "T-Cross",
+    "T-Roc",
+    "Tiguan",
+    "Touran",
+    "Transporter",
+  ],
+  Volvo: ["S60", "S90", "V40", "V60", "XC40", "XC60", "XC90"],
+};
+
+export function modelOptionsForBrand(brand: string | undefined): string[] {
+  if (!brand) return [];
+  const models = modelsByBrand[brand];
+  return models ? [...models, otherModelOption] : [otherModelOption];
+}
+
+export { brandOptions };
 const trimOptions = [
   "Baz paket",
   "Orta paket",
@@ -324,7 +395,10 @@ function DamagePartPicker({
   );
 }
 
-export function VehicleInfoSection({ register, errors }: SectionProps) {
+export function VehicleInfoSection({ register, errors, setValue, watch }: SectionProps) {
+  const selectedBrand = watch?.("brand");
+  const brandField = register("brand");
+
   return (
     <SectionCard id="vehicle-info" title="Araç bilgileri" description="Temel araç bilgilerini seçin veya yazın.">
       <div className="grid gap-4 md:grid-cols-2">
@@ -332,13 +406,18 @@ export function VehicleInfoSection({ register, errors }: SectionProps) {
           id="brand"
           label="Marka"
           options={brandOptions}
-          {...register("brand")}
+          {...brandField}
+          onChange={(event) => {
+            brandField.onChange(event);
+            setValue?.("model", "", { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+          }}
           error={errors.brand?.message}
         />
         <SelectField
           id="model"
           label="Model"
-          options={modelOptions}
+          options={modelOptionsForBrand(selectedBrand)}
+          disabled={!selectedBrand}
           {...register("model")}
           error={errors.model?.message}
         />

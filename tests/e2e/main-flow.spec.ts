@@ -71,7 +71,7 @@ test("mobile bottom navigation opens app actions", async ({ page, isMobile }) =>
 
   await page.getByRole("navigation", { name: "Mobil alt menü" }).getByRole("link", { name: "Profil" }).click();
   await expect(page).toHaveURL(/\/profil$/);
-  await expect(page.getByRole("heading", { name: "EksperIQ hesabı olmadan kullanılabilir." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "EksperIQ ücretsiz kullanılabilir." })).toBeVisible();
 });
 
 test("shows validation errors", async ({ page }) => {
@@ -95,6 +95,23 @@ test("starts analysis with manual vehicle choices", async ({ page }) => {
     "aria-valuenow",
     "9",
   );
+});
+
+test("model list only shows models that belong to the selected brand", async ({ page }) => {
+  await page.goto("/analiz");
+
+  await expect(page.locator("#model")).toBeDisabled();
+
+  await page.getByLabel("Marka").selectOption("Fiat");
+  await expect(page.locator("#model")).toBeEnabled();
+  await expect(page.locator("#model option", { hasText: /^Egea$/ })).toHaveCount(1);
+  await expect(page.locator("#model option", { hasText: /^i20$/ })).toHaveCount(0);
+
+  await page.locator("#model").selectOption("Egea");
+  await page.getByLabel("Marka").selectOption("Hyundai");
+  await expect(page.locator("#model")).toHaveValue("");
+  await expect(page.locator("#model option", { hasText: /^i20$/ })).toHaveCount(1);
+  await expect(page.locator("#model option", { hasText: /^Egea$/ })).toHaveCount(0);
 });
 
 test("uses select controls for fixed-choice vehicle details", async ({ page }) => {

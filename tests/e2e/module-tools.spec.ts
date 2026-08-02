@@ -49,7 +49,6 @@ test("module cards open usable assistant tools", async ({ page }) => {
     mimeType: "image/jpeg",
     buffer: Buffer.from("fake-image"),
   });
-  await page.getByLabel("Fotoğrafta araç veya araç parçası görünüyor").check();
   await page.getByLabel("Bölge").selectOption("Ön tampon");
   await page.getByLabel("Bulgu").selectOption("Çizik");
   await page.getByLabel("Güven seviyesi").selectOption("Orta olasılık");
@@ -319,17 +318,32 @@ test("expense ledger tracks totals and computes an approximate cost per km", asy
   await expect(page.getByText("Toplam gider").locator("..").getByText("1.500 TL")).toBeVisible();
 });
 
-test("photo damage tool refuses non-vehicle photos", async ({ page }) => {
+test("photo damage tool refuses non-vehicle photos via the AI's own check", async ({ page }) => {
+  await page.route("**/api/ai/photo-damage", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        analysis: {
+          isVehiclePhoto: false,
+          summary: "Fotoğrafta araç veya araç parçası tespit edilemedi.",
+          findings: [],
+          disclaimer: "Bu AI fotoğraf kontrolü kesin hasar tespiti değildir.",
+        },
+        remaining: 9,
+      }),
+    });
+  });
+
   await page.goto("/fotograf-hasar");
   await page.locator('input[type="file"]').setInputFiles({
     name: "yumurta.jpg",
     mimeType: "image/jpeg",
     buffer: Buffer.from("fake-egg-image"),
   });
-  await page.getByLabel("Araç görünmüyor veya emin değilim").check();
-  await expect(page.getByText("Araç görünmeyen fotoğraflar için hasar bulgusu oluşturulmaz.")).toBeVisible();
-  await expect(page.getByText("Araç görünmüyor seçildiği için AI hasar analizi kapatıldı.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "AI ile fotoğrafı analiz et" })).toBeDisabled();
-  await expect(page.getByRole("button", { name: "Bulguyu ekle" })).toBeDisabled();
+  await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
+  await expect(
+    page.getByText("AI bu görselde araç veya araç parçası güvenle tespit edemedi. Hasar bulgusu oluşturulmadı."),
+  ).toBeVisible();
   await expect(page.getByText("Ön tampon: Çizik")).toHaveCount(0);
 });
