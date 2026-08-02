@@ -102,12 +102,14 @@ export default function MaintenancePaymentCalendarPage() {
 
   function selectVehicle(id: string) {
     setSelectedVehicleId(id);
+    resetForm();
   }
 
   function addVehicle(label: string) {
     const vehicle: VehicleProfile = { id: createVehicleId(), label, createdAt: new Date().toISOString() };
     setVehicles(upsertVehicle(vehicle));
     setSelectedVehicleId(vehicle.id);
+    resetForm();
   }
 
   function renameVehicle(id: string, label: string) {
@@ -129,6 +131,7 @@ export default function MaintenancePaymentCalendarPage() {
     }
     persist(remainingReminders);
     setSelectedVehicleId(result.vehicles[0]?.id ?? "");
+    resetForm();
   }
 
   function resetForm() {

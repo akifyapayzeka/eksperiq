@@ -225,6 +225,24 @@ test("maintenance calendar keeps a separate reminder list per vehicle", async ({
   await expect(page.getByText("MTV 1. taksit")).toBeVisible();
 });
 
+test("maintenance calendar cancels an in-progress edit when the vehicle changes", async ({ page }) => {
+  await page.goto("/bakim-odeme-takvimi");
+
+  await page.getByLabel("Tür").selectOption("muayene");
+  await page.getByLabel("Başlık").fill("Aracım muayenesi");
+  await page.getByLabel("Son tarih").fill("2026-12-01");
+  await page.getByRole("button", { name: "Kaydı ekle", exact: true }).click();
+  await page.getByText("Düzenle", { exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Kaydı düzenle" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Araç ekle" }).click();
+  await page.getByLabel("Araç adı").fill("İkinci Arabam");
+  await page.getByRole("button", { name: "Ekle", exact: true }).click();
+
+  await expect(page.getByRole("heading", { name: "Kayıt ekle" })).toBeVisible();
+  await expect(page.getByLabel("Başlık")).toHaveValue("MTV taksiti");
+});
+
 test("test drive checklist tracks progress and persists within the session", async ({ page }) => {
   await page.goto("/test-surusu-kontrol");
   await expect(page.getByRole("heading", { name: "Tamamlanan: 0 / 18" })).toBeVisible();

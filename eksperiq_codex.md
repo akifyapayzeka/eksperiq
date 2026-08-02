@@ -283,6 +283,14 @@ sayfa linki verilmez (linkler zamanla değişebilir ve doğrulanamaz).
     gibi anlamsız bir çıktı geldi — bkz. yukarıdaki "AI servisleri canlıya
     alındı" bölümündeki ayrıntılı açıklama (`openrouter/free` router'ının
     rastgele seçtiği bir moderasyon modeli).
+15. Bakım ve Ödeme Takvimi'nde bir hatırlatmayı düzenlerken ("Düzenle")
+    kullanıcı araç değiştirirse (araç ekleme/seçme), düzenleme formu eski
+    aracın kaydına bağlı kalmaya devam ediyordu — form hâlâ eski kaydın
+    bilgilerini gösteriyor, altındaki takvim listesi ise farklı (yeni) aracın
+    kayıtlarını gösteriyordu. "Kaydı güncelle"ye basılsa, görünmeyen bir
+    kayıt sessizce güncellenirdi. Düzeltme: `selectVehicle`, `addVehicle` ve
+    `removeVehicle` artık araç değişince `resetForm()` çağırıp düzenleme
+    durumunu iptal ediyor. Regresyon testi eklendi.
 
 ### Kapsamlı manuel + otomatik test turu (kullanıcı isteğiyle)
 
