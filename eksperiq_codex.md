@@ -272,3 +272,6 @@ override) kullanılıp iş bitince silindi — repoya commit edilmedi.
   uygulaması sade ve anlaşılır olacak kullanıcıyı yormayacak").
 - Her yeni özellik: unit test + (mümkünse) e2e test + yukarıdaki tam
   doğrulama komutları + commit + push ile tamamlanmalı.
+- Kullanıcı İngilizce bilmiyor: bundan sonra tüm PR başlıkları, PR açıklamaları
+  ve commit mesajları Türkçe yazılmalı (kod/tanımlayıcılar İngilizce kalabilir,
+  yalnızca insan tarafından okunan metinler Türkçe olmalı).
