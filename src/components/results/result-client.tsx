@@ -116,10 +116,19 @@ function priorityToneClass(severity: string): string {
   return "border-emerald-200 bg-emerald-50 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200";
 }
 
-function scoreRingStyle(score: number) {
-  return {
-    background: `conic-gradient(#0f766e ${score * 3.6}deg, #e2e8f0 0deg)`,
-  };
+const SCORE_RING_RADIUS = 16;
+const SCORE_RING_CIRCUMFERENCE = 2 * Math.PI * SCORE_RING_RADIUS;
+
+function scoreRingOffset(score: number): number {
+  const clamped = Math.min(100, Math.max(0, score));
+  return SCORE_RING_CIRCUMFERENCE - (clamped / 100) * SCORE_RING_CIRCUMFERENCE;
+}
+
+function scoreRingColorClass(score: number): string {
+  if (score >= 80) return "stroke-emerald-600 dark:stroke-emerald-400";
+  if (score >= 60) return "stroke-amber-500 dark:stroke-amber-400";
+  if (score >= 40) return "stroke-orange-500 dark:stroke-orange-400";
+  return "stroke-red-600 dark:stroke-red-400";
 }
 
 function compactShareSummary(result: AnalysisResult): string {
@@ -168,6 +177,7 @@ export function ResultClient() {
   const [aiNoteStatus, setAiNoteStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [aiNoteMessage, setAiNoteMessage] = useState<string>("");
   const [aiNoteFeedback, setAiNoteFeedback] = useState<AiNoteFeedback | null>(null);
+  const [scoreRingFilled, setScoreRingFilled] = useState(false);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -181,6 +191,12 @@ export function ResultClient() {
 
     return () => window.cancelAnimationFrame(frame);
   }, []);
+
+  useEffect(() => {
+    if (!result) return;
+    const timer = window.setTimeout(() => setScoreRingFilled(true), 80);
+    return () => window.clearTimeout(timer);
+  }, [result]);
 
   async function copyText(
     text: string,
@@ -422,11 +438,36 @@ export function ResultClient() {
             <div className="mt-6 grid gap-4 lg:grid-cols-[220px_1fr] lg:items-stretch">
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div
-                  className="mx-auto grid h-32 w-32 place-items-center rounded-full"
-                  style={scoreRingStyle(result.totalScore)}
-                  aria-hidden="true"
+                  className="relative mx-auto h-32 w-32"
+                  role="img"
+                  aria-label={`Araç risk skoru ${result.totalScore} / 100, ${result.riskLabel}`}
                 >
-                  <div className="grid h-24 w-24 place-items-center rounded-full bg-white text-center">
+                  <svg viewBox="0 0 40 40" className="h-32 w-32 -rotate-90">
+                    <circle
+                      cx="20"
+                      cy="20"
+                      r={SCORE_RING_RADIUS}
+                      fill="none"
+                      strokeWidth="4"
+                      className="stroke-slate-100 dark:stroke-slate-800"
+                    />
+                    <circle
+                      cx="20"
+                      cy="20"
+                      r={SCORE_RING_RADIUS}
+                      fill="none"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                      className={`transition-[stroke-dashoffset] duration-700 ease-out ${scoreRingColorClass(
+                        result.totalScore,
+                      )}`}
+                      strokeDasharray={SCORE_RING_CIRCUMFERENCE}
+                      strokeDashoffset={
+                        scoreRingFilled ? scoreRingOffset(result.totalScore) : SCORE_RING_CIRCUMFERENCE
+                      }
+                    />
+                  </svg>
+                  <div className="absolute inset-0 grid place-items-center text-center">
                     <div>
                       <strong className="block text-3xl text-slate-950 dark:text-white">{result.totalScore}</strong>
                       <span className="text-sm font-medium text-slate-500 dark:text-slate-400">/100</span>
@@ -588,7 +629,7 @@ export function ResultClient() {
               </div>
               <Link
                 href="/geri-bildirim"
-                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-white px-4 font-semibold text-slate-950 ring-1 ring-slate-200 hover:ring-teal-700 dark:text-white"
+                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-white px-4 font-semibold text-slate-950 ring-1 ring-slate-200 hover:ring-teal-700 dark:bg-slate-900 dark:text-white dark:ring-slate-700"
               >
                 Geri bildirim gönder
                 <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
