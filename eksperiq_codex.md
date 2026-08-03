@@ -940,7 +940,7 @@ kategori hata bulunup düzeltildi:
 2. `vehicle-switcher.tsx`'te "Yeniden adlandır" butonu yanlışlıkla form-input
    kuralıyla eşleşip `dark:bg-slate-800 dark:text-white` almış.
 3. Checkbox accent input'larında mükerrer border rengi (`dark:border-slate-600`
-   + `dark:border-slate-700` birlikte).
+   - `dark:border-slate-700` birlikte).
 4. **Substring yanlış-pozitif**: `hover:bg-slate-100` class'ı, `bg-slate-100`
    alt string'ini içerdiği için genel (hover olmayan) kural da yanlışlıkla
    tetiklendi ve kalıcı bir koyu arkaplan eklendi — `kontrol-listesi.tsx`'te
@@ -948,12 +948,12 @@ kategori hata bulunup düzeltildi:
 5. `text-slate-900` tonu için hiç kural yoktu (yalnızca 950/800/700/600/500/400
    kapsanmıştı) — 5 dosyada eksik `dark:text-white` eklendi.
 6. **Template-literal className köşesi**: regex script yalnızca
-   `className="..."` literal string'lerini yakalıyor, `className={\`...\`}`
-   template-literal ifadelerini kaçırıyordu. `grep -rln 'className={\`'` ile
-   bulunup elle düzeltildi: `bakim-odeme-takvimi.tsx`/`arac-saglik-karnesi.tsx`
-   içindeki `urgencyStyles` nesneleri, `bakim-takibi.tsx` ve
-   `fotograf-hasar.tsx`'teki satır içi durum mesajları, `result-client.tsx`
-   içindeki `severityClass`/`riskToneClass`/`priorityToneClass` fonksiyonları
+   `className="..."` literal string'lerini yakalıyor, template-literal
+   (backtick) ifadelerini kaçırıyordu. `grep` ile bulunup elle düzeltildi:
+   `bakim-odeme-takvimi.tsx`/`arac-saglik-karnesi.tsx` içindeki
+   `urgencyStyles` nesneleri, `bakim-takibi.tsx` ve `fotograf-hasar.tsx`'teki
+   satır içi durum mesajları, `result-client.tsx` içindeki
+   `severityClass`/`riskToneClass`/`priorityToneClass` fonksiyonları
    ve 5 satır içi ternary (kopyalama durumu, AI not geri bildirimi, filtre
    sekmeleri).
 
@@ -965,6 +965,37 @@ hepsi geçti. `/`, `/analiz`, `/moduller`, `/bakim-odeme-takvimi`,
 `page.emulateMedia({colorScheme:'dark'})` ile görsel olarak da doğrulandı —
 sorun yok. Bu, dark mode görevinin (1. parça zaten ayrı PR olarak
 tamamlanmıştı) geri kalan tüm kapsamını tek PR'da kapatıyor.
+
+## 2026-08-03: /analiz formuna mobil-app görsel iyileştirmeleri
+
+Kullanıcı muz.li'deki mobil uygulama tasarım örneklerinden esinlenerek
+"Yeni Analiz" bölümünü daha görsel bir uygulama haline getirmemi istedi.
+WebFetch bu sayfadaki ekran görüntülerini de göremedi (yalnızca metin
+tabanlı genel ilkeler döndü — "sekme çubukları", "gezinme çekmeceleri" gibi
+jenerik ifadeler, somut bir görsel/renk/kart deseni yok); bu nedenle
+uydurma bir "esinlenme" yapmak yerine, gerçek ve yaygın kanıtlanmış mobil
+form UX kalıplarını uyguladım:
+
+1. **Dairesel ilerleme halkası**: "Form ilerlemesi" kartındaki zorunlu alan
+   yüzdesi artık düz bir çubuk yerine SVG tabanlı bir daire (ring) olarak
+   gösteriliyor — bankacılık/fitness uygulamalarında yaygın bir kalıp.
+   `role="progressbar"` ve `aria-*` özellikleri korunduğu için mevcut e2e
+   testi (`aria-valuenow` kontrolü) bozulmadı.
+2. **Yapışkan (sticky) + scrollspy adım navigasyonu**: "Analiz formu
+   bölümleri" çubuğu artık `sticky top-16` ile başlığın hemen altında
+   sabit kalıyor; `IntersectionObserver` ile kullanıcı hangi bölümde ise o
+   adım pill'i teal renkte vurgulanıyor (aktif adım göstergesi).
+3. **Mobilde yüzen (floating) gönder butonu**: "Analiz oluştur" butonu artık
+   mobilde (`<640px`) ekranın altında sabit bir çubukta her zaman erişilebilir
+   (`fixed` + `sm:static` — tek DOM elemanı, breakpoint'e göre pozisyon
+   değişiyor, böylece mevcut testlerdeki tekil buton adı eşleşmesi bozulmadı).
+   Masaüstünde davranış tamamen aynı kaldı.
+
+Doğrulama: `npm run lint`, `npm run typecheck`, `npm run test` (191/191),
+Playwright e2e hem `chromium` hem `mobile` projelerinde (64/64 geçti, 2
+atlandı), `npm run release:check` hepsi geçti. Mobil ve masaüstü, açık ve
+koyu modda görsel olarak da doğrulandı — halka doğru yüzdeyi gösteriyor,
+aktif adım pill'i doğru vurgulanıyor, yüzen buton alt menüyle çakışmıyor.
 
 ## Genel ilkeler (her yeni özellikte hatırlanmalı)
 
