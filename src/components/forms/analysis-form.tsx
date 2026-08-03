@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
@@ -71,12 +72,16 @@ function progressPercent(completed: number, total: number): number {
   return total > 0 ? Math.round((completed / total) * 100) : 0;
 }
 
+const RING_RADIUS = 16;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
 function FormProgress({ values }: { values: Partial<Record<ProgressField, unknown>> }) {
   const requiredCompleted = requiredProgressFields.filter((field) => isFilled(values[field.name])).length;
   const detailsCompleted = detailProgressFields.filter((field) => isFilled(values[field.name])).length;
   const requiredPercent = progressPercent(requiredCompleted, requiredProgressFields.length);
   const detailsPercent = progressPercent(detailsCompleted, detailProgressFields.length);
   const missingRequired = requiredProgressFields.filter((field) => !isFilled(values[field.name])).slice(0, 4);
+  const ringOffset = RING_CIRCUMFERENCE - (requiredPercent / 100) * RING_CIRCUMFERENCE;
 
   return (
     <section
@@ -99,21 +104,38 @@ function FormProgress({ values }: { values: Partial<Record<ProgressField, unknow
           {requiredCompleted} / {requiredProgressFields.length} zorunlu
         </strong>
       </div>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <div>
-          <div className="flex items-center justify-between gap-3 text-sm">
-            <span className="font-medium text-slate-800 dark:text-slate-300">Zorunlu alanlar</span>
-            <span className="text-slate-700 dark:text-slate-300">{requiredPercent}%</span>
-          </div>
-          <div
-            className="mt-2 h-2 rounded-full bg-slate-100 dark:bg-slate-800"
-            role="progressbar"
-            aria-label="Zorunlu alan ilerlemesi"
-            aria-valuemin={0}
-            aria-valuemax={requiredProgressFields.length}
-            aria-valuenow={requiredCompleted}
-          >
-            <div className="h-2 rounded-full bg-teal-700" style={{ width: `${requiredPercent}%` }} />
+      <div className="mt-4 grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center">
+        <div
+          className="relative mx-auto h-24 w-24 shrink-0 sm:mx-0"
+          role="progressbar"
+          aria-label="Zorunlu alan ilerlemesi"
+          aria-valuemin={0}
+          aria-valuemax={requiredProgressFields.length}
+          aria-valuenow={requiredCompleted}
+        >
+          <svg viewBox="0 0 40 40" className="h-24 w-24 -rotate-90">
+            <circle
+              cx="20"
+              cy="20"
+              r={RING_RADIUS}
+              fill="none"
+              strokeWidth="4"
+              className="stroke-slate-100 dark:stroke-slate-800"
+            />
+            <circle
+              cx="20"
+              cy="20"
+              r={RING_RADIUS}
+              fill="none"
+              strokeWidth="4"
+              strokeLinecap="round"
+              className="stroke-teal-600 transition-[stroke-dashoffset] duration-500 dark:stroke-teal-400"
+              strokeDasharray={RING_CIRCUMFERENCE}
+              strokeDashoffset={ringOffset}
+            />
+          </svg>
+          <div className="absolute inset-0 grid place-items-center">
+            <span className="text-lg font-bold text-slate-950 dark:text-white">{requiredPercent}%</span>
           </div>
         </div>
         <div>
@@ -129,7 +151,10 @@ function FormProgress({ values }: { values: Partial<Record<ProgressField, unknow
             aria-valuemax={detailProgressFields.length}
             aria-valuenow={detailsCompleted}
           >
-            <div className="h-2 rounded-full bg-amber-500" style={{ width: `${detailsPercent}%` }} />
+            <div
+              className="h-2 rounded-full bg-amber-500 transition-[width] duration-500"
+              style={{ width: `${detailsPercent}%` }}
+            />
           </div>
         </div>
       </div>
@@ -139,7 +164,7 @@ function FormProgress({ values }: { values: Partial<Record<ProgressField, unknow
           {requiredProgressFields.length - requiredCompleted > missingRequired.length ? "..." : ""}
         </p>
       ) : (
-        <p className="mt-4 text-sm font-medium text-teal-800">Zorunlu alanlar tamamlandı.</p>
+        <p className="mt-4 text-sm font-medium text-teal-800 dark:text-teal-300">Zorunlu alanlar tamamlandı.</p>
       )}
     </section>
   );
@@ -202,24 +227,60 @@ function FormStepOverview({ values }: { values: Partial<Record<ProgressField, un
 }
 
 function FormSectionLinks() {
+  const [activeHref, setActiveHref] = useState<string>(formSections[0].href);
+
+  useEffect(() => {
+    const elements = formSections
+      .map((section) => document.getElementById(section.href.slice(1)))
+      .filter((element): element is HTMLElement => element !== null);
+    if (!elements.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActiveHref(`#${visible[0].target.id}`);
+      },
+      { rootMargin: "-96px 0px -70% 0px", threshold: 0 },
+    );
+
+    elements.forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <nav
-      className="max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+      className="sticky top-16 z-10 max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95"
       aria-label="Analiz formu bölümleri"
     >
       <div className="flex gap-2 overflow-x-auto pb-1">
-        {formSections.map((section) => (
-          <a
-            key={section.href}
-            href={section.href}
-            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-200 px-3 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:px-4 dark:border-slate-800 dark:text-slate-300"
-          >
-            <span className="grid h-6 w-6 place-items-center rounded-full bg-slate-100 text-xs text-slate-700 dark:text-slate-300 dark:bg-slate-800">
-              {section.step}
-            </span>
-            {section.label}
-          </a>
-        ))}
+        {formSections.map((section) => {
+          const isActive = section.href === activeHref;
+          return (
+            <a
+              key={section.href}
+              href={section.href}
+              aria-current={isActive ? "step" : undefined}
+              className={`inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full transition active:scale-95 border px-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:px-4 ${
+                isActive
+                  ? "border-teal-700 bg-teal-700 text-white"
+                  : "border-slate-200 text-slate-800 hover:border-teal-700 hover:text-teal-800 dark:border-slate-800 dark:text-slate-300"
+              }`}
+            >
+              <span
+                className={`grid h-6 w-6 place-items-center rounded-full text-xs ${
+                  isActive
+                    ? "bg-white/20 text-white"
+                    : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                }`}
+              >
+                {section.step}
+              </span>
+              {section.label}
+            </a>
+          );
+        })}
       </div>
     </nav>
   );
@@ -306,15 +367,17 @@ export function AnalysisForm() {
       <MaintenanceInfoSection register={register} errors={errors} />
       <BooleanInfoSection register={register} errors={errors} />
       <SellerDescriptionSection register={register} errors={errors} />
-      <button
-        type="button"
-        onClick={() => void handleSubmit(onSubmit)()}
-        disabled={isSubmitting}
-        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-950 px-6 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-60 dark:bg-white dark:text-slate-950"
-      >
-        <ClipboardCheck aria-hidden="true" className="h-5 w-5" />
-        Analiz oluştur
-      </button>
+      <div className="fixed inset-x-0 bottom-24 z-30 border-t border-slate-200 bg-white/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_30px_rgba(15,23,42,0.08)] backdrop-blur sm:static sm:inset-auto sm:z-auto sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none dark:border-slate-800 dark:bg-slate-950/95 sm:dark:bg-transparent">
+        <button
+          type="button"
+          onClick={() => void handleSubmit(onSubmit)()}
+          disabled={isSubmitting}
+          className="mx-auto flex min-h-12 w-full max-w-md items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-950 px-6 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-60 sm:w-auto dark:bg-white dark:text-slate-950"
+        >
+          <ClipboardCheck aria-hidden="true" className="h-5 w-5" />
+          Analiz oluştur
+        </button>
+      </div>
     </form>
   );
 }
