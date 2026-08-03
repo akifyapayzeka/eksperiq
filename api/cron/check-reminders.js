@@ -31,6 +31,18 @@ function isVapidConfigured() {
   );
 }
 
+function nextThresholdToNotify(reminder, days, notified) {
+  const alreadyNotified = notified[reminder.id];
+  // Recurring reminders keep the same id across cycles but get a new dueDate
+  // each time advanceIfPast() rolls them forward — thresholds from a past
+  // cycle must not suppress notifications for the current one.
+  const relevantThresholds = alreadyNotified?.dueDate === reminder.dueDate ? alreadyNotified.thresholds || [] : [];
+  const threshold = NOTIFICATION_THRESHOLDS.find(
+    (candidate) => days === candidate && !relevantThresholds.includes(candidate),
+  );
+  return { threshold, relevantThresholds };
+}
+
 function buildNotificationPayload(reminder, days) {
   const daysLabel = days === 0 ? "bugün" : `${days} gün içinde`;
   const amountLabel = typeof reminder.amount === "number" ? ` (${reminder.amount.toLocaleString("tr-TR")} TL)` : "";
@@ -81,10 +93,7 @@ async function handler(request, response) {
       const days = daysUntil(reminder.dueDate, now);
       if (days === null) continue;
 
-      const alreadyNotified = notified[reminder.id];
-      const matchedThreshold = NOTIFICATION_THRESHOLDS.find(
-        (threshold) => days === threshold && !(alreadyNotified?.thresholds || []).includes(threshold),
-      );
+      const { threshold: matchedThreshold, relevantThresholds } = nextThresholdToNotify(reminder, days, notified);
       if (matchedThreshold === undefined) continue;
 
       if (subscriptionGone) continue;
@@ -95,7 +104,7 @@ async function handler(request, response) {
         sent += 1;
         notified[reminder.id] = {
           dueDate: reminder.dueDate,
-          thresholds: [...(alreadyNotified?.thresholds || []), matchedThreshold],
+          thresholds: [...relevantThresholds, matchedThreshold],
         };
         notifiedChanged = true;
       } catch (error) {
@@ -122,3 +131,4 @@ module.exports.daysUntil = daysUntil;
 module.exports.buildNotificationPayload = buildNotificationPayload;
 module.exports.isAuthorized = isAuthorized;
 module.exports.NOTIFICATION_THRESHOLDS = NOTIFICATION_THRESHOLDS;
+module.exports.nextThresholdToNotify = nextThresholdToNotify;

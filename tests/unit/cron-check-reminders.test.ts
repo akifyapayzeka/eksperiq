@@ -12,6 +12,11 @@ type CronHandler = ((request: { headers: Record<string, string> }, response: Moc
   ) => { title: string; body: string; url: string };
   isAuthorized: (request: { headers: Record<string, string> }) => boolean;
   NOTIFICATION_THRESHOLDS: number[];
+  nextThresholdToNotify: (
+    reminder: { id: string; dueDate: string },
+    days: number,
+    notified: Record<string, { dueDate: string; thresholds: number[] }>,
+  ) => { threshold: number | undefined; relevantThresholds: number[] };
 };
 
 type MockResponse = Writable & {
@@ -73,6 +78,30 @@ describe("buildNotificationPayload", () => {
 describe("notification thresholds", () => {
   it("fires at 30 and 15 days before the due date", () => {
     expect(cron.NOTIFICATION_THRESHOLDS).toEqual([30, 15]);
+  });
+});
+
+describe("nextThresholdToNotify", () => {
+  const reminder = { id: "reminder-1", dueDate: "2027-01-31" };
+
+  it("matches an unnotified threshold for a reminder with no history", () => {
+    const result = cron.nextThresholdToNotify(reminder, 30, {});
+    expect(result.threshold).toBe(30);
+    expect(result.relevantThresholds).toEqual([]);
+  });
+
+  it("skips a threshold already notified for the same due date", () => {
+    const notified = { "reminder-1": { dueDate: "2027-01-31", thresholds: [30] } };
+    const result = cron.nextThresholdToNotify(reminder, 30, notified);
+    expect(result.threshold).toBeUndefined();
+  });
+
+  it("re-notifies for a recurring reminder whose due date advanced to a new cycle", () => {
+    // Last year's cycle already used up both thresholds.
+    const notified = { "reminder-1": { dueDate: "2026-01-31", thresholds: [30, 15] } };
+    const result = cron.nextThresholdToNotify(reminder, 30, notified);
+    expect(result.threshold).toBe(30);
+    expect(result.relevantThresholds).toEqual([]);
   });
 });
 

@@ -724,6 +724,49 @@ tarafından) gereken adımlar:**
 - **Apple/Google IAP (abonelik satın alma)**: Yukarıdaki "Abonelik/Pro planı"
   bölümüne bakın — aynı Apple-araçları eksikliği kategorisi.
 
+## 2026-08-03: Bakım/ödeme hatırlatma bildirimlerinde tekrarlayan kayıt hatası düzeltildi
+
+Sürekli çalışma modunda (`/loop`) tarama sırasında bulundu: `api/cron/check-reminders.js`
+her gün çalışıp son tarihe 30/15 gün kala push bildirimi gönderiyor ve hangi
+eşiklerin (30, 15 gün) hangi hatırlatma için gönderildiğini `notified[reminder.id]`
+altında saklıyordu. Ancak tekrarlayan kayıtlarda (MTV her yıl, kasko/sigorta 6
+ayda bir) `advanceIfPast()` son tarih geçince aynı `id`'yi koruyarak tarihi bir
+sonraki döneme ilerletiyor — ama eski `notified` kaydı asla sıfırlanmıyordu.
+Sonuç: bir hatırlatma ilk döneminde 30/15 gün bildirimlerini aldıktan sonra,
+sonraki her yıl/dönemde `thresholds: [30, 15]` zaten "kullanılmış" sayıldığından
+bir daha **hiç** bildirim gönderilmiyordu — kullanıcı ikinci MTV döneminden
+itibaren sessizce bildirim almayı bırakıyordu.
+
+Düzeltme: eşleşme mantığı `nextThresholdToNotify()` adıyla ayrı, test edilebilir
+bir fonksiyona çıkarıldı; artık kayıtlı eşikler yalnızca `notified[id].dueDate`
+mevcut `reminder.dueDate` ile **aynıysa** geçerli sayılıyor, tarih ilerleyince
+(yeni döneme geçilince) eşik listesi otomatik sıfırlanıyor. `tests/unit/cron-check-reminders.test.ts`'e
+3 yeni test eklendi (ilk bildirim, aynı dönemde tekrar engelleme, yeni döneme
+geçince yeniden bildirim). Tam doğrulama döngüsü (lint/typecheck/test/e2e/
+release:check/deploy:check) geçti.
+
+## 2026-08-03: Pro abonelik fiyatlandırması hakkında rapor (kod değişikliği yok)
+
+Kullanıcı iki ayrı fiyatlandırma sorusu sordu, ikisi de yalnızca analiz/rapor
+istekleriydi, kod değişikliği talep edilmedi:
+
+1. "3 gün deneme + gerçek AI maliyetinin 5 katı fiyat, aylık kaç TL olur?"
+   sorusuna, `openai/gpt-4o-mini` (Pro modeli) OpenRouter fiyatlandırması ve
+   görsel tokenizasyon formülü (2.833 taban + 5.667 token/512px karo) ile ayda
+   8 analiz × 3 foto varsayımı altında ~22 TL/ay hesaplandı; Apple/Google
+   IAP komisyonu ve altyapı/destek maliyeti kapsam dışı bırakıldı (kullanıcının
+   açık isteğiyle).
+2. "Ayda 100+ foto yorumlatan ağır kullanıcı, Pro/Pro+ katmanları (Pro ~50,
+   Pro+ ~100-200 foto, kullanıcıya foto sayısı olarak sunulmayacak), 1000 TL/ay
+   fiyat kazandırır mı?" sorusuna: saf AI maliyeti açısından (gpt-4o-mini yerine
+   kalite/maliyet dengesi için `openai/gpt-4o` önerildi — görsel başına token
+   sayısı daha düşük: 85 taban + 170/karo) 200 foto/ay bile ~33 TL/ay maliyet
+   çıkıyor; yani 1000 TL/ay fiyatta AI maliyeti kâr marjını hiçbir şekilde
+   tehdit etmiyor (%95+ brüt marj). Asıl risk AI maliyeti değil, Türkiye
+   pazarında 1000 TL/ay'ın tüketici algısında kabul görüp görmeyeceği ve kalite
+   beklentisi karşılanmazsa iade talepleri — bu yüzden kaliteli model seçimi
+   ve fiyatın pazar konumlandırmasıyla test edilmesi önerildi.
+
 ## Genel ilkeler (her yeni özellikte hatırlanmalı)
 
 - Kesin hüküm/garanti ifadesi yok.
