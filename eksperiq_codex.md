@@ -767,6 +767,17 @@ istekleriydi, kod değişikliği talep edilmedi:
    beklentisi karşılanmazsa iade talepleri — bu yüzden kaliteli model seçimi
    ve fiyatın pazar konumlandırmasıyla test edilmesi önerildi.
 
+## 2026-08-03: Araç Değer Takibi'nde ölü/etkisiz "Benzer ilan sayısı" alanı düzeltildi
+
+Sürekli çalışma modunda tarama sırasında bulundu: `/arac-deger-takibi`
+sayfasındaki "Benzer ilan sayısı" girdisi kullanıcıya bir şey soruyormuş gibi
+görünüyor ama fiyat yorumu hesaplamasında **hiç kullanılmıyordu** — girilen
+değer ne olursa olsun sonuç değişmiyordu. Bu, kullanıcıyı yanıltan ölü bir
+alan. Düzeltme: örnek sayısı artık düşükse (1-2: "güvenilirliği düşüktür",
+3-5: "örnek sayısını artırın") bir uyarı notu gösteriyor; 6+ örnekte not
+gösterilmiyor. `tests/e2e/module-tools.spec.ts`'e bu davranışı doğrulayan bir
+assertion eklendi. Tam doğrulama döngüsü geçti.
+
 ## Genel ilkeler (her yeni özellikte hatırlanmalı)
 
 - Kesin hüküm/garanti ifadesi yok.
