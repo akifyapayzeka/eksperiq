@@ -847,6 +847,19 @@ kuralında bırakıldı (uygulama genelinde form alanları için tutarlı kalan
 kural). Böylece firevibe entegrasyonunun üç ekranı (Ana Sayfa, Analizlerim,
 Garajım) da tamamlanmış oldu.
 
+## 2026-08-03: Analiz formu (/analiz) firevibe pill stiline uyarlandı
+
+Kullanıcı firevibe kapsamına girmeyen `/analiz` (Yeni araç analizi) formunu da
+aynı tasarım diline taşımamı istedi. Sayfa başlığı diğer üç ekranla (Ana Sayfa,
+Analizlerim, Garajım) aynı koyu lacivert hero kart stiline geçirildi; birincil
+aksiyon linkleri/butonları ("Fotoğrafla hasar notu", "Ekspertiz raporu ekle",
+bölüm navigasyon linkleri, "Analiz oluştur") pill (rounded-full) stiline
+uyarlandı. Form input/select alanları uygulama genelinde tutarlı kalan
+rounded-xl kuralında bırakıldı; hasar parçası seçim çipleri zaten rounded-full
+kullanıyordu, değişiklik gerekmedi. Fonksiyonellik (React Hook Form, doğrulama,
+marka/model kademeli seçim) hiç dokunulmadan korundu. Tam doğrulama döngüsü +
+gerçek Playwright akışıyla görsel doğrulama yapıldı.
+
 ## Genel ilkeler (her yeni özellikte hatırlanmalı)
 
 - Kesin hüküm/garanti ifadesi yok.
