@@ -141,7 +141,7 @@ export default function ComparisonPage() {
             </p>
             <Link
               href="/analiz"
-              className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-teal-700 px-4 text-sm font-semibold text-white"
+              className="mt-4 inline-flex min-h-11 items-center rounded-full bg-teal-700 px-4 text-sm font-semibold text-white"
             >
               Analiz başlat
             </Link>

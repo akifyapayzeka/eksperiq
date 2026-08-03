@@ -266,7 +266,7 @@ export default function PhotoDamagePage() {
             type="button"
             onClick={analyzePhotosWithAi}
             disabled={!canRunAi}
-            className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-teal-700 px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+            className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-teal-700 px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             {aiStatus === "loading" ? "AI inceliyor" : "AI ile fotoğrafı analiz et"}
           </button>
@@ -361,7 +361,7 @@ export default function PhotoDamagePage() {
             type="button"
             onClick={addFinding}
             disabled={!fileCount}
-            className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-slate-950 px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+            className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-slate-950 px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             Bulguyu ekle
           </button>
@@ -404,7 +404,7 @@ export default function PhotoDamagePage() {
             type="button"
             onClick={saveAnalysis}
             disabled={!canSave}
-            className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-teal-700 px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+            className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-teal-700 px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             <Save aria-hidden="true" className="h-4 w-4" />
             {saveStatus === "saving" ? "Kaydediliyor" : "Analizi kaydet"}

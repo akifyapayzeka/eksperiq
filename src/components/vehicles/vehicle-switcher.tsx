@@ -80,7 +80,7 @@ export function VehicleSwitcher({
           <button
             type="button"
             onClick={startRenaming}
-            className="inline-flex min-h-11 items-center gap-1 rounded-lg border border-slate-300 px-3 text-sm font-semibold text-slate-800 hover:border-teal-700"
+            className="inline-flex min-h-11 items-center gap-1 rounded-full border border-slate-300 px-3 text-sm font-semibold text-slate-800 hover:border-teal-700"
           >
             <Pencil aria-hidden="true" className="h-4 w-4" />
             Yeniden adlandır
@@ -88,7 +88,7 @@ export function VehicleSwitcher({
           <button
             type="button"
             onClick={startAdding}
-            className="inline-flex min-h-11 items-center gap-1 rounded-lg border border-teal-700 px-3 text-sm font-semibold text-teal-800"
+            className="inline-flex min-h-11 items-center gap-1 rounded-full border border-teal-700 px-3 text-sm font-semibold text-teal-800"
           >
             <Plus aria-hidden="true" className="h-4 w-4" />
             Araç ekle
@@ -97,7 +97,7 @@ export function VehicleSwitcher({
             <button
               type="button"
               onClick={() => setMode("confirming-delete")}
-              className="inline-flex min-h-11 items-center gap-1 rounded-lg border border-red-200 px-3 text-sm font-semibold text-red-700 hover:border-red-400"
+              className="inline-flex min-h-11 items-center gap-1 rounded-full border border-red-200 px-3 text-sm font-semibold text-red-700 hover:border-red-400"
             >
               <Trash2 aria-hidden="true" className="h-4 w-4" />
               Bu aracı ve kayıtlarını sil
@@ -114,14 +114,14 @@ export function VehicleSwitcher({
             <button
               type="button"
               onClick={confirmDelete}
-              className="inline-flex min-h-11 items-center rounded-lg bg-red-700 px-4 text-sm font-semibold text-white hover:bg-red-800"
+              className="inline-flex min-h-11 items-center rounded-full bg-red-700 px-4 text-sm font-semibold text-white hover:bg-red-800"
             >
               Evet, sil
             </button>
             <button
               type="button"
               onClick={() => setMode("idle")}
-              className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 px-4 text-sm font-semibold text-slate-800"
+              className="inline-flex min-h-11 items-center rounded-full border border-slate-300 px-4 text-sm font-semibold text-slate-800"
             >
               Vazgeç
             </button>
@@ -142,14 +142,14 @@ export function VehicleSwitcher({
           <button
             type="button"
             onClick={submitDraft}
-            className="inline-flex min-h-11 items-center rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white"
+            className="inline-flex min-h-11 items-center rounded-full bg-slate-950 px-4 text-sm font-semibold text-white"
           >
             {mode === "adding" ? "Ekle" : "Kaydet"}
           </button>
           <button
             type="button"
             onClick={() => setMode("idle")}
-            className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 px-4 text-sm font-semibold text-slate-800"
+            className="inline-flex min-h-11 items-center rounded-full border border-slate-300 px-4 text-sm font-semibold text-slate-800"
           >
             Vazgeç
           </button>

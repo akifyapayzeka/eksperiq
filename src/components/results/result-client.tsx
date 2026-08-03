@@ -368,7 +368,7 @@ export function ResultClient() {
           </p>
           <Link
             href="/analiz"
-            className="mt-6 inline-flex min-h-12 items-center rounded-lg bg-slate-950 px-5 font-semibold text-white"
+            className="mt-6 inline-flex min-h-12 items-center rounded-full bg-slate-950 px-5 font-semibold text-white"
           >
             Analizi yeniden başlat
           </Link>
@@ -488,7 +488,7 @@ export function ResultClient() {
             <button
               type="button"
               onClick={printReport}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800"
             >
               <FileText aria-hidden="true" className="h-4 w-4" />
               Raporu yazdır
@@ -496,7 +496,7 @@ export function ResultClient() {
             <button
               type="button"
               onClick={copyQuestions}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800"
             >
               <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
               Soruları kopyala
@@ -504,7 +504,7 @@ export function ResultClient() {
             <button
               type="button"
               onClick={copySellerMessage}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800"
             >
               <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
               Satıcı mesajını kopyala
@@ -512,7 +512,7 @@ export function ResultClient() {
             <button
               type="button"
               onClick={copySummary}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800"
             >
               <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
               Rapor özetini kopyala
@@ -520,14 +520,14 @@ export function ResultClient() {
             <button
               type="button"
               onClick={shareSummary}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800"
             >
               <Share2 aria-hidden="true" className="h-4 w-4" />
               Raporu paylaş
             </button>
             <Link
               href="/analiz"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800"
             >
               <RotateCcw aria-hidden="true" className="h-4 w-4" />
               Yeni analiz
@@ -536,7 +536,7 @@ export function ResultClient() {
               type="button"
               onClick={addCurrentToComparison}
               disabled={addedToComparison}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <GitCompareArrows aria-hidden="true" className="h-4 w-4" />
               {addedToComparison ? "Karşılaştırmaya eklendi" : "Karşılaştırmaya ekle"}
@@ -544,7 +544,7 @@ export function ResultClient() {
             <button
               type="button"
               onClick={clearCurrentAnalysis}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-red-200 px-4 text-sm font-semibold text-red-700 hover:bg-red-50"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-red-200 px-4 text-sm font-semibold text-red-700 hover:bg-red-50"
             >
               <Trash2 aria-hidden="true" className="h-4 w-4" />
               Oturum verisini sil
@@ -569,7 +569,7 @@ export function ResultClient() {
               </div>
               <Link
                 href="/geri-bildirim"
-                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-4 font-semibold text-slate-950 ring-1 ring-slate-200 hover:ring-teal-700"
+                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-white px-4 font-semibold text-slate-950 ring-1 ring-slate-200 hover:ring-teal-700"
               >
                 Geri bildirim gönder
                 <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
@@ -618,7 +618,7 @@ export function ResultClient() {
                 type="button"
                 onClick={requestAiNote}
                 disabled={aiNoteStatus === "loading"}
-                className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
+                className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
               >
                 <Sparkles aria-hidden="true" className="h-4 w-4" />
                 {aiNoteStatus === "loading" ? "Not hazırlanıyor" : "AI notu oluştur"}
@@ -712,7 +712,7 @@ export function ResultClient() {
             <button
               type="button"
               onClick={copyCompactSummary}
-              className="no-print mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800"
+              className="no-print mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800"
             >
               <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
               Kısa özeti kopyala
