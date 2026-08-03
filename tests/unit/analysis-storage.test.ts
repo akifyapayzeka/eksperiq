@@ -5,10 +5,12 @@ import {
   clearAnalysis,
   loadChecklist,
   loadFindingFilter,
+  openAnalysisFromHistory,
   saveAnalysis,
   saveChecklist,
   saveFindingFilter,
 } from "@/lib/storage/analysis-storage";
+import { loadAnalysisHistory } from "@/lib/storage/analysis-history-storage";
 import type { VehicleFormData } from "@/lib/schemas/vehicle";
 
 const checklistStorageKey = `${appConfig.storageKey}:checklist`;
@@ -56,6 +58,7 @@ const input: VehicleFormData = {
 describe("analysis storage", () => {
   beforeEach(() => {
     sessionStorage.clear();
+    localStorage.clear();
   });
 
   it("loads only checklist items that belong to the current report", () => {
@@ -92,6 +95,34 @@ describe("analysis storage", () => {
     expect(sessionStorage.getItem(appConfig.storageKey)).toBeNull();
     expect(sessionStorage.getItem(checklistStorageKey)).toBeNull();
     expect(sessionStorage.getItem(findingFilterStorageKey)).toBeNull();
+  });
+
+  it("also appends the saved analysis to the device-wide analysis history", () => {
+    const result = analyzeVehicle(input);
+    saveAnalysis(result);
+
+    const history = loadAnalysisHistory();
+    expect(history).toHaveLength(1);
+    expect(history[0].result.totalScore).toBe(result.totalScore);
+  });
+
+  it("keeps analysis history intact when the current session result is cleared", () => {
+    saveAnalysis(analyzeVehicle(input));
+    clearAnalysis();
+
+    expect(loadAnalysisHistory()).toHaveLength(1);
+  });
+
+  it("opens a past analysis into the current session slot without duplicating history", () => {
+    const first = analyzeVehicle(input);
+    saveAnalysis(first);
+    const second = analyzeVehicle({ ...input, brand: "Honda", model: "Civic" });
+    saveAnalysis(second);
+
+    openAnalysisFromHistory(first);
+
+    expect(JSON.parse(sessionStorage.getItem(appConfig.storageKey) ?? "null")?.totalScore).toBe(first.totalScore);
+    expect(loadAnalysisHistory()).toHaveLength(2);
   });
 
   it("persists only valid finding filters", () => {
