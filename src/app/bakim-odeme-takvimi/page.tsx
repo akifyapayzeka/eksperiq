@@ -324,7 +324,7 @@ export default function MaintenancePaymentCalendarPage() {
               type="button"
               onClick={addMtvInstallments}
               disabled={!selectedVehicleId}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-teal-700 px-4 text-sm font-semibold text-teal-800 disabled:opacity-50"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-teal-700 px-4 text-sm font-semibold text-teal-800 disabled:opacity-50"
             >
               <Plus aria-hidden="true" className="h-4 w-4" />
               MTV taksitlerini ekle (Ocak/Temmuz)
@@ -404,7 +404,7 @@ export default function MaintenancePaymentCalendarPage() {
               type="button"
               onClick={submitForm}
               disabled={!selectedVehicleId}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-slate-950 px-5 font-semibold text-white disabled:opacity-50"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-950 px-5 font-semibold text-white disabled:opacity-50"
             >
               <Plus aria-hidden="true" className="h-5 w-5" />
               {editingId ? "Kaydı güncelle" : "Kaydı ekle"}
@@ -413,7 +413,7 @@ export default function MaintenancePaymentCalendarPage() {
               <button
                 type="button"
                 onClick={resetForm}
-                className="inline-flex min-h-12 items-center justify-center rounded-full border border-slate-300 px-5 font-semibold text-slate-800"
+                className="inline-flex min-h-12 items-center justify-center rounded-full transition active:scale-95 border border-slate-300 px-5 font-semibold text-slate-800"
               >
                 Vazgeç
               </button>

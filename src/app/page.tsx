@@ -21,6 +21,7 @@ import { openAnalysisFromHistory } from "@/lib/storage/analysis-storage";
 import { loadAnalysisHistory } from "@/lib/storage/analysis-history-storage";
 import { loadVehicles } from "@/lib/storage/vehicle-storage";
 import { riskBucket } from "@/lib/analysis/risk-bucket";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { AnalysisResult } from "@/lib/analysis/types";
 
 const primaryActions = [
@@ -76,6 +77,7 @@ const riskBadgeStyles: Record<ReturnType<typeof riskBucket>, string> = {
 
 export default function Home() {
   const router = useRouter();
+  const [isReady, setIsReady] = useState(false);
   const [historyCount, setHistoryCount] = useState(0);
   const [averageScore, setAverageScore] = useState<number | null>(null);
   const [vehicleCount, setVehicleCount] = useState(0);
@@ -92,6 +94,7 @@ export default function Home() {
           ? Math.round(history.reduce((sum, record) => sum + record.result.totalScore, 0) / history.length)
           : null,
       );
+      setIsReady(true);
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);
@@ -122,14 +125,14 @@ export default function Home() {
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Link
               href="/analiz"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-5 text-base font-semibold text-slate-950 hover:bg-slate-100"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-white px-5 text-base font-semibold text-slate-950 hover:bg-slate-100"
             >
               <Plus aria-hidden="true" className="h-5 w-5" />
               Yeni analiz başlat
             </Link>
             <Link
               href="/arac-saglik-karnesi"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/20 px-5 text-base font-semibold text-white hover:bg-white/10"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-white/20 px-5 text-base font-semibold text-white hover:bg-white/10"
             >
               Garajıma git
               <ArrowUpRight aria-hidden="true" className="h-5 w-5" />
@@ -146,20 +149,45 @@ export default function Home() {
           </h2>
           <div className="mt-4 grid grid-cols-3 divide-x divide-slate-200 overflow-hidden rounded-2xl border border-slate-200">
             <div className="p-4">
-              <strong className="block text-2xl text-slate-950">{historyCount}</strong>
+              {isReady ? (
+                <strong className="block text-2xl text-slate-950">{historyCount}</strong>
+              ) : (
+                <Skeleton className="h-8 w-10" />
+              )}
               <span className="text-sm text-slate-600">analiz yapıldı</span>
             </div>
             <div className="p-4">
-              <strong className="block text-2xl text-slate-950">{averageScore ?? "-"}</strong>
+              {isReady ? (
+                <strong className="block text-2xl text-slate-950">{averageScore ?? "-"}</strong>
+              ) : (
+                <Skeleton className="h-8 w-10" />
+              )}
               <span className="text-sm text-slate-600">ort. risk skoru</span>
             </div>
             <div className="p-4">
-              <strong className="block text-2xl text-slate-950">{vehicleCount}</strong>
+              {isReady ? (
+                <strong className="block text-2xl text-slate-950">{vehicleCount}</strong>
+              ) : (
+                <Skeleton className="h-8 w-10" />
+              )}
               <span className="text-sm text-slate-600">araç takipte</span>
             </div>
           </div>
 
-          {latest && latestBucket ? (
+          {!isReady ? (
+            <div className="mt-5">
+              <Skeleton className="h-4 w-32" />
+              <div className="mt-2 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <div className="flex gap-4">
+                  <Skeleton className="h-16 w-16 shrink-0 rounded-2xl" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-5 w-2/3" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : latest && latestBucket ? (
             <div className="mt-5">
               <p className="text-sm font-semibold uppercase text-slate-500">En son inceleme</p>
               <article className="mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">

@@ -46,7 +46,7 @@ export default function ProfilePage() {
         <div className="mt-5">
           <Link
             href="/analiz"
-            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-teal-700 px-5 text-base font-semibold text-white hover:bg-teal-800 sm:w-auto"
+            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full transition active:scale-95 bg-teal-700 px-5 text-base font-semibold text-white hover:bg-teal-800 sm:w-auto"
           >
             <CarFront aria-hidden="true" className="h-5 w-5" />
             Yeni analiz başlat

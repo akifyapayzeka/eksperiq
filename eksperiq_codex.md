@@ -884,6 +884,26 @@ menü navigasyon linkleri de kasıtlı değiştirilmedi (nav öğeleri, CTA değ
 Tam doğrulama döngüsü + gerçek Playwright akışıyla üç farklı sayfada (Bakım
 Takvimi, Sonuç, Gider Defteri) görsel doğrulama yapıldı.
 
+## 2026-08-03: Skeleton loading + buton mikro-etkileşimleri eklendi
+
+Kullanıcı "uygulamayı daha da görselleştir, başka uygulamaların ekran
+görüntülerini araştır" dedi. WebFetch'in gerçek ekran görüntülerini
+göremediğini (Revolut'un App Store sayfasında test edilerek) doğruladıktan
+sonra, 2026 mobil UI trendleri üzerine belgelenmiş, somut pratikleri
+araştırdım (skeleton loading algılanan hızı artırıyor, mikro-etkileşimler
+oturum süresini uzatıyor). İki iyileştirme uygulandı:
+
+1. Yeni `src/components/ui/skeleton.tsx` — `animate-pulse` shimmer bileşeni.
+   Ana Sayfa ve Analizlerim'deki istatistik şeridi ile "En son inceleme"
+   kartı artık veri yüklenene kadar (`isReady` state, rAF sonrası true olur)
+   ani "0"/"-" flash'ı yerine shimmer gösteriyor.
+2. Uygulama genelindeki tüm pill (rounded-full) butonlara (~37 buton, 20
+   dosya) `transition active:scale-95` eklendi — basma anında hafif küçülme
+   geri bildirimi.
+
+Kullanıcı ayrıca dark mode istedi (bkz. aşağıdaki ayrı bölümler) — bu, üç
+PR'a bölünmüş büyük bir ayrı iş.
+
 ## Genel ilkeler (her yeni özellikte hatırlanmalı)
 
 - Kesin hüküm/garanti ifadesi yok.

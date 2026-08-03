@@ -209,7 +209,7 @@ function FormSectionLinks() {
           <a
             key={section.href}
             href={section.href}
-            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-slate-200 px-3 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:px-4"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-200 px-3 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:px-4"
           >
             <span className="grid h-6 w-6 place-items-center rounded-full bg-slate-100 text-xs text-slate-700">
               {section.step}
@@ -278,14 +278,14 @@ export function AnalysisForm() {
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <Link
             href="/fotograf-hasar"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-200 px-4 text-sm font-semibold text-slate-900 hover:border-teal-700"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-200 px-4 text-sm font-semibold text-slate-900 hover:border-teal-700"
           >
             <Camera aria-hidden="true" className="h-4 w-4" />
             Fotoğrafla hasar notu
           </Link>
           <Link
             href="/ekspertiz-raporu"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-200 px-4 text-sm font-semibold text-slate-900 hover:border-teal-700"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-200 px-4 text-sm font-semibold text-slate-900 hover:border-teal-700"
           >
             <FileSearch aria-hidden="true" className="h-4 w-4" />
             Ekspertiz raporu ekle
@@ -304,7 +304,7 @@ export function AnalysisForm() {
         type="button"
         onClick={() => void handleSubmit(onSubmit)()}
         disabled={isSubmitting}
-        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-slate-950 px-6 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
+        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-950 px-6 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
       >
         <ClipboardCheck aria-hidden="true" className="h-5 w-5" />
         Analiz oluştur
