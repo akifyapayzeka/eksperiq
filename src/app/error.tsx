@@ -21,12 +21,12 @@ export default function ErrorBoundary({ error, reset }: { error: Error & { diges
           <button
             type="button"
             onClick={reset}
-            className="inline-flex min-h-11 items-center justify-center rounded-full bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
+            className="inline-flex min-h-11 items-center justify-center rounded-full transition active:scale-95 bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
           >
             Tekrar dene
           </button>
           <Link
-            className="inline-flex min-h-11 items-center justify-center rounded-full border border-slate-300 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700"
+            className="inline-flex min-h-11 items-center justify-center rounded-full transition active:scale-95 border border-slate-300 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700"
             href="/"
           >
             Ana sayfaya dön

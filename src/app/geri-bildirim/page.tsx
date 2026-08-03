@@ -134,14 +134,14 @@ export default function FeedbackPage() {
       <div className="flex flex-col gap-3 sm:flex-row">
         <a
           href={userTestMailto}
-          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-slate-950 px-5 font-semibold text-white hover:bg-slate-800"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-950 px-5 font-semibold text-white hover:bg-slate-800"
         >
           Kullanıcı testi notu gönder
           <ExternalLink aria-hidden="true" className="h-4 w-4" />
         </a>
         <a
           href={ruleFeedbackMailto}
-          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-300 px-5 font-semibold text-slate-950 hover:bg-slate-50"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-300 px-5 font-semibold text-slate-950 hover:bg-slate-50"
         >
           Kural geri bildirimi gönder
           <ExternalLink aria-hidden="true" className="h-4 w-4" />

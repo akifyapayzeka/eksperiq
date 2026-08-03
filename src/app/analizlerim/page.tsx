@@ -23,6 +23,7 @@ import {
 import { deletePhotoAnalysis, loadPhotoAnalyses } from "@/lib/storage/photo-analysis-storage";
 import { loadVehicles } from "@/lib/storage/vehicle-storage";
 import { riskBucket } from "@/lib/analysis/risk-bucket";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { AnalysisResult } from "@/lib/analysis/types";
 import type { PhotoAnalysisRecord } from "@/lib/photo-analysis/types";
 
@@ -75,6 +76,7 @@ function formatAnalysisDate(value: string): string {
 
 export default function MyAnalysesPage() {
   const router = useRouter();
+  const [isReady, setIsReady] = useState(false);
   const [history, setHistory] = useState<AnalysisHistoryRecord[]>([]);
   const [vehicleCount, setVehicleCount] = useState(0);
   const [activeFilter, setActiveFilter] = useState<AnalysisFilter>("all");
@@ -86,6 +88,7 @@ export default function MyAnalysesPage() {
       setHistory(loadAnalysisHistory());
       setVehicleCount(loadVehicles().length);
       setPhotoAnalyses(loadPhotoAnalyses());
+      setIsReady(true);
     });
 
     return () => window.cancelAnimationFrame(frame);
@@ -133,7 +136,7 @@ export default function MyAnalysesPage() {
           </div>
           <Link
             href="/analiz"
-            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-slate-900 px-4 text-sm font-semibold text-white"
+            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full transition active:scale-95 bg-slate-900 px-4 text-sm font-semibold text-white"
           >
             <Plus aria-hidden="true" className="h-4 w-4" />
             Yeni Analiz
@@ -143,15 +146,27 @@ export default function MyAnalysesPage() {
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
           <div className="grid grid-cols-3 divide-x divide-slate-200 overflow-hidden rounded-2xl border border-slate-200">
             <div className="p-4">
-              <strong className="block text-2xl text-slate-950">{history.length}</strong>
+              {isReady ? (
+                <strong className="block text-2xl text-slate-950">{history.length}</strong>
+              ) : (
+                <Skeleton className="h-8 w-10" />
+              )}
               <span className="text-sm text-slate-600">analiz</span>
             </div>
             <div className="p-4">
-              <strong className="block text-2xl text-slate-950">{averageScore ?? "-"}</strong>
+              {isReady ? (
+                <strong className="block text-2xl text-slate-950">{averageScore ?? "-"}</strong>
+              ) : (
+                <Skeleton className="h-8 w-10" />
+              )}
               <span className="text-sm text-slate-600">ort. risk skoru</span>
             </div>
             <div className="p-4">
-              <strong className="block text-2xl text-slate-950">{vehicleCount}</strong>
+              {isReady ? (
+                <strong className="block text-2xl text-slate-950">{vehicleCount}</strong>
+              ) : (
+                <Skeleton className="h-8 w-10" />
+              )}
               <span className="text-sm text-slate-600">araç takipte</span>
             </div>
           </div>
@@ -244,7 +259,7 @@ export default function MyAnalysesPage() {
                           <button
                             type="button"
                             onClick={() => openReport(record.result)}
-                            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-slate-900 px-4 text-sm font-semibold text-white"
+                            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-900 px-4 text-sm font-semibold text-white"
                           >
                             Raporu Aç
                             <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
@@ -252,7 +267,7 @@ export default function MyAnalysesPage() {
                           <button
                             type="button"
                             onClick={() => removeAnalysis(record.id)}
-                            className="inline-flex min-h-10 items-center gap-1 rounded-full px-3 text-sm font-semibold text-red-700 hover:bg-red-50"
+                            className="inline-flex min-h-10 items-center gap-1 rounded-full transition active:scale-95 px-3 text-sm font-semibold text-red-700 hover:bg-red-50"
                           >
                             <Trash2 aria-hidden="true" className="h-4 w-4" />
                             Sil
