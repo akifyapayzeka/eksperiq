@@ -904,6 +904,26 @@ oturum süresini uzatıyor). İki iyileştirme uygulandı:
 Kullanıcı ayrıca dark mode istedi (bkz. aşağıdaki ayrı bölümler) — bu, üç
 PR'a bölünmüş büyük bir ayrı iş.
 
+## 2026-08-03: Dark mode — temel altyapı + Ana Sayfa/Analizlerim (1. parça)
+
+Kullanıcı dark mode istedi; büyük kapsamı nedeniyle 3 PR'a bölündü. Bu ilk
+parça: Tailwind v4'ün varsayılan `dark:` varyantı (otomatik
+`prefers-color-scheme` medya sorgusu, ekstra config gerekmiyor) kullanılarak
+`globals.css`'teki `--background`/`--foreground` CSS değişkenlerine karanlık
+mod karşılığı eklendi; paylaşılan layout bileşenleri (`site-header.tsx`,
+`site-footer.tsx`, `mobile-bottom-nav.tsx`) ve Ana Sayfa + Analizlerim
+sayfaları renk eşlemesiyle güncellendi (`bg-white`→`dark:bg-slate-900`,
+`text-slate-950`→`dark:text-white`, `border-slate-200`→`dark:border-slate-800`,
+risk rozetleri için koyu ton varyantları vb.). Yeni `Skeleton` bileşenine de
+dark varyant eklendi.
+
+Doğrulama: `page.emulateMedia({colorScheme:'dark'})` ile gerçek Playwright
+akışı üzerinden ekran görüntüsü alındı; ilk bakışta üst menünün "açık"
+göründüğü düşünüldü ama `getComputedStyle` ile ölçülünce gerçekte doğru
+koyu renkte olduğu (ölçekli/küçültülmüş ekran görüntüsünün yanıltıcı olduğu)
+doğrulandı — üst menünün tek başına (200px yükseklik) net görüntüsü alınarak
+teyit edildi.
+
 ## Genel ilkeler (her yeni özellikte hatırlanmalı)
 
 - Kesin hüküm/garanti ifadesi yok.

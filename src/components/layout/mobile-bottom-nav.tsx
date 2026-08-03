@@ -18,7 +18,7 @@ export function MobileBottomNav() {
   return (
     <nav
       aria-label="Mobil alt menü"
-      className="no-print fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-12px_30px_rgba(15,23,42,0.08)] backdrop-blur sm:hidden"
+      className="no-print fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-12px_30px_rgba(15,23,42,0.08)] backdrop-blur sm:hidden dark:border-slate-800 dark:bg-slate-900/95"
     >
       <div className="mx-auto grid max-w-md grid-cols-5 items-end gap-1">
         {orderedItems.map((item, index) => {
@@ -34,7 +34,7 @@ export function MobileBottomNav() {
                   isActive ? "bg-slate-950 text-white" : "bg-slate-900 text-white hover:bg-slate-800"
                 }`}
               >
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-white text-slate-950">
+                <span className="grid h-9 w-9 place-items-center rounded-full bg-white text-slate-950 dark:bg-slate-100">
                   <Plus aria-hidden="true" className="h-5 w-5" />
                 </span>
                 <span>Yeni Analiz</span>
