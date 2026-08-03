@@ -20,6 +20,15 @@ export default function VehicleValueTrackingPage() {
     return "İlan fiyatı girdiğiniz piyasa aralığının içinde görünüyor. Yine de hasar, bakım ve kilometre farkını ayrıca değerlendirin.";
   }, [askingPrice, marketHigh, marketLow]);
 
+  const sampleReliabilityNote = useMemo(() => {
+    const samples = Number(sampleCount);
+    if (!samples || samples <= 0) return null;
+    if (samples < 3)
+      return "Yalnızca 1-2 ilanla karşılaştırıyorsunuz; bu aralık tesadüfi olabilir, güvenilirliği düşüktür.";
+    if (samples < 6) return "Az sayıda ilanla karşılaştırıyorsunuz; mümkünse örnek sayısını artırın.";
+    return null;
+  }, [sampleCount]);
+
   return (
     <main className="flex-1 bg-slate-50">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
@@ -75,6 +84,11 @@ export default function VehicleValueTrackingPage() {
         <section className="mt-5 rounded-2xl border border-teal-100 bg-teal-50 p-5 text-teal-950">
           <h2 className="text-xl font-semibold">Fiyat yorumu</h2>
           <p className="mt-3 leading-7">{summary}</p>
+          {sampleReliabilityNote ? (
+            <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-950">
+              {sampleReliabilityNote}
+            </p>
+          ) : null}
           <p className="mt-3 text-sm leading-6">
             Bu ekran kesin araç değeri vermez. Aralık kullanıcı girdisine bağlıdır; şehir, hasar, donanım ve aciliyet
             sonucu değiştirir.

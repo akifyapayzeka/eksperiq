@@ -74,6 +74,8 @@ test("module cards open usable assistant tools", async ({ page }) => {
   await page.goto("/arac-deger-takibi");
   await page.getByLabel("İncelenen ilan fiyatı").fill("1500000");
   await expect(page.getByText(/piyasa aralığının üzerinde/)).toBeVisible();
+  await page.getByLabel("Benzer ilan sayısı").fill("1");
+  await expect(page.getByText(/güvenilirliği düşüktür/)).toBeVisible();
 });
 
 test("health record entries persist across reloads and build a score trend", async ({ page }) => {
