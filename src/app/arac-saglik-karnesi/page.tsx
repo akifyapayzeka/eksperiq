@@ -24,10 +24,10 @@ import { createVehicleId, deleteVehicle, loadVehicles, upsertVehicle } from "@/l
 import type { VehicleProfile } from "@/lib/vehicles/types";
 
 const urgencyStyles: Record<string, string> = {
-  overdue: "bg-red-50 text-red-700",
-  urgent: "bg-amber-50 text-amber-800",
-  upcoming: "bg-sky-50 text-sky-800",
-  later: "bg-slate-100 text-slate-600",
+  overdue: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
+  urgent: "bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
+  upcoming: "bg-sky-50 text-sky-800 dark:bg-sky-950 dark:text-sky-300",
+  later: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
 };
 
 function urgencyLabel(days: number): string {
@@ -148,7 +148,7 @@ export default function VehicleHealthRecordPage() {
   }
 
   return (
-    <main className="flex-1 bg-slate-50">
+    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
           <HeartPulse aria-hidden="true" className="h-9 w-9 text-teal-200" />
@@ -171,40 +171,40 @@ export default function VehicleHealthRecordPage() {
           />
         </div>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-950">Araç özeti</h2>
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Araç özeti</h2>
           {analysis ? (
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="text-sm text-slate-600">Araç</p>
-                <p className="mt-1 font-semibold text-slate-950">
+              <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                <p className="text-sm text-slate-600 dark:text-slate-400">Araç</p>
+                <p className="mt-1 font-semibold text-slate-950 dark:text-white">
                   {analysis.input.year} {analysis.input.brand} {analysis.input.model}
                 </p>
               </div>
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="text-sm text-slate-600">Risk skoru</p>
-                <p className="mt-1 font-semibold text-slate-950">{analysis.totalScore}/100</p>
+              <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                <p className="text-sm text-slate-600 dark:text-slate-400">Risk skoru</p>
+                <p className="mt-1 font-semibold text-slate-950 dark:text-white">{analysis.totalScore}/100</p>
               </div>
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="text-sm text-slate-600">Kontrol başlığı</p>
-                <p className="mt-1 font-semibold text-slate-950">{analysis.inspectionFocus.length}</p>
+              <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                <p className="text-sm text-slate-600 dark:text-slate-400">Kontrol başlığı</p>
+                <p className="mt-1 font-semibold text-slate-950 dark:text-white">{analysis.inspectionFocus.length}</p>
               </div>
             </div>
           ) : (
-            <p className="mt-3 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
+            <p className="mt-3 rounded-xl bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-800/50 dark:text-slate-400">
               Henüz oturumda analiz yok. Yeni araç analizi oluşturduğunuzda burada araç özeti görünecek.
             </p>
           )}
         </section>
 
         <section
-          className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+          className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
           aria-labelledby="upcoming-dates"
         >
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <CalendarClock aria-hidden="true" className="h-5 w-5 text-teal-700" />
-              <h2 id="upcoming-dates" className="text-xl font-semibold text-slate-950">
+              <h2 id="upcoming-dates" className="text-xl font-semibold text-slate-950 dark:text-white">
                 Yaklaşan tarihler
               </h2>
             </div>
@@ -222,12 +222,15 @@ export default function VehicleHealthRecordPage() {
                 const days = daysUntil(record.dueDate);
                 const urgency = urgencyOf(days);
                 return (
-                  <div key={record.id} className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-3">
+                  <div
+                    key={record.id}
+                    className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-3 dark:bg-slate-800/50"
+                  >
                     <div>
                       <p className="text-xs font-semibold uppercase text-teal-800">
                         {reminderCategoryLabels[record.category]}
                       </p>
-                      <p className="font-semibold text-slate-950">{record.title}</p>
+                      <p className="font-semibold text-slate-950 dark:text-white">{record.title}</p>
                     </div>
                     <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${urgencyStyles[urgency]}`}>
                       {urgencyLabel(days)}
@@ -236,7 +239,7 @@ export default function VehicleHealthRecordPage() {
                 );
               })
             ) : (
-              <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
+              <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-800/50 dark:text-slate-400">
                 Henüz MTV, sigorta, muayene veya bakım tarihi eklenmedi.{" "}
                 <Link href="/bakim-odeme-takvimi" className="font-semibold text-teal-800 hover:underline">
                   Bakım ve Ödeme Takvimi
@@ -248,24 +251,24 @@ export default function VehicleHealthRecordPage() {
         </section>
 
         {trend.length ? (
-          <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 className="text-xl font-semibold text-slate-950">Sağlık skoru trendi</h2>
-            <p className="mt-1 text-sm text-slate-600">
+          <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Sağlık skoru trendi</h2>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
               Kayıt eklerken girdiğiniz skorların zaman içindeki değişimi. Tek bir teşhis değil, kendi notlarınızın
               özetidir.
             </p>
             {trend.length >= 2 ? (
               <ScoreTrendChart points={trend} />
             ) : (
-              <p className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
+              <p className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-800/50 dark:text-slate-400">
                 Trend görmek için en az iki skorlu kayıt gerekir.
               </p>
             )}
           </section>
         ) : null}
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-950">Kayıt ekle</h2>
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Kayıt ekle</h2>
           {analysis ? (
             <button
               type="button"
@@ -277,37 +280,37 @@ export default function VehicleHealthRecordPage() {
             </button>
           ) : null}
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <label className="grid gap-2 text-sm font-medium text-slate-800">
+            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
               Tür
               <select
                 value={type}
                 onChange={(event) => setType(event.target.value as HealthRecordType)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3"
+                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               >
                 {healthRecordTypes.map((option) => (
                   <option key={option}>{option}</option>
                 ))}
               </select>
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800 sm:col-span-2">
+            <label className="grid gap-2 text-sm font-medium text-slate-800 sm:col-span-2 dark:text-slate-300">
               Başlık
               <input
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3"
+                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 placeholder="Örn. 90 bin km bakımı"
               />
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800">
+            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
               Tarih
               <input
                 type="date"
                 value={date}
                 onChange={(event) => setDate(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3"
+                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               />
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800">
+            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
               Skor (opsiyonel, 0-100)
               <input
                 type="number"
@@ -315,49 +318,52 @@ export default function VehicleHealthRecordPage() {
                 max="100"
                 value={score}
                 onChange={(event) => setScore(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3"
+                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               />
             </label>
           </div>
-          <label className="mt-4 grid gap-2 text-sm font-medium text-slate-800">
+          <label className="mt-4 grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
             Detay
             <textarea
               value={detail}
               onChange={(event) => setDetail(event.target.value)}
-              className="min-h-24 rounded-xl border border-slate-300 px-3 py-3"
+              className="min-h-24 rounded-xl border border-slate-300 px-3 py-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
             />
           </label>
           <button
             type="button"
             onClick={addRecord}
             disabled={!selectedVehicleId}
-            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-slate-950 px-5 font-semibold text-white disabled:opacity-50"
+            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-slate-950 px-5 font-semibold text-white disabled:opacity-50 dark:bg-white dark:text-slate-950"
           >
             <Plus aria-hidden="true" className="h-5 w-5" />
             Kaydı ekle
           </button>
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-950">Zaman çizelgesi</h2>
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Zaman çizelgesi</h2>
           <div className="mt-4 grid gap-3">
             {recordsForVehicle.length ? (
               [...recordsForVehicle]
                 .sort((a, b) => (a.date < b.date ? 1 : -1))
                 .map((record) => (
-                  <article key={record.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <article
+                    key={record.id}
+                    className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50"
+                  >
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="text-xs font-semibold uppercase text-teal-800">
                           {record.type}
                           {typeof record.score === "number" ? ` · Skor ${record.score}` : ""}
                         </p>
-                        <h3 className="mt-1 font-semibold text-slate-950">{record.title}</h3>
-                        <p className="mt-1 text-xs text-slate-500">
+                        <h3 className="mt-1 font-semibold text-slate-950 dark:text-white">{record.title}</h3>
+                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                           {new Date(`${record.date}T00:00:00`).toLocaleDateString("tr-TR")}
                         </p>
                         {record.detail ? (
-                          <p className="mt-2 text-sm leading-6 text-slate-600">{record.detail}</p>
+                          <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{record.detail}</p>
                         ) : null}
                       </div>
                       <button
@@ -371,7 +377,9 @@ export default function VehicleHealthRecordPage() {
                   </article>
                 ))
             ) : (
-              <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">Henüz kayıt eklenmedi.</p>
+              <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-800/50 dark:text-slate-400">
+                Henüz kayıt eklenmedi.
+              </p>
             )}
           </div>
         </section>
@@ -423,18 +431,18 @@ function ScoreTrendChart({ points }: { points: { id: string; date: string; score
         <summary className="cursor-pointer text-sm font-semibold text-teal-800">Tablo olarak gör</summary>
         <table className="mt-3 w-full text-left text-sm">
           <thead>
-            <tr className="text-slate-500">
+            <tr className="text-slate-500 dark:text-slate-400">
               <th className="py-1 font-medium">Tarih</th>
               <th className="py-1 font-medium">Skor</th>
             </tr>
           </thead>
           <tbody>
             {points.map((point) => (
-              <tr key={point.id} className="border-t border-slate-100">
-                <td className="py-1 text-slate-800">
+              <tr key={point.id} className="border-t border-slate-100 dark:border-slate-800">
+                <td className="py-1 text-slate-800 dark:text-slate-300">
                   {new Date(`${point.date}T00:00:00`).toLocaleDateString("tr-TR")}
                 </td>
-                <td className="py-1 text-slate-800">{point.score}</td>
+                <td className="py-1 text-slate-800 dark:text-slate-300">{point.score}</td>
               </tr>
             ))}
           </tbody>

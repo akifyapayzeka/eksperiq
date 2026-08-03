@@ -361,7 +361,7 @@ function DamagePartPicker({
 
   return (
     <fieldset className="grid gap-3 md:col-span-2">
-      <legend className="text-sm font-medium text-slate-800">{label}</legend>
+      <legend className="text-sm font-medium text-slate-800 dark:text-slate-300">{label}</legend>
       <input type="hidden" {...register(name)} value={hiddenValue} readOnly />
       <div className="flex flex-wrap gap-2" aria-label={`${label} seçenekleri`}>
         {damagePartOptions.map((part) => {
@@ -379,7 +379,7 @@ function DamagePartPicker({
             >
               <input
                 type="checkbox"
-                className="h-4 w-4 rounded border-slate-300 text-teal-700"
+                className="h-4 w-4 rounded border-slate-300 text-teal-700 dark:border-slate-700"
                 checked={checked}
                 onChange={() => togglePart(part)}
               />
@@ -388,7 +388,7 @@ function DamagePartPicker({
           );
         })}
       </div>
-      <p className="text-xs leading-5 text-slate-500">
+      <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">
         Bilinmiyorsa boş bırakın; raporda satıcıdan parça detayı istemeniz önerilir.
       </p>
     </fieldset>
@@ -548,11 +548,11 @@ export function BooleanInfoSection({ register }: SectionProps) {
         {booleanFields.map((item) => (
           <label
             key={item.name}
-            className="flex min-h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-800"
+            className="flex min-h-12 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-800 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
           >
             <input
               type="checkbox"
-              className="h-5 w-5 rounded border-slate-300 text-teal-700"
+              className="h-5 w-5 rounded border-slate-300 text-teal-700 dark:border-slate-700"
               {...register(item.name)}
             />
             {item.label}

@@ -22,7 +22,7 @@ export default function ExpertiseReportPage() {
   }, [reportText]);
 
   return (
-    <main className="flex-1 bg-slate-50">
+    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
         <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
           <FileSearch aria-hidden="true" className="h-9 w-9 text-teal-200" />
@@ -33,11 +33,13 @@ export default function ExpertiseReportPage() {
             kural tabanlı olarak öne çıkarılır.
           </p>
         </section>
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <label className="grid min-h-28 cursor-pointer place-items-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center">
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <label className="grid min-h-28 cursor-pointer place-items-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center dark:border-slate-700 dark:bg-slate-800/50">
             <Upload aria-hidden="true" className="h-8 w-8 text-teal-700" />
-            <span className="mt-2 text-sm font-semibold text-slate-950">Ekspertiz raporu veya fotoğraf seç</span>
-            <span className="mt-1 text-xs leading-5 text-slate-600">
+            <span className="mt-2 text-sm font-semibold text-slate-950 dark:text-white">
+              Ekspertiz raporu veya fotoğraf seç
+            </span>
+            <span className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-400">
               PDF/JPG/PNG dosyası seçebilirsiniz. Dosya bu MVP&apos;de kalıcı hesaba kaydedilmez.
             </span>
             <input
@@ -52,7 +54,7 @@ export default function ExpertiseReportPage() {
             />
           </label>
           {fileNames.length ? (
-            <div className="mt-3 rounded-xl border border-teal-200 bg-teal-50 p-3">
+            <div className="mt-3 rounded-xl border border-teal-200 bg-teal-50 p-3 dark:border-teal-900 dark:bg-teal-950/40">
               <p className="text-sm font-semibold text-teal-950">{fileNames.length} dosya seçildi.</p>
               <p className="mt-1 text-sm leading-6 text-teal-900">
                 Otomatik OCR henüz sınırlı olduğu için rapordaki önemli metni aşağıdaki alana yapıştırmanız analizi
@@ -66,31 +68,31 @@ export default function ExpertiseReportPage() {
             </div>
           ) : null}
         </section>
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <label className="grid gap-2 text-sm font-medium text-slate-800">
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
             Ekspertiz raporu metni
             <textarea
               value={reportText}
               onChange={(event) => setReportText(event.target.value)}
-              className="min-h-48 rounded-xl border border-slate-300 px-3 py-3"
+              className="min-h-48 rounded-xl border border-slate-300 px-3 py-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               placeholder="Rapordaki boya, değişen, mekanik ve elektronik bulguları buraya yapıştırın."
             />
           </label>
         </section>
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-950">Öne çıkan maddeler</h2>
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Öne çıkan maddeler</h2>
           <div className="mt-4 grid gap-3">
             {findings.length ? (
               findings.map((item) => (
                 <p
                   key={item}
-                  className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950"
+                  className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900"
                 >
                   {item}
                 </p>
               ))
             ) : (
-              <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
+              <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-800/50 dark:text-slate-400">
                 Kritik anahtar ifade yakalanmadı. Bu, raporun temiz olduğu anlamına gelmez; tüm maddeleri ekspertiz
                 firmasıyla doğrulayın.
               </p>

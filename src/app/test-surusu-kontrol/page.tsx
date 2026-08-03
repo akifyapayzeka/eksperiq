@@ -28,7 +28,7 @@ export default function TestDriveChecklistPage() {
   }
 
   return (
-    <main className="flex-1 bg-slate-50">
+    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
         <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
           <CarFront aria-hidden="true" className="h-9 w-9 text-teal-200" />
@@ -37,27 +37,30 @@ export default function TestDriveChecklistPage() {
           <p className="mt-3 text-sm leading-6 text-slate-300">{testDriveDisclaimer}</p>
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl font-semibold text-slate-950">Tamamlanan: {progress}</h2>
+            <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Tamamlanan: {progress}</h2>
             <CheckSquare aria-hidden="true" className="h-5 w-5 text-teal-700" />
           </div>
         </section>
 
         {testDriveGroups.map((group) => (
-          <section key={group.id} className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-950">{group.title}</h2>
+          <section
+            key={group.id}
+            className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+          >
+            <h2 className="text-lg font-semibold text-slate-950 dark:text-white">{group.title}</h2>
             <div className="mt-4 grid gap-3">
               {group.items.map((item) => (
                 <label
                   key={item}
-                  className="flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-medium text-slate-800"
+                  className="flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-medium text-slate-800 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-300"
                 >
                   <input
                     type="checkbox"
                     checked={checkedItems.has(item)}
                     onChange={() => toggleItem(item)}
-                    className="mt-0.5 h-5 w-5 shrink-0 rounded border-slate-300 accent-teal-700"
+                    className="mt-0.5 h-5 w-5 shrink-0 rounded border-slate-300 accent-teal-700 dark:border-slate-600"
                   />
                   {item}
                 </label>

@@ -8,7 +8,7 @@ type FieldProps = ComponentProps<"input"> & {
 
 export function Field({ label, id, error, className, ...props }: FieldProps) {
   return (
-    <label className="grid gap-2 text-sm font-medium text-slate-800" htmlFor={id}>
+    <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300" htmlFor={id}>
       <span>{label}</span>
       <input
         id={id}
@@ -37,7 +37,7 @@ type SelectProps = ComponentProps<"select"> & {
 
 export function SelectField({ label, id, error, options, className, ...props }: SelectProps) {
   return (
-    <label className="grid gap-2 text-sm font-medium text-slate-800" htmlFor={id}>
+    <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300" htmlFor={id}>
       <span>{label}</span>
       <select
         id={id}
@@ -72,7 +72,7 @@ type TextareaProps = ComponentProps<"textarea"> & {
 
 export function TextareaField({ label, id, error, className, ...props }: TextareaProps) {
   return (
-    <label className="grid gap-2 text-sm font-medium text-slate-800 md:col-span-2" htmlFor={id}>
+    <label className="grid gap-2 text-sm font-medium text-slate-800 md:col-span-2 dark:text-slate-300" htmlFor={id}>
       <span>{label}</span>
       <textarea
         id={id}

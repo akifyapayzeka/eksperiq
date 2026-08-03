@@ -60,9 +60,9 @@ export default function FeedbackPage() {
         EksperIQ kural setleri gerçek kullanıcı geri bildirimiyle genişletilir. Geri bildirimler uygulama içinde
         kaydedilmez; paylaşmak istediğiniz notları kişisel veri eklemeden e-posta ile iletebilirsiniz.
       </p>
-      <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-        <h2 className="text-lg font-semibold text-slate-950">Nasıl paylaşılır?</h2>
-        <ol className="mt-3 grid gap-2 text-slate-700">
+      <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50">
+        <h2 className="text-lg font-semibold text-slate-950 dark:text-white">Nasıl paylaşılır?</h2>
+        <ol className="mt-3 grid gap-2 text-slate-700 dark:text-slate-300">
           {feedbackSteps.map((step, index) => (
             <li key={step}>
               {index + 1}. {step}
@@ -76,9 +76,9 @@ export default function FeedbackPage() {
         önce triage edilir; kural önerileri test yazılmadan aktif analiz motoruna taşınmaz.
       </p>
       <FeedbackTemplateCopy />
-      <div className="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="text-lg font-semibold text-slate-950">Geri bildirimi doğru hatta ayır</h2>
-        <p className="mt-2 text-slate-700">
+      <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+        <h2 className="text-lg font-semibold text-slate-950 dark:text-white">Geri bildirimi doğru hatta ayır</h2>
+        <p className="mt-2 text-slate-700 dark:text-slate-300">
           Her not aynı işe dönüşmez. Test sırasında gelen yorumu aşağıdaki üç hattan birine koyarsak, hem öncelik hem de
           doğrulama komutu netleşir.
         </p>
@@ -87,18 +87,21 @@ export default function FeedbackPage() {
             const Icon = route.icon;
 
             return (
-              <article key={route.title} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <article
+                key={route.title}
+                className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50"
+              >
                 <div className="flex items-start gap-3">
-                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-800">
+                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-800 dark:bg-teal-950 dark:text-teal-300">
                     <Icon aria-hidden="true" className="h-5 w-5" />
                   </span>
                   <div>
-                    <h3 className="font-semibold text-slate-950">{route.title}</h3>
-                    <p className="mt-2 text-sm text-slate-700">{route.signal}</p>
+                    <h3 className="font-semibold text-slate-950 dark:text-white">{route.title}</h3>
+                    <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">{route.signal}</p>
                   </div>
                 </div>
-                <p className="mt-3 text-sm font-semibold text-slate-900">{route.triage}</p>
-                <p className="mt-1 text-sm text-slate-600">{route.nextStep}</p>
+                <p className="mt-3 text-sm font-semibold text-slate-900 dark:text-white">{route.triage}</p>
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{route.nextStep}</p>
               </article>
             );
           })}
@@ -112,13 +115,13 @@ export default function FeedbackPage() {
           </code>
         </div>
       </div>
-      <div className="rounded-lg border border-teal-100 bg-teal-50 p-4">
-        <h2 className="text-lg font-semibold text-slate-950">5 dakikalık kullanıcı testi</h2>
-        <p className="mt-2 text-slate-700">
+      <div className="rounded-lg border border-teal-100 bg-teal-50 p-4 dark:border-teal-900 dark:bg-teal-950/40">
+        <h2 className="text-lg font-semibold text-slate-950 dark:text-white">5 dakikalık kullanıcı testi</h2>
+        <p className="mt-2 text-slate-700 dark:text-slate-300">
           İlk kullanıcıdan telefonda ana sayfadan başlayıp rapor oluşturmasını isteyin. Test sonunda şu dört soruyu not
           almak yeterli.
         </p>
-        <ul className="mt-3 grid gap-2 text-slate-700">
+        <ul className="mt-3 grid gap-2 text-slate-700 dark:text-slate-300">
           {userTestQuestions.map((question) => (
             <li key={question} className="flex gap-2">
               <CheckCircle2 aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-teal-700" />
@@ -126,7 +129,7 @@ export default function FeedbackPage() {
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-sm text-slate-600">
+        <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
           Detaylı senaryo: <code>docs/first-user-test-script.md</code>. Triage akışı:{" "}
           <code>docs/user-test-feedback-triage.md</code>
         </p>
@@ -134,14 +137,14 @@ export default function FeedbackPage() {
       <div className="flex flex-col gap-3 sm:flex-row">
         <a
           href={userTestMailto}
-          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-950 px-5 font-semibold text-white hover:bg-slate-800"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-950 px-5 font-semibold text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950"
         >
           Kullanıcı testi notu gönder
           <ExternalLink aria-hidden="true" className="h-4 w-4" />
         </a>
         <a
           href={ruleFeedbackMailto}
-          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-300 px-5 font-semibold text-slate-950 hover:bg-slate-50"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-300 px-5 font-semibold text-slate-950 hover:bg-slate-50 dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
         >
           Kural geri bildirimi gönder
           <ExternalLink aria-hidden="true" className="h-4 w-4" />

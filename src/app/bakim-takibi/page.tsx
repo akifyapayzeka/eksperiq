@@ -38,7 +38,7 @@ export default function MaintenanceTrackingPage() {
   }, [currentKm, lastDate, lastKm]);
 
   return (
-    <main className="flex-1 bg-slate-50">
+    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
           <Wrench aria-hidden="true" className="h-9 w-9 text-teal-200" />
@@ -50,50 +50,53 @@ export default function MaintenanceTrackingPage() {
           </p>
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="grid gap-4 sm:grid-cols-3">
-            <label className="grid gap-2 text-sm font-medium text-slate-800">
+            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
               Güncel kilometre
               <input
                 value={currentKm}
                 onChange={(event) => setCurrentKm(event.target.value)}
                 type="number"
-                className="min-h-12 rounded-xl border border-slate-300 px-3"
+                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               />
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800">
+            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
               Son bakım km
               <input
                 value={lastKm}
                 onChange={(event) => setLastKm(event.target.value)}
                 type="number"
-                className="min-h-12 rounded-xl border border-slate-300 px-3"
+                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               />
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800">
+            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
               Son bakım tarihi
               <input
                 value={lastDate}
                 onChange={(event) => setLastDate(event.target.value)}
                 type="date"
-                className="min-h-12 rounded-xl border border-slate-300 px-3"
+                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               />
             </label>
           </div>
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center gap-2">
             <CalendarClock aria-hidden="true" className="h-5 w-5 text-teal-700" />
-            <h2 className="text-xl font-semibold text-slate-950">Takip özeti</h2>
+            <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Takip özeti</h2>
           </div>
           <div className="mt-4 grid gap-3">
             {rows.map((item) => (
-              <article key={item.name} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <article
+                key={item.name}
+                className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-semibold text-slate-950">{item.name}</h3>
-                    <p className="mt-1 text-sm text-slate-600">
+                    <h3 className="font-semibold text-slate-950 dark:text-white">{item.name}</h3>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                       Son bakımdan beri yaklaşık {item.kmSince.toLocaleString("tr-TR")} km
                       {lastDate
                         ? ` ve ${item.monthsSince} ay geçti.`
@@ -101,7 +104,7 @@ export default function MaintenanceTrackingPage() {
                     </p>
                   </div>
                   <span
-                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${item.status === "Yakın kontrol" ? "bg-amber-50 text-amber-800" : "bg-teal-50 text-teal-800"}`}
+                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${item.status === "Yakın kontrol" ? "bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300" : "bg-teal-50 text-teal-800 dark:bg-teal-950 dark:text-teal-300"}`}
                   >
                     {item.status}
                   </span>
@@ -111,8 +114,8 @@ export default function MaintenanceTrackingPage() {
           </div>
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-          <p className="text-sm text-slate-700">
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-800/50">
+          <p className="text-sm text-slate-700 dark:text-slate-300">
             Bu ekran tek seferlik, kayıtsız bir tahmindir. Tarihleri hatırlatmalı ve birden fazla araç için ayrı ayrı
             takip etmek isterseniz Bakım ve Ödeme Takvimi&apos;ni kullanabilirsiniz.
           </p>

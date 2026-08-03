@@ -36,7 +36,7 @@ export default function SmartSalePreparationPage() {
   }
 
   return (
-    <main className="flex-1 bg-slate-50">
+    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
         <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
           <Sparkles aria-hidden="true" className="h-9 w-9 text-teal-200" />
@@ -46,10 +46,10 @@ export default function SmartSalePreparationPage() {
             Bu liste satış garantisi vermez; aracınızı daha şeffaf ve düzenli sunmanıza yardımcı olur.
           </p>
         </section>
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl font-semibold text-slate-950">Hazırlık listesi</h2>
-            <span className="rounded-full bg-teal-50 px-3 py-1 text-sm font-semibold text-teal-800">
+            <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Hazırlık listesi</h2>
+            <span className="rounded-full bg-teal-50 px-3 py-1 text-sm font-semibold text-teal-800 dark:bg-teal-950 dark:text-teal-300">
               {checked.size}/{saleChecklist.length}
             </span>
           </div>
@@ -57,7 +57,7 @@ export default function SmartSalePreparationPage() {
             {saleChecklist.map((item) => (
               <label
                 key={item}
-                className="flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-medium text-slate-800"
+                className="flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-medium text-slate-800 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-300"
               >
                 <input
                   type="checkbox"

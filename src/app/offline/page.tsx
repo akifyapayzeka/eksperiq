@@ -2,11 +2,11 @@ import Link from "next/link";
 
 export default function OfflinePage() {
   return (
-    <main className="flex min-h-[calc(100dvh-8rem)] items-center bg-slate-50 px-4 py-10 text-slate-950">
-      <section className="mx-auto w-full max-w-xl rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+    <main className="flex min-h-[calc(100dvh-8rem)] items-center bg-slate-50 px-4 py-10 text-slate-950 dark:bg-slate-950 dark:text-white">
+      <section className="mx-auto w-full max-w-xl rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <p className="text-sm font-semibold text-teal-700">EksperIQ</p>
         <h1 className="mt-3 text-2xl font-semibold">Bağlantı gerekiyor</h1>
-        <p className="mt-3 text-base leading-7 text-slate-700">
+        <p className="mt-3 text-base leading-7 text-slate-700 dark:text-slate-300">
           Analiz ekranını açmak ve güncel uygulama dosyalarını yüklemek için internet bağlantısı gerekir. Girdiğiniz
           ilan ve araç bilgileri sunucuya kaydedilmez.
         </p>
