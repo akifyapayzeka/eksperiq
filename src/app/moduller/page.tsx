@@ -41,7 +41,7 @@ function ModuleCard({ module }: { module: ProductModule }) {
       </div>
       <Link
         href={module.href}
-        className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800"
+        className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800"
       >
         {isActive ? "Modülü aç" : "Detayları gör"}
         <ArrowUpRight aria-hidden="true" className="h-4 w-4" />

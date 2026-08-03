@@ -291,7 +291,7 @@ export default function ExpenseLedgerPage() {
             type="button"
             onClick={submitExpense}
             disabled={!selectedVehicleId}
-            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 font-semibold text-white disabled:opacity-50"
+            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-slate-950 px-5 font-semibold text-white disabled:opacity-50"
           >
             <Plus aria-hidden="true" className="h-5 w-5" />
             Gideri kaydet

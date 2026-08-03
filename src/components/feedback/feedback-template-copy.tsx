@@ -43,7 +43,7 @@ export function FeedbackTemplateCopy() {
       <button
         type="button"
         onClick={copyTemplate}
-        className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-5 font-semibold text-white hover:bg-slate-800 sm:w-auto"
+        className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-slate-950 px-5 font-semibold text-white hover:bg-slate-800 sm:w-auto"
       >
         <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
         Anonim not şablonunu kopyala

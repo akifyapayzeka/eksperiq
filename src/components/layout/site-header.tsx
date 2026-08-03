@@ -30,7 +30,7 @@ export function SiteHeader() {
         </nav>
         <Link
           href="/analiz"
-          className="inline-flex min-h-11 items-center rounded-lg bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
+          className="inline-flex min-h-11 items-center rounded-full bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800"
         >
           Yeni Analiz
         </Link>

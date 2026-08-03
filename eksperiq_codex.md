@@ -860,6 +860,30 @@ kullanıyordu, değişiklik gerekmedi. Fonksiyonellik (React Hook Form, doğrula
 marka/model kademeli seçim) hiç dokunulmadan korundu. Tam doğrulama döngüsü +
 gerçek Playwright akışıyla görsel doğrulama yapıldı.
 
+## 2026-08-03: Uygulama genelinde tüm butonlar firevibe pill stiline taşındı
+
+Kullanıcı "diğer sayfaları da bu şekilde uyarla" dedi — firevibe entegrasyonunun
+kapsamını (Ana Sayfa/Analizlerim/Garajım/Analiz formu) uygulamanın tamamına
+genişlettim. Tüm birincil aksiyon butonlarını/linklerini (`bg-slate-950`,
+`bg-teal-700`, `border-teal-700`, `border-slate-300` CTA'ları) `rounded-xl`/
+`rounded-lg`'den `rounded-full` (pill) stiline geçirdim:
+
+- Sayfalar: bakim-odeme-takvimi, fotograf-hasar, gider-defteri, karsilastirma,
+  kontrol-listesi, moduller, profil, geri-bildirim, not-found, error, offline.
+- Paylaşılan bileşenler: `site-header.tsx` (üst menüdeki "Yeni Analiz" butonu —
+  kullanıcının ekran görüntüsünde gördüğü tam olarak bu), `vehicle-switcher.tsx`
+  (3 sayfada kullanılan araç seçici — Yeniden adlandır/Araç ekle/Sil/Evet-İptal/
+  Kaydet-Vazgeç butonları), `result-client.tsx` (Raporu yazdır, kopyala
+  butonları, Karşılaştırmaya ekle, Geri bildirim gönder, AI notu oluştur,
+  Analizi yeniden başlat), `feedback-template-copy.tsx`.
+
+Form input/select alanları ve düz içerik kartları (bg-white/bg-slate-50,
+border-slate-200/300) kasıtlı olarak dokunulmadan bırakıldı — pill stili
+yalnızca aksiyon butonlarına özgü, forma değil. Mobil alt menü ve masaüstü üst
+menü navigasyon linkleri de kasıtlı değiştirilmedi (nav öğeleri, CTA değil).
+Tam doğrulama döngüsü + gerçek Playwright akışıyla üç farklı sayfada (Bakım
+Takvimi, Sonuç, Gider Defteri) görsel doğrulama yapıldı.
+
 ## Genel ilkeler (her yeni özellikte hatırlanmalı)
 
 - Kesin hüküm/garanti ifadesi yok.
