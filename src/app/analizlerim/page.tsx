@@ -22,6 +22,7 @@ import {
 } from "@/lib/storage/analysis-history-storage";
 import { deletePhotoAnalysis, loadPhotoAnalyses } from "@/lib/storage/photo-analysis-storage";
 import { loadVehicles } from "@/lib/storage/vehicle-storage";
+import { riskBucket } from "@/lib/analysis/risk-bucket";
 import type { AnalysisResult } from "@/lib/analysis/types";
 import type { PhotoAnalysisRecord } from "@/lib/photo-analysis/types";
 
@@ -47,12 +48,6 @@ const assistantModules = [
   ["/arac-saglik-karnesi", "Araç Sağlık Karnesi", "Bakım, ekspertiz ve kontrol geçmişini sade ekranda tut."],
   ["/arac-deger-takibi", "Araç Değer Takibi", "Piyasa hareketlerini karar desteği olarak takip et."],
 ] as const;
-
-function riskBucket(score: number): Exclude<AnalysisFilter, "all"> {
-  if (score >= 80) return "low";
-  if (score >= 60) return "medium";
-  return "high";
-}
 
 function normalize(value: string): string {
   return value.toLocaleLowerCase("tr-TR").trim();

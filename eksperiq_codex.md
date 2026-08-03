@@ -816,8 +816,22 @@ Kullanıcı üçüncü taraf API'yi tercih etti ama hesap açma/ödeme kullanıc
 için şimdilik sade bir CarFront ikonuyla devam ediliyor; kullanıcı bir servise kayıt
 olup API anahtarı sağladığında gerçek fotoğrafa geçilecek.
 
-Kalan işler (devam ediyor): Ana Sayfa ve Garajım/Moduller sayfalarının aynı tasarıma
-taşınması, "Yakında" yanlış etiketlerinin düzeltilmesi.
+Kalan işler (devam ediyor): Garajım/Moduller sayfalarının aynı tasarıma taşınması,
+"Yakında" yanlış etiketlerinin düzeltilmesi.
+
+## 2026-08-03: Ana Sayfa firevibe tasarımına taşındı
+
+Ana Sayfa (`src/app/page.tsx`) client component'e çevrildi ve gerçek verilerle
+yeni tasarıma taşındı: "Analiz özetin" istatistik şeridi (analiz sayısı, ortalama
+risk skoru, araç sayısı — hepsi gerçek localStorage'dan) ve varsa "En son inceleme"
+kartı (en son analizin marka/model/yıl, risk rozeti, öncelikli bulgu, "Raporu Aç")
+eklendi. Hesap sistemi olmadığı için mockup'taki "Merhaba, Ahmet" kişiselleştirilmiş
+karşılaması kullanılmadı; mevcut dürüst hero metni ("Link gerekmiyor...") korundu.
+Risk rengi kodlaması için `riskBucket()` fonksiyonu `analysis/risk-bucket.ts`'e
+çıkarıldı (Analizlerim ve Ana Sayfa olmak üzere iki yerde kullanıldığı için — üçüncü
+kullanım Garajım'da da beklendiğinden "rule of three" ile paylaşılan yardımcıya
+taşındı). Tam doğrulama döngüsü + gerçek Playwright test akışıyla tarayıcıda görsel
+doğrulama yapıldı.
 
 ## Genel ilkeler (her yeni özellikte hatırlanmalı)
 
