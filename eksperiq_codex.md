@@ -924,6 +924,48 @@ koyu renkte olduğu (ölçekli/küçültülmüş ekran görüntüsünün yanılt
 doğrulandı — üst menünün tek başına (200px yükseklik) net görüntüsü alınarak
 teyit edildi.
 
+## 2026-08-03: Dark mode — kalan tüm sayfalar (2. ve 3. parça birleşik)
+
+Dark mode'un geri kalan kapsamı (Garajım/Moduller, Analiz formu, Sonuç
+sayfası ve diğer tüm ~28 sayfa/bileşen) tek bir PR'da tamamlandı. Yaklaşık
+30 dosyanın neredeyse aynı Tailwind className kalıplarını paylaştığı
+görüldüğü için (`grep -rho 'className="[^"]*"' | sort | uniq -c` ile
+doğrulandı), tek tek elle düzenlemek yerine kural tabanlı bir Python
+regex script'i (`className="..."` literal string'lerini işleyen, ~45 kural
+içeren) kullanıldı. Script sonrası sistematik doğrulama script'leriyle 6
+kategori hata bulunup düzeltildi:
+
+1. Bazı elementlerde çakışan/mükerrer dark class'lar (örn. hem özel hem
+   genel kural aynı anda tetiklenmiş).
+2. `vehicle-switcher.tsx`'te "Yeniden adlandır" butonu yanlışlıkla form-input
+   kuralıyla eşleşip `dark:bg-slate-800 dark:text-white` almış.
+3. Checkbox accent input'larında mükerrer border rengi (`dark:border-slate-600`
+   + `dark:border-slate-700` birlikte).
+4. **Substring yanlış-pozitif**: `hover:bg-slate-100` class'ı, `bg-slate-100`
+   alt string'ini içerdiği için genel (hover olmayan) kural da yanlışlıkla
+   tetiklendi ve kalıcı bir koyu arkaplan eklendi — `kontrol-listesi.tsx`'te
+   bulunup düzeltildi.
+5. `text-slate-900` tonu için hiç kural yoktu (yalnızca 950/800/700/600/500/400
+   kapsanmıştı) — 5 dosyada eksik `dark:text-white` eklendi.
+6. **Template-literal className köşesi**: regex script yalnızca
+   `className="..."` literal string'lerini yakalıyor, `className={\`...\`}`
+   template-literal ifadelerini kaçırıyordu. `grep -rln 'className={\`'` ile
+   bulunup elle düzeltildi: `bakim-odeme-takvimi.tsx`/`arac-saglik-karnesi.tsx`
+   içindeki `urgencyStyles` nesneleri, `bakim-takibi.tsx` ve
+   `fotograf-hasar.tsx`'teki satır içi durum mesajları, `result-client.tsx`
+   içindeki `severityClass`/`riskToneClass`/`priorityToneClass` fonksiyonları
+   ve 5 satır içi ternary (kopyalama durumu, AI not geri bildirimi, filtre
+   sekmeleri).
+
+Tüm düzeltmeler sonrası mükerrer-class doğrulama script'i temiz sonuç verdi.
+Doğrulama: `npm run lint`, `npm run typecheck`, `npm run test` (191/191),
+Playwright e2e (31 geçti, 2 mobil-özel atlandı), `npm run release:check`
+hepsi geçti. `/`, `/analiz`, `/moduller`, `/bakim-odeme-takvimi`,
+`/arac-saglik-karnesi`, `/analizlerim` sayfaları
+`page.emulateMedia({colorScheme:'dark'})` ile görsel olarak da doğrulandı —
+sorun yok. Bu, dark mode görevinin (1. parça zaten ayrı PR olarak
+tamamlanmıştı) geri kalan tüm kapsamını tek PR'da kapatıyor.
+
 ## Genel ilkeler (her yeni özellikte hatırlanmalı)
 
 - Kesin hüküm/garanti ifadesi yok.

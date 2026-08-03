@@ -31,7 +31,7 @@ export default function ComparisonPage() {
   }
 
   return (
-    <main className="flex-1 bg-slate-50">
+    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
           <GitCompareArrows aria-hidden="true" className="h-9 w-9 text-teal-200" />
@@ -44,15 +44,15 @@ export default function ComparisonPage() {
         </section>
 
         {entries.length ? (
-          <section className="mt-5 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <section className="mt-5 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <table className="w-full min-w-[560px] border-collapse text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="p-4 font-semibold text-slate-600">Karşılaştırma</th>
+                <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
+                  <th className="p-4 font-semibold text-slate-600 dark:text-slate-400">Karşılaştırma</th>
                   {entries.map((entry) => (
                     <th key={entry.id} className="p-4">
                       <div className="flex items-start justify-between gap-2">
-                        <span className="font-semibold text-slate-950">{entry.label}</span>
+                        <span className="font-semibold text-slate-950 dark:text-white">{entry.label}</span>
                         <button
                           type="button"
                           onClick={() => removeEntry(entry.id)}
@@ -67,44 +67,44 @@ export default function ComparisonPage() {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-slate-100">
-                  <td className="p-4 font-medium text-slate-600">Risk skoru</td>
+                <tr className="border-b border-slate-100 dark:border-slate-800">
+                  <td className="p-4 font-medium text-slate-600 dark:text-slate-400">Risk skoru</td>
                   {entries.map((entry) => (
-                    <td key={entry.id} className="p-4 font-semibold text-slate-950">
+                    <td key={entry.id} className="p-4 font-semibold text-slate-950 dark:text-white">
                       {entry.result.totalScore}/100 · {entry.result.riskLabel}
                     </td>
                   ))}
                 </tr>
-                <tr className="border-b border-slate-100 bg-slate-50">
-                  <td className="p-4 font-medium text-slate-600">Fiyat</td>
+                <tr className="border-b border-slate-100 bg-slate-50 dark:border-slate-800">
+                  <td className="p-4 font-medium text-slate-600 dark:text-slate-400">Fiyat</td>
                   {entries.map((entry) => (
-                    <td key={entry.id} className="p-4 text-slate-800">
+                    <td key={entry.id} className="p-4 text-slate-800 dark:text-slate-300">
                       {entry.result.input.price.toLocaleString("tr-TR")} TL
                     </td>
                   ))}
                 </tr>
-                <tr className="border-b border-slate-100">
-                  <td className="p-4 font-medium text-slate-600">Kilometre</td>
+                <tr className="border-b border-slate-100 dark:border-slate-800">
+                  <td className="p-4 font-medium text-slate-600 dark:text-slate-400">Kilometre</td>
                   {entries.map((entry) => (
-                    <td key={entry.id} className="p-4 text-slate-800">
+                    <td key={entry.id} className="p-4 text-slate-800 dark:text-slate-300">
                       {entry.result.input.mileage.toLocaleString("tr-TR")} km
                     </td>
                   ))}
                 </tr>
-                <tr className="border-b border-slate-100 bg-slate-50">
-                  <td className="p-4 font-medium text-slate-600">Şehir</td>
+                <tr className="border-b border-slate-100 bg-slate-50 dark:border-slate-800">
+                  <td className="p-4 font-medium text-slate-600 dark:text-slate-400">Şehir</td>
                   {entries.map((entry) => (
-                    <td key={entry.id} className="p-4 text-slate-800">
+                    <td key={entry.id} className="p-4 text-slate-800 dark:text-slate-300">
                       {entry.result.input.city || "Belirtilmedi"}
                     </td>
                   ))}
                 </tr>
-                <tr className="border-b border-slate-100">
-                  <td className="p-4 font-medium text-slate-600">Bulgular</td>
+                <tr className="border-b border-slate-100 dark:border-slate-800">
+                  <td className="p-4 font-medium text-slate-600 dark:text-slate-400">Bulgular</td>
                   {entries.map((entry) => {
                     const counts = severityCounts(entry);
                     return (
-                      <td key={entry.id} className="p-4 text-slate-800">
+                      <td key={entry.id} className="p-4 text-slate-800 dark:text-slate-300">
                         {(Object.keys(severityLabels) as Array<keyof typeof severityLabels>).map((key) => (
                           <span key={key} className="mr-2 inline-block">
                             {severityLabels[key]}: {counts[key]}
@@ -114,18 +114,18 @@ export default function ComparisonPage() {
                     );
                   })}
                 </tr>
-                <tr className="border-b border-slate-100 bg-slate-50">
-                  <td className="p-4 font-medium text-slate-600">Bilgi doluluğu</td>
+                <tr className="border-b border-slate-100 bg-slate-50 dark:border-slate-800">
+                  <td className="p-4 font-medium text-slate-600 dark:text-slate-400">Bilgi doluluğu</td>
                   {entries.map((entry) => (
-                    <td key={entry.id} className="p-4 text-slate-800">
+                    <td key={entry.id} className="p-4 text-slate-800 dark:text-slate-300">
                       {entry.result.completeness.completed}/{entry.result.completeness.total}
                     </td>
                   ))}
                 </tr>
                 <tr>
-                  <td className="p-4 font-medium text-slate-600">Öncelikli bulgu</td>
+                  <td className="p-4 font-medium text-slate-600 dark:text-slate-400">Öncelikli bulgu</td>
                   {entries.map((entry) => (
-                    <td key={entry.id} className="p-4 text-slate-800">
+                    <td key={entry.id} className="p-4 text-slate-800 dark:text-slate-300">
                       {entry.result.findings[0]?.title ?? "Öncelikli bulgu yok"}
                     </td>
                   ))}
@@ -134,8 +134,8 @@ export default function ComparisonPage() {
             </table>
           </section>
         ) : (
-          <section className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-            <p className="text-sm leading-6 text-slate-600">
+          <section className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-700 dark:bg-slate-800/50">
+            <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">
               Henüz karşılaştırmaya eklenmiş ilan yok. Bir analiz oluşturup sonuç sayfasından &quot;Karşılaştırmaya
               ekle&quot; butonunu kullanın.
             </p>

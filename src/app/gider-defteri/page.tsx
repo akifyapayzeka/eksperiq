@@ -128,7 +128,7 @@ export default function ExpenseLedgerPage() {
   }
 
   return (
-    <main className="flex-1 bg-slate-50">
+    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
           <Wallet aria-hidden="true" className="h-9 w-9 text-teal-200" />
@@ -152,30 +152,32 @@ export default function ExpenseLedgerPage() {
         </div>
 
         <section className="mt-5 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-sm text-slate-600">Toplam gider (kayıtlı ay sayısı kadar)</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-950">{formatTl(overallTotal)}</p>
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <p className="text-sm text-slate-600 dark:text-slate-400">Toplam gider (kayıtlı ay sayısı kadar)</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-950 dark:text-white">{formatTl(overallTotal)}</p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-sm text-slate-600">Yaklaşık km başı maliyet</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-950">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <p className="text-sm text-slate-600 dark:text-slate-400">Yaklaşık km başı maliyet</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-950 dark:text-white">
               {costPerKm !== null
                 ? `${costPerKm.toLocaleString("tr-TR", { maximumFractionDigits: 2 })} TL/km`
                 : "Bilgi yetersiz"}
             </p>
             {costPerKm === null ? (
-              <p className="mt-1 text-xs text-slate-500">En az iki kayıtta kilometre girerseniz hesaplanır.</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                En az iki kayıtta kilometre girerseniz hesaplanır.
+              </p>
             ) : null}
           </div>
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-950">Aylık gider</h2>
-          <div className="mt-5 flex h-40 items-end gap-2 border-b border-slate-300">
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Aylık gider</h2>
+          <div className="mt-5 flex h-40 items-end gap-2 border-b border-slate-300 dark:border-slate-700">
             {months.map((month) => (
               <div key={month.monthKey} className="flex flex-1 flex-col items-center justify-end gap-1">
                 {month.total > 0 ? (
-                  <span className="text-[0.65rem] font-medium text-slate-600">
+                  <span className="text-[0.65rem] font-medium text-slate-600 dark:text-slate-400">
                     {month.total.toLocaleString("tr-TR", { maximumFractionDigits: 0, notation: "compact" })}
                   </span>
                 ) : null}
@@ -189,7 +191,10 @@ export default function ExpenseLedgerPage() {
           </div>
           <div className="mt-2 flex gap-2">
             {months.map((month) => (
-              <span key={month.monthKey} className="flex-1 text-center text-[0.65rem] text-slate-500">
+              <span
+                key={month.monthKey}
+                className="flex-1 text-center text-[0.65rem] text-slate-500 dark:text-slate-400"
+              >
                 {month.label}
               </span>
             ))}
@@ -199,16 +204,16 @@ export default function ExpenseLedgerPage() {
             <summary className="cursor-pointer text-sm font-semibold text-teal-800">Tablo olarak gör</summary>
             <table className="mt-3 w-full text-left text-sm">
               <thead>
-                <tr className="text-slate-500">
+                <tr className="text-slate-500 dark:text-slate-400">
                   <th className="py-1 font-medium">Ay</th>
                   <th className="py-1 font-medium">Toplam</th>
                 </tr>
               </thead>
               <tbody>
                 {months.map((month) => (
-                  <tr key={month.monthKey} className="border-t border-slate-100">
-                    <td className="py-1 text-slate-800">{month.label}</td>
-                    <td className="py-1 text-slate-800">{formatTl(month.total)}</td>
+                  <tr key={month.monthKey} className="border-t border-slate-100 dark:border-slate-800">
+                    <td className="py-1 text-slate-800 dark:text-slate-300">{month.label}</td>
+                    <td className="py-1 text-slate-800 dark:text-slate-300">{formatTl(month.total)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -217,30 +222,33 @@ export default function ExpenseLedgerPage() {
         </section>
 
         {overallTotal > 0 ? (
-          <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 className="text-xl font-semibold text-slate-950">Kategoriye göre toplam</h2>
+          <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Kategoriye göre toplam</h2>
             <div className="mt-4 grid gap-2">
               {Object.entries(categoryTotals).map(([key, total]) => (
-                <div key={key} className="flex items-center justify-between rounded-xl bg-slate-50 p-3">
-                  <span className="text-sm font-medium text-slate-800">
+                <div
+                  key={key}
+                  className="flex items-center justify-between rounded-xl bg-slate-50 p-3 dark:bg-slate-800/50"
+                >
+                  <span className="text-sm font-medium text-slate-800 dark:text-slate-300">
                     {expenseCategoryLabels[key as ExpenseCategory]}
                   </span>
-                  <span className="text-sm font-semibold text-slate-950">{formatTl(total ?? 0)}</span>
+                  <span className="text-sm font-semibold text-slate-950 dark:text-white">{formatTl(total ?? 0)}</span>
                 </div>
               ))}
             </div>
           </section>
         ) : null}
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-950">Gider ekle</h2>
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Gider ekle</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <label className="grid gap-2 text-sm font-medium text-slate-800">
+            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
               Tür
               <select
                 value={category}
                 onChange={(event) => setCategory(event.target.value as ExpenseCategory)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3"
+                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               >
                 {Object.entries(expenseCategoryLabels).map(([value, label]) => (
                   <option key={value} value={value}>
@@ -249,77 +257,82 @@ export default function ExpenseLedgerPage() {
                 ))}
               </select>
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800">
+            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
               Tutar (TL)
               <input
                 type="number"
                 min="0"
                 value={amount}
                 onChange={(event) => setAmount(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3"
+                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               />
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800">
+            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
               Tarih
               <input
                 type="date"
                 value={date}
                 onChange={(event) => setDate(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3"
+                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               />
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800">
+            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
               Kilometre (opsiyonel)
               <input
                 type="number"
                 min="0"
                 value={odometer}
                 onChange={(event) => setOdometer(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3"
+                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               />
             </label>
           </div>
-          <label className="mt-4 grid gap-2 text-sm font-medium text-slate-800">
+          <label className="mt-4 grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
             Not (opsiyonel)
             <textarea
               value={note}
               onChange={(event) => setNote(event.target.value)}
-              className="min-h-20 rounded-xl border border-slate-300 px-3 py-3"
+              className="min-h-20 rounded-xl border border-slate-300 px-3 py-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
             />
           </label>
           <button
             type="button"
             onClick={submitExpense}
             disabled={!selectedVehicleId}
-            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-slate-950 px-5 font-semibold text-white disabled:opacity-50"
+            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-slate-950 px-5 font-semibold text-white disabled:opacity-50 dark:bg-white dark:text-slate-950"
           >
             <Plus aria-hidden="true" className="h-5 w-5" />
             Gideri kaydet
           </button>
           {formMessage ? (
-            <p role="status" className="mt-3 text-sm font-medium text-slate-700">
+            <p role="status" className="mt-3 text-sm font-medium text-slate-700 dark:text-slate-300">
               {formMessage}
             </p>
           ) : null}
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-950">Kayıtlar</h2>
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Kayıtlar</h2>
           <div className="mt-4 grid gap-3">
             {sortedRecords.length ? (
               sortedRecords.map((record) => (
-                <article key={record.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <article
+                  key={record.id}
+                  className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50"
+                >
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-xs font-semibold uppercase text-teal-800">
                         {expenseCategoryLabels[record.category]}
                       </p>
-                      <p className="mt-1 font-semibold text-slate-950">{formatTl(record.amount)}</p>
-                      <p className="mt-1 text-sm text-slate-600">
+                      <p className="mt-1 font-semibold text-slate-950 dark:text-white">{formatTl(record.amount)}</p>
+                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                         {formatDate(record.date)}
                         {typeof record.odometer === "number" ? ` · ${record.odometer.toLocaleString("tr-TR")} km` : ""}
                       </p>
-                      {record.note ? <p className="mt-1 text-sm text-slate-600">{record.note}</p> : null}
+                      {record.note ? (
+                        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{record.note}</p>
+                      ) : null}
                     </div>
                     <button
                       type="button"
@@ -333,7 +346,9 @@ export default function ExpenseLedgerPage() {
                 </article>
               ))
             ) : (
-              <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">Henüz gider eklenmedi.</p>
+              <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-800/50 dark:text-slate-400">
+                Henüz gider eklenmedi.
+              </p>
             )}
           </div>
         </section>

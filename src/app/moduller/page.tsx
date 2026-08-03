@@ -7,9 +7,9 @@ function ModuleCard({ module }: { module: ProductModule }) {
   const isActive = module.status === "active";
 
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div className="flex items-start justify-between gap-4">
-        <span className="grid h-12 w-12 place-items-center rounded-full bg-sky-50 text-teal-800">
+        <span className="grid h-12 w-12 place-items-center rounded-full bg-sky-50 text-teal-800 dark:bg-teal-950 dark:text-teal-300">
           {isActive ? (
             <CheckCircle2 aria-hidden="true" className="h-6 w-6" />
           ) : (
@@ -24,24 +24,25 @@ function ModuleCard({ module }: { module: ProductModule }) {
           {isActive ? "Aktif" : "Yakında"}
         </span>
       </div>
-      <h2 className="mt-5 text-xl font-semibold leading-tight text-slate-950">{module.title}</h2>
-      <p className="mt-2 text-sm leading-6 text-slate-700">{module.summary}</p>
+      <h2 className="mt-5 text-xl font-semibold leading-tight text-slate-950 dark:text-white">{module.title}</h2>
+      <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">{module.summary}</p>
       <div className="mt-5 grid gap-2">
         {module.capabilities.slice(0, 3).map((capability) => (
-          <div key={capability.title} className="rounded-xl bg-slate-50 p-3">
-            <h3 className="text-sm font-semibold text-slate-950">{capability.title}</h3>
-            <p className="mt-1 text-sm leading-6 text-slate-600">{capability.description}</p>
+          <div key={capability.title} className="rounded-xl bg-slate-50 p-3 dark:bg-slate-800/50">
+            <h3 className="text-sm font-semibold text-slate-950 dark:text-white">{capability.title}</h3>
+            <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">{capability.description}</p>
           </div>
         ))}
       </div>
-      <div className="mt-5 rounded-xl border border-slate-200 bg-white p-3 text-sm leading-6 text-slate-600">
+      <div className="mt-5 rounded-xl border border-slate-200 bg-white p-3 text-sm leading-6 text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
         <p>
-          <span className="font-semibold text-slate-900">Kesinlik sınırı:</span> {module.certaintyPolicy}
+          <span className="font-semibold text-slate-900 dark:text-white">Kesinlik sınırı:</span>{" "}
+          {module.certaintyPolicy}
         </p>
       </div>
       <Link
         href={module.href}
-        className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800"
+        className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950"
       >
         {isActive ? "Modülü aç" : "Detayları gör"}
         <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
@@ -55,7 +56,7 @@ export default function ModulesPage() {
   const planned = plannedModules();
 
   return (
-    <main className="flex-1 bg-slate-50">
+    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm sm:p-8">
           <p className="text-sm font-semibold text-teal-200">EksperIQ vizyonu</p>
@@ -69,7 +70,7 @@ export default function ModulesPage() {
         </section>
 
         <section className="mt-8" aria-labelledby="active-modules-title">
-          <h2 id="active-modules-title" className="text-2xl font-semibold text-slate-950">
+          <h2 id="active-modules-title" className="text-2xl font-semibold text-slate-950 dark:text-white">
             Aktif modüller
           </h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -81,10 +82,10 @@ export default function ModulesPage() {
 
         {planned.length ? (
           <section className="mt-10" aria-labelledby="planned-modules-title">
-            <h2 id="planned-modules-title" className="text-2xl font-semibold text-slate-950">
+            <h2 id="planned-modules-title" className="text-2xl font-semibold text-slate-950 dark:text-white">
               Yakında gelecek özellikler
             </h2>
-            <p className="mt-2 text-base leading-7 text-slate-600">
+            <p className="mt-2 text-base leading-7 text-slate-600 dark:text-slate-400">
               Aracını tanıdıkça daha faydalı öneriler sunacak bağımsız modüller.
             </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">

@@ -9,11 +9,11 @@ export default function ErrorBoundary({ error, reset }: { error: Error & { diges
   }, [error]);
 
   return (
-    <main className="flex min-h-[calc(100dvh-8rem)] items-center bg-slate-50 px-4 py-10 text-slate-950">
-      <section className="mx-auto w-full max-w-xl rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+    <main className="flex min-h-[calc(100dvh-8rem)] items-center bg-slate-50 px-4 py-10 text-slate-950 dark:bg-slate-950 dark:text-white">
+      <section className="mx-auto w-full max-w-xl rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <p className="text-sm font-semibold text-teal-700">EksperIQ</p>
         <h1 className="mt-3 text-2xl font-semibold">Bir şeyler ters gitti</h1>
-        <p className="mt-3 text-base leading-7 text-slate-700">
+        <p className="mt-3 text-base leading-7 text-slate-700 dark:text-slate-300">
           Beklenmeyen bir hata oluştu. Girdiğiniz bilgiler sunucuya kaydedilmediği için kaybolmaz; tekrar deneyebilir
           veya ana sayfaya dönebilirsiniz.
         </p>
@@ -26,7 +26,7 @@ export default function ErrorBoundary({ error, reset }: { error: Error & { diges
             Tekrar dene
           </button>
           <Link
-            className="inline-flex min-h-11 items-center justify-center rounded-full transition active:scale-95 border border-slate-300 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700"
+            className="inline-flex min-h-11 items-center justify-center rounded-full transition active:scale-95 border border-slate-300 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 dark:border-slate-700 dark:text-slate-300"
             href="/"
           >
             Ana sayfaya dön

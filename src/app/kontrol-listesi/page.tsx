@@ -46,7 +46,7 @@ export default function ChecklistPage() {
   }
 
   return (
-    <main className="flex-1 bg-slate-50">
+    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
         <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
           <ClipboardCheck aria-hidden="true" className="h-9 w-9 text-teal-200" />
@@ -57,9 +57,9 @@ export default function ChecklistPage() {
           </p>
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl font-semibold text-slate-950">
+            <h2 className="text-xl font-semibold text-slate-950 dark:text-white">
               Tamamlanan kontroller {checkedItems.size} / {checklist.length}
             </h2>
             <CheckSquare aria-hidden="true" className="h-5 w-5 text-teal-700" />
@@ -68,13 +68,13 @@ export default function ChecklistPage() {
             {checklist.map((item) => (
               <label
                 key={item}
-                className="flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-medium text-slate-800"
+                className="flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-medium text-slate-800 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-300"
               >
                 <input
                   type="checkbox"
                   checked={checkedItems.has(item)}
                   onChange={() => toggleItem(item)}
-                  className="h-5 w-5 rounded border-slate-300 accent-teal-700"
+                  className="h-5 w-5 rounded border-slate-300 accent-teal-700 dark:border-slate-600"
                 />
                 {item}
               </label>
@@ -85,20 +85,20 @@ export default function ChecklistPage() {
         <div className="mt-5 flex flex-wrap gap-3">
           <Link
             href="/sonuc"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-900 px-5 text-base font-semibold text-white hover:bg-slate-800"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-900 px-5 text-base font-semibold text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950"
           >
             <FileText aria-hidden="true" className="h-5 w-5" />
             Analiz raporuna dön
           </Link>
           <Link
             href="/test-surusu-kontrol"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-300 px-5 text-base font-semibold text-slate-900 hover:bg-slate-100"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-300 px-5 text-base font-semibold text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
           >
             Test sürüşü kontrol listesini aç
           </Link>
           <Link
             href="/resmi-sorgu-rehberi"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-300 px-5 text-base font-semibold text-slate-900 hover:bg-slate-100"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-300 px-5 text-base font-semibold text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
           >
             Resmi sorgu rehberini aç
           </Link>

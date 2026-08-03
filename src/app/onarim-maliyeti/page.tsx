@@ -30,7 +30,7 @@ export default function RepairCostPage() {
   }, [repair, service]);
 
   return (
-    <main className="flex-1 bg-slate-50">
+    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
         <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
           <Calculator aria-hidden="true" className="h-9 w-9 text-teal-200" />
@@ -40,26 +40,26 @@ export default function RepairCostPage() {
             Net fiyat vermez; şehir, parça, servis ve boya kalitesine göre değişir.
           </p>
         </section>
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="grid gap-2 text-sm font-medium text-slate-800">
+            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
               İşlem
               <select
                 value={repair}
                 onChange={(event) => setRepair(event.target.value as keyof typeof repairBase)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3"
+                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               >
                 {Object.keys(repairBase).map((item) => (
                   <option key={item}>{item}</option>
                 ))}
               </select>
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800">
+            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
               Servis tipi
               <select
                 value={service}
                 onChange={(event) => setService(event.target.value as keyof typeof serviceFactors)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3"
+                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               >
                 {Object.keys(serviceFactors).map((item) => (
                   <option key={item}>{item}</option>
@@ -68,7 +68,7 @@ export default function RepairCostPage() {
             </label>
           </div>
         </section>
-        <section className="mt-5 rounded-2xl border border-teal-100 bg-teal-50 p-5 text-teal-950">
+        <section className="mt-5 rounded-2xl border border-teal-100 bg-teal-50 p-5 text-teal-950 dark:bg-teal-950/40 dark:text-teal-200 dark:border-teal-900">
           <h2 className="text-xl font-semibold">Yaklaşık aralık</h2>
           <p className="mt-3 text-3xl font-semibold">
             {range[0].toLocaleString("tr-TR")} - {range[1].toLocaleString("tr-TR")} TL
