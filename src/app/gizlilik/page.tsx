@@ -27,7 +27,11 @@ export default function PrivacyPage() {
         Mobil mağaza sürümünde de aynı gizlilik sınırları korunur; kamera, fotoğraf veya bildirim izni yalnızca ilgili
         özelliği kullanmayı seçtiğinizde istenir.
       </p>
-      <p>Tarayıcı oturumu kapatıldığında veya kullanıcı veriyi temizlediğinde analiz sonucu kaybolabilir.</p>
+      <p>
+        Analiz geçmişiniz (Analizlerim ekranındaki kayıtlar) tarayıcı oturumu kapansa bile bu cihazda saklanır;
+        istediğiniz analizi Analizlerim ekranından tek tek silebilir veya tarayıcı verilerinizi temizleyerek tamamını
+        kaldırabilirsiniz.
+      </p>
     </InfoPage>
   );
 }

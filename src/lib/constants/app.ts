@@ -14,8 +14,9 @@ export const appConfig = {
   saleChecklistStorageKey: "eksperiq:sale-checklist",
   vehiclesStorageKey: "eksperiq:vehicles",
   photoAnalysesStorageKey: "eksperiq:photo-analyses",
+  analysisHistoryStorageKey: "eksperiq:analysis-history",
   disclaimer:
     "Bu analiz yalnızca bilgilendirme ve karar desteği amacıyla hazırlanır. Profesyonel araç ekspertizinin, servis kontrolünün, resmî kayıt sorgularının veya hukuki incelemenin yerine geçmez. Son satın alma kararı kullanıcıya aittir.",
   privacy:
-    "Girdiğiniz ilan ve araç bilgileri hesabınıza kaydedilmez. Analiz yalnızca mevcut tarayıcı oturumunda gerçekleştirilir.",
+    "Girdiğiniz ilan ve araç bilgileri hesabınıza kaydedilmez; yalnızca bu cihaza kaydedilir ve istediğiniz zaman silebilirsiniz.",
 } as const;

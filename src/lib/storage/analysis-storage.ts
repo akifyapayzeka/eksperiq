@@ -2,6 +2,7 @@
 
 import { appConfig } from "@/lib/constants/app";
 import type { AnalysisResult } from "@/lib/analysis/types";
+import { createAnalysisHistoryId, upsertAnalysisHistory } from "@/lib/storage/analysis-history-storage";
 
 const checklistStorageKey = `${appConfig.storageKey}:checklist`;
 const findingFilterStorageKey = `${appConfig.storageKey}:finding-filter`;
@@ -10,6 +11,15 @@ const validFindingFilters = ["all", "high", "medium", "low"] as const;
 export type StoredFindingFilter = (typeof validFindingFilters)[number];
 
 export function saveAnalysis(result: AnalysisResult): void {
+  if (typeof window === "undefined") return;
+  sessionStorage.setItem(appConfig.storageKey, JSON.stringify(result));
+  sessionStorage.removeItem(checklistStorageKey);
+  sessionStorage.removeItem(findingFilterStorageKey);
+  upsertAnalysisHistory({ id: createAnalysisHistoryId(), result });
+}
+
+/** Loads a past analysis from device history into the current session slot, so /sonuc can render it. */
+export function openAnalysisFromHistory(result: AnalysisResult): void {
   if (typeof window === "undefined") return;
   sessionStorage.setItem(appConfig.storageKey, JSON.stringify(result));
   sessionStorage.removeItem(checklistStorageKey);

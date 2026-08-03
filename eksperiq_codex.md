@@ -778,6 +778,47 @@ alan. Düzeltme: örnek sayısı artık düşükse (1-2: "güvenilirliği düş�
 gösterilmiyor. `tests/e2e/module-tools.spec.ts`'e bu davranışı doğrulayan bir
 assertion eklendi. Tam doğrulama döngüsü geçti.
 
+## 2026-08-03: Kullanıcı "firevibe.ai" ile yeni bir arayüz tasarımı üretti; Analizlerim buna taşındı
+
+Kullanıcı firevibe.ai adlı bir tasarım aracıyla EksperIQ'un yeni bir arayüz taslağını
+üretti ve Ana Sayfa, Analizlerim, Garajım ekranlarının 9 ekran görüntüsünü paylaştı.
+Yeni tasarım dili: koyu lacivert vurgu kartları, açık gri arka plan, pill-style
+butonlar/filtreler, renk kodlu risk rozetleri (kırmızı/turuncu/yeşil).
+
+Entegrasyon sırasında iki önemli bulgu:
+
+1. **Mockup'ta "Yakında" etiketlenen özellikler aslında zaten aktif** (Bakım Takibi,
+   Araç Sağlık Karnesi, Araç Değer Takibi, Akıllı Satış Hazırlığı) — firevibe gerçek
+   uygulama durumunu bilmeden placeholder içerik üretmiş; entegrasyonda düzeltilecek.
+2. **Gerçek bir eksiklik ortaya çıktı**: mockup "12 analiz"lik bir geçmiş listesi
+   varsayıyor ama gerçek uygulamada yalnızca son oturumun tekil analizi
+   (sessionStorage) saklanıyordu — kalıcı bir analiz geçmişi yoktu.
+
+Bu nedenle yeni bir **kalıcı analiz geçmişi** özelliği eklendi (`analysis-history-storage.ts`,
+photo-analysis-storage.ts deseninde, localStorage, cihaz başına en fazla 50 kayıt).
+`saveAnalysis()` artık hem oturum tekil sonucunu hem de kalıcı geçmişi güncelliyor;
+yeni `openAnalysisFromHistory()` fonksiyonu geçmişten bir kaydı oturuma yükleyip
+`/sonuc` sayfasında açıyor. Bu değişiklik, uygulamanın önceki "analiz yalnızca
+oturumda tutulur" beyanını yanlış hale getirdiği için `appConfig.privacy`,
+`/gizlilik` sayfası ve modül kayıt defterindeki ilgili metinler "yalnızca bu cihaza
+kaydedilir" şeklinde güncellendi (hesaba değil, cihaza kaydediliyor — hâlâ doğru
+ve dürüst bir beyan).
+
+`/analizlerim` sayfası bu gerçek geçmiş verisiyle yeni tasarıma taşındı: istatistik
+şeridi (analiz sayısı, ortalama risk skoru, araç sayısı — gerçek veriden), arama/filtre
+artık tüm geçmiş üzerinde çalışıyor, her kart risk rengiyle kodlanmış rozet + "Raporu
+Aç" + "Sil" aksiyonları içeriyor.
+
+Araç görseli konusunda kullanıcı marka/model'e göre otomatik gerçek fotoğraf istedi;
+araştırılan tüm araç görsel API'leri (IMAGIN.studio, CarImages, Vehicle Imagery API)
+satış/hesap gerektiren ücretli B2B servisler çıktı, anahtarsız ücretsiz katman yok.
+Kullanıcı üçüncü taraf API'yi tercih etti ama hesap açma/ödeme kullanıcıya ait olduğu
+için şimdilik sade bir CarFront ikonuyla devam ediliyor; kullanıcı bir servise kayıt
+olup API anahtarı sağladığında gerçek fotoğrafa geçilecek.
+
+Kalan işler (devam ediyor): Ana Sayfa ve Garajım/Moduller sayfalarının aynı tasarıma
+taşınması, "Yakında" yanlış etiketlerinin düzeltilmesi.
+
 ## Genel ilkeler (her yeni özellikte hatırlanmalı)
 
 - Kesin hüküm/garanti ifadesi yok.

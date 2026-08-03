@@ -21,7 +21,7 @@ export const productModules: ProductModule[] = [
         description: "Satın alma öncesi doğrulanacak teknik ve evrak başlıklarını listeler.",
       },
     ],
-    dataPolicy: "İlk sürümde sunucuya kayıt yoktur; analiz yalnızca tarayıcı oturumunda tutulur.",
+    dataPolicy: "Sunucuya kayıt yoktur; analiz geçmişiniz yalnızca bu cihazda saklanır.",
     certaintyPolicy: "Kesin ekspertiz sonucu veya satın alma garantisi vermez.",
   },
   {
