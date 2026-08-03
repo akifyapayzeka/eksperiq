@@ -833,6 +833,20 @@ kullanım Garajım'da da beklendiğinden "rule of three" ile paylaşılan yardı
 taşındı). Tam doğrulama döngüsü + gerçek Playwright test akışıyla tarayıcıda görsel
 doğrulama yapıldı.
 
+## 2026-08-03: Garajım (Araç Sağlık Karnesi) buton stili firevibe tasarımına uyarlandı
+
+Mockup'taki "Garajım" ekranının uygulamadaki karşılığı `/arac-saglik-karnesi`
+sayfası — içerik ve veri tarafı zaten sağlamdı (araç kartı, takip özeti,
+bakım/muayene/kasko durumu). "Yakında" olarak yanlış etiketlenmiş aktif
+özellikler daha önce (`/moduller` düzeltmesinde) giderilmişti; modül kayıt
+defterindeki tüm 13 modül `status: "active"` olarak doğrulandı, bekleyen/yanlış
+"planned" kaydı yok. Bu turda yalnızca birincil aksiyon butonları ("Şu anki
+analiz skorunu trende ekle", "Kaydı ekle") firevibe'nin pill (rounded-full)
+buton stiline uyarlandı; form input/select alanları mevcut rounded-xl
+kuralında bırakıldı (uygulama genelinde form alanları için tutarlı kalan
+kural). Böylece firevibe entegrasyonunun üç ekranı (Ana Sayfa, Analizlerim,
+Garajım) da tamamlanmış oldu.
+
 ## Genel ilkeler (her yeni özellikte hatırlanmalı)
 
 - Kesin hüküm/garanti ifadesi yok.
