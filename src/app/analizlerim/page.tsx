@@ -37,10 +37,10 @@ const filters: Array<{ id: AnalysisFilter; label: string }> = [
 ];
 
 const riskBadgeStyles: Record<AnalysisFilter, string> = {
-  all: "bg-slate-100 text-slate-600",
-  high: "bg-red-50 text-red-700",
-  medium: "bg-amber-50 text-amber-800",
-  low: "bg-emerald-50 text-emerald-700",
+  all: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
+  high: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
+  medium: "bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
+  low: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
 };
 
 const assistantModules = [
@@ -127,51 +127,51 @@ export default function MyAnalysesPage() {
   }, [history]);
 
   return (
-    <main className="flex-1 bg-slate-50">
+    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-slate-500">Kayıtlı incelemelerin</p>
-            <h1 className="mt-1 text-4xl font-semibold text-slate-950">Analizlerim</h1>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Kayıtlı incelemelerin</p>
+            <h1 className="mt-1 text-4xl font-semibold text-slate-950 dark:text-white">Analizlerim</h1>
           </div>
           <Link
             href="/analiz"
-            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full transition active:scale-95 bg-slate-900 px-4 text-sm font-semibold text-white"
+            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full transition active:scale-95 bg-slate-900 px-4 text-sm font-semibold text-white dark:bg-white dark:text-slate-950"
           >
             <Plus aria-hidden="true" className="h-4 w-4" />
             Yeni Analiz
           </Link>
         </div>
 
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-          <div className="grid grid-cols-3 divide-x divide-slate-200 overflow-hidden rounded-2xl border border-slate-200">
+        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+          <div className="grid grid-cols-3 divide-x divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 dark:divide-slate-800 dark:border-slate-800">
             <div className="p-4">
               {isReady ? (
-                <strong className="block text-2xl text-slate-950">{history.length}</strong>
+                <strong className="block text-2xl text-slate-950 dark:text-white">{history.length}</strong>
               ) : (
                 <Skeleton className="h-8 w-10" />
               )}
-              <span className="text-sm text-slate-600">analiz</span>
+              <span className="text-sm text-slate-600 dark:text-slate-400">analiz</span>
             </div>
             <div className="p-4">
               {isReady ? (
-                <strong className="block text-2xl text-slate-950">{averageScore ?? "-"}</strong>
+                <strong className="block text-2xl text-slate-950 dark:text-white">{averageScore ?? "-"}</strong>
               ) : (
                 <Skeleton className="h-8 w-10" />
               )}
-              <span className="text-sm text-slate-600">ort. risk skoru</span>
+              <span className="text-sm text-slate-600 dark:text-slate-400">ort. risk skoru</span>
             </div>
             <div className="p-4">
               {isReady ? (
-                <strong className="block text-2xl text-slate-950">{vehicleCount}</strong>
+                <strong className="block text-2xl text-slate-950 dark:text-white">{vehicleCount}</strong>
               ) : (
                 <Skeleton className="h-8 w-10" />
               )}
-              <span className="text-sm text-slate-600">araç takipte</span>
+              <span className="text-sm text-slate-600 dark:text-slate-400">araç takipte</span>
             </div>
           </div>
 
-          <div className="mt-5 flex min-h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4">
+          <div className="mt-5 flex min-h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 dark:border-slate-800 dark:bg-slate-800/50">
             <Search aria-hidden="true" className="h-5 w-5 text-slate-500" />
             <label htmlFor="analysis-search" className="sr-only">
               Marka veya model ara
@@ -182,12 +182,12 @@ export default function MyAnalysesPage() {
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Marka, model veya ilan ara"
-              className="min-h-11 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-500"
+              className="min-h-11 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-500 dark:text-white"
             />
             <button
               type="button"
               onClick={clearFilters}
-              className="ml-auto inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl text-slate-500 hover:bg-white hover:text-slate-900"
+              className="ml-auto inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl text-slate-500 hover:bg-white hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
               aria-label="Filtreleri temizle"
             >
               <SlidersHorizontal aria-hidden="true" className="h-5 w-5" />
@@ -203,8 +203,8 @@ export default function MyAnalysesPage() {
                 onClick={() => setActiveFilter(filter.id)}
                 className={`min-h-11 rounded-full border px-3 text-sm font-semibold sm:shrink-0 sm:px-4 ${
                   activeFilter === filter.id
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-200 bg-white text-slate-700 hover:border-teal-700 hover:text-teal-800"
+                    ? "border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-950"
+                    : "border-slate-200 bg-white text-slate-700 hover:border-teal-700 hover:text-teal-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
                 }`}
               >
                 {filter.label}
@@ -214,13 +214,13 @@ export default function MyAnalysesPage() {
 
           <div className="mt-6 flex items-end justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-semibold text-slate-950">
+              <h2 className="text-2xl font-semibold text-slate-950 dark:text-white">
                 {history.length ? `${history.length} analiz` : "Henüz analiz yok"}
               </h2>
-              <p className="mt-1 text-sm text-slate-600">En yeniden eskiye</p>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">En yeniden eskiye</p>
             </div>
             {history.length ? (
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600">
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                 {visibleRecords.length} / {history.length}
               </span>
             ) : null}
@@ -233,15 +233,15 @@ export default function MyAnalysesPage() {
                 return (
                   <article
                     key={record.id}
-                    className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+                    className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
                   >
                     <div className="flex gap-4 p-5">
-                      <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-slate-50">
+                      <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-slate-50 dark:bg-slate-800">
                         <CarFront aria-hidden="true" className="h-8 w-8 text-slate-500" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between">
-                          <h3 className="text-lg font-semibold leading-tight text-slate-950">
+                          <h3 className="text-lg font-semibold leading-tight text-slate-950 dark:text-white">
                             {record.result.input.year} {record.result.input.brand} {record.result.input.model}
                           </h3>
                           <span
@@ -250,8 +250,10 @@ export default function MyAnalysesPage() {
                             {record.result.totalScore} — {record.result.riskLabel}
                           </span>
                         </div>
-                        <p className="mt-1 text-xs text-slate-500">{formatAnalysisDate(record.result.generatedAt)}</p>
-                        <p className="mt-2 flex items-start gap-2 text-sm text-slate-700">
+                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                          {formatAnalysisDate(record.result.generatedAt)}
+                        </p>
+                        <p className="mt-2 flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
                           <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
                           {record.result.findings[0]?.title ?? "Öncelikli bulgu yok"}
                         </p>
@@ -259,7 +261,7 @@ export default function MyAnalysesPage() {
                           <button
                             type="button"
                             onClick={() => openReport(record.result)}
-                            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-900 px-4 text-sm font-semibold text-white"
+                            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-900 px-4 text-sm font-semibold text-white dark:bg-white dark:text-slate-950"
                           >
                             Raporu Aç
                             <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
@@ -267,7 +269,7 @@ export default function MyAnalysesPage() {
                           <button
                             type="button"
                             onClick={() => removeAnalysis(record.id)}
-                            className="inline-flex min-h-10 items-center gap-1 rounded-full transition active:scale-95 px-3 text-sm font-semibold text-red-700 hover:bg-red-50"
+                            className="inline-flex min-h-10 items-center gap-1 rounded-full transition active:scale-95 px-3 text-sm font-semibold text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/50"
                           >
                             <Trash2 aria-hidden="true" className="h-4 w-4" />
                             Sil
@@ -280,9 +282,9 @@ export default function MyAnalysesPage() {
               })}
             </div>
           ) : (
-            <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
+            <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center dark:border-slate-700 dark:bg-slate-800/50">
               <FileText aria-hidden="true" className="mx-auto h-10 w-10 text-slate-400" />
-              <p className="mt-3 text-sm leading-6 text-slate-600">
+              <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">
                 {history.length
                   ? "Bu arama veya filtreyle eşleşen analiz bulunamadı. Filtreleri temizleyip tekrar deneyin."
                   : "Henüz analiz oluşturulmadı. Araç bilgilerini girerek ilk raporu oluşturabilirsiniz."}
@@ -306,23 +308,28 @@ export default function MyAnalysesPage() {
             </div>
           )}
 
-          <p className="mt-5 rounded-xl bg-slate-50 p-3 text-sm leading-6 text-slate-600">
+          <p className="mt-5 rounded-xl bg-slate-50 p-3 text-sm leading-6 text-slate-600 dark:bg-slate-800/50 dark:text-slate-400">
             Risk skorları mevcut kanıtlara göre hesaplanır; kesin hüküm yerine inceleme önceliği sunar. Analizler
             hesabınıza değil, yalnızca bu cihaza kaydedilir.
           </p>
         </section>
 
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-2xl font-semibold text-slate-950">Fotoğraf analizlerim</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-600">
+        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-2xl font-semibold text-slate-950 dark:text-white">Fotoğraf analizlerim</h2>
+          <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">
             Fotoğraftan Hasar Analizi ekranında kaydettiğiniz analizler burada listelenir.
           </p>
           {photoAnalyses.length ? (
             <div className="mt-4 grid gap-3">
               {photoAnalyses.map((record) => (
-                <article key={record.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <article
+                  key={record.id}
+                  className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50"
+                >
                   <div className="flex items-start justify-between gap-3">
-                    <p className="text-sm font-semibold text-slate-950">{formatAnalysisDate(record.createdAt)}</p>
+                    <p className="text-sm font-semibold text-slate-950 dark:text-white">
+                      {formatAnalysisDate(record.createdAt)}
+                    </p>
                     <button
                       type="button"
                       onClick={() => removePhotoAnalysis(record.id)}
@@ -346,10 +353,10 @@ export default function MyAnalysesPage() {
                     </div>
                   ) : null}
                   {record.aiSummary ? (
-                    <p className="mt-3 text-sm leading-6 text-slate-700">{record.aiSummary}</p>
+                    <p className="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-300">{record.aiSummary}</p>
                   ) : null}
                   {record.findings.length ? (
-                    <ul className="mt-3 grid gap-1 text-sm text-slate-700">
+                    <ul className="mt-3 grid gap-1 text-sm text-slate-700 dark:text-slate-300">
                       {record.findings.map((item, index) => (
                         <li key={index}>
                           {item.area}: {item.finding}
@@ -361,11 +368,11 @@ export default function MyAnalysesPage() {
               ))}
             </div>
           ) : (
-            <div className="mt-4 flex items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4">
+            <div className="mt-4 flex items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
               <Camera aria-hidden="true" className="h-6 w-6 shrink-0 text-slate-400" />
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-slate-600 dark:text-slate-400">
                 Henüz kaydedilmiş fotoğraf analizi yok.{" "}
-                <Link href="/fotograf-hasar" className="font-semibold text-teal-800 hover:underline">
+                <Link href="/fotograf-hasar" className="font-semibold text-teal-800 hover:underline dark:text-teal-400">
                   Fotoğraftan Hasar Analizi&apos;ni aç
                 </Link>
                 .
@@ -374,19 +381,23 @@ export default function MyAnalysesPage() {
           )}
         </section>
 
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-2xl font-semibold text-slate-950">EksperIQ araçları</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-600">
+        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-2xl font-semibold text-slate-950 dark:text-white">EksperIQ araçları</h2>
+          <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">
             Araç yolculuğunu daha şeffaf kılacak ücretsiz karar destek ekranları.
           </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {assistantModules.map(([href, title, description]) => (
-              <Link key={title} href={href} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-teal-800 ring-1 ring-slate-200">
+              <Link
+                key={title}
+                href={href}
+                className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50"
+              >
+                <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-teal-800 ring-1 ring-slate-200 dark:bg-slate-900 dark:text-teal-400 dark:ring-slate-700">
                   Aç
                 </span>
-                <h3 className="mt-4 font-semibold text-slate-950">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+                <h3 className="mt-4 font-semibold text-slate-950 dark:text-white">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{description}</p>
               </Link>
             ))}
           </div>

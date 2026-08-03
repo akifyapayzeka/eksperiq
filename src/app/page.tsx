@@ -70,9 +70,9 @@ const analysisInputs = [
 ];
 
 const riskBadgeStyles: Record<ReturnType<typeof riskBucket>, string> = {
-  high: "bg-red-50 text-red-700",
-  medium: "bg-amber-50 text-amber-800",
-  low: "bg-emerald-50 text-emerald-700",
+  high: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
+  medium: "bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
+  low: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
 };
 
 export default function Home() {
@@ -108,9 +108,9 @@ export default function Home() {
   const latestBucket = latest ? riskBucket(latest.totalScore) : null;
 
   return (
-    <main className="flex-1 bg-slate-50">
+    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
       <section className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
-        <div className="rounded-3xl bg-slate-900 p-6 text-white shadow-lg shadow-slate-200 sm:p-8">
+        <div className="rounded-3xl bg-slate-900 p-6 text-white shadow-lg shadow-slate-200 sm:p-8 dark:shadow-none">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-sm font-semibold">
             <CarFront aria-hidden="true" className="h-4 w-4" />
             {appConfig.name}
@@ -141,43 +141,43 @@ export default function Home() {
         </div>
 
         <section
-          className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+          className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
           aria-labelledby="analysis-summary"
         >
-          <h2 id="analysis-summary" className="text-xl font-semibold text-slate-950">
+          <h2 id="analysis-summary" className="text-xl font-semibold text-slate-950 dark:text-white">
             Analiz özetin
           </h2>
-          <div className="mt-4 grid grid-cols-3 divide-x divide-slate-200 overflow-hidden rounded-2xl border border-slate-200">
+          <div className="mt-4 grid grid-cols-3 divide-x divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 dark:divide-slate-800 dark:border-slate-800">
             <div className="p-4">
               {isReady ? (
-                <strong className="block text-2xl text-slate-950">{historyCount}</strong>
+                <strong className="block text-2xl text-slate-950 dark:text-white">{historyCount}</strong>
               ) : (
                 <Skeleton className="h-8 w-10" />
               )}
-              <span className="text-sm text-slate-600">analiz yapıldı</span>
+              <span className="text-sm text-slate-600 dark:text-slate-400">analiz yapıldı</span>
             </div>
             <div className="p-4">
               {isReady ? (
-                <strong className="block text-2xl text-slate-950">{averageScore ?? "-"}</strong>
+                <strong className="block text-2xl text-slate-950 dark:text-white">{averageScore ?? "-"}</strong>
               ) : (
                 <Skeleton className="h-8 w-10" />
               )}
-              <span className="text-sm text-slate-600">ort. risk skoru</span>
+              <span className="text-sm text-slate-600 dark:text-slate-400">ort. risk skoru</span>
             </div>
             <div className="p-4">
               {isReady ? (
-                <strong className="block text-2xl text-slate-950">{vehicleCount}</strong>
+                <strong className="block text-2xl text-slate-950 dark:text-white">{vehicleCount}</strong>
               ) : (
                 <Skeleton className="h-8 w-10" />
               )}
-              <span className="text-sm text-slate-600">araç takipte</span>
+              <span className="text-sm text-slate-600 dark:text-slate-400">araç takipte</span>
             </div>
           </div>
 
           {!isReady ? (
             <div className="mt-5">
               <Skeleton className="h-4 w-32" />
-              <div className="mt-2 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <div className="mt-2 rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-800/50">
                 <div className="flex gap-4">
                   <Skeleton className="h-16 w-16 shrink-0 rounded-2xl" />
                   <div className="flex-1 space-y-2">
@@ -189,15 +189,15 @@ export default function Home() {
             </div>
           ) : latest && latestBucket ? (
             <div className="mt-5">
-              <p className="text-sm font-semibold uppercase text-slate-500">En son inceleme</p>
-              <article className="mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+              <p className="text-sm font-semibold uppercase text-slate-500 dark:text-slate-400">En son inceleme</p>
+              <article className="mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
                 <div className="flex gap-4 p-5">
-                  <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-white">
+                  <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-white dark:bg-slate-900">
                     <CarFront aria-hidden="true" className="h-8 w-8 text-slate-500" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between">
-                      <h3 className="text-lg font-semibold leading-tight text-slate-950">
+                      <h3 className="text-lg font-semibold leading-tight text-slate-950 dark:text-white">
                         {latest.input.year} {latest.input.brand} {latest.input.model}
                       </h3>
                       <span
@@ -206,14 +206,14 @@ export default function Home() {
                         {latest.totalScore} — {latest.riskLabel}
                       </span>
                     </div>
-                    <p className="mt-2 flex items-start gap-2 text-sm text-slate-700">
+                    <p className="mt-2 flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
                       <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
                       {latest.findings[0]?.title ?? "Öncelikli bulgu yok"}
                     </p>
                     <button
                       type="button"
                       onClick={openLatestReport}
-                      className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-slate-900 px-4 text-sm font-semibold text-white"
+                      className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-slate-900 px-4 text-sm font-semibold text-white dark:bg-white dark:text-slate-950"
                     >
                       Raporu Aç
                       <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
@@ -226,7 +226,7 @@ export default function Home() {
         </section>
 
         <section aria-labelledby="main-actions" className="mt-6">
-          <h2 id="main-actions" className="text-2xl font-semibold text-slate-950">
+          <h2 id="main-actions" className="text-2xl font-semibold text-slate-950 dark:text-white">
             Ana ekran
           </h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -234,19 +234,21 @@ export default function Home() {
               <Link
                 key={item.title}
                 href={item.href}
-                className={`group rounded-2xl border bg-white p-5 shadow-sm transition hover:border-teal-700 ${
-                  item.title === "Yeni Analiz" ? "border-slate-900 ring-1 ring-slate-900" : "border-slate-200"
+                className={`group rounded-2xl border bg-white p-5 shadow-sm transition hover:border-teal-700 dark:bg-slate-900 ${
+                  item.title === "Yeni Analiz"
+                    ? "border-slate-900 ring-1 ring-slate-900 dark:border-slate-100 dark:ring-slate-100"
+                    : "border-slate-200 dark:border-slate-800"
                 }`}
               >
                 <div className="flex items-start justify-between gap-4">
-                  <span className="grid h-12 w-12 place-items-center rounded-xl bg-sky-50 text-teal-800">
+                  <span className="grid h-12 w-12 place-items-center rounded-xl bg-sky-50 text-teal-800 dark:bg-teal-950 dark:text-teal-300">
                     <item.icon aria-hidden="true" className="h-6 w-6" />
                   </span>
                   <ArrowUpRight aria-hidden="true" className="h-5 w-5 text-slate-400 group-hover:text-teal-700" />
                 </div>
-                <h3 className="mt-5 text-xl font-semibold text-slate-950">{item.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{item.description}</p>
-                <span className="mt-5 inline-flex min-h-10 items-center rounded-full bg-slate-950 px-4 text-sm font-semibold text-white">
+                <h3 className="mt-5 text-xl font-semibold text-slate-950 dark:text-white">{item.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{item.description}</p>
+                <span className="mt-5 inline-flex min-h-10 items-center rounded-full bg-slate-950 px-4 text-sm font-semibold text-white dark:bg-white dark:text-slate-950">
                   {item.cta}
                 </span>
               </Link>
@@ -254,12 +256,12 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-start gap-3">
-            <ShieldCheck aria-hidden="true" className="mt-1 h-6 w-6 shrink-0 text-teal-700" />
+            <ShieldCheck aria-hidden="true" className="mt-1 h-6 w-6 shrink-0 text-teal-700 dark:text-teal-400" />
             <div>
-              <h2 className="text-xl font-semibold text-slate-950">Analiz nasıl başlar?</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
+              <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Analiz nasıl başlar?</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
                 Kullanıcı araç bilgilerini kendisi seçer veya yazar. Fotoğraf ve ekspertiz raporu kullanıcı tarafından
                 yüklenirse analizde destek veri olarak kullanılır. İlan sitelerinden gizli veri çekilmez.
               </p>
@@ -267,16 +269,16 @@ export default function Home() {
           </div>
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {analysisInputs.map((item) => (
-              <article key={item.title} className="rounded-2xl bg-slate-50 p-4">
-                <item.icon aria-hidden="true" className="h-5 w-5 text-teal-800" />
-                <h3 className="mt-3 font-semibold text-slate-950">{item.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{item.text}</p>
+              <article key={item.title} className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
+                <item.icon aria-hidden="true" className="h-5 w-5 text-teal-800 dark:text-teal-400" />
+                <h3 className="mt-3 font-semibold text-slate-950 dark:text-white">{item.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{item.text}</p>
               </article>
             ))}
           </div>
         </section>
 
-        <p className="mt-6 rounded-xl border border-teal-200 bg-teal-50 p-4 text-sm leading-6 text-teal-950">
+        <p className="mt-6 rounded-xl border border-teal-200 bg-teal-50 p-4 text-sm leading-6 text-teal-950 dark:border-teal-900 dark:bg-teal-950/50 dark:text-teal-200">
           {appConfig.privacy}
         </p>
       </section>
