@@ -271,7 +271,7 @@ export default function VehicleHealthRecordPage() {
               type="button"
               onClick={addCurrentScore}
               disabled={!selectedVehicleId}
-              className="mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-teal-700 px-4 text-sm font-semibold text-teal-800 disabled:opacity-50"
+              className="mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-teal-700 px-4 text-sm font-semibold text-teal-800 disabled:opacity-50"
             >
               Şu anki analiz skorunu ({analysis.totalScore}) trende ekle
             </button>
@@ -331,7 +331,7 @@ export default function VehicleHealthRecordPage() {
             type="button"
             onClick={addRecord}
             disabled={!selectedVehicleId}
-            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 font-semibold text-white disabled:opacity-50"
+            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-slate-950 px-5 font-semibold text-white disabled:opacity-50"
           >
             <Plus aria-hidden="true" className="h-5 w-5" />
             Kaydı ekle
