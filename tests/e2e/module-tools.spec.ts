@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { demoVehicleInput } from "../fixtures/demo-vehicle";
+import { stubClipboard } from "./helpers/clipboard";
 
 // A real, decodable 1x1 PNG — the AI photo flow now compresses/re-encodes
 // uploads via <canvas> before sending them (src/lib/photo-analysis/prepare-ai-image.ts),
@@ -124,8 +125,8 @@ test("health record entries persist across reloads and build a score trend", asy
   await expect(page.getByRole("heading", { name: "İkinci kontrol" })).toBeVisible();
 });
 
-test("report action buttons show visible feedback", async ({ page, context }) => {
-  await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: "http://127.0.0.1:3000" });
+test("report action buttons show visible feedback", async ({ page }) => {
+  await stubClipboard(page);
   await page.goto("/analiz");
   await fillRequiredForm(page);
   await page.getByRole("button", { name: "Analiz oluştur" }).click();

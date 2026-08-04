@@ -168,6 +168,16 @@ test("shows a clear message when notification permission was denied", async ({ p
 
   await page.goto("/bakim-odeme-takvimi");
   const notConfigured = page.getByText("Bildirim servisi henüz yapılandırılmadı.");
+  const deniedText = page.getByText(
+    "Bildirim izni reddedilmiş. Tarayıcı/cihaz ayarlarından izni yeniden açabilirsiniz.",
+  );
+  // getNotificationState() resolves asynchronously (after a requestAnimationFrame
+  // + a promise chain), so the push UI state is not settled the instant this
+  // page loads. Wait for it to land on one of the two possible states before
+  // deciding anything — checking notConfigured.isVisible() immediately here
+  // races the effect and was flaky/wrong on slower (mobile-emulated) CPUs.
+  await Promise.race([notConfigured.waitFor({ state: "visible" }), deniedText.waitFor({ state: "visible" })]);
+
   // Reaching the "denied" branch requires a Web Push VAPID key to be baked
   // into the build (NEXT_PUBLIC_VAPID_PUBLIC_KEY) — without one, the app
   // correctly reports "not configured" before ever checking permission,
@@ -176,9 +186,7 @@ test("shows a clear message when notification permission was denied", async ({ p
   if (await notConfigured.isVisible()) {
     test.skip(true, "NEXT_PUBLIC_VAPID_PUBLIC_KEY is not configured for this build.");
   }
-  await expect(
-    page.getByText("Bildirim izni reddedilmiş. Tarayıcı/cihaz ayarlarından izni yeniden açabilirsiniz."),
-  ).toBeVisible();
+  await expect(deniedText).toBeVisible();
   await expect(page.getByRole("button", { name: "Bildirimleri aç" })).toHaveCount(0);
 });
 

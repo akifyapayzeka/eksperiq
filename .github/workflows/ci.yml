@@ -77,6 +77,13 @@ jobs:
     env:
       CI: "true"
       HOME: /root
+      # The photo-AI e2e specs (module-tools.spec.ts, native-hardening.spec.ts)
+      # click the "AI ile fotoğrafı analiz et" button, which stays disabled
+      # unless this flag is on at build time. Locally it comes from
+      # .env.local (gitignored); CI has no such file, so it must be set here
+      # or every one of those specs times out waiting on a button that can
+      # never become enabled.
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -113,6 +120,8 @@ jobs:
     env:
       CI: "true"
       HOME: /root
+      # See the matching comment in the e2e-chromium job above.
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
