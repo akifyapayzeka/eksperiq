@@ -1,6 +1,14 @@
 import { expect, test } from "@playwright/test";
 import { demoVehicleInput } from "../fixtures/demo-vehicle";
 
+// A real, decodable 1x1 PNG — the AI photo flow now compresses/re-encodes
+// uploads via <canvas> before sending them (src/lib/photo-analysis/prepare-ai-image.ts),
+// so a fixture with arbitrary non-image bytes fails to decode and never
+// reaches the mocked route below.
+const MINIMAL_PNG_BASE64 =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+const minimalPngBuffer = Buffer.from(MINIMAL_PNG_BASE64, "base64");
+
 async function fillRequiredForm(page: import("@playwright/test").Page) {
   await page.getByLabel("Marka").selectOption(demoVehicleInput.brand);
   await page.locator("#model").selectOption(demoVehicleInput.model);
@@ -47,7 +55,7 @@ test("module cards open usable assistant tools", async ({ page }) => {
   await page.locator('input[type="file"]').setInputFiles({
     name: "arac-on-tampon.jpg",
     mimeType: "image/jpeg",
-    buffer: Buffer.from("fake-image"),
+    buffer: minimalPngBuffer,
   });
   await page.getByLabel("Bölge").selectOption("Ön tampon");
   await page.getByLabel("Bulgu").selectOption("Çizik");
@@ -341,7 +349,7 @@ test("photo damage tool refuses non-vehicle photos via the AI's own check", asyn
   await page.locator('input[type="file"]').setInputFiles({
     name: "yumurta.jpg",
     mimeType: "image/jpeg",
-    buffer: Buffer.from("fake-egg-image"),
+    buffer: minimalPngBuffer,
   });
   await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
   await expect(
@@ -355,7 +363,7 @@ test("saved photo analysis appears in Analizlerim", async ({ page }) => {
   await page.locator('input[type="file"]').setInputFiles({
     name: "arac-on-tampon.jpg",
     mimeType: "image/jpeg",
-    buffer: Buffer.from("fake-image"),
+    buffer: minimalPngBuffer,
   });
   await page.getByLabel("Bölge").selectOption("Ön tampon");
   await page.getByLabel("Bulgu").selectOption("Çizik");

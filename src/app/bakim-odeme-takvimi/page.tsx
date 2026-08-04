@@ -2,8 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Bell, BellOff, CalendarClock, Plus, Trash2 } from "lucide-react";
-import { getPushState, subscribeToPush, syncRemindersToPush, unsubscribeFromPush } from "@/lib/push/client";
-import type { PushSupportState } from "@/lib/push/client";
+import {
+  cancelNotificationsForDeletedReminder,
+  disableNotifications as disableReminderNotifications,
+  enableNotifications as enableReminderNotifications,
+  getNotificationState,
+  syncNotifications,
+} from "@/lib/push/notifications";
+import type { NotificationState } from "@/lib/push/notifications";
 import { daysUntil, defaultMtvReminders, sortByUrgency, urgencyOf } from "@/lib/reminders/model";
 import { createReminderId, deleteReminder, loadReminders, upsertReminder } from "@/lib/storage/reminders-storage";
 import { reminderCategoryLabels } from "@/lib/reminders/types";
@@ -58,7 +64,7 @@ export default function MaintenancePaymentCalendarPage() {
   const [reminders, setReminders] = useState<ReminderRecord[]>([]);
   const [vehicles, setVehicles] = useState<VehicleProfile[]>([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
-  const [pushState, setPushState] = useState<PushSupportState>("unsupported");
+  const [pushState, setPushState] = useState<NotificationState>("unsupported");
   const [pushMessage, setPushMessage] = useState("");
   const [pushBusy, setPushBusy] = useState(false);
 
@@ -80,11 +86,11 @@ export default function MaintenancePaymentCalendarPage() {
       setVehicles(loadedVehicles);
       setSelectedVehicleId(loadedVehicles[0]?.id ?? "");
       setReminders(loaded);
-      getPushState()
+      getNotificationState()
         .then((state) => {
           if (cancelled) return;
           setPushState(state);
-          if (state === "subscribed") void syncRemindersToPush(loaded);
+          if (state === "subscribed") void syncNotifications(loaded);
         })
         .catch(() => setPushState("unsupported"));
     });
@@ -128,6 +134,7 @@ export default function MaintenancePaymentCalendarPage() {
     const remainingReminders = reminders.filter((item) => recordVehicleId(item, vehicles) !== id);
     for (const removed of reminders.filter((item) => recordVehicleId(item, vehicles) === id)) {
       deleteReminder(removed.id);
+      void cancelNotificationsForDeletedReminder(removed.id);
     }
     persist(remainingReminders);
     setSelectedVehicleId(result.vehicles[0]?.id ?? "");
@@ -146,7 +153,7 @@ export default function MaintenancePaymentCalendarPage() {
 
   function persist(records: ReminderRecord[]) {
     setReminders(records);
-    if (pushState === "subscribed") void syncRemindersToPush(records);
+    if (pushState === "subscribed") void syncNotifications(records);
   }
 
   function addMtvInstallments() {
@@ -225,13 +232,14 @@ export default function MaintenancePaymentCalendarPage() {
 
   function removeRecord(id: string) {
     deleteReminder(id);
+    void cancelNotificationsForDeletedReminder(id);
     persist(reminders.filter((item) => item.id !== id));
   }
 
   async function enableNotifications() {
     setPushBusy(true);
     setPushMessage("");
-    const result = await subscribeToPush(reminders);
+    const result = await enableReminderNotifications(reminders);
     setPushBusy(false);
     if (!result.ok) {
       setPushMessage(result.error ?? "Bildirimler açılamadı.");
@@ -243,7 +251,7 @@ export default function MaintenancePaymentCalendarPage() {
 
   async function disableNotifications() {
     setPushBusy(true);
-    await unsubscribeFromPush();
+    await disableReminderNotifications(reminders);
     setPushBusy(false);
     setPushState("unsubscribed");
     setPushMessage("Bildirimler kapatıldı.");
