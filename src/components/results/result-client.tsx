@@ -20,6 +20,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
+import { apiFetch } from "@/lib/api/client";
 import { RISK_LEVELS, SCORE_WEIGHTS } from "@/lib/constants/analysis";
 import { formatAnalysisSummary, formatSellerQuestionMessage } from "@/lib/analysis/report-summary";
 import { buildAiAnalysisNoteInput } from "@/lib/ai/analysis-note";
@@ -312,7 +313,7 @@ export function ResultClient() {
     setAiNoteMessage("");
 
     try {
-      const response = await fetch("/api/ai/analysis-note", {
+      const response = await apiFetch("/api/ai/analysis-note", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

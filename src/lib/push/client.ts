@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReminderRecord } from "@/lib/reminders/types";
+import { apiFetch } from "@/lib/api/client";
 import { urlBase64ToUint8Array } from "./vapid";
 
 export type PushSupportState = "unsupported" | "not-configured" | "denied" | "unsubscribed" | "subscribed";
@@ -55,7 +56,7 @@ export async function subscribeToPush(reminders: ReminderRecord[]): Promise<{ ok
   }
 
   try {
-    const response = await fetch("/api/push/subscribe", {
+    const response = await apiFetch("/api/push/subscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ subscription: subscription.toJSON(), reminders: toApiReminders(reminders) }),
@@ -75,7 +76,7 @@ export async function syncRemindersToPush(reminders: ReminderRecord[]): Promise<
   const subscription = await registration?.pushManager.getSubscription();
   if (!subscription) return;
 
-  await fetch("/api/push/subscribe", {
+  await apiFetch("/api/push/subscribe", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ subscription: subscription.toJSON(), reminders: toApiReminders(reminders) }),
@@ -92,7 +93,7 @@ export async function unsubscribeFromPush(): Promise<void> {
 
     const endpoint = subscription.endpoint;
     await subscription.unsubscribe().catch(() => undefined);
-    await fetch("/api/push/unsubscribe", {
+    await apiFetch("/api/push/unsubscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ endpoint }),
