@@ -65,9 +65,10 @@ Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build App
 - Üçüncü taraf analytics yok.
 - Konum, mikrofon veya rehber izni yok.
 - Kamera ve fotoğraf erişimi yalnızca kullanıcının fotoğraf kontrolü ekranında dosya seçmesiyle veya fotoğraf çekmesiyle, o tek fotoğraf için sınırlı.
-- Bildirim izni yalnızca kullanıcı Bakım ve Ödeme Takvimi'nde açıkça isterse, MTV/sigorta/muayene/bakım tarihi hatırlatmaları için istenir; başka amaçla kullanılmaz.
-- AI karar destek ve fotoğraf kontrolü OpenRouter üzerinden geçici işleme yapabilir.
-- Analiz verisi cihaz/tarayıcı oturumunda geçici tutulur; geliştirici sunucusunda kalıcı hesap kaydı olarak saklanmaz.
+- Bildirim izni yalnızca kullanıcı Bakım ve Ödeme Takvimi'nde açıkça isterse, MTV/sigorta/muayene/bakım tarihi hatırlatmaları için istenir; başka amaçla kullanılmaz. iOS mağaza sürümünde bildirim tamamen cihaz üzerinde planlanır (`@capacitor/local-notifications`), sunucuya hiçbir kayıt gitmez — yalnızca Web/PWA sürümü Web Push için sınırlı, TTL'li bir sunucu kopyası tutar (bkz. `docs/app-store-privacy-answers.md`).
+- AI karar destek ve fotoğraf kontrolü OpenRouter üzerinden geçici, veri saklama karşıtı parametreyle işleme yapabilir.
+- Kötüye kullanımı sınırlamak için anonim, tek yönlü özetlenmiş (hash) kurulum kimliği/IP ile kısa ömürlü istek sayaçları tutulur; kullanıcı kimliğiyle ilişkilendirilemez.
+- Analiz ve diğer kullanıcı verisi (araçlar, hatırlatmalar, giderler, sağlık kayıtları, fotoğraf analizleri) yalnızca cihazda tutulur; geliştirici sunucusunda kalıcı hesap kaydı olarak saklanmaz. Kullanıcı bu veriyi Profil > Verilerim ekranından dışa/içe aktarabilir veya tamamen silebilir.
 
 ## Mağaza Varlık Checklist'i
 
