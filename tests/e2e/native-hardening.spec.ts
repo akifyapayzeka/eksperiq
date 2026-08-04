@@ -214,6 +214,13 @@ test("keeps the mobile bottom navigation within the safe viewport", async ({ pag
 
 test("exports data, wipes it via delete-all, then restores it from the export file", async ({ page }) => {
   await page.goto("/arac-saglik-karnesi");
+  // The default vehicle is hydrated asynchronously (a requestAnimationFrame
+  // after mount, to avoid a hydration mismatch) — the "Başlık"/"Kaydı ekle"
+  // fields are already interactive before that finishes, so addRecord()'s
+  // `if (!selectedVehicleId) return;` guard can silently no-op the whole
+  // click if the form is submitted first. Wait for a real vehicle id to
+  // land in the switcher before racing it.
+  await expect(page.getByLabel("Araç seç")).not.toHaveValue("");
   await page.getByLabel("Başlık").fill("Yedekleme testi kaydı");
   await page.getByRole("button", { name: "Kaydı ekle" }).click();
   await expect(page.getByRole("heading", { name: "Yedekleme testi kaydı" })).toBeVisible();

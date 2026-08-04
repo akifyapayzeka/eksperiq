@@ -76,6 +76,10 @@ test("module cards open usable assistant tools", async ({ page }) => {
   );
 
   await page.goto("/arac-saglik-karnesi");
+  // The default vehicle is hydrated asynchronously (a requestAnimationFrame
+  // after mount) — filling and submitting the form before that lands can
+  // silently no-op addRecord()'s `if (!selectedVehicleId) return;` guard.
+  await expect(page.getByLabel("Araç seç")).not.toHaveValue("");
   await page.getByLabel("Başlık").fill("90 bin km bakımı");
   await page.getByRole("button", { name: "Kaydı ekle" }).click();
   await expect(page.getByRole("heading", { name: "90 bin km bakımı" })).toBeVisible();
@@ -89,6 +93,9 @@ test("module cards open usable assistant tools", async ({ page }) => {
 
 test("health record entries persist across reloads and build a score trend", async ({ page }) => {
   await page.goto("/arac-saglik-karnesi");
+  // See the matching comment on the "module cards open usable assistant
+  // tools" test above — the default vehicle hydrates asynchronously.
+  await expect(page.getByLabel("Araç seç")).not.toHaveValue("");
 
   await page.getByLabel("Tür").selectOption("Sağlık Skoru");
   await page.getByLabel("Başlık").fill("İlk kontrol");

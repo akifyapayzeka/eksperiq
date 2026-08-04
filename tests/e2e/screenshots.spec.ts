@@ -76,41 +76,45 @@ async function fillDemoVehicle(page: Page) {
   await page.locator('[name="hasSpareKey"]').check();
 }
 
-async function captureReleaseScreenshot(page: Page, projectName: string, name: string) {
+async function captureReleaseScreenshot(page: Page, projectName: string, isMobile: boolean, name: string) {
   await page.screenshot({
-    fullPage: projectName !== "mobile",
+    // WebKit enforces a hard 32767px screenshot dimension cap, and a narrow
+    // mobile viewport makes full-page height on a long form exceed that —
+    // fullPage must be off for every mobile-viewport project (both "mobile"
+    // and "mobile-safari"), not just the literal string "mobile".
+    fullPage: !isMobile,
     path: path.join(screenshotDir, `${projectName}-${name}.png`),
   });
 }
 
-test("captures release screenshots", async ({ page }, testInfo) => {
+test("captures release screenshots", async ({ page, isMobile }, testInfo) => {
   await mkdir(screenshotDir, { recursive: true });
   const prefix = testInfo.project.name;
 
   await page.goto("/");
   await prepareScreenshotPage(page);
   await expect(page.getByRole("heading", { name: /Araç almadan/ })).toBeVisible();
-  await captureReleaseScreenshot(page, prefix, "home");
+  await captureReleaseScreenshot(page, prefix, isMobile, "home");
 
   await page.goto("/analiz");
   await prepareScreenshotPage(page);
   await fillDemoVehicle(page);
   await page.getByLabel("Yakıt türü").scrollIntoViewIfNeeded();
-  await captureReleaseScreenshot(page, prefix, "analysis-form");
+  await captureReleaseScreenshot(page, prefix, isMobile, "analysis-form");
 
   await page.getByRole("button", { name: "Analiz oluştur" }).click();
   await expect(page).toHaveURL(/\/sonuc$/);
   await prepareScreenshotPage(page);
   await expect(page.getByText("Araç Risk Skoru")).toBeVisible();
-  await captureReleaseScreenshot(page, prefix, "result");
+  await captureReleaseScreenshot(page, prefix, isMobile, "result");
 
   await page.goto("/analizlerim");
   await prepareScreenshotPage(page);
   await expect(page.getByRole("heading", { name: "Analizlerim", exact: true })).toBeVisible();
-  await captureReleaseScreenshot(page, prefix, "my-analyses");
+  await captureReleaseScreenshot(page, prefix, isMobile, "my-analyses");
 
   await page.goto("/offline");
   await prepareScreenshotPage(page);
   await expect(page.getByRole("heading", { name: "Bağlantı gerekiyor" })).toBeVisible();
-  await captureReleaseScreenshot(page, prefix, "offline");
+  await captureReleaseScreenshot(page, prefix, isMobile, "offline");
 });
