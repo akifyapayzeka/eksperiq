@@ -113,6 +113,70 @@ describe("photo damage AI endpoint", () => {
     process.env = previousEnv;
   });
 
+  it('only uses the pro+ vision model when EKSPERIQ_FORCE_PRO_PLUS is exactly "true"', () => {
+    const { resolveVisionModel } = handler as unknown as { resolveVisionModel: () => string };
+    const previousEnv = process.env;
+
+    process.env = {
+      ...previousEnv,
+      EKSPERIQ_FORCE_PRO_PLUS: "true",
+      OPENROUTER_VISION_MODEL_PRO_PLUS: "openai/gpt-4o",
+    };
+    expect(resolveVisionModel()).toBe("openai/gpt-4o");
+
+    // Same server-only guarantee as EKSPERIQ_FORCE_PRO: a regular client can
+    // never set this env var, but if it were ever anything other than the
+    // exact string "true", the pro+ model must never be used.
+    for (const value of [undefined, "false", "1", "TRUE", ""]) {
+      process.env = {
+        ...previousEnv,
+        ...(value === undefined ? {} : { EKSPERIQ_FORCE_PRO_PLUS: value }),
+        OPENROUTER_VISION_MODEL_PRO_PLUS: "openai/gpt-4o",
+      };
+      delete process.env.EKSPERIQ_FORCE_PRO;
+      delete process.env.OPENROUTER_VISION_MODEL_PRO;
+      delete process.env.OPENROUTER_VISION_MODEL;
+      delete process.env.OPENROUTER_MODEL;
+      expect(resolveVisionModel()).not.toBe("openai/gpt-4o");
+    }
+
+    process.env = previousEnv;
+  });
+
+  it("falls back to the normal free model when EKSPERIQ_FORCE_PRO_PLUS is set but no pro+ model is configured", () => {
+    const { resolveVisionModel, DEFAULT_VISION_MODEL } = handler as unknown as {
+      resolveVisionModel: () => string;
+      DEFAULT_VISION_MODEL: string;
+    };
+    const previousEnv = process.env;
+
+    process.env = { ...previousEnv, EKSPERIQ_FORCE_PRO_PLUS: "true" };
+    delete process.env.OPENROUTER_VISION_MODEL_PRO_PLUS;
+    delete process.env.EKSPERIQ_FORCE_PRO;
+    delete process.env.OPENROUTER_VISION_MODEL_PRO;
+    delete process.env.OPENROUTER_VISION_MODEL;
+    delete process.env.OPENROUTER_MODEL;
+
+    expect(resolveVisionModel()).toBe(DEFAULT_VISION_MODEL);
+    process.env = previousEnv;
+  });
+
+  it("prefers the pro+ model over the pro model when both tiers are forced on", () => {
+    const { resolveVisionModel } = handler as unknown as { resolveVisionModel: () => string };
+    const previousEnv = process.env;
+
+    process.env = {
+      ...previousEnv,
+      EKSPERIQ_FORCE_PRO: "true",
+      OPENROUTER_VISION_MODEL_PRO: "openai/gpt-4o-mini",
+      EKSPERIQ_FORCE_PRO_PLUS: "true",
+      OPENROUTER_VISION_MODEL_PRO_PLUS: "openai/gpt-4o",
+    };
+    expect(resolveVisionModel()).toBe("openai/gpt-4o");
+
+    process.env = previousEnv;
+  });
+
   it("stays disabled unless the photo AI flag is enabled", async () => {
     const response = await callEndpoint(validBody, {
       NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "false",

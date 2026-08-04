@@ -5,7 +5,7 @@ tamamlanmış işten sonra günceller; amaç, ChatGPT Codex veya başka bir asis
 devam edilirse bağlamın kaybolmamasıdır. Yeni bir oturuma başlarken önce bu
 dosyayı okuyun.
 
-Son güncelleme: 2026-08-02 (Claude Code)
+Son güncelleme: 2026-08-04 (Claude Code)
 
 ## Ürün özeti
 
@@ -1016,3 +1016,33 @@ aktif adım pill'i doğru vurgulanıyor, yüzen buton alt menüyle çakışmıyo
   döngüsünden geçtikten sonra kullanıcı onayı beklenmeden doğrudan merge
   edilebilir. Kullanıcı uygulamayı yalnızca tamamen bittiğinde kendisi test
   edecek.
+
+## 2026-08-04: Photo AI'a ikinci bir admin-only test kademesi eklendi (Pro+)
+
+Kullanıcı ("Codex production'da /api/ai/photo-damage'ın openrouter/free
+döndürdüğünü, Pro/Pro+ modelinin kullanıcı paketine göre bağlanmadığını"
+bildirdi ve bunu düzeltmemizi istedi. Kod incelendiğinde bunun bir bug değil,
+bilinçli bir tasarım olduğu görüldü: `src/lib/pro/entitlement.ts`'deki
+`isPro()` her zaman `false` döner çünkü gerçek kullanıcı hesabı ve doğrulanmış
+satın alma (Apple/Google IAP) yok — client'tan gelen bir "ben Pro'yum"
+sinyaline güvenmek trivial olarak sahtelenebilir. Kullanıcıya bu durum
+açıklandı ve üç seçenek sunuldu (admin-only ikinci kademe ekle / gerçek IAP
+entitlement sistemi kur / yalnızca env ayarını netleştir); kullanıcı ilkini
+seçti.
+
+Yapılan: `api/ai/photo-damage.js`'deki `resolveVisionModel()`'e, mevcut
+`EKSPERIQ_FORCE_PRO`/`OPENROUTER_VISION_MODEL_PRO` çiftinin yanına ikinci bir
+sunucu-only test kademesi eklendi: `EKSPERIQ_FORCE_PRO_PLUS`/
+`OPENROUTER_VISION_MODEL_PRO_PLUS`. Öncelik sırası: Pro+ (ikisi de forced ise
+Pro+ kazanır) → Pro → ücretsiz varsayılan. Bu **hâlâ gerçek kullanıcı bazlı
+segmentasyon değildir** — yalnızca admin'in kendi (üretim dışı) deployment'ında
+iki farklı model kalitesini (örn. `gpt-4o-mini` vs `gpt-4o`) karşılaştırması
+içindir; production'da her iki bayrak da boş/false kalmalı.
+`.env.example`'a yeni değişkenler dokümante edildi,
+`tests/unit/photo-damage-endpoint.test.ts`'e 4 yeni test eklendi (Pro+ yalnız
+tam `"true"` string'inde tetiklenir, Pro+ model tanımsızsa ücretsize düşer,
+Pro+ Pro'ya karşı öncelikli). Tam doğrulama döngüsü (tsc/lint/vitest/build)
+geçti.
+
+Gerçek kullanıcı bazlı Pro/Pro+ için hâlâ "Abonelik/Pro planı" bölümündeki
+IAP + hesap sistemi gerekiyor — bu bölüm değişmedi.
