@@ -21,6 +21,7 @@ const eslintConfig = defineConfig([
     "dist/**",
     "test-results/**",
     "playwright-report/**",
+    "coverage/**",
     "ios/App/App/public/**",
     "ios/App/App/capacitor.config.json",
     "ios/App/App/config.xml",

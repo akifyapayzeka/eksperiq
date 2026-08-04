@@ -110,9 +110,10 @@ describe("isAuthorized", () => {
     delete process.env.CRON_SECRET;
   });
 
-  it("allows any request when no secret is configured", () => {
+  it("fails closed — rejects every request when no secret is configured", () => {
     delete process.env.CRON_SECRET;
-    expect(cron.isAuthorized({ headers: {} })).toBe(true);
+    expect(cron.isAuthorized({ headers: {} })).toBe(false);
+    expect(cron.isAuthorized({ headers: { authorization: "Bearer anything" } })).toBe(false);
   });
 
   it("rejects requests with a missing or wrong bearer token when a secret is configured", () => {
@@ -142,10 +143,11 @@ describe("check-reminders handler", () => {
   });
 
   it("skips sending when VAPID keys are not configured", async () => {
+    process.env.CRON_SECRET = "topsecret";
     delete process.env.VAPID_PUBLIC_KEY;
     delete process.env.VAPID_PRIVATE_KEY;
     const response = createResponse();
-    await cron({ headers: {} }, response);
+    await cron({ headers: { authorization: "Bearer topsecret" } }, response);
     expect(response.statusCode).toBe(200);
     const payload = JSON.parse(response.body) as { skipped?: boolean };
     expect(payload.skipped).toBe(true);

@@ -84,18 +84,24 @@ export default function MyAnalysesPage() {
   const [photoAnalyses, setPhotoAnalyses] = useState<PhotoAnalysisRecord[]>([]);
 
   useEffect(() => {
+    let cancelled = false;
     const frame = window.requestAnimationFrame(() => {
       setHistory(loadAnalysisHistory());
       setVehicleCount(loadVehicles().length);
-      setPhotoAnalyses(loadPhotoAnalyses());
       setIsReady(true);
     });
+    void loadPhotoAnalyses().then((records) => {
+      if (!cancelled) setPhotoAnalyses(records);
+    });
 
-    return () => window.cancelAnimationFrame(frame);
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(frame);
+    };
   }, []);
 
-  function removePhotoAnalysis(id: string) {
-    setPhotoAnalyses(deletePhotoAnalysis(id));
+  async function removePhotoAnalysis(id: string) {
+    setPhotoAnalyses(await deletePhotoAnalysis(id));
   }
 
   function removeAnalysis(id: string) {

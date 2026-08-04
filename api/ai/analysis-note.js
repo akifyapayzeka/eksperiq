@@ -1,16 +1,18 @@
-const OPENROUTER_CHAT_COMPLETIONS_URL = "https://openrouter.ai/api/v1/chat/completions";
+const { checkRateLimit } = require("../_lib/rate-limit.js");
+const { callOpenRouterChatCompletions, hedgeCertainLanguage } = require("../_lib/openrouter.js");
+const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
+
 // "openrouter/free" rastgele bir ücretsiz modele yönlendirir; bunların arasında
 // nvidia/nemotron-3.5-content-safety:free gibi sohbet için uygun olmayan
 // moderasyon/güvenlik modelleri de var ve bunlar anlamsız çıktı üretebiliyor
 // (örn. "User Safety: safe"). Bunun yerine güvenilir, isimli bir ücretsiz model kullan.
 const DEFAULT_OPENROUTER_MODEL = "openai/gpt-oss-20b:free";
 const DEFAULT_AI_DAILY_LIMIT = 20;
-const UPSTASH_TTL_SECONDS = 60 * 60 * 48;
-const usageKey = "analysis-note";
+const DEFAULT_AI_DAILY_LIMIT_PER_INSTALL = 8;
+const DEFAULT_BURST_LIMIT = 5;
+const DEFAULT_BURST_WINDOW_SECONDS = 60;
 const productionUrl = "https://eksperiq.vercel.app";
 const appName = "EksperIQ";
-
-const counters = new Map();
 
 function sendJson(response, statusCode, body) {
   response.statusCode = statusCode;
@@ -31,14 +33,10 @@ async function readJsonBody(request) {
   return JSON.parse(raw);
 }
 
-function getTodayKey(date = new Date()) {
-  return date.toISOString().slice(0, 10);
-}
-
-function parseDailyLimit(value) {
-  if (!value) return DEFAULT_AI_DAILY_LIMIT;
+function parsePositiveInt(value, fallback) {
+  if (!value) return fallback;
   const parsed = Number.parseInt(value, 10);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_AI_DAILY_LIMIT;
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
 function isFeatureEnabled() {
@@ -47,70 +45,6 @@ function isFeatureEnabled() {
 
 function isOpenRouterConfigured() {
   return Boolean(process.env.OPENROUTER_API_KEY?.trim());
-}
-
-function getMemoryUsage(key, date = new Date()) {
-  const dayKey = getTodayKey(date);
-  const record = counters.get(key);
-  if (!record || record.dayKey !== dayKey) return 0;
-  return record.count;
-}
-
-function reserveMemoryUsage(key, dailyLimit, date = new Date()) {
-  const usedToday = getMemoryUsage(key, date);
-  if (usedToday >= dailyLimit) return { allowed: false, remaining: 0 };
-
-  const next = usedToday + 1;
-  counters.set(key, { dayKey: getTodayKey(date), count: next });
-  return { allowed: true, remaining: Math.max(dailyLimit - next, 0) };
-}
-
-function getUpstashConfig() {
-  const url = (process.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REDIS_REST_KV_REST_API_URL)?.trim();
-  const token = (process.env.UPSTASH_REDIS_REST_TOKEN || process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN)?.trim();
-  if (!url || !token) return null;
-  return { url: url.replace(/\/$/, ""), token };
-}
-
-function parseCount(value) {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value === "string") {
-    const parsed = Number.parseInt(value, 10);
-    return Number.isFinite(parsed) ? parsed : 0;
-  }
-  return 0;
-}
-
-async function reserveUpstashUsage(key, dailyLimit, config) {
-  const dailyKey = `eksperiq:ai:${key}:${getTodayKey()}`;
-  const response = await fetch(`${config.url}/pipeline`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${config.token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify([
-      ["INCR", dailyKey],
-      ["EXPIRE", dailyKey, UPSTASH_TTL_SECONDS],
-    ]),
-  });
-
-  if (!response.ok) throw new Error(`Upstash failed: ${response.status}`);
-  const payload = await response.json();
-  if (!Array.isArray(payload)) throw new Error("Invalid Upstash payload.");
-
-  const firstResult = payload[0];
-  if (firstResult?.error) throw new Error("Upstash INCR failed.");
-
-  const used = parseCount(firstResult?.result);
-  if (used > dailyLimit) return { allowed: false, remaining: 0 };
-  return { allowed: true, remaining: Math.max(dailyLimit - used, 0) };
-}
-
-async function reserveUsage(key, dailyLimit) {
-  const upstash = getUpstashConfig();
-  if (!upstash) return reserveMemoryUsage(key, dailyLimit);
-  return reserveUpstashUsage(key, dailyLimit, upstash);
 }
 
 function buildPrompt(input) {
@@ -189,48 +123,43 @@ async function createAnalysisNote(input) {
   if (!apiKey) return { error: "OPENROUTER_API_KEY tanımlı değil; kural tabanlı analiz kullanılmalı." };
 
   const model = process.env.OPENROUTER_MODEL?.trim() || DEFAULT_OPENROUTER_MODEL;
-  const response = await fetch(OPENROUTER_CHAT_COMPLETIONS_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": productionUrl,
-      "X-OpenRouter-Title": appName,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        {
-          role: "system",
-          content:
-            "Sen EksperIQ için çalışan dikkatli bir ikinci el araç karar destek asistanısın. Kesin ekspertiz, hasarsızlık veya satın alma garantisi verme.",
-        },
-        {
-          role: "user",
-          content: buildPrompt(input),
-        },
-      ],
-      temperature: 0.2,
-      max_tokens: 700,
-    }),
+  const result = await callOpenRouterChatCompletions({
+    apiKey,
+    model,
+    messages: [
+      {
+        role: "system",
+        content:
+          "Sen EksperIQ için çalışan dikkatli bir ikinci el araç karar destek asistanısın. Kesin ekspertiz, hasarsızlık veya satın alma garantisi verme.",
+      },
+      {
+        role: "user",
+        content: buildPrompt(input),
+      },
+    ],
+    temperature: 0.2,
+    maxTokens: 700,
+    refererUrl: productionUrl,
+    appName,
   });
+  if (!result.ok) return { error: result.error };
 
-  if (!response.ok) return { error: `OpenRouter isteği başarısız oldu: ${response.status}` };
-
-  const payload = await response.json();
-  const note = extractAssistantContent(payload);
+  const note = extractAssistantContent(result.payload);
   if (!note) return { error: "OpenRouter yanıtında okunabilir içerik bulunamadı." };
-  return { note, model };
+  return { note: hedgeCertainLanguage(note), model };
 }
 
 async function handler(request, response) {
+  applyCorsHeaders(request, response);
+  if (handlePreflight(request, response)) return;
+
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
     sendJson(response, 405, { error: "Yalnızca POST desteklenir." });
     return;
   }
 
-  const dailyLimit = parseDailyLimit(process.env.OPENROUTER_DAILY_REQUEST_LIMIT);
+  const dailyLimit = parsePositiveInt(process.env.OPENROUTER_DAILY_REQUEST_LIMIT, DEFAULT_AI_DAILY_LIMIT);
 
   if (!isFeatureEnabled()) {
     sendJson(response, 429, {
@@ -262,17 +191,28 @@ async function handler(request, response) {
     return;
   }
 
-  let reservation;
-  try {
-    reservation = await reserveUsage(usageKey, dailyLimit);
-  } catch {
-    sendJson(response, 503, {
-      error: "AI kullanım limiti şu anda doğrulanamadı. Kural tabanlı raporu kullanabilirsiniz.",
-    });
-    return;
-  }
+  const rateLimit = await checkRateLimit(request, {
+    usageKey: "analysis-note",
+    burstLimit: parsePositiveInt(process.env.AI_BURST_LIMIT, DEFAULT_BURST_LIMIT),
+    burstWindowSeconds: parsePositiveInt(process.env.AI_BURST_WINDOW_SECONDS, DEFAULT_BURST_WINDOW_SECONDS),
+    dailyLimitPerIdentity: parsePositiveInt(
+      process.env.AI_NOTE_DAILY_LIMIT_PER_INSTALL,
+      DEFAULT_AI_DAILY_LIMIT_PER_INSTALL,
+    ),
+    globalDailyLimit: dailyLimit,
+  });
 
-  if (!reservation.allowed) {
+  if (!rateLimit.ok) {
+    if (rateLimit.reason === "unavailable") {
+      sendJson(response, 503, {
+        error: "AI kullanım limiti şu anda doğrulanamadı. Kural tabanlı raporu kullanabilirsiniz.",
+      });
+      return;
+    }
+    if (rateLimit.reason === "burst") {
+      sendJson(response, 429, { error: "Çok hızlı istek gönderildi. Birazdan tekrar deneyin.", remaining: 0 });
+      return;
+    }
     sendJson(response, 429, {
       error: "Günlük AI deneme limiti doldu.",
       remaining: 0,
@@ -289,7 +229,7 @@ async function handler(request, response) {
   sendJson(response, 200, {
     note: aiResult.note,
     model: aiResult.model,
-    remaining: reservation.remaining,
+    remaining: rateLimit.remaining,
   });
 }
 

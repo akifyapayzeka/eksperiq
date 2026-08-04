@@ -20,6 +20,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
+import { apiFetch } from "@/lib/api/client";
+import { shareContent } from "@/lib/share/share";
 import { RISK_LEVELS, SCORE_WEIGHTS } from "@/lib/constants/analysis";
 import { formatAnalysisSummary, formatSellerQuestionMessage } from "@/lib/analysis/report-summary";
 import { buildAiAnalysisNoteInput } from "@/lib/ai/analysis-note";
@@ -265,21 +267,16 @@ export function ResultClient() {
     if (!result) return;
 
     const summary = formatAnalysisSummary(result);
-    const shareData: ShareData = {
+    const outcome = await shareContent({
       title: `${appConfig.name} araç analiz özeti`,
       text: summary,
-      url: window.location.origin,
-    };
+    });
 
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-        setCopyStatus("shared");
-        return;
-      }
-
-      await copyText(summary, "summary-copied");
-    } catch {
+    if (outcome === "shared") {
+      setCopyStatus("shared");
+    } else if (outcome === "copied") {
+      setCopyStatus("summary-copied");
+    } else {
       setCopyStatus("failed");
     }
   }
@@ -312,7 +309,7 @@ export function ResultClient() {
     setAiNoteMessage("");
 
     try {
-      const response = await fetch("/api/ai/analysis-note", {
+      const response = await apiFetch("/api/ai/analysis-note", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -462,9 +459,7 @@ export function ResultClient() {
                         result.totalScore,
                       )}`}
                       strokeDasharray={SCORE_RING_CIRCUMFERENCE}
-                      strokeDashoffset={
-                        scoreRingFilled ? scoreRingOffset(result.totalScore) : SCORE_RING_CIRCUMFERENCE
-                      }
+                      strokeDashoffset={scoreRingFilled ? scoreRingOffset(result.totalScore) : SCORE_RING_CIRCUMFERENCE}
                     />
                   </svg>
                   <div className="absolute inset-0 grid place-items-center text-center">

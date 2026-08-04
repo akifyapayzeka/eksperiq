@@ -65,7 +65,7 @@ describe("push client", () => {
       vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 200 })),
     );
 
-    await expect(unsubscribeFromPush()).resolves.toBeUndefined();
+    await expect(unsubscribeFromPush()).resolves.toEqual({ serverDeleted: true });
     expect(subscription.unsubscribe).toHaveBeenCalled();
   });
 
@@ -81,12 +81,28 @@ describe("push client", () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 200 }));
     vi.stubGlobal("fetch", fetchMock);
 
-    await unsubscribeFromPush();
+    const result = await unsubscribeFromPush();
 
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/push/unsubscribe",
       expect.objectContaining({ body: JSON.stringify({ endpoint: "https://push.example.com/b" }) }),
     );
+    expect(result).toEqual({ serverDeleted: true });
+  });
+
+  it("reports serverDeleted: false when the server request fails", async () => {
+    const subscription = {
+      endpoint: "https://push.example.com/c",
+      toJSON: () => ({ endpoint: "https://push.example.com/c", keys: { p256dh: "p", auth: "a" } }),
+      unsubscribe: vi.fn(async () => undefined),
+    };
+    stubServiceWorker(subscription);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify({ error: "boom" }), { status: 500 })),
+    );
+
+    await expect(unsubscribeFromPush()).resolves.toEqual({ serverDeleted: false });
   });
 
   it("does nothing when there is no active subscription", async () => {
@@ -94,7 +110,7 @@ describe("push client", () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
 
-    await unsubscribeFromPush();
+    await expect(unsubscribeFromPush()).resolves.toEqual({ serverDeleted: true });
     await syncRemindersToPush(reminders);
 
     expect(fetchMock).not.toHaveBeenCalled();

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReminderRecord } from "@/lib/reminders/types";
+import { apiFetch } from "@/lib/api/client";
 import { urlBase64ToUint8Array } from "./vapid";
 
 export type PushSupportState = "unsupported" | "not-configured" | "denied" | "unsubscribed" | "subscribed";
@@ -55,7 +56,7 @@ export async function subscribeToPush(reminders: ReminderRecord[]): Promise<{ ok
   }
 
   try {
-    const response = await fetch("/api/push/subscribe", {
+    const response = await apiFetch("/api/push/subscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ subscription: subscription.toJSON(), reminders: toApiReminders(reminders) }),
@@ -75,29 +76,43 @@ export async function syncRemindersToPush(reminders: ReminderRecord[]): Promise<
   const subscription = await registration?.pushManager.getSubscription();
   if (!subscription) return;
 
-  await fetch("/api/push/subscribe", {
+  await apiFetch("/api/push/subscribe", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ subscription: subscription.toJSON(), reminders: toApiReminders(reminders) }),
   }).catch(() => undefined);
 }
 
-export async function unsubscribeFromPush(): Promise<void> {
-  if (!isPushSupported()) return;
+/**
+ * Always unsubscribes the browser's own push registration first (that part
+ * cannot silently fail the caller). `serverDeleted` reports whether the
+ * server-side subscription record was actually confirmed removed, so
+ * callers can tell the user honestly instead of assuming success — a failed
+ * request here leaves a copy that only clears itself via the 90-day TTL
+ * (see api/_lib/push-store.js), not immediately.
+ */
+export async function unsubscribeFromPush(): Promise<{ serverDeleted: boolean }> {
+  if (!isPushSupported()) return { serverDeleted: true };
 
   try {
     const registration = await navigator.serviceWorker.getRegistration();
     const subscription = await registration?.pushManager.getSubscription();
-    if (!subscription) return;
+    if (!subscription) return { serverDeleted: true };
 
     const endpoint = subscription.endpoint;
     await subscription.unsubscribe().catch(() => undefined);
-    await fetch("/api/push/unsubscribe", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ endpoint }),
-    }).catch(() => undefined);
+    try {
+      const response = await apiFetch("/api/push/unsubscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ endpoint }),
+      });
+      return { serverDeleted: response.ok };
+    } catch {
+      return { serverDeleted: false };
+    }
   } catch {
     // Best effort: never leave the caller's UI stuck on a rejected promise.
+    return { serverDeleted: false };
   }
 }

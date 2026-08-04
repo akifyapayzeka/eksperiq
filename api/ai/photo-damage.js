@@ -1,4 +1,7 @@
-const OPENROUTER_CHAT_COMPLETIONS_URL = "https://openrouter.ai/api/v1/chat/completions";
+const { checkRateLimit } = require("../_lib/rate-limit.js");
+const { callOpenRouterChatCompletions, hedgeCertainLanguage } = require("../_lib/openrouter.js");
+const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
+
 // "openrouter/free" rastgele bir ücretsiz modele yönlendirir; bunların arasında
 // nvidia/nemotron-3.5-content-safety:free gibi moderasyon/güvenlik modelleri de
 // var ve bunlar görsel girdide de strict JSON şemasını desteklemiyor. Bunun
@@ -6,10 +9,18 @@ const OPENROUTER_CHAT_COMPLETIONS_URL = "https://openrouter.ai/api/v1/chat/compl
 // isimli bir ücretsiz model kullan.
 const DEFAULT_VISION_MODEL = "google/gemma-4-26b-a4b-it:free";
 const DEFAULT_PHOTO_DAILY_LIMIT = 10;
-const usageKey = "photo-damage";
+const DEFAULT_PHOTO_DAILY_LIMIT_PER_INSTALL = 4;
+const DEFAULT_BURST_LIMIT = 5;
+const DEFAULT_BURST_WINDOW_SECONDS = 60;
+// Vercel serverless functions reject request bodies over ~4.5MB before this
+// handler even runs. This is a second, independent check: the client already
+// compresses images to stay under MAX_AI_UPLOAD_PAYLOAD_BYTES
+// (src/lib/photo-analysis/prepare-ai-image.ts), but a client can be spoofed
+// or out of date, so the server must never trust it alone.
+const MAX_SINGLE_IMAGE_DATA_URL_CHARS = 3_000_000;
+const MAX_TOTAL_IMAGE_DATA_URL_CHARS = 4_200_000;
 const productionUrl = "https://eksperiq.vercel.app";
 const appName = "EksperIQ";
-const counters = new Map();
 
 function sendJson(response, statusCode, body) {
   response.statusCode = statusCode;
@@ -26,24 +37,10 @@ async function readJsonBody(request) {
   return JSON.parse(raw);
 }
 
-function getTodayKey(date = new Date()) {
-  return date.toISOString().slice(0, 10);
-}
-
-function parseDailyLimit(value) {
-  if (!value) return DEFAULT_PHOTO_DAILY_LIMIT;
+function parsePositiveInt(value, fallback) {
+  if (!value) return fallback;
   const parsed = Number.parseInt(value, 10);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_PHOTO_DAILY_LIMIT;
-}
-
-function reserveMemoryUsage(key, dailyLimit, date = new Date()) {
-  const dayKey = getTodayKey(date);
-  const record = counters.get(key);
-  const usedToday = !record || record.dayKey !== dayKey ? 0 : record.count;
-  if (usedToday >= dailyLimit) return { allowed: false, remaining: 0 };
-  const next = usedToday + 1;
-  counters.set(key, { dayKey, count: next });
-  return { allowed: true, remaining: Math.max(dailyLimit - next, 0) };
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
 function isRecord(value) {
@@ -55,7 +52,7 @@ function parseImage(value) {
   if (typeof value.name !== "string" || value.name.length > 120) return null;
   if (typeof value.mimeType !== "string" || !value.mimeType.startsWith("image/")) return null;
   if (typeof value.dataUrl !== "string" || !value.dataUrl.startsWith("data:image/")) return null;
-  if (value.dataUrl.length > 6_500_000) return null;
+  if (value.dataUrl.length > MAX_SINGLE_IMAGE_DATA_URL_CHARS) return null;
   return {
     name: value.name,
     mimeType: value.mimeType,
@@ -63,14 +60,28 @@ function parseImage(value) {
   };
 }
 
+// { ok: true, input } | { ok: false, reason: "invalid" | "too-large" }
 function parseInput(value) {
-  if (!isRecord(value)) return null;
-  if (!Array.isArray(value.images) || value.images.length < 1 || value.images.length > 4) return null;
+  if (!isRecord(value)) return { ok: false, reason: "invalid" };
+  if (!Array.isArray(value.images) || value.images.length < 1 || value.images.length > 4) {
+    return { ok: false, reason: "invalid" };
+  }
+
+  const totalRawLength = value.images.reduce(
+    (sum, image) => sum + (isRecord(image) && typeof image.dataUrl === "string" ? image.dataUrl.length : 0),
+    0,
+  );
+  if (totalRawLength > MAX_TOTAL_IMAGE_DATA_URL_CHARS) return { ok: false, reason: "too-large" };
+
   const images = value.images.map(parseImage);
-  if (images.some((image) => image === null)) return null;
+  if (images.some((image) => image === null)) return { ok: false, reason: "invalid" };
+
   return {
-    images,
-    userNote: typeof value.userNote === "string" ? value.userNote.slice(0, 600) : "",
+    ok: true,
+    input: {
+      images,
+      userNote: typeof value.userNote === "string" ? value.userNote.slice(0, 600) : "",
+    },
   };
 }
 
@@ -131,29 +142,6 @@ function normalizeSignal(finding) {
   if (typeof finding.signal === "string" && finding.signal.trim()) return finding.signal.slice(0, 80);
   if (typeof finding.label === "string" && finding.label.trim()) return finding.label.slice(0, 80);
   return "Olası kontrol notu";
-}
-
-const absoluteLanguageReplacements = [
-  [/kesinlikle hasar(lı|lıdır|)\b/gi, "olası hasar"],
-  [/kesin hasar/gi, "olası hasar"],
-  [/hasar(lı|lıdır) kesin/gi, "olası hasarlı"],
-  [/kesinlikle\b/gi, "büyük olasılıkla"],
-  [/kesindir\b/gi, "olabilir"],
-  [/kesin\b/gi, "olası"],
-  [/(100\s?%|%\s?100)\s*/gi, ""],
-  [/definitely damaged/gi, "possibly damaged"],
-  [/confirmed damage/gi, "possible damage"],
-  [/is damaged/gi, "may be damaged"],
-  [/certainly\b/gi, "possibly"],
-  [/definitely\b/gi, "possibly"],
-];
-
-function hedgeCertainLanguage(text) {
-  if (typeof text !== "string" || !text) return text;
-  return absoluteLanguageReplacements.reduce(
-    (current, [pattern, replacement]) => current.replace(pattern, replacement),
-    text,
-  );
 }
 
 function normalizeAnalysis(value) {
@@ -318,26 +306,19 @@ async function requestOpenRouterVision(input) {
   if (!apiKey) return { error: "OpenRouter API key tanımlı değil." };
 
   const model = resolveVisionModel();
-  const response = await fetch(OPENROUTER_CHAT_COMPLETIONS_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": productionUrl,
-      "X-OpenRouter-Title": appName,
-    },
-    body: JSON.stringify({
-      model,
-      messages: buildMessages(input),
-      response_format: photoDamageResponseFormat,
-      temperature: 0.1,
-      max_tokens: 900,
-    }),
+  const result = await callOpenRouterChatCompletions({
+    apiKey,
+    model,
+    messages: buildMessages(input),
+    responseFormat: photoDamageResponseFormat,
+    temperature: 0.1,
+    maxTokens: 900,
+    refererUrl: productionUrl,
+    appName,
   });
+  if (!result.ok) return { error: result.error };
 
-  if (!response.ok) return { error: `OpenRouter vision isteği başarısız oldu: ${response.status}` };
-  const payload = await response.json();
-  const text = extractText(payload);
+  const text = extractText(result.payload);
   if (!text) return { error: "AI yanıtı okunamadı." };
   const json = extractJson(text);
   const analysis = json ? normalizeAnalysis(json) : normalizeTextFallback(text);
@@ -346,6 +327,9 @@ async function requestOpenRouterVision(input) {
 }
 
 async function handler(request, response) {
+  applyCorsHeaders(request, response);
+  if (handlePreflight(request, response)) return;
+
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
     sendJson(response, 405, { error: "Yalnızca POST desteklenir." });
@@ -365,31 +349,57 @@ async function handler(request, response) {
     return;
   }
 
-  const input = parseInput(body);
-  if (!input) {
-    sendJson(response, 400, {
-      error: "1-4 adet geçerli araç fotoğrafı gönderin. Her görsel en fazla yaklaşık 5 MB olmalı.",
+  const parsed = parseInput(body);
+  if (!parsed.ok && parsed.reason === "too-large") {
+    sendJson(response, 413, {
+      error: "Fotoğraf verisi çok büyük. Daha az fotoğraf seçip tekrar deneyin.",
     });
     return;
   }
+  if (!parsed.ok) {
+    sendJson(response, 400, {
+      error: "1-4 adet geçerli araç fotoğrafı gönderin. Her görsel en fazla yaklaşık 2 MB olmalı.",
+    });
+    return;
+  }
+  const input = parsed.input;
 
-  const dailyLimit = parseDailyLimit(process.env.OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT);
-  const reservation = reserveMemoryUsage(usageKey, dailyLimit);
-  if (!reservation.allowed) {
+  const rateLimit = await checkRateLimit(request, {
+    usageKey: "photo-damage",
+    burstLimit: parsePositiveInt(process.env.AI_BURST_LIMIT, DEFAULT_BURST_LIMIT),
+    burstWindowSeconds: parsePositiveInt(process.env.AI_BURST_WINDOW_SECONDS, DEFAULT_BURST_WINDOW_SECONDS),
+    dailyLimitPerIdentity: parsePositiveInt(
+      process.env.AI_PHOTO_DAILY_LIMIT_PER_INSTALL,
+      DEFAULT_PHOTO_DAILY_LIMIT_PER_INSTALL,
+    ),
+    globalDailyLimit: parsePositiveInt(process.env.OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT, DEFAULT_PHOTO_DAILY_LIMIT),
+  });
+
+  if (!rateLimit.ok) {
+    if (rateLimit.reason === "unavailable") {
+      sendJson(response, 503, {
+        error: "AI kullanım limiti şu anda doğrulanamadı. Manuel bulgu ekleyerek devam edebilirsiniz.",
+      });
+      return;
+    }
+    if (rateLimit.reason === "burst") {
+      sendJson(response, 429, { error: "Çok hızlı istek gönderildi. Birazdan tekrar deneyin.", remaining: 0 });
+      return;
+    }
     sendJson(response, 429, { error: "Günlük AI fotoğraf analizi limiti doldu.", remaining: 0 });
     return;
   }
 
   const result = await requestOpenRouterVision(input);
   if ("error" in result) {
-    sendJson(response, 502, { error: result.error, remaining: reservation.remaining });
+    sendJson(response, 502, { error: result.error, remaining: rateLimit.remaining });
     return;
   }
 
   sendJson(response, 200, {
     analysis: result.analysis,
     model: result.model,
-    remaining: reservation.remaining,
+    remaining: rateLimit.remaining,
   });
 }
 

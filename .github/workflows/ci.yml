@@ -1,0 +1,150 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Format, typecheck, lint, unit tests, coverage, build, security/privacy/App Store checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Format check
+        run: npm run format
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Coverage
+        run: npm run coverage
+
+      - name: Build (static export)
+        run: npm run build
+
+      - name: Security — sensitive data / leaked secrets scan
+        run: npm run privacy:check
+
+      - name: Privacy — no over-claiming user-facing language
+        run: npm run claims:check
+
+      - name: App Store metadata check
+        run: npm run appstore:metadata-check
+
+  # Runs inside Playwright's official container image, which ships Chromium,
+  # WebKit, and Firefox with all their OS-level dependencies already
+  # installed. A prior version of this workflow ran `playwright install
+  # --with-deps` on a bare ubuntu-latest runner instead, which had to apt-get
+  # ~180 packages from scratch on every run; when the Ubuntu mirror the
+  # runner picked was slow, that single step alone blew the entire job
+  # timeout before any test ran. The container removes that failure mode
+  # entirely instead of just raising the timeout.
+  e2e-chromium:
+    name: E2E — Chromium (desktop + mobile)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.0-noble
+    env:
+      CI: "true"
+      HOME: /root
+      # The photo-AI e2e specs (module-tools.spec.ts, native-hardening.spec.ts)
+      # click the "AI ile fotoğrafı analiz et" button, which stays disabled
+      # unless this flag is on at build time. Locally it comes from
+      # .env.local (gitignored); CI has no such file, so it must be set here
+      # or every one of those specs times out waiting on a button that can
+      # never become enabled.
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (static export)
+        run: npm run build
+
+      - name: E2E — Chromium
+        run: npx playwright test --project=chromium --project=mobile
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-chromium
+          path: playwright-report/
+          retention-days: 7
+
+  e2e-webkit:
+    name: E2E — WebKit (desktop + iPhone)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.0-noble
+    env:
+      CI: "true"
+      HOME: /root
+      # See the matching comment in the e2e-chromium job above.
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (static export)
+        run: npm run build
+
+      - name: E2E — WebKit
+        run: npx playwright test --project=webkit --project=mobile-safari
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-webkit
+          path: playwright-report/
+          retention-days: 7

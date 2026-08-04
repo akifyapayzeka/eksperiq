@@ -59,6 +59,31 @@ const validBody = {
   ],
 };
 
+const RATE_LIMIT_TEST_ENV = {
+  UPSTASH_REDIS_REST_URL: "https://upstash.example.com",
+  UPSTASH_REDIS_REST_TOKEN: "test-upstash-token",
+  RATE_LIMIT_HASH_SECRET: "test-hash-secret",
+};
+
+const UPSTASH_ALLOW_RESPONSE = JSON.stringify([
+  { result: 1 },
+  { result: "OK" },
+  { result: 1 },
+  { result: "OK" },
+  { result: 1 },
+  { result: "OK" },
+]);
+
+/** Routes fetch by URL: Upstash pipeline calls always pass the rate limit; everything else goes to the OpenRouter handler. */
+function mockFetchAllowingRateLimit(openRouterResponse: unknown) {
+  return vi.fn<(input: unknown, init?: RequestInit) => Promise<unknown>>(async (input) => {
+    if (String(input).includes("upstash.example.com")) {
+      return new Response(UPSTASH_ALLOW_RESPONSE, { status: 200 });
+    }
+    return openRouterResponse;
+  });
+}
+
 describe("photo damage AI endpoint", () => {
   it("defaults to a named, reliable free vision model instead of the random openrouter/free router", () => {
     // openrouter/free randomly routes to any free model on OpenRouter, including
@@ -177,6 +202,28 @@ describe("photo damage AI endpoint", () => {
     process.env = previousEnv;
   });
 
+  it("rejects an oversized combined image payload with 413 before calling OpenRouter", async () => {
+    const oversizedDataUrl = `data:image/jpeg;base64,${"A".repeat(4_300_000)}`;
+    const response = await callEndpoint(
+      { images: [{ name: "big.jpg", mimeType: "image/jpeg", dataUrl: oversizedDataUrl }] },
+      { NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true", OPENROUTER_API_KEY: "test-key" },
+    );
+
+    expect(response.statusCode).toBe(413);
+    expect(response.body.error).toContain("çok büyük");
+  });
+
+  it("fails closed with 503 when the rate limiter is unavailable (no Upstash/hash secret configured)", async () => {
+    const response = await callEndpoint(validBody, {
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+      // Deliberately no UPSTASH_* / RATE_LIMIT_HASH_SECRET — this must not fall back
+      // to "no limit at all".
+    });
+
+    expect(response.statusCode).toBe(503);
+  });
+
   it("stays disabled unless the photo AI flag is enabled", async () => {
     const response = await callEndpoint(validBody, {
       NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "false",
@@ -188,7 +235,7 @@ describe("photo damage AI endpoint", () => {
   });
 
   it("returns normalized non-vehicle analysis without findings", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
+    const fetchMock = mockFetchAllowingRateLimit({
       ok: true,
       json: async () => ({
         choices: [
@@ -208,6 +255,7 @@ describe("photo damage AI endpoint", () => {
     const previousEnv = process.env;
     process.env = {
       ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
       NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
       OPENROUTER_API_KEY: "test-key",
       OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
@@ -219,7 +267,8 @@ describe("photo damage AI endpoint", () => {
     process.env = previousEnv;
     vi.unstubAllGlobals();
     const payload = JSON.parse(response.body) as { analysis: { isVehiclePhoto: boolean; findings: unknown[] } };
-    const requestBody = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)) as {
+    const openRouterCall = fetchMock.mock.calls.find(([url]) => String(url).includes("openrouter.ai"));
+    const requestBody = JSON.parse(String((openRouterCall?.[1] as RequestInit | undefined)?.body)) as {
       response_format?: { type?: string };
     };
     expect(response.statusCode).toBe(200);
@@ -229,7 +278,7 @@ describe("photo damage AI endpoint", () => {
   });
 
   it("treats a screenshot response as a non-vehicle photo with no findings", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
+    const fetchMock = mockFetchAllowingRateLimit({
       ok: true,
       json: async () => ({
         choices: [
@@ -249,6 +298,7 @@ describe("photo damage AI endpoint", () => {
     const previousEnv = process.env;
     process.env = {
       ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
       NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
       OPENROUTER_API_KEY: "test-key",
       OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
@@ -266,7 +316,7 @@ describe("photo damage AI endpoint", () => {
   });
 
   it("keeps a blurry close-up response low-confidence and hedged instead of a firm damage claim", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
+    const fetchMock = mockFetchAllowingRateLimit({
       ok: true,
       json: async () => ({
         choices: [
@@ -294,6 +344,7 @@ describe("photo damage AI endpoint", () => {
     const previousEnv = process.env;
     process.env = {
       ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
       NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
       OPENROUTER_API_KEY: "test-key",
       OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
@@ -315,7 +366,7 @@ describe("photo damage AI endpoint", () => {
   });
 
   it("softens absolute-certainty damage claims into hedged language", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
+    const fetchMock = mockFetchAllowingRateLimit({
       ok: true,
       json: async () => ({
         choices: [
@@ -343,6 +394,7 @@ describe("photo damage AI endpoint", () => {
     const previousEnv = process.env;
     process.env = {
       ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
       NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
       OPENROUTER_API_KEY: "test-key",
       OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
@@ -368,7 +420,7 @@ describe("photo damage AI endpoint", () => {
   });
 
   it("accepts vehicle responses that report no visible damage without signal fields", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
+    const fetchMock = mockFetchAllowingRateLimit({
       ok: true,
       json: async () => ({
         choices: [
@@ -395,6 +447,7 @@ describe("photo damage AI endpoint", () => {
     const previousEnv = process.env;
     process.env = {
       ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
       NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
       OPENROUTER_API_KEY: "test-key",
       OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",

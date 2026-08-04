@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { demoVehicleInput } from "../fixtures/demo-vehicle";
+import { stubClipboard } from "./helpers/clipboard";
 
 async function fillRequiredForm(page: Page) {
   await page.getByLabel("Marka").selectOption(demoVehicleInput.brand);
@@ -205,8 +206,8 @@ test("expertise report accepts report files and text", async ({ page }) => {
   await expect(page.getByText("Airbag ifadesi var; emniyet sistemi arıza taraması istenmeli.")).toBeVisible();
 });
 
-test("shows feedback collection flow", async ({ page, context }) => {
-  await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: "http://127.0.0.1:3000" });
+test("shows feedback collection flow", async ({ page }) => {
+  await stubClipboard(page);
   await page.goto("/geri-bildirim");
   await expect(page.getByRole("heading", { name: "Geri bildirim", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Kullanıcı testi notu gönder" })).toHaveAttribute(
@@ -279,8 +280,8 @@ test("creates analysis result", async ({ page }) => {
   await page.getByRole("button", { name: /Tümü \(/ }).click();
 });
 
-test("copies seller-ready message to clipboard", async ({ page, context }) => {
-  await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: "http://127.0.0.1:3000" });
+test("copies seller-ready message to clipboard", async ({ page }) => {
+  await stubClipboard(page);
   await page.goto("/analiz");
   await fillRequiredForm(page);
   await page.getByRole("button", { name: "Analiz oluştur" }).click();

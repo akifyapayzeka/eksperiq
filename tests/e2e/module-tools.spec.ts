@@ -1,5 +1,14 @@
 import { expect, test } from "@playwright/test";
 import { demoVehicleInput } from "../fixtures/demo-vehicle";
+import { stubClipboard } from "./helpers/clipboard";
+
+// A real, decodable 1x1 PNG — the AI photo flow now compresses/re-encodes
+// uploads via <canvas> before sending them (src/lib/photo-analysis/prepare-ai-image.ts),
+// so a fixture with arbitrary non-image bytes fails to decode and never
+// reaches the mocked route below.
+const MINIMAL_PNG_BASE64 =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+const minimalPngBuffer = Buffer.from(MINIMAL_PNG_BASE64, "base64");
 
 async function fillRequiredForm(page: import("@playwright/test").Page) {
   await page.getByLabel("Marka").selectOption(demoVehicleInput.brand);
@@ -47,7 +56,7 @@ test("module cards open usable assistant tools", async ({ page }) => {
   await page.locator('input[type="file"]').setInputFiles({
     name: "arac-on-tampon.jpg",
     mimeType: "image/jpeg",
-    buffer: Buffer.from("fake-image"),
+    buffer: minimalPngBuffer,
   });
   await page.getByLabel("Bölge").selectOption("Ön tampon");
   await page.getByLabel("Bulgu").selectOption("Çizik");
@@ -67,6 +76,10 @@ test("module cards open usable assistant tools", async ({ page }) => {
   );
 
   await page.goto("/arac-saglik-karnesi");
+  // The default vehicle is hydrated asynchronously (a requestAnimationFrame
+  // after mount) — filling and submitting the form before that lands can
+  // silently no-op addRecord()'s `if (!selectedVehicleId) return;` guard.
+  await expect(page.getByLabel("Araç seç")).not.toHaveValue("");
   await page.getByLabel("Başlık").fill("90 bin km bakımı");
   await page.getByRole("button", { name: "Kaydı ekle" }).click();
   await expect(page.getByRole("heading", { name: "90 bin km bakımı" })).toBeVisible();
@@ -80,6 +93,9 @@ test("module cards open usable assistant tools", async ({ page }) => {
 
 test("health record entries persist across reloads and build a score trend", async ({ page }) => {
   await page.goto("/arac-saglik-karnesi");
+  // See the matching comment on the "module cards open usable assistant
+  // tools" test above — the default vehicle hydrates asynchronously.
+  await expect(page.getByLabel("Araç seç")).not.toHaveValue("");
 
   await page.getByLabel("Tür").selectOption("Sağlık Skoru");
   await page.getByLabel("Başlık").fill("İlk kontrol");
@@ -116,8 +132,8 @@ test("health record entries persist across reloads and build a score trend", asy
   await expect(page.getByRole("heading", { name: "İkinci kontrol" })).toBeVisible();
 });
 
-test("report action buttons show visible feedback", async ({ page, context }) => {
-  await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: "http://127.0.0.1:3000" });
+test("report action buttons show visible feedback", async ({ page }) => {
+  await stubClipboard(page);
   await page.goto("/analiz");
   await fillRequiredForm(page);
   await page.getByRole("button", { name: "Analiz oluştur" }).click();
@@ -341,7 +357,7 @@ test("photo damage tool refuses non-vehicle photos via the AI's own check", asyn
   await page.locator('input[type="file"]').setInputFiles({
     name: "yumurta.jpg",
     mimeType: "image/jpeg",
-    buffer: Buffer.from("fake-egg-image"),
+    buffer: minimalPngBuffer,
   });
   await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
   await expect(
@@ -355,7 +371,7 @@ test("saved photo analysis appears in Analizlerim", async ({ page }) => {
   await page.locator('input[type="file"]').setInputFiles({
     name: "arac-on-tampon.jpg",
     mimeType: "image/jpeg",
-    buffer: Buffer.from("fake-image"),
+    buffer: minimalPngBuffer,
   });
   await page.getByLabel("Bölge").selectOption("Ön tampon");
   await page.getByLabel("Bulgu").selectOption("Çizik");

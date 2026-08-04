@@ -2,6 +2,13 @@ const crypto = require("node:crypto");
 
 const SUBSCRIPTIONS_INDEX_KEY = "eksperiq:push:subs";
 const RECORD_PREFIX = "eksperiq:push:sub:";
+// A subscription re-saves (and so refreshes this TTL) every time its owner's
+// reminders sync while notifications are on. If a browser/device is gone for
+// 90 days straight (uninstalled, never reopened), the record expires on its
+// own instead of accumulating forever; the existing self-heal in
+// listSubscriptions() then prunes the now-orphaned index entry the next time
+// the cron runs.
+const SUBSCRIPTION_TTL_SECONDS = 60 * 60 * 24 * 90;
 
 const memoryStore = new Map();
 
@@ -62,6 +69,7 @@ async function saveSubscription({ endpoint, subscription, reminders }) {
 
   await upstashPipeline(upstash, [
     ["SET", recordKey(hash), serialized],
+    ["EXPIRE", recordKey(hash), SUBSCRIPTION_TTL_SECONDS],
     ["SADD", SUBSCRIPTIONS_INDEX_KEY, hash],
   ]);
   return { hash, store: "upstash" };
@@ -95,7 +103,10 @@ async function updateNotified(hash, notified) {
     return;
   }
 
-  await upstashPipeline(upstash, [["SET", recordKey(hash), JSON.stringify(record)]]);
+  await upstashPipeline(upstash, [
+    ["SET", recordKey(hash), JSON.stringify(record)],
+    ["EXPIRE", recordKey(hash), SUBSCRIPTION_TTL_SECONDS],
+  ]);
 }
 
 async function removeSubscriptionByEndpoint(endpoint) {
