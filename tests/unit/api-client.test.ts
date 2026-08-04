@@ -44,4 +44,21 @@ describe("resolveApiUrl", () => {
     );
     vi.unstubAllGlobals();
   });
+
+  it("apiFetch attaches the anonymous install id as a header for server-side rate limiting", async () => {
+    window.localStorage.removeItem("eksperiq:install-id");
+    const fetchMock = vi.fn<(input: string, init?: RequestInit) => Promise<Response>>(
+      async () => new Response("{}", { status: 200 }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { apiFetch } = await import("@/lib/api/client");
+    await apiFetch("/api/ai/photo-damage", { method: "POST" });
+
+    const [, init] = fetchMock.mock.calls[0];
+    const headers = init?.headers as Headers;
+    expect(headers.get("X-EksperIQ-Install-Id")).toBeTruthy();
+    vi.unstubAllGlobals();
+    window.localStorage.removeItem("eksperiq:install-id");
+  });
 });

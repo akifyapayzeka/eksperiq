@@ -3,8 +3,10 @@
 import { useMemo, useState } from "react";
 import { Camera, ImagePlus, Save } from "lucide-react";
 import { downscaleImage } from "@/lib/photo-analysis/downscale-image";
+import { prepareAiImages } from "@/lib/photo-analysis/prepare-ai-image";
 import { createPhotoAnalysisId, upsertPhotoAnalysis } from "@/lib/storage/photo-analysis-storage";
 import type { PhotoAnalysisRecord } from "@/lib/photo-analysis/types";
+import { apiFetch } from "@/lib/api/client";
 
 const areas = [
   "Ön tampon",
@@ -124,16 +126,6 @@ export default function PhotoDamagePage() {
     setSaveMessage("Analiz kaydedildi. Analizlerim sayfasında görebilirsiniz.");
   }
 
-  async function fileToDataUrl(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () =>
-        typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Dosya okunamadı."));
-      reader.onerror = () => reject(new Error("Dosya okunamadı."));
-      reader.readAsDataURL(file);
-    });
-  }
-
   async function analyzePhotosWithAi() {
     if (!files.length) {
       setAiStatus("error");
@@ -152,15 +144,15 @@ export default function PhotoDamagePage() {
     setAiAnalysis(null);
 
     try {
-      const images = await Promise.all(
-        files.slice(0, 4).map(async (file) => ({
-          name: file.name,
-          mimeType: file.type || "image/jpeg",
-          dataUrl: await fileToDataUrl(file),
-        })),
-      );
+      const { images, skippedCount } = await prepareAiImages(files.slice(0, 4));
 
-      const response = await fetch("/api/ai/photo-damage", {
+      if (!images.length) {
+        setAiStatus("error");
+        setAiMessage("Fotoğraflar işlenemedi veya boyut sınırını aştı. Lütfen daha küçük/az fotoğrafla tekrar deneyin.");
+        return;
+      }
+
+      const response = await apiFetch("/api/ai/photo-damage", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -171,6 +163,12 @@ export default function PhotoDamagePage() {
         }),
       });
 
+      if (response.status === 413) {
+        setAiStatus("error");
+        setAiMessage("Fotoğraf verisi hâlâ çok büyük. Daha az fotoğraf seçip tekrar deneyin.");
+        return;
+      }
+
       const payload = (await response.json()) as { analysis?: AiPhotoAnalysis; error?: string; remaining?: number };
       if (!response.ok || !payload.analysis) {
         setAiStatus("error");
@@ -178,12 +176,13 @@ export default function PhotoDamagePage() {
         return;
       }
 
+      const skippedNote = skippedCount > 0 ? ` ${skippedCount} fotoğraf boyut sınırı nedeniyle dahil edilemedi.` : "";
       setAiAnalysis(payload.analysis);
       setAiStatus("ready");
       setAiMessage(
-        payload.analysis.isVehiclePhoto
+        (payload.analysis.isVehiclePhoto
           ? `AI fotoğraf kontrolü tamamlandı.${typeof payload.remaining === "number" ? ` Bugün kalan hak: ${payload.remaining}` : ""}`
-          : "AI bu görselde araç veya araç parçası güvenle tespit edemedi. Hasar bulgusu oluşturulmadı.",
+          : "AI bu görselde araç veya araç parçası güvenle tespit edemedi. Hasar bulgusu oluşturulmadı.") + skippedNote,
       );
     } catch {
       setAiStatus("error");

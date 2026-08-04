@@ -1,5 +1,6 @@
 import { Capacitor } from "@capacitor/core";
 import { appConfig } from "@/lib/constants/app";
+import { getInstallId } from "@/lib/api/install-id";
 
 /**
  * Native (Capacitor) builds ship a static bundle with no same-origin server —
@@ -15,6 +16,9 @@ export function resolveApiUrl(path: string): string {
   return normalizedPath;
 }
 
-export function apiFetch(path: string, init?: RequestInit): Promise<Response> {
-  return fetch(resolveApiUrl(path), init);
+export function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  const installId = getInstallId();
+  const headers = new Headers(init.headers);
+  if (installId) headers.set("X-EksperIQ-Install-Id", installId);
+  return fetch(resolveApiUrl(path), { ...init, headers });
 }
