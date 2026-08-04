@@ -85,10 +85,7 @@ describe("push/native", () => {
     await cancelReminderNotifications("reminder-abc");
 
     expect(cancel).toHaveBeenCalledWith({
-      notifications: [
-        { id: notificationIdFor("reminder-abc", 30) },
-        { id: notificationIdFor("reminder-abc", 15) },
-      ],
+      notifications: [{ id: notificationIdFor("reminder-abc", 30) }, { id: notificationIdFor("reminder-abc", 15) }],
     });
   });
 
@@ -118,13 +115,12 @@ describe("push/native", () => {
     await syncReminderNotifications([reminder({ dueDate: "2026-08-20" })]);
 
     expect(cancel).toHaveBeenCalledWith({
-      notifications: [
-        { id: notificationIdFor("r1", 30) },
-        { id: notificationIdFor("r1", 15) },
-      ],
+      notifications: [{ id: notificationIdFor("r1", 30) }, { id: notificationIdFor("r1", 15) }],
     });
 
-    const scheduledCall = schedule.mock.calls[0]?.[0] as { notifications: Array<{ id: number; schedule: { at: Date } }> };
+    const scheduledCall = schedule.mock.calls[0]?.[0] as {
+      notifications: Array<{ id: number; schedule: { at: Date } }>;
+    };
     // 2026-08-20 minus 30 days = 2026-07-21 (past "now" of 2026-08-01)... still past.
     // minus 15 days = 2026-08-05 (future) — only this one should be scheduled.
     expect(scheduledCall.notifications).toHaveLength(1);

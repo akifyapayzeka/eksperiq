@@ -59,7 +59,7 @@ describe("callOpenRouterChatCompletions", () => {
     expect(sentBody.provider).toEqual({ data_collection: "deny" });
   });
 
-  it("adds provider.zdr = true only when OPENROUTER_REQUIRE_ZDR is exactly \"true\"", async () => {
+  it('adds provider.zdr = true only when OPENROUTER_REQUIRE_ZDR is exactly "true"', async () => {
     process.env.OPENROUTER_REQUIRE_ZDR = "true";
     const fetchMock = vi.fn<(input: string, init?: RequestInit) => Promise<Response>>(async () =>
       okResponse({ choices: [] }),

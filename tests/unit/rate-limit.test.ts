@@ -79,7 +79,9 @@ describe("checkRateLimit", () => {
   it("fails closed when the Upstash pipeline call throws", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn<(input: unknown, init?: RequestInit) => Promise<Response>>(async () => new Response("boom", { status: 500 })),
+      vi.fn<(input: unknown, init?: RequestInit) => Promise<Response>>(
+        async () => new Response("boom", { status: 500 }),
+      ),
     );
 
     const result = await rateLimit.checkRateLimit(requestWith({}), baseOptions);
@@ -132,7 +134,9 @@ describe("checkRateLimit", () => {
   });
 
   it("never sends the raw IP or install id to Upstash — only an HMAC hash", async () => {
-    const fetchMock = vi.fn<(input: unknown, init?: RequestInit) => Promise<Response>>(async () => upstashResponse([1, 1, 1]));
+    const fetchMock = vi.fn<(input: unknown, init?: RequestInit) => Promise<Response>>(async () =>
+      upstashResponse([1, 1, 1]),
+    );
     vi.stubGlobal("fetch", fetchMock);
 
     await rateLimit.checkRateLimit(
@@ -149,7 +153,9 @@ describe("checkRateLimit", () => {
   });
 
   it("keys the identity by install id when present, falling back to IP otherwise", async () => {
-    const byInstallId = vi.fn<(input: unknown, init?: RequestInit) => Promise<Response>>(async () => upstashResponse([1, 1, 1]));
+    const byInstallId = vi.fn<(input: unknown, init?: RequestInit) => Promise<Response>>(async () =>
+      upstashResponse([1, 1, 1]),
+    );
     vi.stubGlobal("fetch", byInstallId);
     await rateLimit.checkRateLimit(
       requestWith({ "x-forwarded-for": "198.51.100.42", "x-eksperiq-install-id": "install-abc-123" }),
@@ -157,7 +163,9 @@ describe("checkRateLimit", () => {
     );
     const bodyWithInstallId = String(byInstallId.mock.calls[0][1]?.body);
 
-    const byIpOnly = vi.fn<(input: unknown, init?: RequestInit) => Promise<Response>>(async () => upstashResponse([1, 1, 1]));
+    const byIpOnly = vi.fn<(input: unknown, init?: RequestInit) => Promise<Response>>(async () =>
+      upstashResponse([1, 1, 1]),
+    );
     vi.stubGlobal("fetch", byIpOnly);
     await rateLimit.checkRateLimit(requestWith({ "x-forwarded-for": "198.51.100.42" }), baseOptions);
     const bodyWithIpOnly = String(byIpOnly.mock.calls[0][1]?.body);

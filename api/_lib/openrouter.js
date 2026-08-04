@@ -90,7 +90,8 @@ async function callOpenRouterChatCompletions({
       return { ok: true, payload };
     } catch (error) {
       clearTimeout(timer);
-      lastError = error?.name === "AbortError" ? "OpenRouter isteği zaman aşımına uğradı." : "OpenRouter isteğine ulaşılamadı.";
+      lastError =
+        error?.name === "AbortError" ? "OpenRouter isteği zaman aşımına uğradı." : "OpenRouter isteğine ulaşılamadı.";
       if (attempt < maxRetries) {
         await sleep(RETRY_DELAY_MS);
         continue;

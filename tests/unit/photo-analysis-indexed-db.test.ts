@@ -1,11 +1,6 @@
 import "fake-indexeddb/auto";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-  clearAllThumbnails,
-  deleteThumbnails,
-  loadThumbnails,
-  saveThumbnails,
-} from "@/lib/photo-analysis/indexed-db";
+import { clearAllThumbnails, deleteThumbnails, loadThumbnails, saveThumbnails } from "@/lib/photo-analysis/indexed-db";
 
 describe("photo-analysis indexed-db", () => {
   afterEach(async () => {

@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { EXPORTABLE_STORAGE_KEYS, EPHEMERAL_SESSION_STORAGE_KEYS, DEVICE_IDENTITY_LOCAL_STORAGE_KEYS } from "@/lib/data-management/keys";
+import {
+  EXPORTABLE_STORAGE_KEYS,
+  EPHEMERAL_SESSION_STORAGE_KEYS,
+  DEVICE_IDENTITY_LOCAL_STORAGE_KEYS,
+} from "@/lib/data-management/keys";
 
 const disableNotifications = vi.fn<(reminders: unknown) => Promise<undefined>>(async () => undefined);
 vi.mock("@/lib/push/notifications", () => ({

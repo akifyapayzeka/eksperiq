@@ -157,7 +157,9 @@ export default function PhotoDamagePage() {
 
       if (!images.length) {
         setAiStatus("error");
-        setAiMessage("Fotoğraflar işlenemedi veya boyut sınırını aştı. Lütfen daha küçük/az fotoğrafla tekrar deneyin.");
+        setAiMessage(
+          "Fotoğraflar işlenemedi veya boyut sınırını aştı. Lütfen daha küçük/az fotoğrafla tekrar deneyin.",
+        );
         return;
       }
 

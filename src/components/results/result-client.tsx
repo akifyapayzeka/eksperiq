@@ -459,9 +459,7 @@ export function ResultClient() {
                         result.totalScore,
                       )}`}
                       strokeDasharray={SCORE_RING_CIRCUMFERENCE}
-                      strokeDashoffset={
-                        scoreRingFilled ? scoreRingOffset(result.totalScore) : SCORE_RING_CIRCUMFERENCE
-                      }
+                      strokeDashoffset={scoreRingFilled ? scoreRingOffset(result.totalScore) : SCORE_RING_CIRCUMFERENCE}
                     />
                   </svg>
                   <div className="absolute inset-0 grid place-items-center text-center">

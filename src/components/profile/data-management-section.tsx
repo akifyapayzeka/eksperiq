@@ -88,8 +88,8 @@ export function DataManagementSection() {
         <div className="w-full">
           <h2 className="font-semibold text-slate-950 dark:text-white">Verilerim</h2>
           <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
-            Tüm kayıtlarınız yalnızca bu cihazda tutulur. Verilerinizi yedekleyebilir, başka bir cihaza aktarabilir
-            veya tamamen silebilirsiniz.
+            Tüm kayıtlarınız yalnızca bu cihazda tutulur. Verilerinizi yedekleyebilir, başka bir cihaza aktarabilir veya
+            tamamen silebilirsiniz.
           </p>
 
           {usage ? (
