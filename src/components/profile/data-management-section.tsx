@@ -17,11 +17,18 @@ const exportLabels: Record<string, string> = {
   analysisHistory: "Analiz geçmişi",
 };
 
+// The delete-all flow reloads the page immediately after clearing local
+// storage, so a plain useState result would be lost before it could render —
+// this one-shot sessionStorage flag survives the reload so the (rare)
+// server-deletion failure can still be shown honestly afterward.
+const SERVER_DELETE_WARNING_KEY = "eksperiq:delete-all-server-warning";
+
 export function DataManagementSection() {
   const [usage, setUsage] = useState<StorageUsageSummary | null>(null);
   const [importMessage, setImportMessage] = useState("");
   const [importStatus, setImportStatus] = useState<"idle" | "ok" | "error">("idle");
   const [deleteMode, setDeleteMode] = useState<"idle" | "confirming" | "deleting">("idle");
+  const [deleteServerWarning, setDeleteServerWarning] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -29,7 +36,14 @@ export function DataManagementSection() {
     void getStorageUsageSummary().then((summary) => {
       if (!cancelled) setUsage(summary);
     });
+    const frame = window.requestAnimationFrame(() => {
+      if (window.sessionStorage.getItem(SERVER_DELETE_WARNING_KEY)) {
+        window.sessionStorage.removeItem(SERVER_DELETE_WARNING_KEY);
+        setDeleteServerWarning(true);
+      }
+    });
     return () => {
+      window.cancelAnimationFrame(frame);
       cancelled = true;
     };
   }, []);
@@ -77,7 +91,10 @@ export function DataManagementSection() {
 
   async function handleConfirmDelete() {
     setDeleteMode("deleting");
-    await deleteAllLocalData();
+    const result = await deleteAllLocalData();
+    if (!result.serverDeleted) {
+      window.sessionStorage.setItem(SERVER_DELETE_WARNING_KEY, "1");
+    }
     window.location.reload();
   }
 
@@ -91,6 +108,17 @@ export function DataManagementSection() {
             Tüm kayıtlarınız yalnızca bu cihazda tutulur. Verilerinizi yedekleyebilir, başka bir cihaza aktarabilir veya
             tamamen silebilirsiniz.
           </p>
+
+          {deleteServerWarning ? (
+            <p
+              role="alert"
+              className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200"
+            >
+              Cihazdaki tüm veriler silindi. Sunucudaki bildirim aboneliği kaydı şu anda silinemedi (bağlantı sorunu
+              olabilir); en geç 90 gün içinde otomatik olarak silinir. Bildirimleri tekrar açarsanız kayıt yeniden
+              oluşturulur ve normal şekilde çalışır.
+            </p>
+          ) : null}
 
           {usage ? (
             <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-800 dark:bg-slate-800/50">

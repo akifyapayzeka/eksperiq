@@ -124,19 +124,24 @@ describe("push/notifications facade", () => {
     isNativePlatform.mockReturnValue(true);
     const { disableNotifications } = await import("@/lib/push/notifications");
 
-    await disableNotifications([reminder("r1"), reminder("r2")]);
+    const result = await disableNotifications([reminder("r1"), reminder("r2")]);
 
     expect(cancelAllReminderNotifications).toHaveBeenCalledWith(["r1", "r2"]);
     expect(unsubscribeFromPush).not.toHaveBeenCalled();
+    // Native never has a server-side subscription copy, so there is nothing
+    // to fail to delete — always honestly reported as deleted.
+    expect(result).toEqual({ serverDeleted: true });
   });
 
-  it("disableNotifications calls unsubscribeFromPush on the web", async () => {
+  it("disableNotifications calls unsubscribeFromPush on the web and forwards its serverDeleted result", async () => {
+    unsubscribeFromPush.mockResolvedValueOnce({ serverDeleted: false });
     const { disableNotifications } = await import("@/lib/push/notifications");
 
-    await disableNotifications([reminder("r1")]);
+    const result = await disableNotifications([reminder("r1")]);
 
     expect(unsubscribeFromPush).toHaveBeenCalled();
     expect(cancelAllReminderNotifications).not.toHaveBeenCalled();
+    expect(result).toEqual({ serverDeleted: false });
   });
 
   it("cancelNotificationsForDeletedReminder cancels the native notification but is a no-op on web", async () => {

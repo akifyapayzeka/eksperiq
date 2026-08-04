@@ -251,10 +251,14 @@ export default function MaintenancePaymentCalendarPage() {
 
   async function disableNotifications() {
     setPushBusy(true);
-    await disableReminderNotifications(reminders);
+    const result = await disableReminderNotifications(reminders);
     setPushBusy(false);
     setPushState("unsubscribed");
-    setPushMessage("Bildirimler kapatıldı.");
+    setPushMessage(
+      result.serverDeleted
+        ? "Bildirimler kapatıldı."
+        : "Bildirimler bu cihazda kapatıldı. Sunucudaki kayıt şu anda silinemedi, en geç 90 gün içinde otomatik olarak silinir.",
+    );
   }
 
   return (

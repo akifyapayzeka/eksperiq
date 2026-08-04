@@ -56,6 +56,32 @@ describe("push/native", () => {
     expect(id30a).toBeLessThanOrEqual(2_147_483_647);
   });
 
+  // notificationIdFor hashes a string down to a 32-bit int, so collisions
+  // between two different reminders' notification ids are not impossible in
+  // theory — a colliding id would make one reminder's notification silently
+  // overwrite the other's when scheduled. This isn't provable to be
+  // impossible for an unbounded input space, but it must not be a *real*
+  // defect (e.g. a broken modulo/abs step that clusters outputs into a small
+  // range) at realistic scale: real reminder ids are crypto.randomUUID()
+  // (see createReminderId in reminders-storage.ts), and a device
+  // realistically holds well under a thousand reminders.
+  it("produces no collisions across realistic-scale random UUID reminder ids", async () => {
+    const { notificationIdFor } = await import("@/lib/push/native");
+    const ids = new Set<number>();
+    let collisions = 0;
+
+    for (let index = 0; index < 2000; index += 1) {
+      const reminderId = crypto.randomUUID();
+      for (const threshold of [30, 15]) {
+        const id = notificationIdFor(reminderId, threshold);
+        if (ids.has(id)) collisions += 1;
+        ids.add(id);
+      }
+    }
+
+    expect(collisions).toBe(0);
+  });
+
   it("maps checkPermissions display states to granted/denied/prompt", async () => {
     const { getNativeNotificationPermission } = await import("@/lib/push/native");
 

@@ -16,6 +16,20 @@ function hashToInt32(value: string): number {
   return (hash === 0 ? 1 : Math.abs(hash)) % 2_147_483_647 || 1;
 }
 
+/**
+ * A collision (two different reminders' ids hashing to the same int32)
+ * would make one reminder's notification silently overwrite the other's
+ * when scheduled — the platform's own 32-bit id space is the reason this
+ * can't be made provably impossible. In practice this is not a real risk:
+ * reminder ids are crypto.randomUUID() (see createReminderId in
+ * reminders-storage.ts) and a device realistically holds far fewer than the
+ * tens of thousands of active reminders it would take for a collision to
+ * become likely in a ~2^31 space (birthday-paradox), and
+ * syncReminderNotifications cancels-then-reschedules on every call, so even
+ * a transient collision self-heals the moment either reminder's due date
+ * changes. See tests/unit/push-native.test.ts for an empirical check at
+ * realistic scale.
+ */
 export function notificationIdFor(reminderId: string, thresholdDays: number): number {
   return hashToInt32(`${reminderId}:${thresholdDays}`);
 }

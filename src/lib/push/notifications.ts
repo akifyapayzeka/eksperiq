@@ -54,13 +54,20 @@ export async function syncNotifications(reminders: ReminderRecord[]): Promise<vo
   await syncRemindersToPush(reminders);
 }
 
-/** Native has no API to revoke a granted OS permission — clears pending notifications instead. */
-export async function disableNotifications(reminders: ReminderRecord[]): Promise<void> {
+/**
+ * Native has no API to revoke a granted OS permission — clears pending
+ * notifications instead. `serverDeleted` is always true on native since
+ * there is no server-side subscription copy to begin with; on the web it
+ * reflects whether the server actually confirmed the deletion (see
+ * unsubscribeFromPush) so callers can tell the user honestly rather than
+ * assuming success.
+ */
+export async function disableNotifications(reminders: ReminderRecord[]): Promise<{ serverDeleted: boolean }> {
   if (Capacitor.isNativePlatform()) {
     await cancelAllReminderNotifications(reminders.map((reminder) => reminder.id));
-    return;
+    return { serverDeleted: true };
   }
-  await unsubscribeFromPush();
+  return unsubscribeFromPush();
 }
 
 /** Web push has no client-scheduled per-reminder notification to cancel — the server cron owns that. */

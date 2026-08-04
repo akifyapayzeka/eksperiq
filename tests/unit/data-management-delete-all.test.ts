@@ -5,7 +5,9 @@ import {
   DEVICE_IDENTITY_LOCAL_STORAGE_KEYS,
 } from "@/lib/data-management/keys";
 
-const disableNotifications = vi.fn<(reminders: unknown) => Promise<undefined>>(async () => undefined);
+const disableNotifications = vi.fn<(reminders: unknown) => Promise<{ serverDeleted: boolean }>>(async () => ({
+  serverDeleted: true,
+}));
 vi.mock("@/lib/push/notifications", () => ({
   disableNotifications: (reminders: unknown) => disableNotifications(reminders),
 }));
@@ -87,10 +89,17 @@ describe("deleteAllLocalData", () => {
     expect(deleteMock).toHaveBeenCalledWith("v2");
   });
 
-  it("does not throw when notifications fail to disable", async () => {
+  it("does not throw when notifications fail to disable, and honestly reports serverDeleted: false", async () => {
     disableNotifications.mockRejectedValueOnce(new Error("boom"));
 
     const { deleteAllLocalData } = await import("@/lib/data-management/delete-all");
-    await expect(deleteAllLocalData()).resolves.toBeUndefined();
+    await expect(deleteAllLocalData()).resolves.toEqual({ serverDeleted: false });
+  });
+
+  it("reports serverDeleted: false when the notification layer reports it explicitly", async () => {
+    disableNotifications.mockResolvedValueOnce({ serverDeleted: false });
+
+    const { deleteAllLocalData } = await import("@/lib/data-management/delete-all");
+    await expect(deleteAllLocalData()).resolves.toEqual({ serverDeleted: false });
   });
 });

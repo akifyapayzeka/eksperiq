@@ -15,6 +15,8 @@ async function clearCacheStorage(): Promise<void> {
   }
 }
 
+export type DeleteAllResult = { serverDeleted: boolean };
+
 /**
  * Wipes every trace of the user's data, both on this device and, where a
  * server copy exists, on the server:
@@ -24,14 +26,21 @@ async function clearCacheStorage(): Promise<void> {
  *  - Cache Storage (offline/PWA asset caches)
  *  - the push subscription on the server (web) / all scheduled local
  *    notifications (native) — see src/lib/push/notifications.ts
+ *
+ * The on-device wipe below always runs and always succeeds (it's synchronous
+ * storage removal) regardless of the server call's outcome — deleting the
+ * device copy must never be held hostage to network availability. The
+ * returned `serverDeleted` flag tells the caller whether the server-side
+ * copy was actually confirmed removed, so the UI can say so honestly instead
+ * of implying a guaranteed success it can't back up.
  */
-export async function deleteAllLocalData(): Promise<void> {
+export async function deleteAllLocalData(): Promise<DeleteAllResult> {
   const reminders = typeof window !== "undefined" ? loadReminders() : [];
-  await disableNotifications(reminders).catch(() => undefined);
+  const notificationResult = await disableNotifications(reminders).catch(() => ({ serverDeleted: false }));
   await clearAllThumbnails();
   await clearCacheStorage();
 
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined") return notificationResult;
 
   for (const storageKey of Object.values(EXPORTABLE_STORAGE_KEYS)) {
     window.localStorage.removeItem(storageKey);
@@ -42,4 +51,6 @@ export async function deleteAllLocalData(): Promise<void> {
   for (const storageKey of EPHEMERAL_SESSION_STORAGE_KEYS) {
     window.sessionStorage.removeItem(storageKey);
   }
+
+  return notificationResult;
 }
