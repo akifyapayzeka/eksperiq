@@ -106,6 +106,12 @@ Xcode/Swift toolchain'i yok, syntax hataları veya Capacitor API uyumsuzlukları
 2. Xcode'da projeyi aç, olası derleme hatalarını düzelt, StoreKit Testing/Sandbox ortamında çalıştır.
 3. Satın alma, restore ve `currentEntitlements` dinleyicisini gerçek bir cihazda sandbox Apple ID'siyle doğrula.
 
+**Not — `.github/workflows/ios-xcode-build-check.yml`**: Apple Developer hesabı beklemeden madde 2'nin "derleme
+hatası var mı" kısmı artık GitHub'ın macOS runner'ında doğrulanabilir — bu workflow (yalnızca manuel tetiklenir,
+Actions sekmesinden "Run workflow") projeyi `xcodebuild` ile iOS Simulator hedefine, code signing kapalı olarak
+derler. Gerçek bir Apple hesabı/sertifika/cihaz gerektirmez, yalnızca "bu Swift kodu gerçekten derleniyor mu"
+sorusunu cevaplar — satın alma/restore/bildirim davranışını doğrulamaz, o hâlâ madde 3'ün konusu.
+
 ### 3. Sunucu tarafı JWS doğrulama + App Store Server Notifications V2 (yazıldı, gerçek Apple trafiğine karşı DOĞRULANMADI)
 
 Yukarıdaki "Şu an tamamlanmış olan" bölümünde açıklanan `api/_lib/apple-jws.js`, `api/iap/notifications.js`,

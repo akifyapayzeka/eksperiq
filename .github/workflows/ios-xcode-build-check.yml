@@ -1,0 +1,68 @@
+name: iOS Xcode Build Check
+
+# Manual only, on purpose: macOS runners cost ~10x the Actions minutes of
+# Linux runners, so this does not run on every push/PR — trigger it from the
+# Actions tab ("Run workflow") whenever the native Swift code
+# (ios/App/App/Plugins/*.swift) changes and needs a real compile check.
+#
+# What this proves: the Swift code actually compiles against the real
+# Capacitor 8 SDK and StoreKit 2 APIs on a real Xcode toolchain — something
+# that could never be verified in this project's Linux-only CI/dev
+# environment. It builds for the iOS Simulator with code signing disabled,
+# so no Apple Developer account, certificate, or provisioning profile is
+# needed for this check.
+#
+# What this does NOT prove: that the app runs correctly, that StoreKit
+# purchases work, or anything requiring a real device or a signed-in Apple
+# ID — see docs/ios-storekit-integration.md for what's still gated behind
+# an actual Apple Developer account.
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Compile check (iOS Simulator, unsigned)
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (static export)
+        run: npm run build
+
+      - name: Capacitor sync (copies web build into the iOS project, resolves plugin list)
+        run: npx cap sync ios
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: xcodebuild (iOS Simulator destination, code signing disabled)
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -sdk iphonesimulator \
+            -destination "generic/platform=iOS Simulator" \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            2>&1 | tee xcodebuild.log
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-log
+          path: xcodebuild.log
+          retention-days: 14
