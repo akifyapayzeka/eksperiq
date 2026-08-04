@@ -1,5 +1,6 @@
 const webPush = require("web-push");
 const { listSubscriptions, updateNotified, removeSubscriptionByHash } = require("../_lib/push-store");
+const { recordCronRun } = require("../_lib/cron-log");
 
 const NOTIFICATION_THRESHOLDS = [30, 15];
 
@@ -17,9 +18,15 @@ function daysUntil(dueDate, now) {
   return Math.round((startOfDay(target).getTime() - startOfDay(now).getTime()) / 86_400_000);
 }
 
+/**
+ * Fail-closed: with no CRON_SECRET configured, every request is rejected —
+ * never authorized. This endpoint sends real push notifications to real
+ * subscribers, so an unauthenticated public trigger (the previous behavior
+ * when the secret was unset) is a real abuse/spam vector, not a convenience.
+ */
 function isAuthorized(request) {
   const secret = process.env.CRON_SECRET?.trim();
-  if (!secret) return true;
+  if (!secret) return false;
   const header = request.headers.authorization || "";
   return header === `Bearer ${secret}`;
 }
@@ -79,6 +86,7 @@ async function handler(request, response) {
   try {
     records = await listSubscriptions();
   } catch {
+    await recordCronRun({ success: false, error: "Bildirim kayıtları okunamadı." });
     sendJson(response, 503, { error: "Bildirim kayıtları şu anda okunamadı." });
     return;
   }
@@ -123,6 +131,7 @@ async function handler(request, response) {
     }
   }
 
+  await recordCronRun({ success: true, checked, sent, removed, subscriptions: records.length });
   sendJson(response, 200, { checked, sent, removed, subscriptions: records.length });
 }
 
