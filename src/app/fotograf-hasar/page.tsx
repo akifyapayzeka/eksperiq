@@ -121,7 +121,16 @@ export default function PhotoDamagePage() {
       aiSummary: aiAnalysis?.summary,
     };
 
-    upsertPhotoAnalysis(record);
+    const result = await upsertPhotoAnalysis(record);
+    if (!result.ok) {
+      setSaveStatus("error");
+      setSaveMessage(
+        result.reason === "quota-exceeded"
+          ? "Fotoğraflar cihazda depolanamadı: depolama alanı dolu. Analizlerim'den eski kayıtları silip tekrar deneyin."
+          : "Fotoğraflar bu cihazda depolanamıyor. Bulgular yine de kaydedildi; fotoğraflar görünmeyebilir.",
+      );
+      return;
+    }
     setSaveStatus("saved");
     setSaveMessage("Analiz kaydedildi. Analizlerim sayfasında görebilirsiniz.");
   }

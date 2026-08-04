@@ -1,4 +1,5 @@
-const STORAGE_KEY = "eksperiq:install-id";
+export const INSTALL_ID_STORAGE_KEY = "eksperiq:install-id";
+const STORAGE_KEY = INSTALL_ID_STORAGE_KEY;
 
 function generateId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CarFront, MessageSquareText, ShieldCheck, UserRound } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
+import { DataManagementSection } from "@/components/profile/data-management-section";
 
 export default function ProfilePage() {
   return (
@@ -42,6 +43,8 @@ export default function ProfilePage() {
             Geri bildirim gönder
           </Link>
         </section>
+
+        <DataManagementSection />
 
         <div className="mt-5">
           <Link
