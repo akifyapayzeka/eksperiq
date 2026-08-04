@@ -1,5 +1,6 @@
 const { checkRateLimit } = require("../_lib/rate-limit.js");
 const { callOpenRouterChatCompletions, hedgeCertainLanguage } = require("../_lib/openrouter.js");
+const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
 
 // "openrouter/free" rastgele bir ücretsiz modele yönlendirir; bunların arasında
 // nvidia/nemotron-3.5-content-safety:free gibi sohbet için uygun olmayan
@@ -149,6 +150,9 @@ async function createAnalysisNote(input) {
 }
 
 async function handler(request, response) {
+  applyCorsHeaders(request, response);
+  if (handlePreflight(request, response)) return;
+
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
     sendJson(response, 405, { error: "Yalnızca POST desteklenir." });
