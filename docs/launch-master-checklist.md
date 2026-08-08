@@ -33,26 +33,15 @@ Tüm adımların denetlenebilir durum listesi: `docs/all-steps-status.md`
 
 ## 3. App Store Teslim Paketi
 
-- [x] App Store ikon kaynağı hazır — **8 Ağustos 2026 itibarıyla gerçek resmî
-      logodan** (`public/brand/eksperiq-amblem-renkli.svg`) üretiliyor.
-      Önceki ikon `scripts/generate-app-store-icon.mjs` içinde koddan çizilen
-      bir placeholder'dı (gerçek marka değildi); `apple-touch-icon.png`,
-      `icon-192.png`, `icon-512.png` de ayrı, tutarsız bir placeholder
-      kullanıyordu. Artık 5 dokunuş noktası da (App Store 1024, kaynak SVG,
-      apple-touch, PWA 192/512) aynı gerçek amblemden, renk/şekil
-      değiştirilmeden üretiliyor.
+- [x] App Store ikon kaynağı hazır — 8 Ağustos 2026 itibarıyla gerçek resmî logodan (`public/brand/eksperiq-amblem-renkli.svg`) üretiliyor. Önceki ikon `scripts/generate-app-store-icon.mjs` içinde koddan çizilen bir placeholder'dı (gerçek marka değildi); `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` de ayrı, tutarsız bir placeholder kullanıyordu. Artık 5 dokunuş noktası da (App Store 1024, kaynak SVG, apple-touch, PWA 192/512) aynı gerçek amblemden, renk/şekil değiştirilmeden üretiliyor.
 - [x] 1024 x 1024 opak PNG ikon otomatik üretiliyor.
-- [x] Mobil screenshot seti Playwright ile üretiliyor — **FireVibe tasarım
-      entegrasyonu sonrası yeni arayüzle yeniden üretildi**, eski tasarımı
-      göstermiyor.
+- [x] Mobil screenshot seti Playwright ile üretiliyor — FireVibe tasarım entegrasyonu sonrası yeni arayüzle yeniden üretildi, eski tasarımı göstermiyor.
 - [x] 1320 x 2868 App Store screenshot seti otomatik üretiliyor.
 - [x] App Store metadata metinleri hazır.
 - [x] App Store gizlilik cevapları hazır.
 - [x] Metadata kesin alım, hasarsızlık veya ekspertiz yerine geçme iddiası içermiyor.
 - [x] App Store teslim paketi `dist/app-store-package` altında oluşturuluyor.
-- [x] `npm run appstore:prepare`, `npm run launch:check`, `npm run
-    launch:audit`, `npm run native:build` (build + `cap sync`) — hepsi
-      FireVibe entegrasyonu sonrası yeniden doğrulandı, hepsi geçiyor.
+- [x] `npm run appstore:prepare`, `npm run launch:check`, `npm run launch:audit`, `npm run native:build` (build + `cap sync`) — hepsi FireVibe entegrasyonu sonrası yeniden doğrulandı, hepsi geçiyor.
 
 ## 4. Kullanıcı Testi ve Kural Geliştirme
 
