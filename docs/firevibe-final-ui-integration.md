@@ -158,8 +158,30 @@ Added to `tests/unit/`:
 
 ## 10. Verification run each phase
 
-`npm run format`, `npx tsc --noEmit`, `npx eslint src`, `npx vitest run`,
-`npm run build` — all green after every phase. See the final chat report for
-exact pass/fail/skip status of every command, including the best-effort ones
-(`coverage`, `privacy:check`, `claims:check`, `appstore:metadata-check`) and
-why Playwright E2E could not run in this sandbox.
+`npm run format`, `npx tsc --noEmit`, `npx eslint src tests`, `npx vitest run`
+(330/330), `npm run build` (29 static routes) — all green after every phase.
+Also green: `npm run coverage` (~80.6% statements), `npm run privacy:check`,
+`npm run claims:check`, `npm run appstore:metadata-check`.
+
+Playwright E2E, `chromium` project: **31 passed / 5 failed / 4 skipped**.
+The 5 failures are a pre-existing local-sandbox gap, not a regression from
+this redesign — this environment has no `.env.local`, so
+`NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED` is unset (`.env.example` default:
+`false`) and every test that clicks the AI-photo-check button correctly
+finds it disabled and times out (`native-hardening.spec.ts:24,65,92`,
+`module-tools.spec.ts:25,339`). Two genuinely stale selectors were found
+and fixed (`tests/e2e/main-flow.spec.ts`, `screenshots.spec.ts`,
+`native-hardening.spec.ts`) — old headings/labels the redesign correctly
+replaced ("Araç almadan…" → "Aracınız için bugün ne yapalım?", "Aktif
+modüller" → "Tüm modüller", "Mobil alt menü" → "Ana navigasyon" nav
+aria-label and its old item set) were asserted verbatim; assertions now
+match the new, correct copy. `playwright.config.ts` also gained a
+sandbox-only conditional `executablePath` override so `chromium`/`mobile`
+launch the pre-installed browser instead of failing to download a
+revision this sandbox's network egress can't reach — inert in real CI.
+
+`webkit`/`mobile-safari` genuinely cannot run in this sandbox — no WebKit
+binary exists under `/opt/pw-browsers` (only Chromium + a headless-shell
+variant + ffmpeg) — this is an environment limitation, not something this
+change caused or can fix; run those two projects in CI or on a dev
+machine to confirm.
