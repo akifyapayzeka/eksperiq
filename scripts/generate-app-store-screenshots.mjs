@@ -168,7 +168,13 @@ function buildHtml(item) {
 ensureSourcesExist();
 mkdirSync(outputDir, { recursive: true });
 
-const browser = await chromium.launch();
+// Some local sandboxes pre-install a browser at a fixed path whose revision
+// can lag what this pinned @playwright/test version expects, so the default
+// revision-resolution download fails there (see playwright.config.ts for the
+// full rationale). Reuse that same fallback here. No effect in real CI.
+const sandboxChromiumPath = "/opt/pw-browsers/chromium";
+const launchOptions = existsSync(sandboxChromiumPath) ? { executablePath: sandboxChromiumPath } : {};
+const browser = await chromium.launch(launchOptions);
 const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
 
 for (const item of screenshots) {
