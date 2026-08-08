@@ -1046,3 +1046,93 @@ geçti.
 
 Gerçek kullanıcı bazlı Pro/Pro+ için hâlâ "Abonelik/Pro planı" bölümündeki
 IAP + hesap sistemi gerekiyor — bu bölüm değişmedi.
+
+## 2026-08-08: FireVibe final UI entegrasyonu — tüm uygulama tek tasarım sistemine taşındı
+
+Önceki "firevibe.ai" geçişi (2026-08-03 kayıtlarına bkz.) yalnızca 8 ekranı ve
+teal/slate tabanlı eski bir paleti kapsıyordu. Bu oturumda kullanıcı yeni bir
+FireVibe export'u sağladı (`AnaSayfa.tsx`, `YeniAnaliz.tsx`, `AnalizRaporu.tsx`,
+`Analizlerim.tsx`, `GarajM.tsx`, `AraEkle.tsx`, `EkspertizKontrolListesi.tsx`,
+`Profil.tsx`, `tokens.css` — navy `#163B52` / accent mavi `#2274A5` tabanlı yeni
+bir görsel dil) ve tüm aktif uygulamanın (yalnızca 8 ekran değil, tüm ~25 route)
+bu yeni sisteme taşınmasını istedi; iş mantığı, veri akışları, doğrulama ve
+testler %100 korunacak şekilde.
+
+**Tasarım token sistemi** (`src/app/globals.css`): Tailwind 4 `@theme` ile
+`tokens.css`'teki tüm renkler (background/foreground/primary/secondary/accent/
+muted/card/border/destructive/success/chart-1..5) + `--radius-theme` (16px)
+CSS değişkeni olarak taşındı. FireVibe yalnızca açık tema veriyordu; koyu tema
+için orijinal, dürüst bir karşılık tasarlandı (düz invert değil, açık temanın
+lacivert primary'siyle tutarlı bir navy/gri-mavi hiyerarşi). Manrope (başlık)
+
+- Inter (gövde) fontları `next/font/google` ile eklendi. Yeni bir tema
+  tercihi sistemi (`src/lib/theme/theme-preference.ts` + `ThemeToggle`
+  komponenti, sistem/açık/koyu üç durumlu) eklendi — `next/script`
+  `beforeInteractive` ile flaş önleyici bir init script içeriyor.
+
+**Paylaşılan component kütüphanesi** (`src/components/ui/`,
+`src/components/cards/`, `src/components/layout/`): `PrimaryButton`/
+`SecondaryButton`/`IconButton`, `RiskBadge` (her zaman `riskBucket()`'ı çağırır,
+renk+ikon+metin birlikte), `ScoreRing` (görsel halka + erişilebilir metinsel
+özet), `InfoAlert`/`WarningAlert`/`DisclaimerCard`, `EmptyState`,
+`LoadingSkeleton`, `StickyMobileAction`, `ConfirmationDialog`, `BottomSheet`,
+`PageHeader`, `SectionHeader`, `AppShell`, `HeroCard`, `StatGrid`,
+`VehicleCard`, `AnalysisCard`, `ReminderCard`, `VehiclePlaceholder` (uzak
+görsel yok, yerel nötr SVG).
+
+**8 çekirdek ekran** FireVibe referansına göre yeniden inşa edildi — ama
+FireVibe'ın mock verisi (Volkswagen Passat, "Ahmet Yılmaz", "12 analiz",
+supabase.co görselleri vb.) **hiçbir yerde kullanılmadı**; her ekran gerçek
+storage modüllerinden (`analysis-history-storage`, `vehicle-storage`,
+`reminders-storage`, `expenses-storage`) veri okur ve veri yokken "Henüz
+analiz yok" / "Henüz araç eklenmedi" gibi gerçek boş durumlar gösterir.
+`src/app/moduller/page.tsx`'teki ölü "Yakında" dalı (zaten hiç `planned`
+modül yoktu) tamamen kaldırıldı.
+
+**Yeni paylaşılan araç ekle/düzenle sheet'i**
+(`src/components/vehicles/vehicle-form-sheet.tsx`): `VehicleProfile` tipine
+(`src/lib/vehicles/types.ts`) opsiyonel `brand/model/modelYear/mileage/fuel/
+transmission/plate/photoDataUrl` alanları eklendi (geriye dönük uyumlu, eski
+kayıtlar bozulmaz) — bu, iş mantığına yapılan tek küçük ve güvenli ekleme.
+Sheet; Garajım, Bakım ve Ödeme Takvimi ve Gider Defteri'nde
+`VehicleSwitcher`'ın yanına "Araç bilgilerini düzenle" butonuyla bağlandı.
+
+**Restyle sırasında bulunup düzeltilen gerçek bir bug**:
+`result-client.tsx`'teki `riskToneClass()`/`scoreRingColorClass()`
+fonksiyonlarının kendi 4 kademeli (80/60/40) skor-renk eşiği vardı — bu,
+`risk-bucket.ts`'in 3 kademeli (80/60) tek doğruluk kaynağıyla çelişebiliyordu.
+Artık ikisi de doğrudan `riskBucket()`'ı çağırıyor.
+
+**Kalan tüm sayfalar** (fotograf-hasar, bakim-odeme-takvimi, gider-defteri,
+onarim-maliyeti, ekspertiz-raporu, arac-deger-takibi, karsilastirma,
+test-surusu-kontrol, resmi-sorgu-rehberi, satis-hazirligi, bakim-takibi,
+gizlilik, kullanim-kosullari, hakkinda, geri-bildirim, offline, not-found,
+error) aynı token sistemine ve `AppShell`/`HeroCard` düzenine taşındı; tüm
+form/checklist/storage mantığı değişmedi.
+
+**Marka logosu**: Oturum ortasında kullanıcı gerçek EksperIQ logo görsellerini
+sağladı; koordinatör bunları `public/brand/*.svg` olarak vektörleştirdi
+(amblem, yatay/dikey lockup, dikey mono). `src/components/layout/logo.tsx`
+eklendi ve `SiteHeader` (mobilde amblem, sm:+ yatay lockup),
+`not-found`/`error`/`offline` sayfalarına bağlandı. Koyu modda lacivert
+işaretler kaybolmasın diye SVG dosyaları renklendirilmedi — yalnızca CSS
+`dark:brightness-0 dark:invert` filtresiyle beyaz silüete çevriliyor.
+Uygulama ikonu için sağlanan 5. görsel (parlak 3D pazarlama render'ı) App
+Store uyumlu düz bir ikon olmadığı için kullanılmadı; mevcut
+`app-store-icon-source.svg`/`icon-192.png`/`icon-512.png` dokunulmadan
+bırakıldı — düz 1024×1024 ikon kaynağı hâlâ kullanıcıdan bekleniyor.
+
+**Doğrulama**: Her fazdan sonra `npm run format`, `npx tsc --noEmit`,
+`npx eslint src`, `npx vitest run` (330/330, 4 yeni regresyon testi dahil:
+`risk-bucket.test.ts`, `risk-badge.test.tsx`, `ui-copy-guardrails.test.ts`,
+`mobile-bottom-nav.test.tsx`) ve `npm run build` çalıştırıldı — hepsi yeşil.
+`npm run coverage`, `npm run privacy:check`, `npm run claims:check`,
+`npm run appstore:metadata-check` de geçti. Playwright E2E bu sandbox'ta
+çalıştırılamadı: tarayıcı ikili dosyaları `cdn.playwright.dev`'den iniyor ve
+bu oturumun proxy'si yalnızca belirli host'lara (npm registry, PyPI, vb.)
+izin veriyor — tam olarak `ci.yml`'deki "resmi Playwright Docker image'ı
+kullan, çıplak ubuntu-latest'te `playwright install` yapma" notunun
+işaret ettiği sınıftan bir kısıt.
+
+Detaylı ekran eşleme tablosu ve component listesi için:
+`docs/firevibe-final-ui-integration.md`.
