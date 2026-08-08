@@ -51,9 +51,7 @@ export function ThemeToggle() {
             aria-label={option.label}
             onClick={() => choose(option.value)}
             className={`flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-[calc(var(--radius-theme)-0.25rem)] px-3 text-xs font-semibold transition-colors ${
-              isActive
-                ? "bg-card text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
+              isActive ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <Icon aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />

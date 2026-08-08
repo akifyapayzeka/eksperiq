@@ -2,7 +2,10 @@ import { AlertCircle, CalendarClock, CheckCircle2, Clock } from "lucide-react";
 import type { ReminderUrgency } from "@/lib/reminders/types";
 import { cn } from "@/lib/utils/cn";
 
-const URGENCY_CONFIG: Record<ReminderUrgency, { label: (days: number) => string; icon: typeof Clock; className: string }> = {
+const URGENCY_CONFIG: Record<
+  ReminderUrgency,
+  { label: (days: number) => string; icon: typeof Clock; className: string }
+> = {
   overdue: { label: (days) => `${Math.abs(days)} gün gecikti`, icon: AlertCircle, className: "text-destructive" },
   urgent: { label: (days) => `${days} gün kaldı`, icon: AlertCircle, className: "text-warning" },
   upcoming: { label: (days) => `${days} gün kaldı`, icon: CalendarClock, className: "text-accent" },
@@ -28,7 +31,9 @@ export function ReminderCard({
   return (
     <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-4 last:border-b-0">
       <div className="flex min-w-0 items-center gap-3">
-        <span className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-theme bg-muted", config.className)}>
+        <span
+          className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-theme bg-muted", config.className)}
+        >
           <Icon aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={1.8} />
         </span>
         <div className="min-w-0">

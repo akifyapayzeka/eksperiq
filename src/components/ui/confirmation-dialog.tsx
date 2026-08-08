@@ -34,7 +34,11 @@ export function ConfirmationDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 p-4 sm:items-center" role="presentation" onClick={onCancel}>
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 p-4 sm:items-center"
+      role="presentation"
+      onClick={onCancel}
+    >
       <div
         role="alertdialog"
         aria-modal="true"
@@ -56,7 +60,9 @@ export function ConfirmationDialog({
           <PrimaryButton
             autoFocus
             onClick={onConfirm}
-            className={destructive ? "bg-destructive text-destructive-foreground hover:opacity-90 sm:order-2" : "sm:order-2"}
+            className={
+              destructive ? "bg-destructive text-destructive-foreground hover:opacity-90 sm:order-2" : "sm:order-2"
+            }
           >
             {confirmLabel}
           </PrimaryButton>

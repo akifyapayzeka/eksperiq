@@ -5,13 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
-  ArrowUpRight,
-  Camera,
+  Bell,
   CarFront,
+  ClipboardPaste,
   FileCheck2,
-  FileSearch,
   FileText,
-  Plus,
+  ScanSearch,
   ShieldCheck,
   UserRound,
   Wrench,
@@ -20,60 +19,30 @@ import { appConfig } from "@/lib/constants/app";
 import { openAnalysisFromHistory } from "@/lib/storage/analysis-storage";
 import { loadAnalysisHistory } from "@/lib/storage/analysis-history-storage";
 import { loadVehicles } from "@/lib/storage/vehicle-storage";
-import { riskBucket } from "@/lib/analysis/risk-bucket";
-import { Skeleton } from "@/components/ui/skeleton";
+import { loadReminders } from "@/lib/storage/reminders-storage";
+import { loadExpenses } from "@/lib/storage/expenses-storage";
+import { sortByUrgency, daysUntil, urgencyOf } from "@/lib/reminders/model";
+import { monthKey, totalAmount } from "@/lib/expenses/model";
+import { reminderCategoryLabels } from "@/lib/reminders/types";
+import { AppShell } from "@/components/layout/app-shell";
+import { SectionHeader } from "@/components/layout/section-header";
+import { HeroCard } from "@/components/cards/hero-card";
+import { StatGrid } from "@/components/cards/stat-card";
+import { AnalysisCard } from "@/components/cards/analysis-card";
+import { ReminderCard } from "@/components/cards/reminder-card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { LoadingSkeleton, Skeleton } from "@/components/ui/skeleton";
+import { DisclaimerCard } from "@/components/ui/alert";
+import { IconButton, PrimaryButton } from "@/components/ui/button";
 import type { AnalysisResult } from "@/lib/analysis/types";
+import type { ReminderRecord } from "@/lib/reminders/types";
 
-const primaryActions = [
-  {
-    icon: Plus,
-    title: "Yeni Analiz",
-    description: "Almak istediğiniz aracın bilgilerini seçin, varsa fotoğraf veya ekspertiz raporu ekleyin.",
-    href: "/analiz",
-    cta: "Analiz başlat",
-  },
-  {
-    icon: CarFront,
-    title: "Garajım",
-    description: "Kendi aracınız için bakım, ekspertiz, hasar notu ve hatırlatma kayıtlarını takip edin.",
-    href: "/arac-saglik-karnesi",
-    cta: "Garajı aç",
-  },
-  {
-    icon: FileText,
-    title: "Analizlerim",
-    description: "Daha önce oluşturduğunuz analizleri ve araç özetlerini görün.",
-    href: "/analizlerim",
-    cta: "Analizlere git",
-  },
-  {
-    icon: FileCheck2,
-    title: "Raporlarım",
-    description: "Son risk raporunu, satıcı sorularını ve ekspertiz kontrol listesini açın.",
-    href: "/sonuc",
-    cta: "Raporu aç",
-  },
-  {
-    icon: UserRound,
-    title: "Profil",
-    description: "Gizlilik, geri bildirim ve uygulama kullanım bilgilerine ulaşın.",
-    href: "/profil",
-    cta: "Profili aç",
-  },
+const shortcuts = [
+  { icon: CarFront, title: "Garajım", href: "/arac-saglik-karnesi" },
+  { icon: FileText, title: "Analizlerim", href: "/analizlerim" },
+  { icon: FileCheck2, title: "Raporlarım", href: "/sonuc" },
+  { icon: Wrench, title: "Bakım Takibi", href: "/bakim-takibi" },
 ];
-
-const analysisInputs = [
-  { icon: CarFront, title: "Araç bilgileri", text: "Marka, model, yıl, km, fiyat, yakıt ve vites bilgileri." },
-  { icon: Camera, title: "Araç fotoğrafı", text: "Çizik, göçük veya kozmetik kontrol için fotoğraf notu." },
-  { icon: FileSearch, title: "Ekspertiz raporu", text: "Rapor metni, PDF veya rapor fotoğrafı üzerinden kontrol." },
-  { icon: Wrench, title: "Bakım bilgileri", text: "Triger, şanzıman, muayene, lastik, akü ve fatura durumu." },
-];
-
-const riskBadgeStyles: Record<ReturnType<typeof riskBucket>, string> = {
-  high: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
-  medium: "bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
-  low: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
-};
 
 export default function Home() {
   const router = useRouter();
@@ -82,6 +51,8 @@ export default function Home() {
   const [averageScore, setAverageScore] = useState<number | null>(null);
   const [vehicleCount, setVehicleCount] = useState(0);
   const [latest, setLatest] = useState<AnalysisResult | null>(null);
+  const [nextReminder, setNextReminder] = useState<ReminderRecord | null>(null);
+  const [monthExpenseTotal, setMonthExpenseTotal] = useState<number | null>(null);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -94,6 +65,14 @@ export default function Home() {
           ? Math.round(history.reduce((sum, record) => sum + record.result.totalScore, 0) / history.length)
           : null,
       );
+
+      const reminders = sortByUrgency(loadReminders());
+      setNextReminder(reminders[0] ?? null);
+
+      const expenses = loadExpenses();
+      const currentMonth = monthKey(new Date().toISOString());
+      setMonthExpenseTotal(totalAmount(expenses.filter((record) => monthKey(record.date) === currentMonth)));
+
       setIsReady(true);
     });
     return () => window.cancelAnimationFrame(frame);
@@ -105,183 +84,181 @@ export default function Home() {
     router.push("/sonuc");
   }
 
-  const latestBucket = latest ? riskBucket(latest.totalScore) : null;
+  const reminderDays = nextReminder ? daysUntil(nextReminder.dueDate) : null;
 
   return (
-    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
-      <section className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
-        <div className="rounded-3xl bg-slate-900 p-6 text-white shadow-lg shadow-slate-200 sm:p-8 dark:shadow-none">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-sm font-semibold">
-            <CarFront aria-hidden="true" className="h-4 w-4" />
-            {appConfig.name}
-          </div>
-          <h1 className="mt-7 max-w-2xl text-3xl font-semibold leading-tight sm:text-5xl">
-            Araç almadan ya da kendi aracını takip ederken neye bakacağını gör.
+    <AppShell>
+      <header className="flex items-center justify-between gap-4 px-1 pb-6 pt-8">
+        <div>
+          <p className="text-sm text-muted-foreground">Araç karar asistanın</p>
+          <h1 className="mt-1 font-heading text-[26px] font-bold tracking-tight text-foreground sm:text-3xl">
+            Aracınız için bugün ne yapalım?
           </h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-200">
-            Link gerekmiyor. Araç bilgilerini seçin, varsa fotoğraf veya ekspertiz raporu ekleyin; EksperIQ riskleri,
-            soruları ve kontrol adımlarını sade bir raporda toplasın.
-          </p>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/analiz"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-white px-5 text-base font-semibold text-slate-950 hover:bg-slate-100"
-            >
-              <Plus aria-hidden="true" className="h-5 w-5" />
-              Yeni analiz başlat
-            </Link>
-            <Link
-              href="/arac-saglik-karnesi"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-white/20 px-5 text-base font-semibold text-white hover:bg-white/10"
-            >
-              Garajıma git
-              <ArrowUpRight aria-hidden="true" className="h-5 w-5" />
-            </Link>
-          </div>
         </div>
+        <div className="flex items-center gap-3">
+          <IconButton icon={UserRound} label="Profili aç" href="/profil" />
+          <IconButton
+            icon={Bell}
+            label="Hatırlatmalar"
+            href="/bakim-odeme-takvimi"
+            withNotificationDot={Boolean(nextReminder)}
+          />
+        </div>
+      </header>
 
-        <section
-          className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-          aria-labelledby="analysis-summary"
-        >
-          <h2 id="analysis-summary" className="text-xl font-semibold text-slate-950 dark:text-white">
-            Analiz özetin
-          </h2>
-          <div className="mt-4 grid grid-cols-3 divide-x divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 dark:divide-slate-800 dark:border-slate-800">
-            <div className="p-4">
-              {isReady ? (
-                <strong className="block text-2xl text-slate-950 dark:text-white">{historyCount}</strong>
-              ) : (
-                <Skeleton className="h-8 w-10" />
-              )}
-              <span className="text-sm text-slate-600 dark:text-slate-400">analiz yapıldı</span>
-            </div>
-            <div className="p-4">
-              {isReady ? (
-                <strong className="block text-2xl text-slate-950 dark:text-white">{averageScore ?? "-"}</strong>
-              ) : (
-                <Skeleton className="h-8 w-10" />
-              )}
-              <span className="text-sm text-slate-600 dark:text-slate-400">ort. risk skoru</span>
-            </div>
-            <div className="p-4">
-              {isReady ? (
-                <strong className="block text-2xl text-slate-950 dark:text-white">{vehicleCount}</strong>
-              ) : (
-                <Skeleton className="h-8 w-10" />
-              )}
-              <span className="text-sm text-slate-600 dark:text-slate-400">araç takipte</span>
-            </div>
+      <HeroCard
+        icon={ScanSearch}
+        title="Yeni İlan Analiz Et"
+        description="Araç bilgilerini ve ilan açıklamasını gir. Belirsizlikleri kanıtlarıyla birlikte inceleyelim."
+        action={
+          <PrimaryButton
+            href="/analiz"
+            className="flex w-full items-center justify-between bg-card px-4 py-3.5 text-left text-card-foreground hover:opacity-100"
+          >
+            <span className="flex items-center gap-3">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+                <ClipboardPaste aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+              </span>
+              <span className="text-sm font-semibold">Yeni analiz başlat</span>
+            </span>
+          </PrimaryButton>
+        }
+      />
+
+      <section className="mt-6" aria-labelledby="analysis-summary">
+        <SectionHeader title="Analiz özetin" description={undefined} action="Son 90 gün" />
+        {isReady ? (
+          <StatGrid
+            items={[
+              { key: "count", value: historyCount, label: "analiz yapıldı" },
+              { key: "score", value: averageScore ?? "—", label: "ort. risk skoru" },
+              { key: "vehicles", value: vehicleCount, label: "araç takipte" },
+            ]}
+          />
+        ) : (
+          <div className="grid grid-cols-3 gap-0 rounded-theme border border-border bg-card p-4 shadow-sm">
+            <Skeleton className="h-10 w-full" />
           </div>
-
-          {!isReady ? (
-            <div className="mt-5">
-              <Skeleton className="h-4 w-32" />
-              <div className="mt-2 rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-800/50">
-                <div className="flex gap-4">
-                  <Skeleton className="h-16 w-16 shrink-0 rounded-2xl" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-5 w-2/3" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : latest && latestBucket ? (
-            <div className="mt-5">
-              <p className="text-sm font-semibold uppercase text-slate-500 dark:text-slate-400">En son inceleme</p>
-              <article className="mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
-                <div className="flex gap-4 p-5">
-                  <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-white dark:bg-slate-900">
-                    <CarFront aria-hidden="true" className="h-8 w-8 text-slate-500" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between">
-                      <h3 className="text-lg font-semibold leading-tight text-slate-950 dark:text-white">
-                        {latest.input.year} {latest.input.brand} {latest.input.model}
-                      </h3>
-                      <span
-                        className={`shrink-0 rounded-full px-2 py-1 text-sm font-semibold ${riskBadgeStyles[latestBucket]}`}
-                      >
-                        {latest.totalScore} — {latest.riskLabel}
-                      </span>
-                    </div>
-                    <p className="mt-2 flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
-                      <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-                      {latest.findings[0]?.title ?? "Öncelikli bulgu yok"}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={openLatestReport}
-                      className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-slate-900 px-4 text-sm font-semibold text-white dark:bg-white dark:text-slate-950"
-                    >
-                      Raporu Aç
-                      <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              </article>
-            </div>
-          ) : null}
-        </section>
-
-        <section aria-labelledby="main-actions" className="mt-6">
-          <h2 id="main-actions" className="text-2xl font-semibold text-slate-950 dark:text-white">
-            Ana ekran
-          </h2>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            {primaryActions.map((item) => (
-              <Link
-                key={item.title}
-                href={item.href}
-                className={`group rounded-2xl border bg-white p-5 shadow-sm transition hover:border-teal-700 dark:bg-slate-900 ${
-                  item.title === "Yeni Analiz"
-                    ? "border-slate-900 ring-1 ring-slate-900 dark:border-slate-100 dark:ring-slate-100"
-                    : "border-slate-200 dark:border-slate-800"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <span className="grid h-12 w-12 place-items-center rounded-xl bg-sky-50 text-teal-800 dark:bg-teal-950 dark:text-teal-300">
-                    <item.icon aria-hidden="true" className="h-6 w-6" />
-                  </span>
-                  <ArrowUpRight aria-hidden="true" className="h-5 w-5 text-slate-400 group-hover:text-teal-700" />
-                </div>
-                <h3 className="mt-5 text-xl font-semibold text-slate-950 dark:text-white">{item.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{item.description}</p>
-                <span className="mt-5 inline-flex min-h-10 items-center rounded-full bg-slate-950 px-4 text-sm font-semibold text-white dark:bg-white dark:text-slate-950">
-                  {item.cta}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-start gap-3">
-            <ShieldCheck aria-hidden="true" className="mt-1 h-6 w-6 shrink-0 text-teal-700 dark:text-teal-400" />
-            <div>
-              <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Analiz nasıl başlar?</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
-                Kullanıcı araç bilgilerini kendisi seçer veya yazar. Fotoğraf ve ekspertiz raporu kullanıcı tarafından
-                yüklenirse analizde destek veri olarak kullanılır. İlan sitelerinden gizli veri çekilmez.
-              </p>
-            </div>
-          </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {analysisInputs.map((item) => (
-              <article key={item.title} className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
-                <item.icon aria-hidden="true" className="h-5 w-5 text-teal-800 dark:text-teal-400" />
-                <h3 className="mt-3 font-semibold text-slate-950 dark:text-white">{item.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{item.text}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <p className="mt-6 rounded-xl border border-teal-200 bg-teal-50 p-4 text-sm leading-6 text-teal-950 dark:border-teal-900 dark:bg-teal-950/50 dark:text-teal-200">
-          {appConfig.privacy}
-        </p>
+        )}
       </section>
-    </main>
+
+      <section className="mt-7">
+        <SectionHeader
+          title="Son analizin"
+          description="En son inceleme"
+          action={<Link href="/analizlerim">Tümü</Link>}
+        />
+        {!isReady ? (
+          <LoadingSkeleton />
+        ) : latest ? (
+          <AnalysisCard
+            title={`${latest.input.year} ${latest.input.brand} ${latest.input.model}`}
+            dateLabel="İlan analizi"
+            score={latest.totalScore}
+            findingLabel={latest.findings[0]?.title ?? "Öncelikli bulgu yok"}
+            onOpen={openLatestReport}
+          />
+        ) : (
+          <EmptyState
+            icon={FileText}
+            title="Henüz analiz yok"
+            description="İlk ilan analizini başlatarak risk skorunu ve önerilen kontrolleri gör."
+            action={<PrimaryButton href="/analiz">Analiz başlat</PrimaryButton>}
+          />
+        )}
+      </section>
+
+      <section className="mt-7">
+        <SectionHeader
+          title="Garajın"
+          description="Kayıtlı araçlar ve yaklaşan hatırlatma"
+          action={<Link href="/arac-saglik-karnesi">Garajı aç</Link>}
+        />
+        {!isReady ? (
+          <LoadingSkeleton />
+        ) : vehicleCount === 0 ? (
+          <EmptyState
+            icon={CarFront}
+            title="Henüz araç eklenmedi"
+            description="Garajına araç ekleyerek bakım, hatırlatma ve gider kayıtlarını takip et."
+            action={<PrimaryButton href="/arac-saglik-karnesi">Araç ekle</PrimaryButton>}
+          />
+        ) : nextReminder && reminderDays !== null ? (
+          <div className="overflow-hidden rounded-theme border border-border bg-card shadow-sm">
+            <ReminderCard
+              title={nextReminder.title || reminderCategoryLabels[nextReminder.category]}
+              subtitle={reminderCategoryLabels[nextReminder.category]}
+              days={reminderDays}
+              urgency={urgencyOf(reminderDays)}
+            />
+          </div>
+        ) : (
+          <EmptyState
+            icon={Bell}
+            title="Yaklaşan hatırlatma yok"
+            description="Bakım ve ödeme takvimine hatırlatma ekleyebilirsin."
+          />
+        )}
+      </section>
+
+      <section className="mt-7">
+        <SectionHeader title="Bu ayki giderlerin" action={<Link href="/gider-defteri">Gider defteri</Link>} />
+        {!isReady ? (
+          <Skeleton className="h-16 w-full rounded-theme" />
+        ) : monthExpenseTotal !== null && monthExpenseTotal > 0 ? (
+          <div className="rounded-theme border border-border bg-card p-4 shadow-sm">
+            <p className="font-heading text-2xl font-bold text-foreground">
+              {monthExpenseTotal.toLocaleString("tr-TR", {
+                style: "currency",
+                currency: "TRY",
+                maximumFractionDigits: 0,
+              })}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">Bu ay kaydedilen toplam gider</p>
+          </div>
+        ) : (
+          <EmptyState
+            icon={FileCheck2}
+            title="Henüz gider kaydı yok"
+            description="Yakıt, bakım veya sigorta giderlerini gider defterine ekleyebilirsin."
+          />
+        )}
+      </section>
+
+      <section className="mt-7">
+        <SectionHeader
+          title="Diğer araçlar"
+          description="EksperIQ'nun sunduğu tüm modüller"
+          action={<Link href="/moduller">Tüm modüller</Link>}
+        />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {shortcuts.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="flex min-h-[104px] flex-col justify-between rounded-theme border border-border bg-card p-4 shadow-sm transition hover:border-accent"
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-theme bg-secondary text-secondary-foreground">
+                <item.icon aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={1.8} />
+              </span>
+              <span className="font-heading text-xs font-bold leading-4 text-foreground">{item.title}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <div className="mt-6">
+        <DisclaimerCard>
+          <p className="flex items-start gap-2">
+            <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+            {appConfig.privacy}
+          </p>
+        </DisclaimerCard>
+      </div>
+      <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+        <ShieldCheck aria-hidden="true" className="h-4 w-4 text-success" />
+        EksperIQ kesin hüküm vermez; olası risk sinyallerini ve güven seviyesini gösterir.
+      </div>
+    </AppShell>
   );
 }

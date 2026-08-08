@@ -30,7 +30,9 @@ export function AnalysisCard({
         <p className="mt-1 text-xs text-muted-foreground">{dateLabel}</p>
         <p className="mt-1.5 truncate text-xs font-medium text-foreground">{findingLabel}</p>
       </div>
-      {onOpen ? <ChevronRight aria-hidden="true" className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.8} /> : null}
+      {onOpen ? (
+        <ChevronRight aria-hidden="true" className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.8} />
+      ) : null}
     </div>
   );
 

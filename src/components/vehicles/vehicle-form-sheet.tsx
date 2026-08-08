@@ -63,7 +63,11 @@ export function VehicleFormSheet({
   const [draft, setDraft] = useState<DraftState>(() => toDraft(vehicle));
 
   useEffect(() => {
-    if (open) setDraft(toDraft(vehicle));
+    if (!open) return;
+    const frame = window.requestAnimationFrame(() => {
+      setDraft(toDraft(vehicle));
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [open, vehicle]);
 
   function update<K extends keyof DraftState>(key: K, value: DraftState[K]) {
@@ -131,8 +135,18 @@ export function VehicleFormSheet({
         />
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field id="vehicle-brand" label="Marka" value={draft.brand} onChange={(event) => update("brand", event.target.value)} />
-          <Field id="vehicle-model" label="Model" value={draft.model} onChange={(event) => update("model", event.target.value)} />
+          <Field
+            id="vehicle-brand"
+            label="Marka"
+            value={draft.brand}
+            onChange={(event) => update("brand", event.target.value)}
+          />
+          <Field
+            id="vehicle-model"
+            label="Model"
+            value={draft.model}
+            onChange={(event) => update("model", event.target.value)}
+          />
           <Field
             id="vehicle-year"
             label="Model yılı"

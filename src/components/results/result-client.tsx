@@ -43,6 +43,7 @@ import {
 import { addToComparison } from "@/lib/storage/comparison-storage";
 import type { AnalysisResult, ScoreCategory } from "@/lib/analysis/types";
 import { isAiAnalysisNoteVisible } from "@/lib/ai/feature-flags";
+import { riskBucket } from "@/lib/analysis/risk-bucket";
 import { SectionCard } from "@/components/ui/section-card";
 
 const scoreLabels = {
@@ -70,11 +71,9 @@ const findingFilters: Array<{ value: FindingFilter; label: string }> = [
 ];
 
 function severityClass(severity: string) {
-  if (severity === "high")
-    return "border-red-200 bg-red-50 text-red-950 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200";
-  if (severity === "medium")
-    return "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200";
-  return "border-emerald-200 bg-emerald-50 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200";
+  if (severity === "high") return "border-destructive/30 bg-destructive/10 text-destructive";
+  if (severity === "medium") return "border-warning/30 bg-warning/10 text-warning";
+  return "border-success/30 bg-success/10 text-success";
 }
 
 function scorePercent(category: ScoreCategory, value: number): number {
@@ -100,22 +99,20 @@ function findingCount(result: AnalysisResult, severity: keyof typeof severityLab
   return result.findings.filter((finding) => finding.severity === severity).length;
 }
 
+/**
+ * Reuses riskBucket() (the single source of truth for score thresholds) —
+ * previously this had its own 4-band 80/60/40 scale, which could disagree
+ * with RiskBadge/ScoreRing. Now always the same 3-band low/medium/high.
+ */
 function riskToneClass(score: number): string {
-  if (score >= 80)
-    return "bg-emerald-50 text-emerald-800 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-800";
-  if (score >= 60)
-    return "bg-amber-50 text-amber-800 ring-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:ring-amber-800";
-  if (score >= 40)
-    return "bg-orange-50 text-orange-800 ring-orange-200 dark:bg-orange-950 dark:text-orange-300 dark:ring-orange-800";
-  return "bg-red-50 text-red-800 ring-red-200 dark:bg-red-950 dark:text-red-300 dark:ring-red-800";
+  const bucket = riskBucket(score);
+  if (bucket === "low") return "bg-success/10 text-success ring-success/30";
+  if (bucket === "medium") return "bg-warning/10 text-warning ring-warning/30";
+  return "bg-destructive/10 text-destructive ring-destructive/30";
 }
 
 function priorityToneClass(severity: string): string {
-  if (severity === "high")
-    return "border-red-200 bg-red-50 text-red-950 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200";
-  if (severity === "medium")
-    return "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200";
-  return "border-emerald-200 bg-emerald-50 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200";
+  return severityClass(severity);
 }
 
 const SCORE_RING_RADIUS = 16;
@@ -127,10 +124,10 @@ function scoreRingOffset(score: number): number {
 }
 
 function scoreRingColorClass(score: number): string {
-  if (score >= 80) return "stroke-emerald-600 dark:stroke-emerald-400";
-  if (score >= 60) return "stroke-amber-500 dark:stroke-amber-400";
-  if (score >= 40) return "stroke-orange-500 dark:stroke-orange-400";
-  return "stroke-red-600 dark:stroke-red-400";
+  const bucket = riskBucket(score);
+  if (bucket === "low") return "stroke-success";
+  if (bucket === "medium") return "stroke-warning";
+  return "stroke-destructive";
 }
 
 function compactShareSummary(result: AnalysisResult): string {
@@ -369,12 +366,10 @@ export function ResultClient() {
 
   if (!isReady) {
     return (
-      <main className="flex-1 bg-slate-50 dark:bg-slate-950">
+      <main className="flex-1 bg-muted dark:bg-primary">
         <div className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-semibold text-slate-950 dark:text-white">Rapor hazırlanıyor</h1>
-          <p className="mt-3 leading-7 text-slate-700 dark:text-slate-300">
-            Mevcut tarayıcı oturumundaki analiz kontrol ediliyor.
-          </p>
+          <h1 className="text-3xl font-semibold text-foreground">Rapor hazırlanıyor</h1>
+          <p className="mt-3 leading-7 text-foreground/80">Mevcut tarayıcı oturumundaki analiz kontrol ediliyor.</p>
         </div>
       </main>
     );
@@ -382,15 +377,15 @@ export function ResultClient() {
 
   if (!result) {
     return (
-      <main className="flex-1 bg-slate-50 dark:bg-slate-950">
+      <main className="flex-1 bg-muted dark:bg-primary">
         <div className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-semibold text-slate-950 dark:text-white">Analiz bulunamadı</h1>
-          <p className="mt-3 leading-7 text-slate-700 dark:text-slate-300">
+          <h1 className="text-3xl font-semibold text-foreground">Analiz bulunamadı</h1>
+          <p className="mt-3 leading-7 text-foreground/80">
             Sayfa yenilenmiş olabilir. Sonuç verisi URL içine yazılmaz ve yalnızca mevcut tarayıcı oturumunda tutulur.
           </p>
           <Link
             href="/analiz"
-            className="mt-6 inline-flex min-h-12 items-center rounded-full bg-slate-950 px-5 font-semibold text-white dark:bg-white dark:text-slate-950"
+            className="mt-6 inline-flex min-h-12 items-center rounded-full bg-primary px-5 font-semibold text-primary-foreground"
           >
             Analizi yeniden başlat
           </Link>
@@ -404,23 +399,21 @@ export function ResultClient() {
   const showAiAnalysisNote = isAiAnalysisNoteVisible();
 
   return (
-    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
+    <main className="flex-1 bg-muted dark:bg-primary">
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 lg:px-8">
-        <div className="print-only mb-2 flex items-center justify-between border-b border-slate-300 pb-3 dark:border-slate-700">
-          <p className="text-lg font-semibold text-slate-950 dark:text-white">{appConfig.name}</p>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Rapor oluşturma: {formatReportDate(result.generatedAt)}
-          </p>
+        <div className="print-only mb-2 flex items-center justify-between border-b border-border pb-3">
+          <p className="text-lg font-semibold text-foreground">{appConfig.name}</p>
+          <p className="text-sm text-muted-foreground">Rapor oluşturma: {formatReportDate(result.generatedAt)}</p>
         </div>
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="bg-sky-50 p-5 sm:p-7 dark:bg-slate-800">
+        <section className="overflow-hidden rounded-theme border border-border bg-card shadow-sm">
+          <div className="bg-secondary p-5 sm:p-7">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Araç Risk Skoru</p>
-                <h1 className="mt-2 text-3xl font-semibold leading-tight text-slate-950 sm:text-4xl dark:text-white">
+                <p className="text-sm font-medium text-muted-foreground">Araç Risk Skoru</p>
+                <h1 className="mt-2 text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
                   {result.input.year} {result.input.brand} {result.input.model}
                 </h1>
-                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                <p className="mt-2 text-sm text-muted-foreground">
                   Rapor tarihi: {formatReportDate(result.generatedAt)}
                 </p>
               </div>
@@ -433,7 +426,7 @@ export function ResultClient() {
               </span>
             </div>
             <div className="mt-6 grid gap-4 lg:grid-cols-[220px_1fr] lg:items-stretch">
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="rounded-theme border border-border bg-card p-5 shadow-sm">
                 <div
                   className="relative mx-auto h-32 w-32"
                   role="img"
@@ -446,7 +439,7 @@ export function ResultClient() {
                       r={SCORE_RING_RADIUS}
                       fill="none"
                       strokeWidth="4"
-                      className="stroke-slate-100 dark:stroke-slate-800"
+                      className="stroke-muted"
                     />
                     <circle
                       cx="20"
@@ -464,52 +457,48 @@ export function ResultClient() {
                   </svg>
                   <div className="absolute inset-0 grid place-items-center text-center">
                     <div>
-                      <strong className="block text-3xl text-slate-950 dark:text-white">{result.totalScore}</strong>
-                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400">/100</span>
+                      <strong className="block text-3xl text-foreground">{result.totalScore}</strong>
+                      <span className="text-sm font-medium text-muted-foreground">/100</span>
                     </div>
                   </div>
                 </div>
-                <p className="mt-4 text-center text-sm font-medium text-slate-700 dark:text-slate-300">
+                <p className="mt-4 text-center text-sm font-medium text-foreground/80">
                   Skor kesin hüküm değil, inceleme önceliği verir.
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                  <p className="text-sm text-slate-500 dark:text-slate-400">Kısa karar özeti</p>
-                  <p className="mt-2 text-lg font-semibold leading-snug text-slate-950 dark:text-white">
-                    {result.decision}
-                  </p>
+                <div className="rounded-theme border border-border bg-card p-4 shadow-sm">
+                  <p className="text-sm text-muted-foreground">Kısa karar özeti</p>
+                  <p className="mt-2 text-lg font-semibold leading-snug text-foreground">{result.decision}</p>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                  <p className="text-sm text-slate-500 dark:text-slate-400">Riskli bulgu</p>
-                  <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">
+                <div className="rounded-theme border border-border bg-card p-4 shadow-sm">
+                  <p className="text-sm text-muted-foreground">Riskli bulgu</p>
+                  <p className="mt-2 text-lg font-semibold text-foreground">
                     {findingCount(result, "high")} yüksek, {findingCount(result, "medium")} orta
                   </p>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                  <p className="text-sm text-slate-500 dark:text-slate-400">Bilgi durumu</p>
-                  <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-white">
+                <div className="rounded-theme border border-border bg-card p-4 shadow-sm">
+                  <p className="text-sm text-muted-foreground">Bilgi durumu</p>
+                  <p className="mt-2 text-lg font-semibold text-foreground">
                     {result.completeness.completed} / {result.completeness.total}
                   </p>
                 </div>
               </div>
             </div>
           </div>
-          <div className="grid gap-3 border-t border-slate-200 bg-white p-4 md:grid-cols-3 dark:border-slate-800 dark:bg-slate-900">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50">
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                <Gauge aria-hidden="true" className="h-4 w-4 text-teal-700" />
+          <div className="grid gap-3 border-t border-border bg-card p-4 md:grid-cols-3">
+            <div className="rounded-theme border border-border bg-muted p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
+                <Gauge aria-hidden="true" className="h-4 w-4 text-accent" />
                 Öncelik
               </div>
-              <p className="mt-2 text-lg font-semibold leading-snug text-slate-950 dark:text-white">
-                {result.decision}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
+              <p className="mt-2 text-lg font-semibold leading-snug text-foreground">{result.decision}</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 Satın alma kararı vermeden önce bulguları belge ve bağımsız ekspertizle doğrulayın.
               </p>
             </div>
             <div
-              className={`rounded-2xl border p-4 ${priorityToneClass(result.findings[0]?.severity ?? "low")}`}
+              className={`rounded-theme border p-4 ${priorityToneClass(result.findings[0]?.severity ?? "low")}`}
               aria-label="İlk kontrol edilecek risk"
             >
               <div className="flex items-center gap-2 text-sm font-semibold">
@@ -523,7 +512,7 @@ export function ResultClient() {
                 {result.findings[0]?.recommendation ?? "Yine de ekspertiz ve belge kontrolünü tamamlayın."}
               </p>
             </div>
-            <div className="rounded-2xl border border-teal-100 bg-teal-50 p-4 text-teal-950 dark:bg-teal-950/40 dark:text-teal-200 dark:border-teal-900">
+            <div className="rounded-theme border border-accent/20 bg-accent/10 p-4 text-foreground">
               <div className="flex items-center gap-2 text-sm font-semibold">
                 <BadgeCheck aria-hidden="true" className="h-4 w-4" />
                 Sonraki adım
@@ -537,11 +526,11 @@ export function ResultClient() {
               </p>
             </div>
           </div>
-          <div className="no-print grid gap-3 border-t border-slate-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-4 dark:border-slate-800 dark:bg-slate-900">
+          <div className="no-print grid gap-3 border-t border-border bg-card p-4 sm:grid-cols-2 xl:grid-cols-4">
             <button
               type="button"
               onClick={printReport}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
             >
               <FileText aria-hidden="true" className="h-4 w-4" />
               Raporu yazdır
@@ -549,7 +538,7 @@ export function ResultClient() {
             <button
               type="button"
               onClick={copyQuestions}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800 dark:border-slate-800 dark:text-slate-300"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent hover:text-accent"
             >
               <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
               Soruları kopyala
@@ -557,7 +546,7 @@ export function ResultClient() {
             <button
               type="button"
               onClick={copySellerMessage}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800 dark:border-slate-800 dark:text-slate-300"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent hover:text-accent"
             >
               <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
               Satıcı mesajını kopyala
@@ -565,7 +554,7 @@ export function ResultClient() {
             <button
               type="button"
               onClick={copySummary}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800 dark:border-slate-800 dark:text-slate-300"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent hover:text-accent"
             >
               <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
               Rapor özetini kopyala
@@ -573,14 +562,14 @@ export function ResultClient() {
             <button
               type="button"
               onClick={shareSummary}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800 dark:border-slate-800 dark:text-slate-300"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent hover:text-accent"
             >
               <Share2 aria-hidden="true" className="h-4 w-4" />
               Raporu paylaş
             </button>
             <Link
               href="/analiz"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800 dark:border-slate-800 dark:text-slate-300"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent hover:text-accent"
             >
               <RotateCcw aria-hidden="true" className="h-4 w-4" />
               Yeni analiz
@@ -589,7 +578,7 @@ export function ResultClient() {
               type="button"
               onClick={addCurrentToComparison}
               disabled={addedToComparison}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-200 px-4 text-sm font-semibold text-slate-800 hover:border-teal-700 hover:text-teal-800 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:text-slate-300"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-50"
             >
               <GitCompareArrows aria-hidden="true" className="h-4 w-4" />
               {addedToComparison ? "Karşılaştırmaya eklendi" : "Karşılaştırmaya ekle"}
@@ -597,7 +586,7 @@ export function ResultClient() {
             <button
               type="button"
               onClick={clearCurrentAnalysis}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-red-200 px-4 text-sm font-semibold text-red-700 hover:bg-red-50 dark:bg-red-950 dark:text-red-300 dark:border-red-900"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-destructive/30 px-4 text-sm font-semibold text-destructive hover:bg-destructive/10"
             >
               <Trash2 aria-hidden="true" className="h-4 w-4" />
               Oturum verisini sil
@@ -605,16 +594,16 @@ export function ResultClient() {
           </div>
           <p
             className={`no-print min-h-5 px-4 pb-4 text-sm font-medium ${
-              copyStatus === "failed" ? "text-red-700 dark:text-red-400" : "text-teal-800 dark:text-teal-300"
+              copyStatus === "failed" ? "text-destructive" : "text-accent"
             }`}
             role="status"
           >
             {actionStatusMessage()}
           </p>
-          <div className="no-print border-t border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-300">
+          <div className="no-print border-t border-border bg-muted p-4 text-sm text-foreground/80">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="font-medium text-slate-950 dark:text-white">
+                <p className="font-medium text-foreground">
                   Bu raporda eksik veya fazla sert görünen bir uyarı var mı?
                 </p>
                 <p className="mt-1">
@@ -624,7 +613,7 @@ export function ResultClient() {
               </div>
               <Link
                 href="/geri-bildirim"
-                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-white px-4 font-semibold text-slate-950 ring-1 ring-slate-200 hover:ring-teal-700 dark:bg-slate-900 dark:text-white dark:ring-slate-700"
+                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-card px-4 font-semibold text-foreground ring-1 ring-border hover:ring-accent"
               >
                 Geri bildirim gönder
                 <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
@@ -632,20 +621,20 @@ export function ResultClient() {
             </div>
           </div>
         </section>
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900">
+        <div className="rounded-theme border border-warning/30 bg-warning/10 p-4 text-sm leading-6 text-foreground">
           <div className="flex gap-3">
             <AlertTriangle aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" />
             <p>{appConfig.disclaimer}</p>
           </div>
         </div>
-        <div className="no-print rounded-2xl border border-teal-100 bg-white p-4 shadow-sm">
+        <div className="no-print rounded-theme border border-accent/20 bg-card p-4 shadow-sm">
           <div className="flex items-start gap-3">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-teal-50 text-teal-700">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-accent/10 text-accent">
               <ShieldCheck aria-hidden="true" className="h-5 w-5" />
             </span>
             <div>
-              <p className="font-semibold text-slate-950 dark:text-white">Ekspertiz öncesi hızlı okuma</p>
-              <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">
+              <p className="font-semibold text-foreground">Ekspertiz öncesi hızlı okuma</p>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
                 Önce öncelikli bulguları, sonra satıcı sorularını ve son kontrol listesini tamamlayın.
               </p>
             </div>
@@ -656,14 +645,14 @@ export function ResultClient() {
             title="AI karar destek notu"
             description="Kural tabanlı raporu bozmadan, riskleri daha sade açıklayan opsiyonel bir not üretir."
           >
-            <div className="rounded-2xl border border-sky-100 bg-sky-50 p-4 dark:bg-slate-800">
+            <div className="rounded-theme border border-accent/15 bg-secondary p-4">
               <div className="flex items-start gap-3">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-teal-700">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-card text-accent">
                   <Sparkles aria-hidden="true" className="h-5 w-5" />
                 </span>
                 <div>
-                  <p className="font-semibold text-slate-950 dark:text-white">Ek açıklama üret</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-700 dark:text-slate-300">
+                  <p className="font-semibold text-foreground">Ek açıklama üret</p>
+                  <p className="mt-1 text-sm leading-6 text-foreground/80">
                     Kural tabanlı rapor ana karar desteği olarak kalır. AI notu yalnızca riskleri sadeleştiren ek bir
                     açıklama üretir ve kesin ekspertiz sonucu vermez.
                   </p>
@@ -673,28 +662,28 @@ export function ResultClient() {
                 type="button"
                 onClick={requestAiNote}
                 disabled={aiNoteStatus === "loading"}
-                className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60 dark:bg-white dark:text-slate-950"
+                className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
               >
                 <Sparkles aria-hidden="true" className="h-4 w-4" />
                 {aiNoteStatus === "loading" ? "Not hazırlanıyor" : "AI notu oluştur"}
               </button>
               {aiNote ? (
-                <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+                <div className="mt-4 rounded-theme-sm border border-border bg-card p-4 text-sm leading-6 text-foreground/80">
                   {aiNote}
                 </div>
               ) : null}
               {aiNote ? (
-                <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
-                  <p className="text-sm font-semibold text-slate-950 dark:text-white">Bu AI notu faydalı mı?</p>
+                <div className="mt-4 rounded-theme-sm border border-border bg-card p-3">
+                  <p className="text-sm font-semibold text-foreground">Bu AI notu faydalı mı?</p>
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     <button
                       type="button"
                       onClick={() => recordAiNoteFeedback("helpful")}
                       aria-pressed={aiNoteFeedback === "helpful"}
-                      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold ${
+                      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-theme-sm border px-4 text-sm font-semibold ${
                         aiNoteFeedback === "helpful"
-                          ? "border-teal-700 bg-teal-50 text-teal-800 dark:bg-teal-950 dark:text-teal-300"
-                          : "border-slate-200 text-slate-800 hover:border-teal-700 dark:border-slate-800 dark:text-slate-300"
+                          ? "border-accent bg-accent/10 text-accent"
+                          : "border-border text-foreground/90 hover:border-accent"
                       }`}
                     >
                       <ThumbsUp aria-hidden="true" className="h-4 w-4" />
@@ -704,10 +693,10 @@ export function ResultClient() {
                       type="button"
                       onClick={() => recordAiNoteFeedback("needs-improvement")}
                       aria-pressed={aiNoteFeedback === "needs-improvement"}
-                      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold ${
+                      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-theme-sm border px-4 text-sm font-semibold ${
                         aiNoteFeedback === "needs-improvement"
-                          ? "border-amber-700 bg-amber-50 text-amber-900 dark:bg-amber-950 dark:text-amber-300"
-                          : "border-slate-200 text-slate-800 hover:border-amber-700 dark:border-slate-800 dark:text-slate-300"
+                          ? "border-warning bg-warning/10 text-warning"
+                          : "border-border text-foreground/90 hover:border-warning"
                       }`}
                     >
                       <ThumbsDown aria-hidden="true" className="h-4 w-4" />
@@ -715,7 +704,7 @@ export function ResultClient() {
                     </button>
                   </div>
                   {aiNoteFeedback ? (
-                    <p className="mt-3 text-sm text-slate-600 dark:text-slate-400" role="status">
+                    <p className="mt-3 text-sm text-muted-foreground" role="status">
                       Geri bildiriminiz bu tarayıcı oturumunda tutuldu.
                     </p>
                   ) : null}
@@ -723,7 +712,7 @@ export function ResultClient() {
               ) : null}
               {aiNoteMessage ? (
                 <p
-                  className={`mt-3 text-sm ${aiNoteStatus === "error" ? "font-medium text-red-700 dark:text-red-400" : "text-slate-600 dark:text-slate-400"}`}
+                  className={`mt-3 text-sm ${aiNoteStatus === "error" ? "font-medium text-destructive" : "text-muted-foreground"}`}
                   role="status"
                 >
                   {aiNoteMessage}
@@ -736,19 +725,19 @@ export function ResultClient() {
           title="Paylaşılabilir kısa özet"
           description="Uzun rapor yerine satıcıya, ekspertize veya kendinize gönderebileceğiniz kısa karar desteği özeti."
         >
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50">
-            <div className="grid gap-3 text-sm leading-6 text-slate-700 dark:text-slate-300">
+          <div className="rounded-theme border border-border bg-muted p-4">
+            <div className="grid gap-3 text-sm leading-6 text-foreground/80">
               <p>
-                <strong className="text-slate-950 dark:text-white">
+                <strong className="text-foreground">
                   {result.input.year} {result.input.brand} {result.input.model}
                 </strong>{" "}
                 için EksperIQ skoru {result.totalScore}/100, sonuç: {result.riskLabel}.
               </p>
               <p>
-                Karar özeti: <strong className="text-slate-950 dark:text-white">{result.decision}</strong>
+                Karar özeti: <strong className="text-foreground">{result.decision}</strong>
               </p>
               <div>
-                <p className="font-semibold text-slate-950 dark:text-white">İlk kontrol edilecek bulgular</p>
+                <p className="font-semibold text-foreground">İlk kontrol edilecek bulgular</p>
                 <ul className="mt-2 grid gap-1">
                   {result.findings.slice(0, 3).map((finding) => (
                     <li key={finding.id}>- {finding.title}</li>
@@ -756,7 +745,7 @@ export function ResultClient() {
                 </ul>
               </div>
               <div>
-                <p className="font-semibold text-slate-950 dark:text-white">Satıcıya ilk sorular</p>
+                <p className="font-semibold text-foreground">Satıcıya ilk sorular</p>
                 <ol className="mt-2 grid list-decimal gap-1 pl-5">
                   {result.sellerQuestions.slice(0, 3).map((question) => (
                     <li key={question}>{question}</li>
@@ -767,7 +756,7 @@ export function ResultClient() {
             <button
               type="button"
               onClick={copyCompactSummary}
-              className="no-print mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950"
+              className="no-print mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
             >
               <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
               Kısa özeti kopyala
@@ -778,36 +767,34 @@ export function ResultClient() {
           title="Bilgi doluluğu"
           description="Daha fazla doğrulanabilir bilgi girildikçe raporun karar desteği değeri artar."
         >
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50">
+          <div className="rounded-lg border border-border bg-muted p-4">
             <div className="flex items-center justify-between gap-3 text-sm">
-              <span className="font-medium text-slate-800 dark:text-slate-300">Dolu bilgi alanları</span>
+              <span className="font-medium text-foreground/90">Dolu bilgi alanları</span>
               <strong
-                className="text-slate-950 dark:text-white"
+                className="text-foreground"
                 aria-label={`Bilgi doluluğu ${result.completeness.completed} / ${result.completeness.total}`}
               >
                 {result.completeness.completed} / {result.completeness.total}
               </strong>
             </div>
             <div
-              className="mt-3 h-2 rounded-full bg-slate-200"
+              className="mt-3 h-2 rounded-full bg-muted"
               role="progressbar"
               aria-label="Bilgi doluluğu yüzdesi"
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={result.completeness.percentage}
             >
-              <div className="h-2 rounded-full bg-teal-700" style={{ width: `${result.completeness.percentage}%` }} />
+              <div className="h-2 rounded-full bg-accent" style={{ width: `${result.completeness.percentage}%` }} />
             </div>
             {result.completeness.missing.length ? (
               <div className="mt-4">
-                <p className="text-sm font-medium text-slate-800 dark:text-slate-300">
-                  Satıcıdan tamamlanması istenecek bilgiler
-                </p>
+                <p className="text-sm font-medium text-foreground/90">Satıcıdan tamamlanması istenecek bilgiler</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {result.completeness.missing.slice(0, 10).map((item) => (
                     <span
                       key={item}
-                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
+                      className="rounded-full border border-border bg-card px-3 py-1 text-sm text-foreground/80"
                     >
                       {item}
                     </span>
@@ -815,46 +802,44 @@ export function ResultClient() {
                 </div>
               </div>
             ) : (
-              <p className="mt-3 text-sm text-slate-700 dark:text-slate-300">Temel bilgi alanları dolu görünüyor.</p>
+              <p className="mt-3 text-sm text-foreground/80">Temel bilgi alanları dolu görünüyor.</p>
             )}
           </div>
         </SectionCard>
         <SectionCard title="Araç ve ilan özeti">
           <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
-              <dt className="text-sm text-slate-600 dark:text-slate-400">Araç</dt>
-              <dd className="mt-1 font-semibold text-slate-950 dark:text-white">
+            <div className="rounded-lg border border-border p-3">
+              <dt className="text-sm text-muted-foreground">Araç</dt>
+              <dd className="mt-1 font-semibold text-foreground">
                 {result.input.brand} {result.input.model}
               </dd>
             </div>
-            <div className="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
-              <dt className="text-sm text-slate-600 dark:text-slate-400">Yıl / km</dt>
-              <dd className="mt-1 font-semibold text-slate-950 dark:text-white">
+            <div className="rounded-lg border border-border p-3">
+              <dt className="text-sm text-muted-foreground">Yıl / km</dt>
+              <dd className="mt-1 font-semibold text-foreground">
                 {result.input.year} / {result.input.mileage.toLocaleString("tr-TR")} km
               </dd>
             </div>
-            <div className="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
-              <dt className="text-sm text-slate-600 dark:text-slate-400">Fiyat</dt>
-              <dd className="mt-1 font-semibold text-slate-950 dark:text-white">
-                {formatCurrency(result.input.price)}
-              </dd>
+            <div className="rounded-lg border border-border p-3">
+              <dt className="text-sm text-muted-foreground">Fiyat</dt>
+              <dd className="mt-1 font-semibold text-foreground">{formatCurrency(result.input.price)}</dd>
             </div>
-            <div className="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
-              <dt className="text-sm text-slate-600 dark:text-slate-400">Şehir</dt>
-              <dd className="mt-1 font-semibold text-slate-950 dark:text-white">{result.input.city}</dd>
+            <div className="rounded-lg border border-border p-3">
+              <dt className="text-sm text-muted-foreground">Şehir</dt>
+              <dd className="mt-1 font-semibold text-foreground">{result.input.city}</dd>
             </div>
           </dl>
-          <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50">
-            <p className="font-medium text-slate-950 dark:text-white">{result.mileage.label}</p>
-            <p className="mt-1 text-sm leading-6 text-slate-700 dark:text-slate-300">
+          <div className="mt-4 rounded-lg border border-border bg-muted p-4">
+            <p className="font-medium text-foreground">{result.mileage.label}</p>
+            <p className="mt-1 text-sm leading-6 text-foreground/80">
               Araç yaşı yaklaşık {result.mileage.vehicleAge} yıl, yıllık ortalama kullanım yaklaşık{" "}
               {result.mileage.annualMileage.toLocaleString("tr-TR")} km. Bu değerler yalnızca genel referanstır.
             </p>
             {result.input.listingUrl ? (
-              <p className="mt-3 break-words text-sm text-slate-700 dark:text-slate-300">
+              <p className="mt-3 break-words text-sm text-foreground/80">
                 İlan referansı:{" "}
                 <a
-                  className="font-medium text-teal-800 underline"
+                  className="font-medium text-accent underline"
                   href={result.input.listingUrl}
                   rel="noreferrer"
                   target="_blank"
@@ -872,15 +857,15 @@ export function ResultClient() {
               const label = scoreLabels[category];
 
               return (
-                <div key={key} className="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+                <div key={key} className="rounded-lg border border-border p-4">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="font-medium text-slate-800 dark:text-slate-300">{label}</span>
-                    <span className="font-semibold text-slate-950 dark:text-white">
+                    <span className="font-medium text-foreground/90">{label}</span>
+                    <span className="font-semibold text-foreground">
                       {value} / {SCORE_WEIGHTS[category]}
                     </span>
                   </div>
                   <div
-                    className="mt-3 h-2 rounded-full bg-slate-100 dark:bg-slate-800"
+                    className="mt-3 h-2 rounded-full bg-muted"
                     role="progressbar"
                     aria-label={`${label} skoru`}
                     aria-valuemin={0}
@@ -888,7 +873,7 @@ export function ResultClient() {
                     aria-valuenow={value}
                   >
                     <div
-                      className="h-2 rounded-full bg-teal-700"
+                      className="h-2 rounded-full bg-accent"
                       style={{ width: `${scorePercent(category, value)}%` }}
                     />
                   </div>
@@ -902,32 +887,29 @@ export function ResultClient() {
           description="Skor, kullanıcının girdiği bilgiye göre çalışan kural tabanlı bir karar desteğidir; kesin ekspertiz sonucu değildir."
         >
           <div className="grid gap-4 lg:grid-cols-2">
-            <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
-              <h3 className="font-semibold text-slate-950 dark:text-white">Risk aralıkları</h3>
-              <ul className="mt-3 grid gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <div className="rounded-lg border border-border p-4">
+              <h3 className="font-semibold text-foreground">Risk aralıkları</h3>
+              <ul className="mt-3 grid gap-2 text-sm text-foreground/80">
                 {RISK_LEVELS.map((level) => (
                   <li
                     key={level.label}
-                    className="flex items-center justify-between gap-3 rounded-md bg-slate-50 px-3 py-2 dark:bg-slate-800/50"
+                    className="flex items-center justify-between gap-3 rounded-md bg-muted px-3 py-2"
                   >
                     <span>
                       {level.min}-{level.max}
                     </span>
-                    <strong className="text-slate-950 dark:text-white">{level.label}</strong>
+                    <strong className="text-foreground">{level.label}</strong>
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
-              <h3 className="font-semibold text-slate-950 dark:text-white">Kategori ağırlıkları</h3>
-              <ul className="mt-3 grid gap-2 text-sm text-slate-700 dark:text-slate-300">
+            <div className="rounded-lg border border-border p-4">
+              <h3 className="font-semibold text-foreground">Kategori ağırlıkları</h3>
+              <ul className="mt-3 grid gap-2 text-sm text-foreground/80">
                 {Object.entries(SCORE_WEIGHTS).map(([key, value]) => (
-                  <li
-                    key={key}
-                    className="flex items-center justify-between gap-3 rounded-md bg-slate-50 px-3 py-2 dark:bg-slate-800/50"
-                  >
+                  <li key={key} className="flex items-center justify-between gap-3 rounded-md bg-muted px-3 py-2">
                     <span>{scoreLabels[key as keyof typeof scoreLabels]}</span>
-                    <strong className="text-slate-950 dark:text-white">{value} puan</strong>
+                    <strong className="text-foreground">{value} puan</strong>
                   </li>
                 ))}
               </ul>
@@ -941,7 +923,7 @@ export function ResultClient() {
           <ul className="grid gap-2">
             {result.strengths.map((item) => (
               <li key={item} className="flex gap-2">
-                <CheckCircle2 aria-hidden="true" className="mt-0.5 h-5 w-5 text-teal-700" />
+                <CheckCircle2 aria-hidden="true" className="mt-0.5 h-5 w-5 text-accent" />
                 {item}
               </li>
             ))}
@@ -954,25 +936,25 @@ export function ResultClient() {
           <ol className="grid list-decimal gap-3 pl-5">
             {result.priorityActions.map((action) => (
               <li key={action.title} className="pl-1">
-                <span className="font-semibold text-slate-950 dark:text-white">{action.title}</span>
-                <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">Neden: {action.reason}</p>
+                <span className="font-semibold text-foreground">{action.title}</span>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">Neden: {action.reason}</p>
               </li>
             ))}
           </ol>
         </SectionCard>
         <SectionCard title="Riskli noktalar">
           <div className="mb-4 grid gap-3 sm:grid-cols-3" aria-label="Risk bulgusu dağılımı">
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-900">
-              <p className="text-sm font-medium text-red-950">Yüksek riskli bulgu</p>
-              <strong className="mt-1 block text-2xl text-red-950">{findingCount(result, "high")}</strong>
+            <div className="rounded-theme-sm border border-destructive/30 bg-destructive/10 p-3">
+              <p className="text-sm font-medium text-destructive">Yüksek riskli bulgu</p>
+              <strong className="mt-1 block text-2xl text-destructive">{findingCount(result, "high")}</strong>
             </div>
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900">
-              <p className="text-sm font-medium text-amber-950">Orta riskli bulgu</p>
-              <strong className="mt-1 block text-2xl text-amber-950">{findingCount(result, "medium")}</strong>
+            <div className="rounded-theme-sm border border-warning/30 bg-warning/10 p-3">
+              <p className="text-sm font-medium text-warning">Orta riskli bulgu</p>
+              <strong className="mt-1 block text-2xl text-warning">{findingCount(result, "medium")}</strong>
             </div>
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-              <p className="text-sm font-medium text-emerald-950">Düşük riskli bulgu</p>
-              <strong className="mt-1 block text-2xl text-emerald-950">{findingCount(result, "low")}</strong>
+            <div className="rounded-theme-sm border border-success/30 bg-success/10 p-3">
+              <p className="text-sm font-medium text-success">Düşük riskli bulgu</p>
+              <strong className="mt-1 block text-2xl text-success">{findingCount(result, "low")}</strong>
             </div>
           </div>
           <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Risk bulgusu filtresi">
@@ -986,10 +968,10 @@ export function ResultClient() {
                   type="button"
                   aria-pressed={isActive}
                   onClick={() => selectFindingFilter(filter.value)}
-                  className={`min-h-11 rounded-lg border px-4 text-sm font-semibold ${
+                  className={`min-h-11 rounded-theme-sm border px-4 text-sm font-semibold ${
                     isActive
-                      ? "border-slate-950 bg-slate-950 text-white dark:border-white dark:bg-white dark:text-slate-950"
-                      : "border-slate-200 bg-white text-slate-800 hover:border-teal-700 hover:text-teal-800 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-card text-foreground/90 hover:border-accent hover:text-accent"
                   }`}
                 >
                   {filter.label} ({count})
@@ -1013,10 +995,7 @@ export function ResultClient() {
         <SectionCard title="Yakın zamanda çıkabilecek masraflar">
           <ul className="grid gap-2">
             {result.costs.map((cost) => (
-              <li
-                key={cost.item}
-                className="flex justify-between gap-3 rounded-lg border border-slate-200 p-3 dark:border-slate-800"
-              >
+              <li key={cost.item} className="flex justify-between gap-3 rounded-lg border border-border p-3">
                 <span>{cost.item}</span>
                 <strong>{cost.level}</strong>
               </li>
@@ -1033,10 +1012,7 @@ export function ResultClient() {
         <SectionCard title="Ekspertizde özellikle kontrol edilmesi gerekenler">
           <div className="grid gap-2 sm:grid-cols-2">
             {result.inspectionFocus.map((item) => (
-              <span
-                key={item}
-                className="rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900"
-              >
+              <span key={item} className="rounded-lg border border-border bg-card p-3">
                 {item}
               </span>
             ))}
@@ -1046,23 +1022,23 @@ export function ResultClient() {
           title="Son kontrol listesi"
           description="Bu liste yalnızca mevcut tarayıcı oturumunda saklanır; oturum verisini silerseniz işaretler de temizlenir."
         >
-          <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50">
+          <div className="mb-4 rounded-lg border border-border bg-muted p-4">
             <div className="flex items-center justify-between gap-3 text-sm">
-              <span className="font-medium text-slate-800 dark:text-slate-300">Tamamlanan kontroller</span>
+              <span className="font-medium text-foreground/90">Tamamlanan kontroller</span>
               <strong
-                className="text-slate-950 dark:text-white"
+                className="text-foreground"
                 aria-label={`Tamamlanan kontroller ${checkedChecklist.size} / ${result.finalChecklist.length}`}
               >
                 {checkedChecklist.size} / {result.finalChecklist.length}
               </strong>
             </div>
-            <div className="mt-3 h-2 rounded-full bg-slate-200" aria-hidden="true">
+            <div className="mt-3 h-2 rounded-full bg-muted" aria-hidden="true">
               <div
-                className="h-2 rounded-full bg-teal-700 transition-all"
+                className="h-2 rounded-full bg-accent transition-all"
                 style={{ width: `${Math.round((checkedChecklist.size / result.finalChecklist.length) * 100)}%` }}
               />
             </div>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400" role="status">
+            <p className="mt-2 text-sm text-muted-foreground" role="status">
               {checkedChecklist.size === result.finalChecklist.length
                 ? "Tüm kontrol maddeleri işaretlendi. Yine de nihai karar öncesi belge ve ekspertiz sonuçlarını birlikte değerlendirin."
                 : "Satın alma öncesi doğruladığınız maddeleri işaretleyin."}
@@ -1070,10 +1046,7 @@ export function ResultClient() {
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
             {result.finalChecklist.map((item) => (
-              <label
-                key={item}
-                className="flex min-h-12 items-center gap-3 rounded-lg border border-slate-200 p-3 dark:border-slate-800"
-              >
+              <label key={item} className="flex min-h-12 items-center gap-3 rounded-lg border border-border p-3">
                 <input
                   type="checkbox"
                   checked={checkedChecklist.has(item)}

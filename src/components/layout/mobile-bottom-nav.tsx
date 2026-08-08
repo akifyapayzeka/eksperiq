@@ -38,7 +38,9 @@ export function MobileBottomNav() {
                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <span className={`flex h-8 w-11 items-center justify-center rounded-full ${isActive ? "bg-secondary" : ""}`}>
+              <span
+                className={`flex h-8 w-11 items-center justify-center rounded-full ${isActive ? "bg-secondary" : ""}`}
+              >
                 <Icon aria-hidden="true" className="h-5 w-5" strokeWidth={isActive ? 2.1 : 1.8} />
               </span>
               <span className={`max-w-full text-balance font-heading ${isActive ? "font-bold" : "font-semibold"}`}>

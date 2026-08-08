@@ -26,7 +26,11 @@ function AlertBase({
 /** Neutral informational note — e.g. how a flow works, a data-source explainer. */
 export function InfoAlert({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <AlertBase icon={Info} className={cn("border-border bg-muted text-muted-foreground", className)} iconClassName="text-accent">
+    <AlertBase
+      icon={Info}
+      className={cn("border-border bg-muted text-muted-foreground", className)}
+      iconClassName="text-accent"
+    >
       {children}
     </AlertBase>
   );
@@ -49,7 +53,11 @@ export function WarningAlert({ children, className }: { children: ReactNode; cla
 /** Certainty-language guardrail — used near scores/reports to remind users this is not a final verdict. */
 export function DisclaimerCard({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <AlertBase icon={ShieldCheck} className={cn("border-border bg-muted text-muted-foreground", className)} iconClassName="text-success">
+    <AlertBase
+      icon={ShieldCheck}
+      className={cn("border-border bg-muted text-muted-foreground", className)}
+      iconClassName="text-success"
+    >
       {children}
     </AlertBase>
   );

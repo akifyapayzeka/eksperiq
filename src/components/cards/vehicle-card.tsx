@@ -26,7 +26,9 @@ export function VehicleCard({
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="truncate font-heading text-[15px] font-bold leading-5 text-foreground">{title}</h3>
-          {title !== vehicle.label ? <p className="mt-0.5 truncate text-xs text-muted-foreground">{vehicle.label}</p> : null}
+          {title !== vehicle.label ? (
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">{vehicle.label}</p>
+          ) : null}
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
             {vehicle.plate ? (
               <span className="flex items-center gap-1">

@@ -18,7 +18,12 @@ export function HeroCard({
   className?: string;
 }) {
   return (
-    <section className={cn("relative overflow-hidden rounded-theme bg-primary px-6 py-6 text-primary-foreground shadow-sm", className)}>
+    <section
+      className={cn(
+        "relative overflow-hidden rounded-theme bg-primary px-6 py-6 text-primary-foreground shadow-sm",
+        className,
+      )}
+    >
       {decorative ? (
         <>
           <div
@@ -36,7 +41,9 @@ export function HeroCard({
           <Icon aria-hidden="true" className="h-[22px] w-[22px]" strokeWidth={1.8} />
         </div>
         <h2 className="font-heading text-[22px] font-bold leading-tight tracking-tight">{title}</h2>
-        {description ? <p className="mt-2 max-w-[300px] text-sm leading-5 text-primary-foreground/75">{description}</p> : null}
+        {description ? (
+          <p className="mt-2 max-w-[300px] text-sm leading-5 text-primary-foreground/75">{description}</p>
+        ) : null}
         {action ? <div className="mt-6">{action}</div> : null}
       </div>
     </section>

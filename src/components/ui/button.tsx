@@ -33,11 +33,7 @@ export function PrimaryButton({ href, className, children, type = "button", ...p
 
 /** Outlined, medium-emphasis action. */
 export function SecondaryButton({ href, className, children, type = "button", ...props }: ButtonProps) {
-  const classes = cn(
-    buttonBaseClasses,
-    "border border-border bg-card text-foreground hover:bg-secondary",
-    className,
-  );
+  const classes = cn(buttonBaseClasses, "border border-border bg-card text-foreground hover:bg-secondary", className);
   if (href) {
     return (
       <Link href={href} className={classes}>
@@ -81,7 +77,10 @@ export function IconButton({
     <>
       <Icon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
       {withNotificationDot ? (
-        <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-accent ring-2 ring-card" aria-hidden="true" />
+        <span
+          className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-accent ring-2 ring-card"
+          aria-hidden="true"
+        />
       ) : null}
     </>
   );

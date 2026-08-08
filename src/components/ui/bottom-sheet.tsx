@@ -32,7 +32,11 @@ export function BottomSheet({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 sm:items-center sm:p-4" role="presentation" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 sm:items-center sm:p-4"
+      role="presentation"
+      onClick={onClose}
+    >
       <div
         role="dialog"
         aria-modal="true"
