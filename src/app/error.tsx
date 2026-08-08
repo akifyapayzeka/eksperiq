@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { Logo } from "@/components/layout/logo";
 
 export default function ErrorBoundary({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
@@ -11,8 +12,8 @@ export default function ErrorBoundary({ error, reset }: { error: Error & { diges
   return (
     <main className="flex min-h-[calc(100dvh-8rem)] items-center bg-background px-4 py-10 text-foreground">
       <section className="mx-auto w-full max-w-xl rounded-lg border border-border bg-card p-6 shadow-sm">
-        <p className="text-sm font-semibold text-accent">EksperIQ</p>
-        <h1 className="mt-3 text-2xl font-semibold">Bir şeyler ters gitti</h1>
+        <Logo variant="dikey" className="h-16 w-auto" />
+        <h1 className="mt-5 text-2xl font-semibold">Bir şeyler ters gitti</h1>
         <p className="mt-3 text-base leading-7 text-foreground/80">
           Beklenmeyen bir hata oluştu. Girdiğiniz bilgiler sunucuya kaydedilmediği için kaybolmaz; tekrar deneyebilir
           veya ana sayfaya dönebilirsiniz.
