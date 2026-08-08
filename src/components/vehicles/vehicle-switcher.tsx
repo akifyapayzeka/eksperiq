@@ -55,9 +55,9 @@ export function VehicleSwitcher({
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-300">
-        <Car aria-hidden="true" className="h-4 w-4 text-teal-700" />
+    <div className="rounded-theme border border-border bg-card p-4 shadow-sm">
+      <div className="flex items-center gap-2 text-sm font-semibold text-foreground/90">
+        <Car aria-hidden="true" className="h-4 w-4 text-accent" />
         Araç
       </div>
       {mode === "idle" ? (
@@ -69,7 +69,7 @@ export function VehicleSwitcher({
             id="vehicle-switcher-select"
             value={selectedVehicleId}
             onChange={(event) => onSelect(event.target.value)}
-            className="min-h-11 flex-1 rounded-lg border border-slate-300 bg-white px-3 text-slate-950 shadow-sm focus:border-teal-700 focus:ring-4 focus:ring-teal-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+            className="min-h-11 flex-1 rounded-theme border border-border bg-input px-3 text-foreground shadow-sm focus:border-accent focus:ring-4 focus:ring-accent/15"
           >
             {vehicles.map((vehicle) => (
               <option key={vehicle.id} value={vehicle.id}>
@@ -80,7 +80,7 @@ export function VehicleSwitcher({
           <button
             type="button"
             onClick={startRenaming}
-            className="inline-flex min-h-11 items-center gap-1 rounded-full transition active:scale-95 border border-slate-300 px-3 text-sm font-semibold text-slate-800 hover:border-teal-700 dark:border-slate-700 dark:text-slate-300"
+            className="inline-flex min-h-11 items-center gap-1 rounded-theme transition active:scale-95 border border-border px-3 text-sm font-semibold text-foreground/90 hover:border-accent"
           >
             <Pencil aria-hidden="true" className="h-4 w-4" />
             Yeniden adlandır
@@ -88,7 +88,7 @@ export function VehicleSwitcher({
           <button
             type="button"
             onClick={startAdding}
-            className="inline-flex min-h-11 items-center gap-1 rounded-full transition active:scale-95 border border-teal-700 px-3 text-sm font-semibold text-teal-800"
+            className="inline-flex min-h-11 items-center gap-1 rounded-theme transition active:scale-95 border border-accent px-3 text-sm font-semibold text-accent"
           >
             <Plus aria-hidden="true" className="h-4 w-4" />
             Araç ekle
@@ -97,7 +97,7 @@ export function VehicleSwitcher({
             <button
               type="button"
               onClick={() => setMode("confirming-delete")}
-              className="inline-flex min-h-11 items-center gap-1 rounded-full transition active:scale-95 border border-red-200 px-3 text-sm font-semibold text-red-700 hover:border-red-400 dark:hover:border-red-700"
+              className="inline-flex min-h-11 items-center gap-1 rounded-theme transition active:scale-95 border border-destructive/30 px-3 text-sm font-semibold text-destructive hover:border-destructive"
             >
               <Trash2 aria-hidden="true" className="h-4 w-4" />
               Bu aracı ve kayıtlarını sil
@@ -105,8 +105,8 @@ export function VehicleSwitcher({
           ) : null}
         </div>
       ) : mode === "confirming-delete" ? (
-        <div role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-900">
-          <p className="text-sm text-red-900">
+        <div role="alert" className="mt-3 rounded-theme border border-destructive/30 bg-destructive/10 p-3">
+          <p className="text-sm text-destructive">
             {selectedVehicle?.label ?? "Bu araç"} silinecek; bu araca ait tüm hatırlatma, gider ve sağlık kaydı da
             birlikte silinecek. Bu işlem geri alınamaz.
           </p>
@@ -114,14 +114,14 @@ export function VehicleSwitcher({
             <button
               type="button"
               onClick={confirmDelete}
-              className="inline-flex min-h-11 items-center rounded-full transition active:scale-95 bg-red-700 px-4 text-sm font-semibold text-white hover:bg-red-800"
+              className="inline-flex min-h-11 items-center rounded-theme transition active:scale-95 bg-destructive px-4 text-sm font-semibold text-destructive-foreground hover:opacity-90"
             >
               Evet, sil
             </button>
             <button
               type="button"
               onClick={() => setMode("idle")}
-              className="inline-flex min-h-11 items-center rounded-full transition active:scale-95 border border-slate-300 px-4 text-sm font-semibold text-slate-800 dark:border-slate-700 dark:text-slate-300"
+              className="inline-flex min-h-11 items-center rounded-theme transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground/90"
             >
               Vazgeç
             </button>
@@ -137,19 +137,19 @@ export function VehicleSwitcher({
             value={draftLabel}
             onChange={(event) => setDraftLabel(event.target.value)}
             placeholder="Örn. İkinci Arabam"
-            className="min-h-11 flex-1 rounded-lg border border-slate-300 px-3 text-slate-950 shadow-sm focus:border-teal-700 focus:ring-4 focus:ring-teal-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+            className="min-h-11 flex-1 rounded-theme border border-border bg-input px-3 text-foreground shadow-sm focus:border-accent focus:ring-4 focus:ring-accent/15"
           />
           <button
             type="button"
             onClick={submitDraft}
-            className="inline-flex min-h-11 items-center rounded-full transition active:scale-95 bg-slate-950 px-4 text-sm font-semibold text-white dark:bg-white dark:text-slate-950"
+            className="inline-flex min-h-11 items-center rounded-theme transition active:scale-95 bg-primary px-4 text-sm font-semibold text-primary-foreground"
           >
             {mode === "adding" ? "Ekle" : "Kaydet"}
           </button>
           <button
             type="button"
             onClick={() => setMode("idle")}
-            className="inline-flex min-h-11 items-center rounded-full transition active:scale-95 border border-slate-300 px-4 text-sm font-semibold text-slate-800 dark:border-slate-700 dark:text-slate-300"
+            className="inline-flex min-h-11 items-center rounded-theme transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground/90"
           >
             Vazgeç
           </button>

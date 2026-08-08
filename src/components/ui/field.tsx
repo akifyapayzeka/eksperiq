@@ -8,20 +8,20 @@ type FieldProps = ComponentProps<"input"> & {
 
 export function Field({ label, id, error, className, ...props }: FieldProps) {
   return (
-    <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300" htmlFor={id}>
+    <label className="grid gap-2 text-sm font-medium text-foreground/90" htmlFor={id}>
       <span>{label}</span>
       <input
         id={id}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${id}-error` : undefined}
         className={cn(
-          "min-h-12 rounded-lg border border-slate-300 bg-white px-3 text-slate-950 shadow-sm focus:border-teal-700 focus:ring-4 focus:ring-teal-100",
+          "min-h-12 rounded-theme border border-border bg-input px-3 text-foreground shadow-sm focus:border-accent focus:ring-4 focus:ring-accent/15",
           className,
         )}
         {...props}
       />
       {error ? (
-        <span id={`${id}-error`} className="text-sm font-normal text-red-700">
+        <span id={`${id}-error`} className="text-sm font-normal text-destructive">
           {error}
         </span>
       ) : null}
@@ -37,14 +37,14 @@ type SelectProps = ComponentProps<"select"> & {
 
 export function SelectField({ label, id, error, options, className, ...props }: SelectProps) {
   return (
-    <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300" htmlFor={id}>
+    <label className="grid gap-2 text-sm font-medium text-foreground/90" htmlFor={id}>
       <span>{label}</span>
       <select
         id={id}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${id}-error` : undefined}
         className={cn(
-          "min-h-12 rounded-lg border border-slate-300 bg-white px-3 text-slate-950 shadow-sm focus:border-teal-700 focus:ring-4 focus:ring-teal-100",
+          "min-h-12 rounded-theme border border-border bg-input px-3 text-foreground shadow-sm focus:border-accent focus:ring-4 focus:ring-accent/15",
           className,
         )}
         {...props}
@@ -57,7 +57,7 @@ export function SelectField({ label, id, error, options, className, ...props }: 
         ))}
       </select>
       {error ? (
-        <span id={`${id}-error`} className="text-sm font-normal text-red-700">
+        <span id={`${id}-error`} className="text-sm font-normal text-destructive">
           {error}
         </span>
       ) : null}
@@ -72,20 +72,20 @@ type TextareaProps = ComponentProps<"textarea"> & {
 
 export function TextareaField({ label, id, error, className, ...props }: TextareaProps) {
   return (
-    <label className="grid gap-2 text-sm font-medium text-slate-800 md:col-span-2 dark:text-slate-300" htmlFor={id}>
+    <label className="grid gap-2 text-sm font-medium text-foreground/90 md:col-span-2" htmlFor={id}>
       <span>{label}</span>
       <textarea
         id={id}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${id}-error` : undefined}
         className={cn(
-          "min-h-36 rounded-lg border border-slate-300 bg-white px-3 py-3 text-slate-950 shadow-sm focus:border-teal-700 focus:ring-4 focus:ring-teal-100",
+          "min-h-36 rounded-theme border border-border bg-input px-3 py-3 text-foreground shadow-sm focus:border-accent focus:ring-4 focus:ring-accent/15",
           className,
         )}
         {...props}
       />
       {error ? (
-        <span id={`${id}-error`} className="text-sm font-normal text-red-700">
+        <span id={`${id}-error`} className="text-sm font-normal text-destructive">
           {error}
         </span>
       ) : null}

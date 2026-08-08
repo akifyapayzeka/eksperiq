@@ -3,17 +3,17 @@ import { appConfig } from "@/lib/constants/app";
 
 export function SiteFooter() {
   return (
-    <footer className="no-print border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 dark:text-slate-400">
+    <footer className="no-print border-t border-border bg-card">
+      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <p>{appConfig.name} profesyonel ekspertizin yerine geçmez.</p>
         <div className="flex flex-wrap gap-4">
-          <Link href="/geri-bildirim" className="hover:text-slate-950 dark:hover:text-white">
+          <Link href="/geri-bildirim" className="hover:text-foreground">
             Geri bildirim
           </Link>
-          <Link href="/gizlilik" className="hover:text-slate-950 dark:hover:text-white">
+          <Link href="/gizlilik" className="hover:text-foreground">
             Gizlilik
           </Link>
-          <Link href="/kullanim-kosullari" className="hover:text-slate-950 dark:hover:text-white">
+          <Link href="/kullanim-kosullari" className="hover:text-foreground">
             Kullanım koşulları
           </Link>
         </div>

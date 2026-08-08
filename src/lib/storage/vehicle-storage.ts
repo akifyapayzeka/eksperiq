@@ -7,7 +7,20 @@ import type { VehicleProfile } from "@/lib/vehicles/types";
 function isVehicleProfile(value: unknown): value is VehicleProfile {
   if (typeof value !== "object" || value === null) return false;
   const record = value as Record<string, unknown>;
-  return typeof record.id === "string" && typeof record.label === "string" && typeof record.createdAt === "string";
+  if (typeof record.id !== "string" || typeof record.label !== "string" || typeof record.createdAt !== "string") {
+    return false;
+  }
+  // All fields below are optional/additive — only type-check them when present
+  // so records created before these fields existed keep loading unchanged.
+  if (record.brand !== undefined && typeof record.brand !== "string") return false;
+  if (record.model !== undefined && typeof record.model !== "string") return false;
+  if (record.modelYear !== undefined && typeof record.modelYear !== "number") return false;
+  if (record.mileage !== undefined && typeof record.mileage !== "number") return false;
+  if (record.fuel !== undefined && typeof record.fuel !== "string") return false;
+  if (record.transmission !== undefined && typeof record.transmission !== "string") return false;
+  if (record.plate !== undefined && typeof record.plate !== "string") return false;
+  if (record.photoDataUrl !== undefined && typeof record.photoDataUrl !== "string") return false;
+  return true;
 }
 
 function readRaw(): VehicleProfile[] {
