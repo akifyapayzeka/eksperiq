@@ -194,7 +194,7 @@ test("keeps the mobile bottom navigation within the safe viewport", async ({ pag
   test.skip(!isMobile, "Fixed bottom nav / safe-area behavior only applies to the mobile layout.");
 
   await page.goto("/");
-  const mobileNav = page.getByRole("navigation", { name: "Mobil alt menü" });
+  const mobileNav = page.getByRole("navigation", { name: "Ana navigasyon" });
   await expect(mobileNav).toBeVisible();
 
   const box = await mobileNav.boundingBox();
