@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
+import { Manrope, Inter } from "next/font/google";
 import "./globals.css";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { appConfig } from "@/lib/constants/app";
+import { themeInitScript } from "@/lib/theme/theme-preference";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -55,8 +57,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="safe-area-shell flex min-h-full flex-col">
+    <html lang="tr" className={`${manrope.variable} ${inter.variable} h-full antialiased`}>
+      <head>
+        <Script id="eksperiq-theme-init" strategy="beforeInteractive">
+          {themeInitScript}
+        </Script>
+      </head>
+      <body className="safe-area-shell flex min-h-full flex-col bg-background text-foreground font-body">
         <SiteHeader />
         {children}
         <SiteFooter />

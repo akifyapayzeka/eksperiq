@@ -32,23 +32,23 @@ export function FeedbackTemplateCopy() {
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-      <h2 className="text-lg font-semibold text-slate-950 dark:text-white">Anonim test notu şablonu</h2>
-      <p className="mt-2 text-slate-700 dark:text-slate-300">
+    <div className="rounded-lg border border-border bg-card p-4">
+      <h2 className="text-lg font-semibold text-foreground">Anonim test notu şablonu</h2>
+      <p className="mt-2 text-foreground/80">
         Test kullanıcısından not alırken bu şablonu kopyalayın. Plaka, telefon, açık adres veya satıcı adı eklemeyin.
       </p>
-      <pre className="mt-4 max-h-64 overflow-auto rounded-lg bg-slate-950 p-4 text-xs leading-5 whitespace-pre-wrap text-slate-100">
+      <pre className="mt-4 max-h-64 overflow-auto rounded-theme-sm bg-primary p-4 text-xs leading-5 whitespace-pre-wrap text-primary-foreground/90">
         {feedbackTemplate}
       </pre>
       <button
         type="button"
         onClick={copyTemplate}
-        className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-slate-950 px-5 font-semibold text-white hover:bg-slate-800 sm:w-auto dark:bg-white dark:text-slate-950"
+        className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 font-semibold text-primary-foreground hover:opacity-90 sm:w-auto"
       >
         <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
         Anonim not şablonunu kopyala
       </button>
-      <p className="mt-3 min-h-5 text-sm text-slate-600 dark:text-slate-400" role="status">
+      <p className="mt-3 min-h-5 text-sm text-muted-foreground" role="status">
         {status === "copied" ? "Anonim test notu şablonu panoya kopyalandı." : null}
         {status === "failed" ? "Kopyalama tarayıcı tarafından engellendi. Şablonu elle seçebilirsiniz." : null}
       </p>

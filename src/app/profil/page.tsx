@@ -1,61 +1,77 @@
 import Link from "next/link";
-import { CarFront, MessageSquareText, ShieldCheck, UserRound } from "lucide-react";
+import { CarFront, ChevronRight, FileText, Info, MessageSquareText, ShieldCheck } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
+import { AppShell } from "@/components/layout/app-shell";
+import { PageHeader } from "@/components/layout/page-header";
 import { DataManagementSection } from "@/components/profile/data-management-section";
+import { NotificationPreferenceSection } from "@/components/profile/notification-preference-section";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { PrimaryButton } from "@/components/ui/button";
+import { DisclaimerCard } from "@/components/ui/alert";
+
+const supportLinks = [
+  { href: "/geri-bildirim", label: "Geri bildirim gönder", icon: MessageSquareText },
+  { href: "/gizlilik", label: "Gizlilik politikası", icon: ShieldCheck },
+  { href: "/kullanim-kosullari", label: "Kullanım koşulları", icon: FileText },
+  { href: "/hakkinda", label: "Hakkında ve uygulama sürümü", icon: Info },
+];
 
 export default function ProfilePage() {
   return (
-    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
-          <div className="grid h-14 w-14 place-items-center rounded-full bg-white/10">
-            <UserRound aria-hidden="true" className="h-7 w-7" />
+    <AppShell>
+      <PageHeader eyebrow="Hesap gerektirmez" title="Profil ve Ayarlar" />
+
+      <section className="rounded-theme border border-border bg-card p-5 shadow-sm">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="font-heading font-bold text-foreground">Görünüm</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Açık, koyu veya sistem temasını seç.</p>
           </div>
-          <p className="mt-6 text-sm font-semibold text-teal-200">Profil</p>
-          <h1 className="mt-2 text-3xl font-semibold">EksperIQ ücretsiz kullanılabilir.</h1>
-        </section>
-
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex gap-3">
-            <ShieldCheck aria-hidden="true" className="mt-1 h-5 w-5 shrink-0 text-teal-700" />
-            <div>
-              <h2 className="font-semibold text-slate-950 dark:text-white">Gizlilik sınırı</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{appConfig.privacy}</p>
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex gap-3">
-            <MessageSquareText aria-hidden="true" className="mt-1 h-5 w-5 shrink-0 text-teal-700" />
-            <div>
-              <h2 className="font-semibold text-slate-950 dark:text-white">Destek ve geri bildirim</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
-                Sorun, öneri veya eksik kural bildirirken plaka, telefon, açık adres ya da satıcı bilgisi paylaşmayın.
-                Geri bildirimler uygulama içinde saklanmaz.
-              </p>
-            </div>
-          </div>
-          <Link
-            href="/geri-bildirim"
-            className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-slate-300 px-5 text-base font-semibold text-slate-950 hover:bg-slate-50 sm:w-auto dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
-          >
-            Geri bildirim gönder
-          </Link>
-        </section>
-
-        <DataManagementSection />
-
-        <div className="mt-5">
-          <Link
-            href="/analiz"
-            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full transition active:scale-95 bg-teal-700 px-5 text-base font-semibold text-white hover:bg-teal-800 sm:w-auto"
-          >
-            <CarFront aria-hidden="true" className="h-5 w-5" />
-            Yeni analiz başlat
-          </Link>
+          <ThemeToggle />
         </div>
+      </section>
+
+      <div className="mt-4">
+        <NotificationPreferenceSection />
       </div>
-    </main>
+
+      <div className="mt-4">
+        <DataManagementSection />
+      </div>
+
+      <section className="mt-4 overflow-hidden rounded-theme border border-border bg-card shadow-sm">
+        <h2 className="px-5 pt-5 font-heading font-bold text-foreground">Destek ve Yasal</h2>
+        <div className="mt-3">
+          {supportLinks.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="flex min-h-14 w-full items-center gap-3 border-t border-border px-5 py-4 text-left transition hover:bg-secondary"
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+                <item.icon aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={1.8} />
+              </span>
+              <span className="flex-1 text-sm font-semibold text-foreground">{item.label}</span>
+              <ChevronRight
+                aria-hidden="true"
+                className="h-[18px] w-[18px] shrink-0 text-muted-foreground"
+                strokeWidth={1.8}
+              />
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <div className="mt-4">
+        <DisclaimerCard>{appConfig.privacy}</DisclaimerCard>
+      </div>
+
+      <div className="mt-5">
+        <PrimaryButton href="/analiz">
+          <CarFront aria-hidden="true" className="h-5 w-5" />
+          Yeni analiz başlat
+        </PrimaryButton>
+      </div>
+    </AppShell>
   );
 }

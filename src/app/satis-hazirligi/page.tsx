@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
+import { HeroCard } from "@/components/cards/hero-card";
+import { AppShell } from "@/components/layout/app-shell";
 import { loadSaleChecklist, saveSaleChecklist } from "@/lib/storage/sale-checklist-storage";
 
 const saleChecklist = [
@@ -36,20 +38,18 @@ export default function SmartSalePreparationPage() {
   }
 
   return (
-    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
-          <Sparkles aria-hidden="true" className="h-9 w-9 text-teal-200" />
-          <p className="mt-5 text-sm font-semibold text-teal-200">Akıllı Satış Hazırlığı</p>
-          <h1 className="mt-2 text-3xl font-semibold">İlana çıkmadan önce eksikleri kapat</h1>
-          <p className="mt-3 text-sm leading-6 text-slate-300">
-            Bu liste satış garantisi vermez; aracınızı daha şeffaf ve düzenli sunmanıza yardımcı olur.
-          </p>
-        </section>
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <AppShell>
+      <div className="max-w-3xl pt-6">
+        <HeroCard
+          icon={Sparkles}
+          eyebrow="Akıllı Satış Hazırlığı"
+          title="İlana çıkmadan önce eksikleri kapat"
+          description="Bu liste satış garantisi vermez; aracınızı daha şeffaf ve düzenli sunmanıza yardımcı olur."
+        />
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Hazırlık listesi</h2>
-            <span className="rounded-full bg-teal-50 px-3 py-1 text-sm font-semibold text-teal-800 dark:bg-teal-950 dark:text-teal-300">
+            <h2 className="text-xl font-semibold text-foreground">Hazırlık listesi</h2>
+            <span className="rounded-full bg-accent/10 px-3 py-1 text-sm font-semibold text-accent">
               {checked.size}/{saleChecklist.length}
             </span>
           </div>
@@ -57,13 +57,13 @@ export default function SmartSalePreparationPage() {
             {saleChecklist.map((item) => (
               <label
                 key={item}
-                className="flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-medium text-slate-800 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-300"
+                className="flex min-h-14 cursor-pointer items-center gap-3 rounded-theme-sm border border-border bg-muted p-4 text-sm font-medium text-foreground/90"
               >
                 <input
                   type="checkbox"
                   checked={checked.has(item)}
                   onChange={() => toggle(item)}
-                  className="h-5 w-5 accent-teal-700"
+                  className="h-5 w-5 accent-accent"
                 />
                 {item}
               </label>
@@ -71,6 +71,6 @@ export default function SmartSalePreparationPage() {
           </div>
         </section>
       </div>
-    </main>
+    </AppShell>
   );
 }

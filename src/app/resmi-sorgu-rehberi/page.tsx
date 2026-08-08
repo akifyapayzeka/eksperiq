@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CheckSquare, ShieldCheck } from "lucide-react";
+import { HeroCard } from "@/components/cards/hero-card";
+import { AppShell } from "@/components/layout/app-shell";
 import { officialLookupDisclaimer, officialLookupItems } from "@/lib/vehicle-checks/official-lookup";
 import { createSessionChecklistStore } from "@/lib/storage/session-checklist";
 import { appConfig } from "@/lib/constants/app";
@@ -30,42 +32,42 @@ export default function OfficialLookupGuidePage() {
   }
 
   return (
-    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
-          <ShieldCheck aria-hidden="true" className="h-9 w-9 text-teal-200" />
-          <p className="mt-5 text-sm font-semibold text-teal-200">Resmi Sorgu Rehberi</p>
-          <h1 className="mt-2 text-3xl font-semibold">Hangi bilgiyi nereden doğrularsınız?</h1>
-          <p className="mt-3 text-sm leading-6 text-slate-300">{officialLookupDisclaimer}</p>
-        </section>
+    <AppShell>
+      <div className="max-w-3xl pt-6">
+        <HeroCard
+          icon={ShieldCheck}
+          eyebrow="Resmi Sorgu Rehberi"
+          title="Hangi bilgiyi nereden doğrularsınız?"
+          description={<>{officialLookupDisclaimer}</>}
+        />
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Kontrol ettiklerim: {progress}</h2>
-            <CheckSquare aria-hidden="true" className="h-5 w-5 text-teal-700" />
+            <h2 className="text-xl font-semibold text-foreground">Kontrol ettiklerim: {progress}</h2>
+            <CheckSquare aria-hidden="true" className="h-5 w-5 text-accent" />
           </div>
           <div className="mt-4 grid gap-3">
             {officialLookupItems.map((item) => (
               <label
                 key={item.id}
-                className="flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50"
+                className="flex min-h-14 cursor-pointer items-start gap-3 rounded-theme-sm border border-border bg-muted p-4"
               >
                 <input
                   type="checkbox"
                   checked={checkedItems.has(item.title)}
                   onChange={() => toggleItem(item.title)}
-                  className="mt-0.5 h-5 w-5 shrink-0 rounded border-slate-300 accent-teal-700 dark:border-slate-600"
+                  className="mt-0.5 h-5 w-5 shrink-0 rounded border-border accent-accent"
                 />
                 <div>
-                  <p className="font-semibold text-slate-950 dark:text-white">{item.title}</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">{item.where}</p>
-                  <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">{item.note}</p>
+                  <p className="font-semibold text-foreground">{item.title}</p>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">{item.where}</p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.note}</p>
                 </div>
               </label>
             ))}
           </div>
         </section>
       </div>
-    </main>
+    </AppShell>
   );
 }

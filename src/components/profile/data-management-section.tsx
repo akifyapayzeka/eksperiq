@@ -99,12 +99,12 @@ export function DataManagementSection() {
   }
 
   return (
-    <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
       <div className="flex gap-3">
-        <Database aria-hidden="true" className="mt-1 h-5 w-5 shrink-0 text-teal-700" />
+        <Database aria-hidden="true" className="mt-1 h-5 w-5 shrink-0 text-accent" />
         <div className="w-full">
-          <h2 className="font-semibold text-slate-950 dark:text-white">Verilerim</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
+          <h2 className="font-semibold text-foreground">Verilerim</h2>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
             Tüm kayıtlarınız yalnızca bu cihazda tutulur. Verilerinizi yedekleyebilir, başka bir cihaza aktarabilir veya
             tamamen silebilirsiniz.
           </p>
@@ -112,7 +112,7 @@ export function DataManagementSection() {
           {deleteServerWarning ? (
             <p
               role="alert"
-              className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200"
+              className="mt-3 rounded-theme-sm border border-warning/30 bg-warning/10 px-3 py-2 text-sm font-medium text-warning"
             >
               Cihazdaki tüm veriler silindi. Sunucudaki bildirim aboneliği kaydı şu anda silinemedi (bağlantı sorunu
               olabilir); en geç 90 gün içinde otomatik olarak silinir. Bildirimleri tekrar açarsanız kayıt yeniden
@@ -121,11 +121,11 @@ export function DataManagementSection() {
           ) : null}
 
           {usage ? (
-            <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-800 dark:bg-slate-800/50">
-              <p className="font-medium text-slate-950 dark:text-white">
+            <div className="mt-4 rounded-theme-sm border border-border bg-muted p-3 text-sm">
+              <p className="font-medium text-foreground">
                 Cihazda kullanılan alan: {formatBytes(usage.totalLocalBytes + usage.totalSessionBytes)}
               </p>
-              <ul className="mt-2 space-y-1 text-slate-600 dark:text-slate-400">
+              <ul className="mt-2 space-y-1 text-muted-foreground">
                 {usage.entries
                   .filter((entry) => entry.bytes > 0)
                   .map((entry) => (
@@ -143,7 +143,7 @@ export function DataManagementSection() {
             <button
               type="button"
               onClick={handleExport}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full transition active:scale-95 border border-slate-300 px-4 text-sm font-semibold text-slate-950 hover:bg-slate-50 dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground hover:bg-muted dark:hover:opacity-90"
             >
               <Download aria-hidden="true" className="h-4 w-4" />
               Verilerimi dışa aktar
@@ -151,7 +151,7 @@ export function DataManagementSection() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full transition active:scale-95 border border-slate-300 px-4 text-sm font-semibold text-slate-950 hover:bg-slate-50 dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground hover:bg-muted dark:hover:opacity-90"
             >
               <Upload aria-hidden="true" className="h-4 w-4" />
               Yedekten içe aktar
@@ -168,27 +168,25 @@ export function DataManagementSection() {
           {importMessage ? (
             <p
               role="status"
-              className={`mt-3 text-sm font-medium ${
-                importStatus === "error" ? "text-red-700 dark:text-red-400" : "text-teal-800 dark:text-teal-300"
-              }`}
+              className={`mt-3 text-sm font-medium ${importStatus === "error" ? "text-destructive" : "text-accent"}`}
             >
               {importMessage}
             </p>
           ) : null}
 
-          <div className="mt-5 border-t border-slate-200 pt-4 dark:border-slate-800">
+          <div className="mt-5 border-t border-border pt-4">
             {deleteMode === "idle" ? (
               <button
                 type="button"
                 onClick={() => setDeleteMode("confirming")}
-                className="inline-flex min-h-11 items-center gap-2 rounded-full transition active:scale-95 border border-red-200 px-4 text-sm font-semibold text-red-700 hover:border-red-400 dark:border-red-900 dark:hover:border-red-700"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full transition active:scale-95 border border-destructive/30 px-4 text-sm font-semibold text-destructive hover:border-destructive"
               >
                 <Trash2 aria-hidden="true" className="h-4 w-4" />
                 Tüm verilerimi sil
               </button>
             ) : (
-              <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-900">
-                <p className="text-sm text-red-900">
+              <div role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 p-3">
+                <p className="text-sm text-destructive">
                   Bu cihazdaki tüm {appConfig.name} kayıtları (araçlar, hatırlatmalar, giderler, analizler,
                   fotoğraflar), bildirim aboneliği ve önbellek silinecek. Bu işlem geri alınamaz.
                 </p>
@@ -197,7 +195,7 @@ export function DataManagementSection() {
                     type="button"
                     onClick={() => void handleConfirmDelete()}
                     disabled={deleteMode === "deleting"}
-                    className="inline-flex min-h-11 items-center rounded-full transition active:scale-95 bg-red-700 px-4 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-50"
+                    className="inline-flex min-h-11 items-center rounded-full transition active:scale-95 bg-destructive px-4 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
                   >
                     {deleteMode === "deleting" ? "Siliniyor..." : "Evet, tümünü sil"}
                   </button>
@@ -205,7 +203,7 @@ export function DataManagementSection() {
                     type="button"
                     onClick={() => setDeleteMode("idle")}
                     disabled={deleteMode === "deleting"}
-                    className="inline-flex min-h-11 items-center rounded-full transition active:scale-95 border border-slate-300 px-4 text-sm font-semibold text-slate-800 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300"
+                    className="inline-flex min-h-11 items-center rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground/90 disabled:opacity-50"
                   >
                     Vazgeç
                   </button>

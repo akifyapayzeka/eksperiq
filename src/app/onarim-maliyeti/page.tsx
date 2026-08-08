@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { Calculator } from "lucide-react";
+import { HeroCard } from "@/components/cards/hero-card";
+import { AppShell } from "@/components/layout/app-shell";
 
 const repairBase = {
   "Tampon boya": [3500, 9000],
@@ -30,36 +32,34 @@ export default function RepairCostPage() {
   }, [repair, service]);
 
   return (
-    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
-          <Calculator aria-hidden="true" className="h-9 w-9 text-teal-200" />
-          <p className="mt-5 text-sm font-semibold text-teal-200">Tahmini Onarım Maliyeti</p>
-          <h1 className="mt-2 text-3xl font-semibold">Hasar kalemi için yaklaşık maliyet aralığı</h1>
-          <p className="mt-3 text-sm leading-6 text-slate-300">
-            Net fiyat vermez; şehir, parça, servis ve boya kalitesine göre değişir.
-          </p>
-        </section>
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <AppShell>
+      <div className="max-w-3xl pt-6">
+        <HeroCard
+          icon={Calculator}
+          eyebrow="Tahmini Onarım Maliyeti"
+          title="Hasar kalemi için yaklaşık maliyet aralığı"
+          description="Net fiyat vermez; şehir, parça, servis ve boya kalitesine göre değişir."
+        />
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               İşlem
               <select
                 value={repair}
                 onChange={(event) => setRepair(event.target.value as keyof typeof repairBase)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               >
                 {Object.keys(repairBase).map((item) => (
                   <option key={item}>{item}</option>
                 ))}
               </select>
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Servis tipi
               <select
                 value={service}
                 onChange={(event) => setService(event.target.value as keyof typeof serviceFactors)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               >
                 {Object.keys(serviceFactors).map((item) => (
                   <option key={item}>{item}</option>
@@ -68,7 +68,7 @@ export default function RepairCostPage() {
             </label>
           </div>
         </section>
-        <section className="mt-5 rounded-2xl border border-teal-100 bg-teal-50 p-5 text-teal-950 dark:bg-teal-950/40 dark:text-teal-200 dark:border-teal-900">
+        <section className="mt-5 rounded-theme border border-accent/20 bg-accent/10 p-5 text-foreground">
           <h2 className="text-xl font-semibold">Yaklaşık aralık</h2>
           <p className="mt-3 text-3xl font-semibold">
             {range[0].toLocaleString("tr-TR")} - {range[1].toLocaleString("tr-TR")} TL
@@ -78,6 +78,6 @@ export default function RepairCostPage() {
           </p>
         </section>
       </div>
-    </main>
+    </AppShell>
   );
 }

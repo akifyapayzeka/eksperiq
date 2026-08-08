@@ -84,21 +84,18 @@ function FormProgress({ values }: { values: Partial<Record<ProgressField, unknow
   const ringOffset = RING_CIRCUMFERENCE - (requiredPercent / 100) * RING_CIRCUMFERENCE;
 
   return (
-    <section
-      className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-      aria-labelledby="form-progress-title"
-    >
+    <section className="rounded-theme border border-border bg-card p-4 shadow-sm" aria-labelledby="form-progress-title">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 id="form-progress-title" className="text-lg font-semibold text-slate-950 dark:text-white">
+          <h2 id="form-progress-title" className="text-lg font-semibold text-foreground">
             Form ilerlemesi
           </h2>
-          <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
             Zorunlu alanlar tamamlandığında analiz oluşturabilirsiniz; detaylar raporun kalitesini artırır.
           </p>
         </div>
         <strong
-          className="text-sm text-slate-950 dark:text-white"
+          className="text-sm text-foreground"
           aria-label={`Zorunlu alanlar ${requiredCompleted} / ${requiredProgressFields.length}`}
         >
           {requiredCompleted} / {requiredProgressFields.length} zorunlu
@@ -114,14 +111,7 @@ function FormProgress({ values }: { values: Partial<Record<ProgressField, unknow
           aria-valuenow={requiredCompleted}
         >
           <svg viewBox="0 0 40 40" className="h-24 w-24 -rotate-90">
-            <circle
-              cx="20"
-              cy="20"
-              r={RING_RADIUS}
-              fill="none"
-              strokeWidth="4"
-              className="stroke-slate-100 dark:stroke-slate-800"
-            />
+            <circle cx="20" cy="20" r={RING_RADIUS} fill="none" strokeWidth="4" className="stroke-muted" />
             <circle
               cx="20"
               cy="20"
@@ -129,22 +119,22 @@ function FormProgress({ values }: { values: Partial<Record<ProgressField, unknow
               fill="none"
               strokeWidth="4"
               strokeLinecap="round"
-              className="stroke-teal-600 transition-[stroke-dashoffset] duration-500 dark:stroke-teal-400"
+              className="stroke-accent transition-[stroke-dashoffset] duration-500"
               strokeDasharray={RING_CIRCUMFERENCE}
               strokeDashoffset={ringOffset}
             />
           </svg>
           <div className="absolute inset-0 grid place-items-center">
-            <span className="text-lg font-bold text-slate-950 dark:text-white">{requiredPercent}%</span>
+            <span className="text-lg font-bold text-foreground">{requiredPercent}%</span>
           </div>
         </div>
         <div>
           <div className="flex items-center justify-between gap-3 text-sm">
-            <span className="font-medium text-slate-800 dark:text-slate-300">Detay alanları</span>
-            <span className="text-slate-700 dark:text-slate-300">{detailsPercent}%</span>
+            <span className="font-medium text-foreground/90">Detay alanları</span>
+            <span className="text-foreground/80">{detailsPercent}%</span>
           </div>
           <div
-            className="mt-2 h-2 rounded-full bg-slate-100 dark:bg-slate-800"
+            className="mt-2 h-2 rounded-full bg-muted"
             role="progressbar"
             aria-label="Detay alan ilerlemesi"
             aria-valuemin={0}
@@ -152,19 +142,19 @@ function FormProgress({ values }: { values: Partial<Record<ProgressField, unknow
             aria-valuenow={detailsCompleted}
           >
             <div
-              className="h-2 rounded-full bg-amber-500 transition-[width] duration-500"
+              className="h-2 rounded-full bg-warning transition-[width] duration-500"
               style={{ width: `${detailsPercent}%` }}
             />
           </div>
         </div>
       </div>
       {missingRequired.length ? (
-        <p className="mt-4 text-sm leading-6 text-slate-700 dark:text-slate-300">
+        <p className="mt-4 text-sm leading-6 text-foreground/80">
           Eksik zorunlu alanlar: {missingRequired.map((field) => field.label).join(", ")}
           {requiredProgressFields.length - requiredCompleted > missingRequired.length ? "..." : ""}
         </p>
       ) : (
-        <p className="mt-4 text-sm font-medium text-teal-800 dark:text-teal-300">Zorunlu alanlar tamamlandı.</p>
+        <p className="mt-4 text-sm font-medium text-accent">Zorunlu alanlar tamamlandı.</p>
       )}
     </section>
   );
@@ -206,19 +196,16 @@ function FormStepOverview({ values }: { values: Partial<Record<ProgressField, un
       {steps.map((step, index) => {
         const Icon = step.icon;
         return (
-          <article
-            key={step.title}
-            className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-          >
+          <article key={step.title} className="rounded-theme border border-border bg-card p-4 shadow-sm">
             <div className="flex items-center justify-between gap-3">
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-sky-50 text-sm font-semibold text-slate-900 dark:bg-slate-800 dark:text-white">
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-secondary text-sm font-semibold text-foreground">
                 {index + 1}
               </span>
-              <Icon aria-hidden="true" className="h-5 w-5 text-teal-700" />
+              <Icon aria-hidden="true" className="h-5 w-5 text-accent" />
             </div>
-            <h2 className="mt-4 text-base font-semibold text-slate-950 dark:text-white">{step.title}</h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">{step.description}</p>
-            <p className="mt-3 text-sm font-semibold text-slate-700 dark:text-slate-300">{step.stat}</p>
+            <h2 className="mt-4 text-base font-semibold text-foreground">{step.title}</h2>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">{step.description}</p>
+            <p className="mt-3 text-sm font-semibold text-foreground/80">{step.stat}</p>
           </article>
         );
       })}
@@ -251,7 +238,7 @@ function FormSectionLinks() {
 
   return (
     <nav
-      className="sticky top-16 z-10 max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95"
+      className="sticky top-16 z-10 max-w-full overflow-hidden rounded-theme border border-border bg-card/95 p-3 shadow-sm backdrop-blur"
       aria-label="Analiz formu bölümleri"
     >
       <div className="flex gap-2 overflow-x-auto pb-1">
@@ -262,17 +249,15 @@ function FormSectionLinks() {
               key={section.href}
               href={section.href}
               aria-current={isActive ? "step" : undefined}
-              className={`inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full transition active:scale-95 border px-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:px-4 ${
+              className={`inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full transition active:scale-95 border px-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:px-4 ${
                 isActive
-                  ? "border-teal-700 bg-teal-700 text-white"
-                  : "border-slate-200 text-slate-800 hover:border-teal-700 hover:text-teal-800 dark:border-slate-800 dark:text-slate-300"
+                  ? "border-accent bg-accent text-primary-foreground"
+                  : "border-border text-foreground/90 hover:border-accent hover:text-accent "
               }`}
             >
               <span
                 className={`grid h-6 w-6 place-items-center rounded-full text-xs ${
-                  isActive
-                    ? "bg-white/20 text-white"
-                    : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                  isActive ? "bg-card/20 text-primary-foreground" : "bg-muted text-foreground/80 "
                 }`}
               >
                 {section.step}
@@ -328,31 +313,28 @@ export function AnalysisForm() {
       }}
       noValidate
     >
-      <div className="rounded-2xl border border-teal-200 bg-teal-50 p-4 text-sm leading-6 text-teal-950 dark:bg-teal-950/40 dark:text-teal-200 dark:border-teal-900">
+      <div className="rounded-theme border border-accent/25 bg-accent/10 p-4 text-sm leading-6 text-foreground">
         {appConfig.privacy}
       </div>
-      <section
-        className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-        aria-labelledby="analysis-start"
-      >
-        <h2 id="analysis-start" className="font-semibold text-slate-950 dark:text-white">
+      <section className="rounded-theme border border-border bg-card p-4 shadow-sm" aria-labelledby="analysis-start">
+        <h2 id="analysis-start" className="font-semibold text-foreground">
           Analiz için araç bilgilerini doldurun
         </h2>
-        <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">
+        <p className="mt-1 text-sm leading-6 text-muted-foreground">
           Link gerekmez. Araç almadan önce bildiğiniz bilgileri seçin; eksik kalanlar raporda satıcıya sorulacak bilgi
           olarak yer alır.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <Link
             href="/fotograf-hasar"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-200 px-4 text-sm font-semibold text-slate-900 hover:border-teal-700 dark:border-slate-800 dark:text-white"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground hover:border-accent"
           >
             <Camera aria-hidden="true" className="h-4 w-4" />
             Fotoğrafla hasar notu
           </Link>
           <Link
             href="/ekspertiz-raporu"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-200 px-4 text-sm font-semibold text-slate-900 hover:border-teal-700 dark:border-slate-800 dark:text-white"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground hover:border-accent"
           >
             <FileSearch aria-hidden="true" className="h-4 w-4" />
             Ekspertiz raporu ekle
@@ -367,12 +349,12 @@ export function AnalysisForm() {
       <MaintenanceInfoSection register={register} errors={errors} />
       <BooleanInfoSection register={register} errors={errors} />
       <SellerDescriptionSection register={register} errors={errors} />
-      <div className="fixed inset-x-0 bottom-24 z-30 border-t border-slate-200 bg-white/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_30px_rgba(15,23,42,0.08)] backdrop-blur sm:static sm:inset-auto sm:z-auto sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none dark:border-slate-800 dark:bg-slate-950/95 sm:dark:bg-transparent">
+      <div className="fixed inset-x-0 bottom-24 z-30 border-t border-border bg-card/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_30px_rgba(15,23,42,0.08)] backdrop-blur sm:static sm:inset-auto sm:z-auto sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none sm:dark:bg-transparent">
         <button
           type="button"
           onClick={() => void handleSubmit(onSubmit)()}
           disabled={isSubmitting}
-          className="mx-auto flex min-h-12 w-full max-w-md items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-950 px-6 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-60 sm:w-auto dark:bg-white dark:text-slate-950"
+          className="mx-auto flex min-h-12 w-full max-w-md items-center justify-center gap-2 rounded-full transition active:scale-95 bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60 sm:w-auto"
         >
           <ClipboardCheck aria-hidden="true" className="h-5 w-5" />
           Analiz oluştur

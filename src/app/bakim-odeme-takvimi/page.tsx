@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Bell, BellOff, CalendarClock, Plus, Trash2 } from "lucide-react";
+import { Bell, BellOff, CalendarClock, Pencil, Plus, Trash2 } from "lucide-react";
+import { HeroCard } from "@/components/cards/hero-card";
+import { AppShell } from "@/components/layout/app-shell";
 import {
   cancelNotificationsForDeletedReminder,
   disableNotifications as disableReminderNotifications,
@@ -15,9 +17,11 @@ import { createReminderId, deleteReminder, loadReminders, upsertReminder } from 
 import { reminderCategoryLabels } from "@/lib/reminders/types";
 import type { ReminderCategory, ReminderRecord, ReminderRecurrence } from "@/lib/reminders/types";
 import { VehicleSwitcher } from "@/components/vehicles/vehicle-switcher";
+import { VehicleFormSheet } from "@/components/vehicles/vehicle-form-sheet";
 import { filterByVehicle, recordVehicleId } from "@/lib/vehicles/model";
 import { createVehicleId, deleteVehicle, loadVehicles, upsertVehicle } from "@/lib/storage/vehicle-storage";
 import type { VehicleProfile } from "@/lib/vehicles/types";
+import { SecondaryButton } from "@/components/ui/button";
 
 const categoryDefaultTitles: Record<ReminderCategory, string> = {
   mtv: "MTV taksiti",
@@ -36,11 +40,11 @@ const recurrenceLabels: Record<ReminderRecurrence, string> = {
   semiannual: "6 ayda bir",
 };
 
-const urgencyStyles: Record<string, string> = {
-  overdue: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
-  urgent: "bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
-  upcoming: "bg-sky-50 text-sky-800 dark:bg-sky-950 dark:text-sky-300",
-  later: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
+const urgencyBadgeClass: Record<string, string> = {
+  overdue: "bg-destructive/10 text-destructive",
+  urgent: "bg-warning/10 text-warning",
+  upcoming: "bg-accent/10 text-accent",
+  later: "bg-success/10 text-success",
 };
 
 function urgencyLabel(days: number): string {
@@ -76,6 +80,7 @@ export default function MaintenancePaymentCalendarPage() {
   const [recurrence, setRecurrence] = useState<ReminderRecurrence>("none");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formMessage, setFormMessage] = useState("");
+  const [isVehicleSheetOpen, setIsVehicleSheetOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -105,6 +110,15 @@ export default function MaintenancePaymentCalendarPage() {
     [reminders, selectedVehicleId, vehicles],
   );
   const sorted = useMemo(() => sortByUrgency(remindersForVehicle), [remindersForVehicle]);
+  const selectedVehicle = vehicles.find((vehicle) => vehicle.id === selectedVehicleId) ?? null;
+
+  function handleVehicleSaved(saved: VehicleProfile) {
+    setVehicles((current) => {
+      const index = current.findIndex((item) => item.id === saved.id);
+      return index === -1 ? [...current, saved] : current.map((item, i) => (i === index ? saved : item));
+    });
+    setSelectedVehicleId(saved.id);
+  }
 
   function selectVehicle(id: string) {
     setSelectedVehicleId(id);
@@ -262,19 +276,16 @@ export default function MaintenancePaymentCalendarPage() {
   }
 
   return (
-    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
-          <CalendarClock aria-hidden="true" className="h-9 w-9 text-teal-200" />
-          <p className="mt-5 text-sm font-semibold text-teal-200">Bakım ve Ödeme Takvimi</p>
-          <h1 className="mt-2 text-3xl font-semibold">MTV, sigorta, muayene ve bakım tarihlerini tek yerde tut</h1>
-          <p className="mt-3 text-sm leading-6 text-slate-300">
-            Tutarları siz girersiniz; güncel MTV/sigorta tutarlarını resmi kaynaktan doğrulayın. Bu ekran yalnızca
-            cihazınızda saklanır, hesaba kaydedilmez.
-          </p>
-        </section>
+    <AppShell>
+      <div className="max-w-4xl pt-6">
+        <HeroCard
+          icon={CalendarClock}
+          eyebrow="Bakım ve Ödeme Takvimi"
+          title="MTV, sigorta, muayene ve bakım tarihlerini tek yerde tut"
+          description="Tutarları siz girersiniz; güncel MTV/sigorta tutarlarını resmi kaynaktan doğrulayın. Bu ekran yalnızca cihazınızda saklanır, hesaba kaydedilmez."
+        />
 
-        <div className="mt-5">
+        <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start">
           <VehicleSwitcher
             vehicles={vehicles}
             selectedVehicleId={selectedVehicleId}
@@ -283,26 +294,37 @@ export default function MaintenancePaymentCalendarPage() {
             onRename={renameVehicle}
             onDelete={removeVehicle}
           />
+          <SecondaryButton onClick={() => setIsVehicleSheetOpen(true)} className="sm:mt-0">
+            <Pencil aria-hidden="true" className="h-4 w-4" />
+            Araç bilgilerini düzenle
+          </SecondaryButton>
         </div>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <VehicleFormSheet
+          open={isVehicleSheetOpen}
+          vehicle={selectedVehicle}
+          onClose={() => setIsVehicleSheetOpen(false)}
+          onSaved={handleVehicleSaved}
+        />
+
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
           <div className="flex items-center gap-2">
-            <Bell aria-hidden="true" className="h-5 w-5 text-teal-700" />
-            <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Bildirimler</h2>
+            <Bell aria-hidden="true" className="h-5 w-5 text-accent" />
+            <h2 className="text-xl font-semibold text-foreground">Bildirimler</h2>
           </div>
-          <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
             Açarsanız, bir tarihe 30 gün ve 15 gün kala telefonunuza bildirim gönderilir (uygulama kapalıyken de).
           </p>
           {pushState === "not-configured" ? (
-            <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-950 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900">
+            <p className="mt-3 rounded-theme-sm border border-warning/30 bg-warning/10 px-3 py-2 text-sm font-medium text-foreground">
               Bildirim servisi henüz yapılandırılmadı.
             </p>
           ) : pushState === "unsupported" ? (
-            <p className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-400">
+            <p className="mt-3 rounded-theme-sm border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
               Bu tarayıcı/cihaz bildirim göndermeyi desteklemiyor.
             </p>
           ) : pushState === "denied" ? (
-            <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-950 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900">
+            <p className="mt-3 rounded-theme-sm border border-warning/30 bg-warning/10 px-3 py-2 text-sm font-medium text-foreground">
               Bildirim izni reddedilmiş. Tarayıcı/cihaz ayarlarından izni yeniden açabilirsiniz.
             </p>
           ) : pushState === "subscribed" ? (
@@ -310,7 +332,7 @@ export default function MaintenancePaymentCalendarPage() {
               type="button"
               onClick={disableNotifications}
               disabled={pushBusy}
-              className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-300 px-5 font-semibold text-slate-900 disabled:opacity-50 dark:border-slate-700 dark:text-white"
+              className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-border px-5 font-semibold text-foreground disabled:opacity-50"
             >
               <BellOff aria-hidden="true" className="h-5 w-5" />
               Bildirimleri kapat
@@ -320,34 +342,30 @@ export default function MaintenancePaymentCalendarPage() {
               type="button"
               onClick={enableNotifications}
               disabled={pushBusy}
-              className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-teal-700 px-5 font-semibold text-white disabled:opacity-50"
+              className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-accent px-5 font-semibold text-primary-foreground disabled:opacity-50"
             >
               <Bell aria-hidden="true" className="h-5 w-5" />
               Bildirimleri aç
             </button>
           )}
-          {pushMessage ? (
-            <p className="mt-3 text-sm font-medium text-slate-700 dark:text-slate-300">{pushMessage}</p>
-          ) : null}
+          {pushMessage ? <p className="mt-3 text-sm font-medium text-foreground/80">{pushMessage}</p> : null}
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">
-            {editingId ? "Kaydı düzenle" : "Kayıt ekle"}
-          </h2>
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
+          <h2 className="text-xl font-semibold text-foreground">{editingId ? "Kaydı düzenle" : "Kayıt ekle"}</h2>
           <div className="mt-3">
             <button
               type="button"
               onClick={addMtvInstallments}
               disabled={!selectedVehicleId}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-teal-700 px-4 text-sm font-semibold text-teal-800 disabled:opacity-50"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-accent px-4 text-sm font-semibold text-accent disabled:opacity-50"
             >
               <Plus aria-hidden="true" className="h-4 w-4" />
               MTV taksitlerini ekle (Ocak/Temmuz)
             </button>
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Tür
               <select
                 value={category}
@@ -356,7 +374,7 @@ export default function MaintenancePaymentCalendarPage() {
                   setCategory(next);
                   if (!editingId) setTitle(categoryDefaultTitles[next]);
                 }}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               >
                 {Object.entries(reminderCategoryLabels).map(([value, label]) => (
                   <option key={value} value={value}>
@@ -365,39 +383,39 @@ export default function MaintenancePaymentCalendarPage() {
                 ))}
               </select>
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Başlık
               <input
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               />
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Son tarih
               <input
                 type="date"
                 value={dueDate}
                 onChange={(event) => setDueDate(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               />
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Tutar (opsiyonel, TL)
               <input
                 type="number"
                 min="0"
                 value={amount}
                 onChange={(event) => setAmount(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               />
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Tekrar
               <select
                 value={recurrence}
                 onChange={(event) => setRecurrence(event.target.value as ReminderRecurrence)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               >
                 {Object.entries(recurrenceLabels).map(([value, label]) => (
                   <option key={value} value={value}>
@@ -407,12 +425,12 @@ export default function MaintenancePaymentCalendarPage() {
               </select>
             </label>
           </div>
-          <label className="mt-4 grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+          <label className="mt-4 grid gap-2 text-sm font-medium text-foreground/90">
             Not (opsiyonel)
             <textarea
               value={note}
               onChange={(event) => setNote(event.target.value)}
-              className="min-h-20 rounded-xl border border-slate-300 px-3 py-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              className="min-h-20 rounded-theme-sm border border-border px-3 py-3"
             />
           </label>
           <div className="mt-4 flex flex-wrap gap-3">
@@ -420,7 +438,7 @@ export default function MaintenancePaymentCalendarPage() {
               type="button"
               onClick={submitForm}
               disabled={!selectedVehicleId}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-950 px-5 font-semibold text-white disabled:opacity-50 dark:bg-white dark:text-slate-950"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-primary px-5 font-semibold text-primary-foreground disabled:opacity-50 dark:bg-card dark:text-foreground"
             >
               <Plus aria-hidden="true" className="h-5 w-5" />
               {editingId ? "Kaydı güncelle" : "Kaydı ekle"}
@@ -429,21 +447,21 @@ export default function MaintenancePaymentCalendarPage() {
               <button
                 type="button"
                 onClick={resetForm}
-                className="inline-flex min-h-12 items-center justify-center rounded-full transition active:scale-95 border border-slate-300 px-5 font-semibold text-slate-800 dark:border-slate-700 dark:text-slate-300"
+                className="inline-flex min-h-12 items-center justify-center rounded-full transition active:scale-95 border border-border px-5 font-semibold text-foreground/90"
               >
                 Vazgeç
               </button>
             ) : null}
           </div>
           {formMessage ? (
-            <p role="status" className="mt-3 text-sm font-medium text-slate-700 dark:text-slate-300">
+            <p role="status" className="mt-3 text-sm font-medium text-foreground/80">
               {formMessage}
             </p>
           ) : null}
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Takvim</h2>
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
+          <h2 className="text-xl font-semibold text-foreground">Takvim</h2>
           <div className="mt-4 grid gap-3">
             {sorted.length ? (
               sorted.map((record) => {
@@ -451,26 +469,23 @@ export default function MaintenancePaymentCalendarPage() {
                 const urgency = urgencyOf(days);
                 const amountLabel = formatAmount(record.amount);
                 return (
-                  <article
-                    key={record.id}
-                    className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50"
-                  >
+                  <article key={record.id} className="rounded-theme-sm border border-border bg-muted p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <p className="text-xs font-semibold uppercase text-teal-800">
+                        <p className="text-xs font-semibold uppercase text-accent">
                           {reminderCategoryLabels[record.category]}
                         </p>
-                        <h3 className="mt-1 font-semibold text-slate-950 dark:text-white">{record.title}</h3>
-                        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                        <h3 className="mt-1 font-semibold text-foreground">{record.title}</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">
                           {formatDate(record.dueDate)}
                           {amountLabel ? ` · ${amountLabel}` : ""}
                           {record.recurrence !== "none" ? ` · ${recurrenceLabels[record.recurrence]}` : ""}
                         </p>
                         {record.note ? (
-                          <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{record.note}</p>
+                          <p className="mt-2 text-sm leading-6 text-muted-foreground">{record.note}</p>
                         ) : null}
                         {record.history.length ? (
-                          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                          <p className="mt-2 text-xs text-muted-foreground">
                             Geçmiş:{" "}
                             {record.history
                               .map(
@@ -482,7 +497,7 @@ export default function MaintenancePaymentCalendarPage() {
                         ) : null}
                       </div>
                       <span
-                        className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${urgencyStyles[urgency]}`}
+                        className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${urgencyBadgeClass[urgency]}`}
                       >
                         {urgencyLabel(days)}
                       </span>
@@ -491,14 +506,14 @@ export default function MaintenancePaymentCalendarPage() {
                       <button
                         type="button"
                         onClick={() => editRecord(record)}
-                        className="text-sm font-semibold text-teal-800 hover:underline"
+                        className="text-sm font-semibold text-accent hover:underline"
                       >
                         Düzenle
                       </button>
                       <button
                         type="button"
                         onClick={() => removeRecord(record.id)}
-                        className="inline-flex items-center gap-1 text-sm font-semibold text-red-700 hover:underline"
+                        className="inline-flex items-center gap-1 text-sm font-semibold text-destructive hover:underline"
                       >
                         <Trash2 aria-hidden="true" className="h-4 w-4" />
                         Sil
@@ -508,13 +523,13 @@ export default function MaintenancePaymentCalendarPage() {
                 );
               })
             ) : (
-              <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-800/50 dark:text-slate-400">
+              <p className="rounded-theme-sm bg-muted p-4 text-sm text-muted-foreground">
                 Henüz takip edilen tarih yok.
               </p>
             )}
           </div>
         </section>
       </div>
-    </main>
+    </AppShell>
   );
 }

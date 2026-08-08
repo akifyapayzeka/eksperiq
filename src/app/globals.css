@@ -1,27 +1,140 @@
 @import "tailwindcss";
 
+/*
+ * EksperIQ design tokens.
+ * Light palette ported from the FireVibe export (tokens.css). Dark palette is
+ * an original, honest counterpart — a navy/graphite hierarchy consistent with
+ * the light primary (#163B52), not a plain inversion. Semantic tokens carry
+ * both light and dark values here so components can use e.g. `bg-card` /
+ * `text-muted-foreground` without needing `dark:` variants everywhere.
+ */
 :root {
-  --background: #f7fafc;
-  --foreground: #102033;
+  --background: #f7f8fa;
+  --foreground: #18303f;
+  --primary: #163b52;
+  --primary-foreground: #ffffff;
+  --secondary: #e7f0f5;
+  --secondary-foreground: #163b52;
+  --accent: #2274a5;
+  --accent-foreground: #ffffff;
+  --muted: #eef1f3;
+  --muted-foreground: #5c6b75;
+  --card: #ffffff;
+  --card-foreground: #18303f;
+  --border: #d7e0e5;
+  --input: #ffffff;
+  --destructive: #b6493d;
+  --destructive-foreground: #ffffff;
+  --success: #24765a;
+  --success-foreground: #ffffff;
+  --warning: #c5842b;
+  --warning-foreground: #ffffff;
+  --chart-1: #2274a5;
+  --chart-2: #24765a;
+  --chart-3: #c5842b;
+  --chart-4: #64748b;
+  --chart-5: #7c5e9e;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #020617;
-    --foreground: #e2e8f0;
+  :root:not([data-theme="light"]) {
+    --background: #0b1620;
+    --foreground: #e7edf1;
+    --primary: #2a5977;
+    --primary-foreground: #ffffff;
+    --secondary: #16303e;
+    --secondary-foreground: #bfe0f2;
+    --accent: #4c9fd8;
+    --accent-foreground: #06141d;
+    --muted: #16212b;
+    --muted-foreground: #92a3ad;
+    --card: #101b24;
+    --card-foreground: #e7edf1;
+    --border: #223140;
+    --input: #101b24;
+    --destructive: #e5766a;
+    --destructive-foreground: #2a0805;
+    --success: #3fa382;
+    --success-foreground: #062218;
+    --warning: #d9a05b;
+    --warning-foreground: #241505;
+    --chart-1: #55a9da;
+    --chart-2: #3fa382;
+    --chart-3: #d9a05b;
+    --chart-4: #93a3b8;
+    --chart-5: #a084c4;
   }
+}
+
+:root[data-theme="dark"] {
+  --background: #0b1620;
+  --foreground: #e7edf1;
+  --primary: #2a5977;
+  --primary-foreground: #ffffff;
+  --secondary: #16303e;
+  --secondary-foreground: #bfe0f2;
+  --accent: #4c9fd8;
+  --accent-foreground: #06141d;
+  --muted: #16212b;
+  --muted-foreground: #92a3ad;
+  --card: #101b24;
+  --card-foreground: #e7edf1;
+  --border: #223140;
+  --input: #101b24;
+  --destructive: #e5766a;
+  --destructive-foreground: #2a0805;
+  --success: #3fa382;
+  --success-foreground: #062218;
+  --warning: #d9a05b;
+  --warning-foreground: #241505;
+  --chart-1: #55a9da;
+  --chart-2: #3fa382;
+  --chart-3: #d9a05b;
+  --chart-4: #93a3b8;
+  --chart-5: #a084c4;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --font-heading: var(--font-manrope), "Manrope", var(--font-geist-sans), sans-serif;
+  --font-body: var(--font-inter), "Inter", var(--font-geist-sans), sans-serif;
+  --font-sans: var(--font-inter), "Inter", var(--font-geist-sans), sans-serif;
   --font-mono: var(--font-geist-mono);
+
+  --radius-theme: 1rem;
+  --radius-theme-lg: 1.25rem;
+  --radius-theme-sm: 0.75rem;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-body);
   padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
 }
 
@@ -44,13 +157,30 @@ a,
 input,
 select,
 textarea {
-  outline-color: #0f766e;
+  outline-color: var(--color-accent);
+}
+
+/* Visible keyboard focus ring across the app, respecting the accent token. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 input,
 select,
 textarea {
   font-size: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .print-only {
@@ -102,6 +232,8 @@ textarea {
     box-shadow: none !important;
   }
 
+  .rounded-theme,
+  .rounded-theme-lg,
   .rounded-2xl,
   .rounded-xl,
   .rounded-lg {

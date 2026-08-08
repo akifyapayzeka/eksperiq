@@ -1,6 +1,8 @@
 export const appConfig = {
   name: "EksperIQ",
   shortName: "EksperIQ",
+  /** Keep in sync with package.json's "version" — shown on the Hakkında page. */
+  version: "0.1.0",
   tagline: "Araç ilanını gir, riskleri gör, satıcıya ne soracağını öğren.",
   productionUrl: "https://eksperiq.vercel.app",
   feedbackEmail: "ruzgar.mesavo@gmail.com",

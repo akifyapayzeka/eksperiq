@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, CalendarClock, Wrench } from "lucide-react";
+import { HeroCard } from "@/components/cards/hero-card";
+import { AppShell } from "@/components/layout/app-shell";
 
 const maintenanceItems = [
   { name: "Motor yağı ve filtreler", intervalKm: 10000, intervalMonths: 12 },
@@ -38,65 +40,59 @@ export default function MaintenanceTrackingPage() {
   }, [currentKm, lastDate, lastKm]);
 
   return (
-    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
-          <Wrench aria-hidden="true" className="h-9 w-9 text-teal-200" />
-          <p className="mt-5 text-sm font-semibold text-teal-200">Bakım Takibi</p>
-          <h1 className="mt-2 text-3xl font-semibold">Yaklaşan bakım ve evrak kontrolleri</h1>
-          <p className="mt-3 text-sm leading-6 text-slate-300">
-            Bu hesaplama genel hatırlatma üretir. Servis planı, motor tipi ve kullanım koşulları ayrıca kontrol
-            edilmelidir.
-          </p>
-        </section>
+    <AppShell>
+      <div className="max-w-4xl pt-6">
+        <HeroCard
+          icon={Wrench}
+          eyebrow="Bakım Takibi"
+          title="Yaklaşan bakım ve evrak kontrolleri"
+          description="Bu hesaplama genel hatırlatma üretir. Servis planı, motor tipi ve kullanım koşulları ayrıca kontrol edilmelidir."
+        />
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
           <div className="grid gap-4 sm:grid-cols-3">
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Güncel kilometre
               <input
                 value={currentKm}
                 onChange={(event) => setCurrentKm(event.target.value)}
                 type="number"
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               />
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Son bakım km
               <input
                 value={lastKm}
                 onChange={(event) => setLastKm(event.target.value)}
                 type="number"
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               />
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Son bakım tarihi
               <input
                 value={lastDate}
                 onChange={(event) => setLastDate(event.target.value)}
                 type="date"
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               />
             </label>
           </div>
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
           <div className="flex items-center gap-2">
-            <CalendarClock aria-hidden="true" className="h-5 w-5 text-teal-700" />
-            <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Takip özeti</h2>
+            <CalendarClock aria-hidden="true" className="h-5 w-5 text-accent" />
+            <h2 className="text-xl font-semibold text-foreground">Takip özeti</h2>
           </div>
           <div className="mt-4 grid gap-3">
             {rows.map((item) => (
-              <article
-                key={item.name}
-                className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50"
-              >
+              <article key={item.name} className="rounded-theme-sm border border-border bg-muted p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-semibold text-slate-950 dark:text-white">{item.name}</h3>
-                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                    <h3 className="font-semibold text-foreground">{item.name}</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
                       Son bakımdan beri yaklaşık {item.kmSince.toLocaleString("tr-TR")} km
                       {lastDate
                         ? ` ve ${item.monthsSince} ay geçti.`
@@ -104,7 +100,7 @@ export default function MaintenanceTrackingPage() {
                     </p>
                   </div>
                   <span
-                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${item.status === "Yakın kontrol" ? "bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300" : "bg-teal-50 text-teal-800 dark:bg-teal-950 dark:text-teal-300"}`}
+                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${item.status === "Yakın kontrol" ? "bg-warning/10 text-warning " : "bg-accent/10 text-accent "}`}
                   >
                     {item.status}
                   </span>
@@ -114,20 +110,20 @@ export default function MaintenanceTrackingPage() {
           </div>
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-800/50">
-          <p className="text-sm text-slate-700 dark:text-slate-300">
+        <section className="mt-5 rounded-theme border border-border bg-muted p-5">
+          <p className="text-sm text-foreground/80">
             Bu ekran tek seferlik, kayıtsız bir tahmindir. Tarihleri hatırlatmalı ve birden fazla araç için ayrı ayrı
             takip etmek isterseniz Bakım ve Ödeme Takvimi&apos;ni kullanabilirsiniz.
           </p>
           <Link
             href="/bakim-odeme-takvimi"
-            className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-teal-800 hover:underline"
+            className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-accent hover:underline"
           >
             Bakım ve Ödeme Takvimi&apos;ne git
             <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
           </Link>
         </section>
       </div>
-    </main>
+    </AppShell>
   );
 }
