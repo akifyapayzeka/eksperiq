@@ -60,9 +60,9 @@ export default function FeedbackPage() {
         EksperIQ kural setleri gerçek kullanıcı geri bildirimiyle genişletilir. Geri bildirimler uygulama içinde
         kaydedilmez; paylaşmak istediğiniz notları kişisel veri eklemeden e-posta ile iletebilirsiniz.
       </p>
-      <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50">
-        <h2 className="text-lg font-semibold text-slate-950 dark:text-white">Nasıl paylaşılır?</h2>
-        <ol className="mt-3 grid gap-2 text-slate-700 dark:text-slate-300">
+      <div className="rounded-lg border border-border bg-muted p-4">
+        <h2 className="text-lg font-semibold text-foreground">Nasıl paylaşılır?</h2>
+        <ol className="mt-3 grid gap-2 text-foreground/80">
           {feedbackSteps.map((step, index) => (
             <li key={step}>
               {index + 1}. {step}
@@ -76,9 +76,9 @@ export default function FeedbackPage() {
         önce triage edilir; kural önerileri test yazılmadan aktif analiz motoruna taşınmaz.
       </p>
       <FeedbackTemplateCopy />
-      <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-        <h2 className="text-lg font-semibold text-slate-950 dark:text-white">Geri bildirimi doğru hatta ayır</h2>
-        <p className="mt-2 text-slate-700 dark:text-slate-300">
+      <div className="rounded-lg border border-border bg-card p-4">
+        <h2 className="text-lg font-semibold text-foreground">Geri bildirimi doğru hatta ayır</h2>
+        <p className="mt-2 text-foreground/80">
           Her not aynı işe dönüşmez. Test sırasında gelen yorumu aşağıdaki üç hattan birine koyarsak, hem öncelik hem de
           doğrulama komutu netleşir.
         </p>
@@ -87,49 +87,46 @@ export default function FeedbackPage() {
             const Icon = route.icon;
 
             return (
-              <article
-                key={route.title}
-                className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50"
-              >
+              <article key={route.title} className="rounded-lg border border-border bg-muted p-4">
                 <div className="flex items-start gap-3">
-                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-800 dark:bg-teal-950 dark:text-teal-300">
+                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
                     <Icon aria-hidden="true" className="h-5 w-5" />
                   </span>
                   <div>
-                    <h3 className="font-semibold text-slate-950 dark:text-white">{route.title}</h3>
-                    <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">{route.signal}</p>
+                    <h3 className="font-semibold text-foreground">{route.title}</h3>
+                    <p className="mt-2 text-sm text-foreground/80">{route.signal}</p>
                   </div>
                 </div>
-                <p className="mt-3 text-sm font-semibold text-slate-900 dark:text-white">{route.triage}</p>
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{route.nextStep}</p>
+                <p className="mt-3 text-sm font-semibold text-foreground">{route.triage}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{route.nextStep}</p>
               </article>
             );
           })}
         </div>
-        <div className="mt-4 rounded-lg bg-slate-950 p-4 text-sm text-slate-100">
+        <div className="mt-4 rounded-lg bg-primary p-4 text-sm text-primary-foreground/90">
           <p className="font-semibold">Otomatik triage komutları</p>
-          <code className="mt-2 block whitespace-pre-wrap text-xs leading-5 text-slate-100">
+          <code className="mt-2 block whitespace-pre-wrap text-xs leading-5 text-primary-foreground/90">
             npm run user-tests:triage -- path/to/user-note.txt{"\n"}
             npm run user-tests:triage-check{"\n"}
             npm run user-tests:package-check
           </code>
         </div>
       </div>
-      <div className="rounded-lg border border-teal-100 bg-teal-50 p-4 dark:border-teal-900 dark:bg-teal-950/40">
-        <h2 className="text-lg font-semibold text-slate-950 dark:text-white">5 dakikalık kullanıcı testi</h2>
-        <p className="mt-2 text-slate-700 dark:text-slate-300">
+      <div className="rounded-lg border border-accent/20 bg-accent/10 p-4">
+        <h2 className="text-lg font-semibold text-foreground">5 dakikalık kullanıcı testi</h2>
+        <p className="mt-2 text-foreground/80">
           İlk kullanıcıdan telefonda ana sayfadan başlayıp rapor oluşturmasını isteyin. Test sonunda şu dört soruyu not
           almak yeterli.
         </p>
-        <ul className="mt-3 grid gap-2 text-slate-700 dark:text-slate-300">
+        <ul className="mt-3 grid gap-2 text-foreground/80">
           {userTestQuestions.map((question) => (
             <li key={question} className="flex gap-2">
-              <CheckCircle2 aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-teal-700" />
+              <CheckCircle2 aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
               {question}
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
+        <p className="mt-3 text-sm text-muted-foreground">
           Detaylı senaryo: <code>docs/first-user-test-script.md</code>. Triage akışı:{" "}
           <code>docs/user-test-feedback-triage.md</code>
         </p>
@@ -137,14 +134,14 @@ export default function FeedbackPage() {
       <div className="flex flex-col gap-3 sm:flex-row">
         <a
           href={userTestMailto}
-          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-950 px-5 font-semibold text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-primary px-5 font-semibold text-primary-foreground hover:opacity-90 dark:bg-card dark:text-foreground"
         >
           Kullanıcı testi notu gönder
           <ExternalLink aria-hidden="true" className="h-4 w-4" />
         </a>
         <a
           href={ruleFeedbackMailto}
-          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-slate-300 px-5 font-semibold text-slate-950 hover:bg-slate-50 dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-5 font-semibold text-foreground hover:bg-muted dark:hover:opacity-90"
         >
           Kural geri bildirimi gönder
           <ExternalLink aria-hidden="true" className="h-4 w-4" />
