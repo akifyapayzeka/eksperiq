@@ -60,6 +60,9 @@ jobs:
       - name: App Store metadata check
         run: npm run appstore:metadata-check
 
+      - name: Supabase env contract check
+        run: npm run supabase:env-check
+
   # Runs inside Playwright's official container image, which ships Chromium,
   # WebKit, and Firefox with all their OS-level dependencies already
   # installed. A prior version of this workflow ran `playwright install
