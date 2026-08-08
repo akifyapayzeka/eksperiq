@@ -43,8 +43,21 @@ jobs:
       - name: Capacitor sync (copies web build into the iOS project, resolves plugin list)
         run: npx cap sync ios
 
-      - name: Show Xcode version
-        run: xcodebuild -version
+      - name: Select and show Xcode version
+        run: |
+          if [ -d "/Applications/Xcode_26.app/Contents/Developer" ]; then
+            sudo xcode-select -s "/Applications/Xcode_26.app/Contents/Developer"
+          fi
+          xcodebuild -version
+          SDK_VERSION="$(xcrun --sdk iphoneos --show-sdk-version)"
+          echo "iphoneos SDK: ${SDK_VERSION}"
+          case "${SDK_VERSION}" in
+            26*|27*|28*|29*) ;;
+            *)
+              echo "::error::App Store uploads currently require the iOS 26 SDK or later. Select an Xcode 26+ toolchain."
+              exit 1
+              ;;
+          esac
 
       - name: xcodebuild (iOS Simulator destination, code signing disabled)
         run: |
