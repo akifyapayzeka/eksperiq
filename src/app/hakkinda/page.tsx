@@ -12,6 +12,7 @@ export default function AboutPage() {
         Uygulama hiçbir aracın güvenli, hasarsız veya satın almaya uygun olduğunu garanti etmez. Satın alma öncesi
         bağımsız ekspertiz, servis kontrolü, resmî kayıt sorgusu ve hukuki kontrol önerilir.
       </p>
+      <p className="text-sm text-muted-foreground">Uygulama sürümü: v{appConfig.version}</p>
     </InfoPage>
   );
 }
