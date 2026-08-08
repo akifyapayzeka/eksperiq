@@ -125,7 +125,7 @@ export default function Home() {
         }
       />
 
-      <section className="mt-6" aria-labelledby="analysis-summary">
+      <section className="mt-6">
         <SectionHeader title="Analiz özetin" description={undefined} action="Son 90 gün" />
         {isReady ? (
           <StatGrid

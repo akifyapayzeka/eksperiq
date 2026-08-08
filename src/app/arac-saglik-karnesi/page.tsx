@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, CalendarClock, HeartPulse, Plus } from "lucide-react";
+import { ArrowUpRight, CalendarClock, HeartPulse, Pencil, Plus } from "lucide-react";
 import { loadAnalysis } from "@/lib/storage/analysis-storage";
 import { loadReminders } from "@/lib/storage/reminders-storage";
 import {
@@ -19,22 +19,14 @@ import type { ReminderRecord } from "@/lib/reminders/types";
 import type { HealthRecord, HealthRecordType } from "@/lib/health-record/types";
 import type { AnalysisResult } from "@/lib/analysis/types";
 import { VehicleSwitcher } from "@/components/vehicles/vehicle-switcher";
+import { VehicleFormSheet } from "@/components/vehicles/vehicle-form-sheet";
 import { filterByVehicle, recordVehicleId } from "@/lib/vehicles/model";
 import { createVehicleId, deleteVehicle, loadVehicles, upsertVehicle } from "@/lib/storage/vehicle-storage";
 import type { VehicleProfile } from "@/lib/vehicles/types";
-
-const urgencyStyles: Record<string, string> = {
-  overdue: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
-  urgent: "bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
-  upcoming: "bg-sky-50 text-sky-800 dark:bg-sky-950 dark:text-sky-300",
-  later: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
-};
-
-function urgencyLabel(days: number): string {
-  if (days < 0) return `${Math.abs(days)} gün gecikti`;
-  if (days === 0) return "Bugün";
-  return `${days} gün kaldı`;
-}
+import { AppShell } from "@/components/layout/app-shell";
+import { HeroCard } from "@/components/cards/hero-card";
+import { ReminderCard } from "@/components/cards/reminder-card";
+import { SecondaryButton } from "@/components/ui/button";
 
 export default function VehicleHealthRecordPage() {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
@@ -47,6 +39,7 @@ export default function VehicleHealthRecordPage() {
   const [reminders, setReminders] = useState<ReminderRecord[]>([]);
   const [vehicles, setVehicles] = useState<VehicleProfile[]>([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
+  const [isVehicleSheetOpen, setIsVehicleSheetOpen] = useState(false);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -70,6 +63,15 @@ export default function VehicleHealthRecordPage() {
   );
   const upcomingReminders = useMemo(() => sortByUrgency(remindersForVehicle).slice(0, 4), [remindersForVehicle]);
   const trend = useMemo(() => scoreTrend(recordsForVehicle), [recordsForVehicle]);
+  const selectedVehicle = vehicles.find((vehicle) => vehicle.id === selectedVehicleId) ?? null;
+
+  function handleVehicleSaved(saved: VehicleProfile) {
+    setVehicles((current) => {
+      const index = current.findIndex((item) => item.id === saved.id);
+      return index === -1 ? [...current, saved] : current.map((item, i) => (i === index ? saved : item));
+    });
+    setSelectedVehicleId(saved.id);
+  }
 
   function selectVehicle(id: string) {
     setSelectedVehicleId(id);
@@ -148,19 +150,15 @@ export default function VehicleHealthRecordPage() {
   }
 
   return (
-    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
-          <HeartPulse aria-hidden="true" className="h-9 w-9 text-teal-200" />
-          <p className="mt-5 text-sm font-semibold text-teal-200">Araç Sağlık Karnesi</p>
-          <h1 className="mt-2 text-3xl font-semibold">Analiz, bakım ve notları tek ekranda tut</h1>
-          <p className="mt-3 text-sm leading-6 text-slate-300">
-            Bu ekranda eklediğiniz kayıtlar hesaba değil, yalnızca bu cihaza kaydedilir. Araç özeti ise mevcut tarayıcı
-            oturumundaki son analiz raporundan gelir.
-          </p>
-        </section>
+    <AppShell className="pt-6">
+      <>
+        <HeroCard
+          icon={HeartPulse}
+          title="Analiz, bakım ve notları tek ekranda tut"
+          description="Bu ekranda eklediğiniz kayıtlar hesaba değil, yalnızca bu cihaza kaydedilir. Araç özeti ise mevcut tarayıcı oturumundaki son analiz raporundan gelir."
+        />
 
-        <div className="mt-5">
+        <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start">
           <VehicleSwitcher
             vehicles={vehicles}
             selectedVehicleId={selectedVehicleId}
@@ -169,79 +167,82 @@ export default function VehicleHealthRecordPage() {
             onRename={renameVehicle}
             onDelete={removeVehicle}
           />
+          <SecondaryButton onClick={() => setIsVehicleSheetOpen(true)} className="sm:mt-0">
+            <Pencil aria-hidden="true" className="h-4 w-4" />
+            Araç bilgilerini düzenle
+          </SecondaryButton>
         </div>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Araç özeti</h2>
+        <VehicleFormSheet
+          open={isVehicleSheetOpen}
+          vehicle={selectedVehicle}
+          onClose={() => setIsVehicleSheetOpen(false)}
+          onSaved={handleVehicleSaved}
+        />
+
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
+          <h2 className="text-xl font-semibold text-foreground">Araç özeti</h2>
           {analysis ? (
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800/50">
-                <p className="text-sm text-slate-600 dark:text-slate-400">Araç</p>
-                <p className="mt-1 font-semibold text-slate-950 dark:text-white">
+              <div className="rounded-theme-sm bg-muted p-4">
+                <p className="text-sm text-muted-foreground">Araç</p>
+                <p className="mt-1 font-semibold text-foreground">
                   {analysis.input.year} {analysis.input.brand} {analysis.input.model}
                 </p>
               </div>
-              <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800/50">
-                <p className="text-sm text-slate-600 dark:text-slate-400">Risk skoru</p>
-                <p className="mt-1 font-semibold text-slate-950 dark:text-white">{analysis.totalScore}/100</p>
+              <div className="rounded-theme-sm bg-muted p-4">
+                <p className="text-sm text-muted-foreground">Risk skoru</p>
+                <p className="mt-1 font-semibold text-foreground">{analysis.totalScore}/100</p>
               </div>
-              <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800/50">
-                <p className="text-sm text-slate-600 dark:text-slate-400">Kontrol başlığı</p>
-                <p className="mt-1 font-semibold text-slate-950 dark:text-white">{analysis.inspectionFocus.length}</p>
+              <div className="rounded-theme-sm bg-muted p-4">
+                <p className="text-sm text-muted-foreground">Kontrol başlığı</p>
+                <p className="mt-1 font-semibold text-foreground">{analysis.inspectionFocus.length}</p>
               </div>
             </div>
           ) : (
-            <p className="mt-3 rounded-xl bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-800/50 dark:text-slate-400">
+            <p className="mt-3 rounded-theme-sm bg-muted p-4 text-sm text-muted-foreground">
               Henüz oturumda analiz yok. Yeni araç analizi oluşturduğunuzda burada araç özeti görünecek.
             </p>
           )}
         </section>
 
         <section
-          className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+          className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm"
           aria-labelledby="upcoming-dates"
         >
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <CalendarClock aria-hidden="true" className="h-5 w-5 text-teal-700" />
-              <h2 id="upcoming-dates" className="text-xl font-semibold text-slate-950 dark:text-white">
+              <CalendarClock aria-hidden="true" className="h-5 w-5 text-accent" />
+              <h2 id="upcoming-dates" className="text-xl font-semibold text-foreground">
                 Yaklaşan tarihler
               </h2>
             </div>
             <Link
               href="/bakim-odeme-takvimi"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-teal-800 hover:underline"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-accent hover:underline"
             >
               Tümünü gör
               <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
             </Link>
           </div>
-          <div className="mt-4 grid gap-3">
+          <div className="mt-4 overflow-hidden rounded-theme-sm border border-border">
             {upcomingReminders.length ? (
               upcomingReminders.map((record) => {
                 const days = daysUntil(record.dueDate);
-                const urgency = urgencyOf(days);
                 return (
-                  <div
+                  <ReminderCard
                     key={record.id}
-                    className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-3 dark:bg-slate-800/50"
-                  >
-                    <div>
-                      <p className="text-xs font-semibold uppercase text-teal-800">
-                        {reminderCategoryLabels[record.category]}
-                      </p>
-                      <p className="font-semibold text-slate-950 dark:text-white">{record.title}</p>
-                    </div>
-                    <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${urgencyStyles[urgency]}`}>
-                      {urgencyLabel(days)}
-                    </span>
-                  </div>
+                    title={record.title}
+                    subtitle={reminderCategoryLabels[record.category]}
+                    days={days}
+                    urgency={urgencyOf(days)}
+                  />
                 );
               })
             ) : (
-              <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-800/50 dark:text-slate-400">
+              <p className="bg-muted p-4 text-sm text-muted-foreground">
                 Henüz MTV, sigorta, muayene veya bakım tarihi eklenmedi.{" "}
-                <Link href="/bakim-odeme-takvimi" className="font-semibold text-teal-800 hover:underline">
+                <Link href="/bakim-odeme-takvimi" className="font-semibold text-accent hover:underline">
                   Bakım ve Ödeme Takvimi
                 </Link>{" "}
                 sayfasından ekleyebilirsiniz.
@@ -251,66 +252,66 @@ export default function VehicleHealthRecordPage() {
         </section>
 
         {trend.length ? (
-          <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Sağlık skoru trendi</h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
+            <h2 className="text-xl font-semibold text-foreground">Sağlık skoru trendi</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
               Kayıt eklerken girdiğiniz skorların zaman içindeki değişimi. Tek bir teşhis değil, kendi notlarınızın
               özetidir.
             </p>
             {trend.length >= 2 ? (
               <ScoreTrendChart points={trend} />
             ) : (
-              <p className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-800/50 dark:text-slate-400">
+              <p className="mt-4 rounded-theme-sm bg-muted p-4 text-sm text-muted-foreground">
                 Trend görmek için en az iki skorlu kayıt gerekir.
               </p>
             )}
           </section>
         ) : null}
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Kayıt ekle</h2>
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
+          <h2 className="text-xl font-semibold text-foreground">Kayıt ekle</h2>
           {analysis ? (
             <button
               type="button"
               onClick={addCurrentScore}
               disabled={!selectedVehicleId}
-              className="mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-teal-700 px-4 text-sm font-semibold text-teal-800 disabled:opacity-50"
+              className="mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-accent px-4 text-sm font-semibold text-accent disabled:opacity-50"
             >
               Şu anki analiz skorunu ({analysis.totalScore}) trende ekle
             </button>
           ) : null}
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Tür
               <select
                 value={type}
                 onChange={(event) => setType(event.target.value as HealthRecordType)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               >
                 {healthRecordTypes.map((option) => (
                   <option key={option}>{option}</option>
                 ))}
               </select>
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800 sm:col-span-2 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90 sm:col-span-2">
               Başlık
               <input
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
                 placeholder="Örn. 90 bin km bakımı"
               />
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Tarih
               <input
                 type="date"
                 value={date}
                 onChange={(event) => setDate(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               />
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Skor (opsiyonel, 0-100)
               <input
                 type="number"
@@ -318,58 +319,55 @@ export default function VehicleHealthRecordPage() {
                 max="100"
                 value={score}
                 onChange={(event) => setScore(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               />
             </label>
           </div>
-          <label className="mt-4 grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+          <label className="mt-4 grid gap-2 text-sm font-medium text-foreground/90">
             Detay
             <textarea
               value={detail}
               onChange={(event) => setDetail(event.target.value)}
-              className="min-h-24 rounded-xl border border-slate-300 px-3 py-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              className="min-h-24 rounded-theme-sm border border-border px-3 py-3"
             />
           </label>
           <button
             type="button"
             onClick={addRecord}
             disabled={!selectedVehicleId}
-            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-slate-950 px-5 font-semibold text-white disabled:opacity-50 dark:bg-white dark:text-slate-950"
+            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-5 font-semibold text-primary-foreground disabled:opacity-50 dark:bg-card dark:text-foreground"
           >
             <Plus aria-hidden="true" className="h-5 w-5" />
             Kaydı ekle
           </button>
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Zaman çizelgesi</h2>
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
+          <h2 className="text-xl font-semibold text-foreground">Zaman çizelgesi</h2>
           <div className="mt-4 grid gap-3">
             {recordsForVehicle.length ? (
               [...recordsForVehicle]
                 .sort((a, b) => (a.date < b.date ? 1 : -1))
                 .map((record) => (
-                  <article
-                    key={record.id}
-                    className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50"
-                  >
+                  <article key={record.id} className="rounded-theme-sm border border-border bg-muted p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-xs font-semibold uppercase text-teal-800">
+                        <p className="text-xs font-semibold uppercase text-accent">
                           {record.type}
                           {typeof record.score === "number" ? ` · Skor ${record.score}` : ""}
                         </p>
-                        <h3 className="mt-1 font-semibold text-slate-950 dark:text-white">{record.title}</h3>
-                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                        <h3 className="mt-1 font-semibold text-foreground">{record.title}</h3>
+                        <p className="mt-1 text-xs text-muted-foreground">
                           {new Date(`${record.date}T00:00:00`).toLocaleDateString("tr-TR")}
                         </p>
                         {record.detail ? (
-                          <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{record.detail}</p>
+                          <p className="mt-2 text-sm leading-6 text-muted-foreground">{record.detail}</p>
                         ) : null}
                       </div>
                       <button
                         type="button"
                         onClick={() => removeRecord(record.id)}
-                        className="shrink-0 text-sm font-semibold text-red-700 hover:underline"
+                        className="shrink-0 text-sm font-semibold text-destructive hover:underline"
                       >
                         Sil
                       </button>
@@ -377,14 +375,12 @@ export default function VehicleHealthRecordPage() {
                   </article>
                 ))
             ) : (
-              <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-800/50 dark:text-slate-400">
-                Henüz kayıt eklenmedi.
-              </p>
+              <p className="rounded-theme-sm bg-muted p-4 text-sm text-muted-foreground">Henüz kayıt eklenmedi.</p>
             )}
           </div>
         </section>
-      </div>
-    </main>
+      </>
+    </AppShell>
   );
 }
 
@@ -415,12 +411,19 @@ function ScoreTrendChart({ points }: { points: { id: string; date: string; score
           y1={height - padding}
           x2={width - padding}
           y2={height - padding}
-          stroke="#c3c2b7"
+          className="stroke-border"
           strokeWidth={1}
         />
-        <path d={path} fill="none" stroke="#0f766e" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d={path}
+          fill="none"
+          className="stroke-accent"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
         {coordinates.map((coord) => (
-          <circle key={coord.point.id} cx={coord.x} cy={coord.y} r={4} fill="#0f766e">
+          <circle key={coord.point.id} cx={coord.x} cy={coord.y} r={4} className="fill-accent">
             <title>
               {new Date(`${coord.point.date}T00:00:00`).toLocaleDateString("tr-TR")}: {coord.point.score}
             </title>
@@ -428,21 +431,21 @@ function ScoreTrendChart({ points }: { points: { id: string; date: string; score
         ))}
       </svg>
       <details className="mt-2">
-        <summary className="cursor-pointer text-sm font-semibold text-teal-800">Tablo olarak gör</summary>
+        <summary className="cursor-pointer text-sm font-semibold text-accent">Tablo olarak gör</summary>
         <table className="mt-3 w-full text-left text-sm">
           <thead>
-            <tr className="text-slate-500 dark:text-slate-400">
+            <tr className="text-muted-foreground">
               <th className="py-1 font-medium">Tarih</th>
               <th className="py-1 font-medium">Skor</th>
             </tr>
           </thead>
           <tbody>
             {points.map((point) => (
-              <tr key={point.id} className="border-t border-slate-100 dark:border-slate-800">
-                <td className="py-1 text-slate-800 dark:text-slate-300">
+              <tr key={point.id} className="border-t border-border">
+                <td className="py-1 text-foreground/90">
                   {new Date(`${point.date}T00:00:00`).toLocaleDateString("tr-TR")}
                 </td>
-                <td className="py-1 text-slate-800 dark:text-slate-300">{point.score}</td>
+                <td className="py-1 text-foreground/90">{point.score}</td>
               </tr>
             ))}
           </tbody>

@@ -3,17 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  AlertCircle,
-  ArrowUpRight,
-  CarFront,
-  Camera,
-  FileText,
-  Plus,
-  Search,
-  SlidersHorizontal,
-  Trash2,
-} from "lucide-react";
+import { AlertCircle, ArrowUpRight, Camera, FileText, Plus, Search, SlidersHorizontal, Trash2 } from "lucide-react";
 import { openAnalysisFromHistory } from "@/lib/storage/analysis-storage";
 import {
   type AnalysisHistoryRecord,
@@ -23,7 +13,15 @@ import {
 import { deletePhotoAnalysis, loadPhotoAnalyses } from "@/lib/storage/photo-analysis-storage";
 import { loadVehicles } from "@/lib/storage/vehicle-storage";
 import { riskBucket } from "@/lib/analysis/risk-bucket";
+import { AppShell } from "@/components/layout/app-shell";
+import { PageHeader } from "@/components/layout/page-header";
+import { SectionHeader } from "@/components/layout/section-header";
+import { StatGrid } from "@/components/cards/stat-card";
+import { RiskBadge } from "@/components/ui/risk-badge";
+import { VehiclePlaceholder } from "@/components/ui/vehicle-placeholder";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PrimaryButton, IconButton } from "@/components/ui/button";
 import type { AnalysisResult } from "@/lib/analysis/types";
 import type { PhotoAnalysisRecord } from "@/lib/photo-analysis/types";
 
@@ -36,18 +34,15 @@ const filters: Array<{ id: AnalysisFilter; label: string }> = [
   { id: "low", label: "Düşük Risk" },
 ];
 
-const riskBadgeStyles: Record<AnalysisFilter, string> = {
-  all: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
-  high: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
-  medium: "bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
-  low: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
-};
-
 const assistantModules = [
   ["/fotograf-hasar", "Fotoğraftan Hasar Analizi", "Olası çizik, göçük ve panel uyumsuzluğu işaretleri."],
   ["/bakim-odeme-takvimi", "Bakım ve Ödeme Takvimi", "MTV, sigorta, muayene ve bakım tarihlerini bildirimle takip et."],
   ["/arac-saglik-karnesi", "Araç Sağlık Karnesi", "Bakım, ekspertiz ve kontrol geçmişini sade ekranda tut."],
-  ["/arac-deger-takibi", "Araç Değer Takibi", "Piyasa hareketlerini karar desteği olarak takip et."],
+  [
+    "/arac-deger-takibi",
+    "Araç Değer Takibi",
+    "Kullanıcı girdisine dayalı fiyat aralığını karar desteği olarak takip et.",
+  ],
 ] as const;
 
 function normalize(value: string): string {
@@ -133,282 +128,234 @@ export default function MyAnalysesPage() {
   }, [history]);
 
   return (
-    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
-      <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Kayıtlı incelemelerin</p>
-            <h1 className="mt-1 text-4xl font-semibold text-slate-950 dark:text-white">Analizlerim</h1>
-          </div>
-          <Link
-            href="/analiz"
-            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full transition active:scale-95 bg-slate-900 px-4 text-sm font-semibold text-white dark:bg-white dark:text-slate-950"
-          >
+    <AppShell>
+      <PageHeader
+        eyebrow="Kayıtlı incelemelerin"
+        title="Analizlerim"
+        actions={
+          <PrimaryButton href="/analiz">
             <Plus aria-hidden="true" className="h-4 w-4" />
             Yeni Analiz
-          </Link>
+          </PrimaryButton>
+        }
+      />
+
+      <section className="rounded-theme border border-border bg-card p-4 shadow-sm sm:p-5">
+        {isReady ? (
+          <StatGrid
+            items={[
+              { key: "count", value: history.length, label: "analiz" },
+              { key: "score", value: averageScore ?? "—", label: "ort. risk skoru" },
+              { key: "vehicles", value: vehicleCount, label: "araç takipte" },
+            ]}
+          />
+        ) : (
+          <Skeleton className="h-16 w-full" />
+        )}
+
+        <div className="mt-5 flex min-h-12 items-center gap-3 rounded-theme border border-border bg-muted px-4">
+          <Search aria-hidden="true" className="h-5 w-5 text-muted-foreground" />
+          <label htmlFor="analysis-search" className="sr-only">
+            Marka veya model ara
+          </label>
+          <input
+            id="analysis-search"
+            type="search"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Marka, model veya ilan ara"
+            className="min-h-11 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+          />
+          <IconButton
+            icon={SlidersHorizontal}
+            label="Filtreleri temizle"
+            onClick={clearFilters}
+            className="ml-auto h-9 w-9 border-0 bg-transparent shadow-none"
+          />
         </div>
 
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 dark:border-slate-800 dark:bg-slate-900">
-          <div className="grid grid-cols-3 divide-x divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 dark:divide-slate-800 dark:border-slate-800">
-            <div className="p-4">
-              {isReady ? (
-                <strong className="block text-2xl text-slate-950 dark:text-white">{history.length}</strong>
-              ) : (
-                <Skeleton className="h-8 w-10" />
-              )}
-              <span className="text-sm text-slate-600 dark:text-slate-400">analiz</span>
-            </div>
-            <div className="p-4">
-              {isReady ? (
-                <strong className="block text-2xl text-slate-950 dark:text-white">{averageScore ?? "-"}</strong>
-              ) : (
-                <Skeleton className="h-8 w-10" />
-              )}
-              <span className="text-sm text-slate-600 dark:text-slate-400">ort. risk skoru</span>
-            </div>
-            <div className="p-4">
-              {isReady ? (
-                <strong className="block text-2xl text-slate-950 dark:text-white">{vehicleCount}</strong>
-              ) : (
-                <Skeleton className="h-8 w-10" />
-              )}
-              <span className="text-sm text-slate-600 dark:text-slate-400">araç takipte</span>
-            </div>
-          </div>
-
-          <div className="mt-5 flex min-h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 dark:border-slate-800 dark:bg-slate-800/50">
-            <Search aria-hidden="true" className="h-5 w-5 text-slate-500" />
-            <label htmlFor="analysis-search" className="sr-only">
-              Marka veya model ara
-            </label>
-            <input
-              id="analysis-search"
-              type="search"
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Marka, model veya ilan ara"
-              className="min-h-11 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-500 dark:text-white"
-            />
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:flex" role="group" aria-label="Analiz filtreleri">
+          {filters.map((filter) => (
             <button
+              key={filter.id}
               type="button"
-              onClick={clearFilters}
-              className="ml-auto inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl text-slate-500 hover:bg-white hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
-              aria-label="Filtreleri temizle"
+              aria-pressed={activeFilter === filter.id}
+              onClick={() => setActiveFilter(filter.id)}
+              className={`min-h-11 rounded-full border px-3 text-sm font-semibold sm:shrink-0 sm:px-4 ${
+                activeFilter === filter.id
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-card text-foreground/80 hover:border-accent hover:text-accent"
+              }`}
             >
-              <SlidersHorizontal aria-hidden="true" className="h-5 w-5" />
+              {filter.label}
             </button>
-          </div>
+          ))}
+        </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-2 sm:flex" role="group" aria-label="Analiz filtreleri">
-            {filters.map((filter) => (
-              <button
-                key={filter.id}
-                type="button"
-                aria-pressed={activeFilter === filter.id}
-                onClick={() => setActiveFilter(filter.id)}
-                className={`min-h-11 rounded-full border px-3 text-sm font-semibold sm:shrink-0 sm:px-4 ${
-                  activeFilter === filter.id
-                    ? "border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-950"
-                    : "border-slate-200 bg-white text-slate-700 hover:border-teal-700 hover:text-teal-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-                }`}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
+        <div className="mt-6 flex items-end justify-between gap-4">
+          <SectionHeader
+            className="mb-0"
+            title={history.length ? `${history.length} analiz` : "Henüz analiz yok"}
+            description="En yeniden eskiye"
+          />
+          {history.length ? (
+            <span className="rounded-full bg-muted px-3 py-1 text-sm font-semibold text-muted-foreground">
+              {visibleRecords.length} / {history.length}
+            </span>
+          ) : null}
+        </div>
 
-          <div className="mt-6 flex items-end justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-semibold text-slate-950 dark:text-white">
-                {history.length ? `${history.length} analiz` : "Henüz analiz yok"}
-              </h2>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">En yeniden eskiye</p>
-            </div>
-            {history.length ? (
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                {visibleRecords.length} / {history.length}
-              </span>
-            ) : null}
-          </div>
-
-          {visibleRecords.length ? (
-            <div className="mt-5 grid gap-3">
-              {visibleRecords.map((record) => {
-                const bucket = riskBucket(record.result.totalScore);
-                return (
-                  <article
-                    key={record.id}
-                    className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
-                  >
-                    <div className="flex gap-4 p-5">
-                      <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-slate-50 dark:bg-slate-800">
-                        <CarFront aria-hidden="true" className="h-8 w-8 text-slate-500" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between">
-                          <h3 className="text-lg font-semibold leading-tight text-slate-950 dark:text-white">
-                            {record.result.input.year} {record.result.input.brand} {record.result.input.model}
-                          </h3>
-                          <span
-                            className={`shrink-0 rounded-full px-2 py-1 text-sm font-semibold ${riskBadgeStyles[bucket]}`}
-                          >
-                            {record.result.totalScore} — {record.result.riskLabel}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                          {formatAnalysisDate(record.result.generatedAt)}
-                        </p>
-                        <p className="mt-2 flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
-                          <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-                          {record.result.findings[0]?.title ?? "Öncelikli bulgu yok"}
-                        </p>
-                        <div className="mt-4 flex flex-wrap gap-3">
-                          <button
-                            type="button"
-                            onClick={() => openReport(record.result)}
-                            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-slate-900 px-4 text-sm font-semibold text-white dark:bg-white dark:text-slate-950"
-                          >
-                            Raporu Aç
-                            <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => removeAnalysis(record.id)}
-                            className="inline-flex min-h-10 items-center gap-1 rounded-full transition active:scale-95 px-3 text-sm font-semibold text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/50"
-                          >
-                            <Trash2 aria-hidden="true" className="h-4 w-4" />
-                            Sil
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center dark:border-slate-700 dark:bg-slate-800/50">
-              <FileText aria-hidden="true" className="mx-auto h-10 w-10 text-slate-400" />
-              <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">
-                {history.length
-                  ? "Bu arama veya filtreyle eşleşen analiz bulunamadı. Filtreleri temizleyip tekrar deneyin."
-                  : "Henüz analiz oluşturulmadı. Araç bilgilerini girerek ilk raporu oluşturabilirsiniz."}
-              </p>
-              {history.length ? (
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="mt-4 inline-flex min-h-11 items-center rounded-full bg-teal-700 px-4 text-sm font-semibold text-white"
-                >
-                  Filtreleri temizle
-                </button>
-              ) : (
-                <Link
-                  href="/analiz"
-                  className="mt-4 inline-flex min-h-11 items-center rounded-full bg-teal-700 px-4 text-sm font-semibold text-white"
-                >
-                  Analiz başlat
-                </Link>
-              )}
-            </div>
-          )}
-
-          <p className="mt-5 rounded-xl bg-slate-50 p-3 text-sm leading-6 text-slate-600 dark:bg-slate-800/50 dark:text-slate-400">
-            Risk skorları mevcut kanıtlara göre hesaplanır; kesin hüküm yerine inceleme önceliği sunar. Analizler
-            hesabınıza değil, yalnızca bu cihaza kaydedilir.
-          </p>
-        </section>
-
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h2 className="text-2xl font-semibold text-slate-950 dark:text-white">Fotoğraf analizlerim</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">
-            Fotoğraftan Hasar Analizi ekranında kaydettiğiniz analizler burada listelenir.
-          </p>
-          {photoAnalyses.length ? (
-            <div className="mt-4 grid gap-3">
-              {photoAnalyses.map((record) => (
-                <article
-                  key={record.id}
-                  className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="text-sm font-semibold text-slate-950 dark:text-white">
-                      {formatAnalysisDate(record.createdAt)}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => removePhotoAnalysis(record.id)}
-                      className="inline-flex items-center gap-1 text-sm font-semibold text-red-700 hover:underline"
-                    >
-                      <Trash2 aria-hidden="true" className="h-4 w-4" />
-                      Sil
-                    </button>
+        {visibleRecords.length ? (
+          <div className="mt-3 grid gap-3">
+            {visibleRecords.map((record) => (
+              <article key={record.id} className="overflow-hidden rounded-theme border border-border bg-card shadow-sm">
+                <div className="flex gap-4 p-5">
+                  <div className="h-16 w-16 shrink-0 overflow-hidden rounded-theme">
+                    <VehiclePlaceholder />
                   </div>
-                  {record.thumbnails.length ? (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {record.thumbnails.map((thumbnail, index) => (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          key={`${record.id}-${index}`}
-                          src={thumbnail}
-                          alt="Kaydedilen fotoğraf"
-                          className="h-20 w-20 rounded-lg object-cover"
-                        />
-                      ))}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between">
+                      <h3 className="text-lg font-semibold leading-tight text-foreground">
+                        {record.result.input.year} {record.result.input.brand} {record.result.input.model}
+                      </h3>
+                      <RiskBadge score={record.result.totalScore} />
                     </div>
-                  ) : null}
-                  {record.aiSummary ? (
-                    <p className="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-300">{record.aiSummary}</p>
-                  ) : null}
-                  {record.findings.length ? (
-                    <ul className="mt-3 grid gap-1 text-sm text-slate-700 dark:text-slate-300">
-                      {record.findings.map((item, index) => (
-                        <li key={index}>
-                          {item.area}: {item.finding}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </article>
-              ))}
-            </div>
-          ) : (
-            <div className="mt-4 flex items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
-              <Camera aria-hidden="true" className="h-6 w-6 shrink-0 text-slate-400" />
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Henüz kaydedilmiş fotoğraf analizi yok.{" "}
-                <Link href="/fotograf-hasar" className="font-semibold text-teal-800 hover:underline dark:text-teal-400">
-                  Fotoğraftan Hasar Analizi&apos;ni aç
-                </Link>
-                .
-              </p>
-            </div>
-          )}
-        </section>
-
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h2 className="text-2xl font-semibold text-slate-950 dark:text-white">EksperIQ araçları</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">
-            Araç yolculuğunu daha şeffaf kılacak ücretsiz karar destek ekranları.
-          </p>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            {assistantModules.map(([href, title, description]) => (
-              <Link
-                key={title}
-                href={href}
-                className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50"
-              >
-                <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-teal-800 ring-1 ring-slate-200 dark:bg-slate-900 dark:text-teal-400 dark:ring-slate-700">
-                  Aç
-                </span>
-                <h3 className="mt-4 font-semibold text-slate-950 dark:text-white">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{description}</p>
-              </Link>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {formatAnalysisDate(record.result.generatedAt)}
+                    </p>
+                    <p className="mt-2 flex items-start gap-2 text-sm text-foreground/80">
+                      <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+                      {record.result.findings[0]?.title ?? "Öncelikli bulgu yok"}
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <PrimaryButton onClick={() => openReport(record.result)} className="min-h-10">
+                        Raporu Aç
+                        <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+                      </PrimaryButton>
+                      <button
+                        type="button"
+                        onClick={() => removeAnalysis(record.id)}
+                        className="inline-flex min-h-10 items-center gap-1 rounded-full px-3 text-sm font-semibold text-destructive transition hover:bg-destructive/10"
+                      >
+                        <Trash2 aria-hidden="true" className="h-4 w-4" />
+                        Sil
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </article>
             ))}
           </div>
-        </section>
-      </div>
-    </main>
+        ) : (
+          <div className="mt-3">
+            <EmptyState
+              icon={FileText}
+              title={history.length ? "Eşleşen analiz bulunamadı" : "Henüz analiz yok"}
+              description={
+                history.length
+                  ? "Bu arama veya filtreyle eşleşen analiz bulunamadı. Filtreleri temizleyip tekrar deneyin."
+                  : "Henüz analiz oluşturulmadı. Araç bilgilerini girerek ilk raporu oluşturabilirsiniz."
+              }
+              action={
+                history.length ? (
+                  <PrimaryButton onClick={clearFilters}>Filtreleri temizle</PrimaryButton>
+                ) : (
+                  <PrimaryButton href="/analiz">Analiz başlat</PrimaryButton>
+                )
+              }
+            />
+          </div>
+        )}
+
+        <p className="mt-5 rounded-theme-sm bg-muted p-3 text-sm leading-6 text-muted-foreground">
+          Risk skorları mevcut kanıtlara göre hesaplanır; kesin hüküm yerine inceleme önceliği sunar. Analizler
+          hesabınıza değil, yalnızca bu cihaza kaydedilir.
+        </p>
+      </section>
+
+      <section className="mt-6 rounded-theme border border-border bg-card p-5 shadow-sm">
+        <SectionHeader
+          title="Fotoğraf analizlerim"
+          description="Fotoğraftan Hasar Analizi ekranında kaydettiğiniz analizler burada listelenir."
+        />
+        {photoAnalyses.length ? (
+          <div className="mt-4 grid gap-3">
+            {photoAnalyses.map((record) => (
+              <article key={record.id} className="rounded-theme-sm border border-border bg-muted p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm font-semibold text-foreground">{formatAnalysisDate(record.createdAt)}</p>
+                  <button
+                    type="button"
+                    onClick={() => removePhotoAnalysis(record.id)}
+                    className="inline-flex items-center gap-1 text-sm font-semibold text-destructive hover:underline"
+                  >
+                    <Trash2 aria-hidden="true" className="h-4 w-4" />
+                    Sil
+                  </button>
+                </div>
+                {record.thumbnails.length ? (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {record.thumbnails.map((thumbnail, index) => (
+                      // eslint-disable-next-line @next/next/no-img-element -- locally generated thumbnail data URL, not a remote image
+                      <img
+                        key={`${record.id}-${index}`}
+                        src={thumbnail}
+                        alt="Kaydedilen fotoğraf"
+                        className="h-20 w-20 rounded-theme-sm object-cover"
+                      />
+                    ))}
+                  </div>
+                ) : null}
+                {record.aiSummary ? (
+                  <p className="mt-3 text-sm leading-6 text-foreground/80">{record.aiSummary}</p>
+                ) : null}
+                {record.findings.length ? (
+                  <ul className="mt-3 grid gap-1 text-sm text-foreground/80">
+                    {record.findings.map((item, index) => (
+                      <li key={index}>
+                        {item.area}: {item.finding}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-4 flex items-center gap-3 rounded-theme-sm border border-dashed border-border bg-muted p-4">
+            <Camera aria-hidden="true" className="h-6 w-6 shrink-0 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">
+              Henüz kaydedilmiş fotoğraf analizi yok.{" "}
+              <Link href="/fotograf-hasar" className="font-semibold text-accent hover:underline">
+                Fotoğraftan Hasar Analizi&apos;ni aç
+              </Link>
+              .
+            </p>
+          </div>
+        )}
+      </section>
+
+      <section className="mt-6 rounded-theme border border-border bg-card p-5 shadow-sm">
+        <SectionHeader
+          title="EksperIQ araçları"
+          description="Araç yolculuğunu daha şeffaf kılacak ücretsiz karar destek ekranları."
+        />
+        <div className="grid gap-3 sm:grid-cols-2">
+          {assistantModules.map(([href, title, description]) => (
+            <Link
+              key={title}
+              href={href}
+              className="rounded-theme border border-border bg-muted p-4 transition hover:border-accent"
+            >
+              <span className="rounded-full bg-card px-3 py-1 text-xs font-semibold text-accent ring-1 ring-border">
+                Aç
+              </span>
+              <h3 className="mt-4 font-semibold text-foreground">{title}</h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </AppShell>
   );
 }
