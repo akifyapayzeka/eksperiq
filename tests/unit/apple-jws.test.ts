@@ -7,6 +7,15 @@ import crypto from "node:crypto";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { verifyAppleSignedPayload, APPLE_ROOT_CA_G3_PEM } = require("../../api/_lib/apple-jws.js");
 
+function canRunOpenSsl(): boolean {
+  try {
+    execFileSync("openssl", ["version"], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * verifyAppleSignedPayload can only ever be proven correct against a real
  * Apple-signed JWS by an actual sandbox transaction (no App Store Connect
@@ -16,7 +25,7 @@ const { verifyAppleSignedPayload, APPLE_ROOT_CA_G3_PEM } = require("../../api/_l
  * -> leaf chain in the exact shape Apple's does (built with openssl, since
  * Node's crypto module can verify but not mint X.509 certificates).
  */
-describe("verifyAppleSignedPayload", () => {
+describe.skipIf(!canRunOpenSsl())("verifyAppleSignedPayload synthetic chain", () => {
   let dir: string;
   let rootPem: string;
   let leafCertDer: string;
@@ -188,6 +197,9 @@ describe("verifyAppleSignedPayload", () => {
     expect(() => verifyAppleSignedPayload(jws, rootPem)).toThrow(/missing an x5c/);
   });
 
+});
+
+describe("verifyAppleSignedPayload Apple root certificate", () => {
   it("the real Apple Root CA G3 constant is a valid, currently-in-date self-signed certificate", () => {
     const cert = new crypto.X509Certificate(APPLE_ROOT_CA_G3_PEM);
     expect(cert.subject).toContain("Apple Root CA - G3");
