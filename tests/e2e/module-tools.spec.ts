@@ -85,9 +85,15 @@ test("module cards open usable assistant tools", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "90 bin km bakımı" })).toBeVisible();
 
   await page.goto("/arac-deger-takibi");
-  await page.getByLabel("İncelenen ilan fiyatı").fill("1500000");
+  const askingPriceInput = page.getByLabel("İncelenen ilan fiyatı");
+  await askingPriceInput.fill("");
+  await askingPriceInput.pressSequentially("1500000");
+  await expect(askingPriceInput).toHaveValue("1500000");
   await expect(page.getByText(/piyasa aralığının üzerinde/)).toBeVisible();
-  await page.getByLabel("Benzer ilan sayısı").fill("1");
+  const sampleCountInput = page.getByLabel("Benzer ilan sayısı");
+  await sampleCountInput.fill("");
+  await sampleCountInput.pressSequentially("1");
+  await expect(sampleCountInput).toHaveValue("1");
   await expect(page.getByText(/güvenilirliği düşüktür/)).toBeVisible();
 });
 
