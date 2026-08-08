@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils/cn";
 
 export function HeroCard({
   icon: Icon,
+  eyebrow,
   title,
   description,
   action,
@@ -11,6 +12,8 @@ export function HeroCard({
   className,
 }: {
   icon: LucideIcon;
+  /** Small bold label above the title, e.g. the module/section name. */
+  eyebrow?: ReactNode;
   title: ReactNode;
   description?: ReactNode;
   action?: ReactNode;
@@ -40,6 +43,7 @@ export function HeroCard({
         <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full bg-primary-foreground/10">
           <Icon aria-hidden="true" className="h-[22px] w-[22px]" strokeWidth={1.8} />
         </div>
+        {eyebrow ? <p className="mb-1 text-sm font-semibold text-primary-foreground/70">{eyebrow}</p> : null}
         <h2 className="font-heading text-[22px] font-bold leading-tight tracking-tight">{title}</h2>
         {description ? (
           <p className="mt-2 max-w-[300px] text-sm leading-5 text-primary-foreground/75">{description}</p>

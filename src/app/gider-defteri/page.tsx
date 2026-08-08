@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Trash2, Wallet } from "lucide-react";
+import { Pencil, Plus, Trash2, Wallet } from "lucide-react";
+import { HeroCard } from "@/components/cards/hero-card";
+import { AppShell } from "@/components/layout/app-shell";
 import { approximateCostPerKm, monthlyTotals, totalAmount, totalByCategory } from "@/lib/expenses/model";
 import { expenseCategoryLabels } from "@/lib/expenses/types";
 import type { ExpenseCategory, ExpenseRecord } from "@/lib/expenses/types";
 import { createExpenseId, deleteExpense, loadExpenses, upsertExpense } from "@/lib/storage/expenses-storage";
 import { VehicleSwitcher } from "@/components/vehicles/vehicle-switcher";
+import { VehicleFormSheet } from "@/components/vehicles/vehicle-form-sheet";
 import { filterByVehicle, recordVehicleId } from "@/lib/vehicles/model";
 import { createVehicleId, deleteVehicle, loadVehicles, upsertVehicle } from "@/lib/storage/vehicle-storage";
 import type { VehicleProfile } from "@/lib/vehicles/types";
+import { SecondaryButton } from "@/components/ui/button";
 
 function formatTl(amount: number): string {
   return `${amount.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} TL`;
@@ -31,6 +35,7 @@ export default function ExpenseLedgerPage() {
   const [odometer, setOdometer] = useState("");
   const [note, setNote] = useState("");
   const [formMessage, setFormMessage] = useState("");
+  const [isVehicleSheetOpen, setIsVehicleSheetOpen] = useState(false);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -55,6 +60,15 @@ export default function ExpenseLedgerPage() {
     () => [...recordsForVehicle].sort((a, b) => (a.date < b.date ? 1 : -1)),
     [recordsForVehicle],
   );
+  const selectedVehicle = vehicles.find((vehicle) => vehicle.id === selectedVehicleId) ?? null;
+
+  function handleVehicleSaved(saved: VehicleProfile) {
+    setVehicles((current) => {
+      const index = current.findIndex((item) => item.id === saved.id);
+      return index === -1 ? [...current, saved] : current.map((item, i) => (i === index ? saved : item));
+    });
+    setSelectedVehicleId(saved.id);
+  }
 
   function selectVehicle(id: string) {
     setSelectedVehicleId(id);
@@ -128,19 +142,16 @@ export default function ExpenseLedgerPage() {
   }
 
   return (
-    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
-          <Wallet aria-hidden="true" className="h-9 w-9 text-teal-200" />
-          <p className="mt-5 text-sm font-semibold text-teal-200">Gider Defteri</p>
-          <h1 className="mt-2 text-3xl font-semibold">Aracının maliyetini zaman içinde gör</h1>
-          <p className="mt-3 text-sm leading-6 text-slate-300">
-            Yakıt, bakım, sigorta ve diğer masrafları kaydedin; aylık toplam ve yaklaşık km başı maliyeti görün. Bu
-            kayıtlar bilgilendirme amaçlıdır, resmi mali kayıt yerine geçmez ve yalnızca bu cihazda saklanır.
-          </p>
-        </section>
+    <AppShell>
+      <div className="max-w-4xl pt-6">
+        <HeroCard
+          icon={Wallet}
+          eyebrow="Gider Defteri"
+          title="Aracının maliyetini zaman içinde gör"
+          description="Yakıt, bakım, sigorta ve diğer masrafları kaydedin; aylık toplam ve yaklaşık km başı maliyeti görün. Bu kayıtlar bilgilendirme amaçlıdır, resmi mali kayıt yerine geçmez ve yalnızca bu cihazda saklanır."
+        />
 
-        <div className="mt-5">
+        <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start">
           <VehicleSwitcher
             vehicles={vehicles}
             selectedVehicleId={selectedVehicleId}
@@ -149,41 +160,50 @@ export default function ExpenseLedgerPage() {
             onRename={renameVehicle}
             onDelete={removeVehicle}
           />
+          <SecondaryButton onClick={() => setIsVehicleSheetOpen(true)} className="sm:mt-0">
+            <Pencil aria-hidden="true" className="h-4 w-4" />
+            Araç bilgilerini düzenle
+          </SecondaryButton>
         </div>
 
+        <VehicleFormSheet
+          open={isVehicleSheetOpen}
+          vehicle={selectedVehicle}
+          onClose={() => setIsVehicleSheetOpen(false)}
+          onSaved={handleVehicleSaved}
+        />
+
         <section className="mt-5 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <p className="text-sm text-slate-600 dark:text-slate-400">Toplam gider (kayıtlı ay sayısı kadar)</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-950 dark:text-white">{formatTl(overallTotal)}</p>
+          <div className="rounded-theme border border-border bg-card p-5 shadow-sm">
+            <p className="text-sm text-muted-foreground">Toplam gider (kayıtlı ay sayısı kadar)</p>
+            <p className="mt-1 text-2xl font-semibold text-foreground">{formatTl(overallTotal)}</p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <p className="text-sm text-slate-600 dark:text-slate-400">Yaklaşık km başı maliyet</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-950 dark:text-white">
+          <div className="rounded-theme border border-border bg-card p-5 shadow-sm">
+            <p className="text-sm text-muted-foreground">Yaklaşık km başı maliyet</p>
+            <p className="mt-1 text-2xl font-semibold text-foreground">
               {costPerKm !== null
                 ? `${costPerKm.toLocaleString("tr-TR", { maximumFractionDigits: 2 })} TL/km`
                 : "Bilgi yetersiz"}
             </p>
             {costPerKm === null ? (
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                En az iki kayıtta kilometre girerseniz hesaplanır.
-              </p>
+              <p className="mt-1 text-xs text-muted-foreground">En az iki kayıtta kilometre girerseniz hesaplanır.</p>
             ) : null}
           </div>
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Aylık gider</h2>
-          <div className="mt-5 flex h-40 items-end gap-2 border-b border-slate-300 dark:border-slate-700">
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
+          <h2 className="text-xl font-semibold text-foreground">Aylık gider</h2>
+          <div className="mt-5 flex h-40 items-end gap-2 border-b border-border">
             {months.map((month) => (
               <div key={month.monthKey} className="flex flex-1 flex-col items-center justify-end gap-1">
                 {month.total > 0 ? (
-                  <span className="text-[0.65rem] font-medium text-slate-600 dark:text-slate-400">
+                  <span className="text-[0.65rem] font-medium text-muted-foreground">
                     {month.total.toLocaleString("tr-TR", { maximumFractionDigits: 0, notation: "compact" })}
                   </span>
                 ) : null}
                 <div
                   title={`${month.label}: ${formatTl(month.total)}`}
-                  className="w-full rounded-t bg-teal-700"
+                  className="w-full rounded-t bg-accent"
                   style={{ height: `${Math.max(2, (month.total / maxMonthTotal) * 100)}%` }}
                 />
               </div>
@@ -191,29 +211,26 @@ export default function ExpenseLedgerPage() {
           </div>
           <div className="mt-2 flex gap-2">
             {months.map((month) => (
-              <span
-                key={month.monthKey}
-                className="flex-1 text-center text-[0.65rem] text-slate-500 dark:text-slate-400"
-              >
+              <span key={month.monthKey} className="flex-1 text-center text-[0.65rem] text-muted-foreground">
                 {month.label}
               </span>
             ))}
           </div>
 
           <details className="mt-4">
-            <summary className="cursor-pointer text-sm font-semibold text-teal-800">Tablo olarak gör</summary>
+            <summary className="cursor-pointer text-sm font-semibold text-accent">Tablo olarak gör</summary>
             <table className="mt-3 w-full text-left text-sm">
               <thead>
-                <tr className="text-slate-500 dark:text-slate-400">
+                <tr className="text-muted-foreground">
                   <th className="py-1 font-medium">Ay</th>
                   <th className="py-1 font-medium">Toplam</th>
                 </tr>
               </thead>
               <tbody>
                 {months.map((month) => (
-                  <tr key={month.monthKey} className="border-t border-slate-100 dark:border-slate-800">
-                    <td className="py-1 text-slate-800 dark:text-slate-300">{month.label}</td>
-                    <td className="py-1 text-slate-800 dark:text-slate-300">{formatTl(month.total)}</td>
+                  <tr key={month.monthKey} className="border-t border-border">
+                    <td className="py-1 text-foreground/90">{month.label}</td>
+                    <td className="py-1 text-foreground/90">{formatTl(month.total)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -222,33 +239,30 @@ export default function ExpenseLedgerPage() {
         </section>
 
         {overallTotal > 0 ? (
-          <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Kategoriye göre toplam</h2>
+          <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
+            <h2 className="text-xl font-semibold text-foreground">Kategoriye göre toplam</h2>
             <div className="mt-4 grid gap-2">
               {Object.entries(categoryTotals).map(([key, total]) => (
-                <div
-                  key={key}
-                  className="flex items-center justify-between rounded-xl bg-slate-50 p-3 dark:bg-slate-800/50"
-                >
-                  <span className="text-sm font-medium text-slate-800 dark:text-slate-300">
+                <div key={key} className="flex items-center justify-between rounded-theme-sm bg-muted p-3">
+                  <span className="text-sm font-medium text-foreground/90">
                     {expenseCategoryLabels[key as ExpenseCategory]}
                   </span>
-                  <span className="text-sm font-semibold text-slate-950 dark:text-white">{formatTl(total ?? 0)}</span>
+                  <span className="text-sm font-semibold text-foreground">{formatTl(total ?? 0)}</span>
                 </div>
               ))}
             </div>
           </section>
         ) : null}
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Gider ekle</h2>
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
+          <h2 className="text-xl font-semibold text-foreground">Gider ekle</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Tür
               <select
                 value={category}
                 onChange={(event) => setCategory(event.target.value as ExpenseCategory)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               >
                 {Object.entries(expenseCategoryLabels).map(([value, label]) => (
                   <option key={value} value={value}>
@@ -257,87 +271,82 @@ export default function ExpenseLedgerPage() {
                 ))}
               </select>
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Tutar (TL)
               <input
                 type="number"
                 min="0"
                 value={amount}
                 onChange={(event) => setAmount(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               />
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Tarih
               <input
                 type="date"
                 value={date}
                 onChange={(event) => setDate(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               />
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Kilometre (opsiyonel)
               <input
                 type="number"
                 min="0"
                 value={odometer}
                 onChange={(event) => setOdometer(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               />
             </label>
           </div>
-          <label className="mt-4 grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+          <label className="mt-4 grid gap-2 text-sm font-medium text-foreground/90">
             Not (opsiyonel)
             <textarea
               value={note}
               onChange={(event) => setNote(event.target.value)}
-              className="min-h-20 rounded-xl border border-slate-300 px-3 py-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              className="min-h-20 rounded-theme-sm border border-border px-3 py-3"
             />
           </label>
           <button
             type="button"
             onClick={submitExpense}
             disabled={!selectedVehicleId}
-            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-slate-950 px-5 font-semibold text-white disabled:opacity-50 dark:bg-white dark:text-slate-950"
+            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-5 font-semibold text-primary-foreground disabled:opacity-50 dark:bg-card dark:text-foreground"
           >
             <Plus aria-hidden="true" className="h-5 w-5" />
             Gideri kaydet
           </button>
           {formMessage ? (
-            <p role="status" className="mt-3 text-sm font-medium text-slate-700 dark:text-slate-300">
+            <p role="status" className="mt-3 text-sm font-medium text-foreground/80">
               {formMessage}
             </p>
           ) : null}
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Kayıtlar</h2>
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
+          <h2 className="text-xl font-semibold text-foreground">Kayıtlar</h2>
           <div className="mt-4 grid gap-3">
             {sortedRecords.length ? (
               sortedRecords.map((record) => (
-                <article
-                  key={record.id}
-                  className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50"
-                >
+                <article key={record.id} className="rounded-theme-sm border border-border bg-muted p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-xs font-semibold uppercase text-teal-800">
+                      <p className="text-xs font-semibold uppercase text-accent">
                         {expenseCategoryLabels[record.category]}
                       </p>
-                      <p className="mt-1 font-semibold text-slate-950 dark:text-white">{formatTl(record.amount)}</p>
-                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                      <p className="mt-1 font-semibold text-foreground">{formatTl(record.amount)}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
                         {formatDate(record.date)}
                         {typeof record.odometer === "number" ? ` · ${record.odometer.toLocaleString("tr-TR")} km` : ""}
                       </p>
-                      {record.note ? (
-                        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{record.note}</p>
-                      ) : null}
+                      {record.note ? <p className="mt-1 text-sm text-muted-foreground">{record.note}</p> : null}
                     </div>
                     <button
                       type="button"
                       onClick={() => removeExpense(record.id)}
-                      className="inline-flex items-center gap-1 text-sm font-semibold text-red-700 hover:underline"
+                      className="inline-flex items-center gap-1 text-sm font-semibold text-destructive hover:underline"
                     >
                       <Trash2 aria-hidden="true" className="h-4 w-4" />
                       Sil
@@ -346,13 +355,11 @@ export default function ExpenseLedgerPage() {
                 </article>
               ))
             ) : (
-              <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-800/50 dark:text-slate-400">
-                Henüz gider eklenmedi.
-              </p>
+              <p className="rounded-theme-sm bg-muted p-4 text-sm text-muted-foreground">Henüz gider eklenmedi.</p>
             )}
           </div>
         </section>
       </div>
-    </main>
+    </AppShell>
   );
 }

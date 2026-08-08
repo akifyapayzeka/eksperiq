@@ -64,7 +64,7 @@ export default function PrivacyPage() {
         olmadığından bu haklar büyük ölçüde yukarıdaki &ldquo;Verilerim&rdquo; bölümünden kendi kendinize
         kullanılabilir; sunucu tarafında tutulan sınırlı bildirim kopyası için de aynı bölümdeki silme işlemi
         yeterlidir. Ek bir talebiniz olursa{" "}
-        <Link href="/geri-bildirim" className="font-medium text-teal-800 underline dark:text-teal-300">
+        <Link href="/geri-bildirim" className="font-medium text-accent underline">
           geri bildirim sayfasından
         </Link>{" "}
         bize ulaşabilirsiniz.

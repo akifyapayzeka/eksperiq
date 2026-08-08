@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { Camera, ImagePlus, Save } from "lucide-react";
+import { HeroCard } from "@/components/cards/hero-card";
+import { AppShell } from "@/components/layout/app-shell";
 import { downscaleImage } from "@/lib/photo-analysis/downscale-image";
 import { prepareAiImages } from "@/lib/photo-analysis/prepare-ai-image";
 import { createPhotoAnalysisId, upsertPhotoAnalysis } from "@/lib/storage/photo-analysis-storage";
@@ -228,18 +230,14 @@ export default function PhotoDamagePage() {
   }
 
   return (
-    <main className="flex-1 bg-slate-50 dark:bg-slate-950">
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
-          <Camera aria-hidden="true" className="h-9 w-9 text-teal-200" />
-          <p className="mt-5 text-sm font-semibold text-teal-200">Fotoğraftan Hasar Analizi</p>
-          <h1 className="mt-2 text-3xl font-semibold">Fotoğrafları inceleme notuna çevir</h1>
-        </section>
+    <AppShell>
+      <div className="max-w-4xl pt-6">
+        <HeroCard icon={Camera} eyebrow="Fotoğraftan Hasar Analizi" title="Fotoğrafları inceleme notuna çevir" />
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <label className="grid min-h-24 cursor-pointer place-items-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center dark:border-slate-700 dark:bg-slate-800/50">
-            <ImagePlus aria-hidden="true" className="h-8 w-8 text-teal-700" />
-            <span className="mt-2 text-sm font-semibold text-slate-950 dark:text-white">Fotoğraf seç</span>
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
+          <label className="grid min-h-24 cursor-pointer place-items-center rounded-theme border border-dashed border-border bg-muted p-4 text-center">
+            <ImagePlus aria-hidden="true" className="h-8 w-8 text-accent" />
+            <span className="mt-2 text-sm font-semibold text-foreground">Fotoğraf seç</span>
             <input
               type="file"
               accept="image/*"
@@ -258,17 +256,17 @@ export default function PhotoDamagePage() {
             />
           </label>
           {fileCount ? (
-            <p className="mt-3 text-sm font-semibold text-slate-950 dark:text-white">{fileCount} fotoğraf seçildi.</p>
+            <p className="mt-3 text-sm font-semibold text-foreground">{fileCount} fotoğraf seçildi.</p>
           ) : null}
         </section>
 
-        <section className="mt-5 rounded-2xl border border-teal-100 bg-white p-5 shadow-sm">
+        <section className="mt-5 rounded-theme border border-accent/20 bg-card p-5 shadow-sm">
           <div className="flex items-center gap-2">
-            <Camera aria-hidden="true" className="h-5 w-5 text-teal-700" />
-            <h2 className="text-xl font-semibold text-slate-950 dark:text-white">AI fotoğraf kontrolü</h2>
+            <Camera aria-hidden="true" className="h-5 w-5 text-accent" />
+            <h2 className="text-xl font-semibold text-foreground">AI fotoğraf kontrolü</h2>
           </div>
           {!isPhotoAiEnabled ? (
-            <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-950 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-900">
+            <p className="mt-3 rounded-theme-sm border border-warning/30 bg-warning/10 px-3 py-2 text-sm font-medium text-foreground">
               Canlı AI fotoğraf kontrolü şu anda kapalı. Bu ekranda manuel kontrol notu oluşturabilirsiniz.
             </p>
           ) : null}
@@ -276,16 +274,14 @@ export default function PhotoDamagePage() {
             type="button"
             onClick={analyzePhotosWithAi}
             disabled={!canRunAi}
-            className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-teal-700 px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+            className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-accent px-5 font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             {aiStatus === "loading" ? "AI inceliyor" : "AI ile fotoğrafı analiz et"}
           </button>
           {aiMessage ? (
             <p
-              className={`mt-3 rounded-xl px-3 py-2 text-sm font-medium ${
-                aiStatus === "error"
-                  ? "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300"
-                  : "bg-teal-50 text-teal-900 dark:bg-teal-950 dark:text-teal-200"
+              className={`mt-3 rounded-theme-sm px-3 py-2 text-sm font-medium ${
+                aiStatus === "error" ? "bg-destructive/10 text-destructive" : "bg-accent/10 text-accent"
               }`}
               role="status"
             >
@@ -294,25 +290,22 @@ export default function PhotoDamagePage() {
           ) : null}
           {aiAnalysis ? (
             <div className="mt-4 grid gap-3">
-              <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-300">
+              <p className="rounded-theme-sm border border-border bg-muted p-4 text-sm leading-6 text-foreground/80">
                 {aiAnalysis.summary}
               </p>
               {aiAnalysis.findings.length ? (
                 aiAnalysis.findings.map((item) => (
-                  <article
-                    key={item.id}
-                    className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900"
-                  >
-                    <p className="text-xs font-semibold uppercase text-teal-800">{confidenceLabel(item.confidence)}</p>
-                    <h3 className="mt-1 font-semibold text-slate-950 dark:text-white">
+                  <article key={item.id} className="rounded-theme-sm border border-border bg-card p-4">
+                    <p className="text-xs font-semibold uppercase text-accent">{confidenceLabel(item.confidence)}</p>
+                    <h3 className="mt-1 font-semibold text-foreground">
                       {item.area}: {item.signal}
                     </h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{item.explanation}</p>
-                    <p className="mt-2 text-sm font-medium text-slate-800 dark:text-slate-300">{item.recommendation}</p>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.explanation}</p>
+                    <p className="mt-2 text-sm font-medium text-foreground/90">{item.recommendation}</p>
                   </article>
                 ))
               ) : (
-                <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-400">
+                <p className="rounded-theme-sm border border-border bg-muted p-4 text-sm text-muted-foreground">
                   AI bu fotoğraf için hasar bulgusu üretmedi.
                 </p>
               )}
@@ -320,15 +313,15 @@ export default function PhotoDamagePage() {
           ) : null}
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Olası bulgu ekle</h2>
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
+          <h2 className="text-xl font-semibold text-foreground">Olası bulgu ekle</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Bölge
               <select
                 value={area}
                 onChange={(event) => setArea(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               >
                 <option value="">Bölge seçin</option>
                 {areas.map((item) => (
@@ -336,12 +329,12 @@ export default function PhotoDamagePage() {
                 ))}
               </select>
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Bulgu
               <select
                 value={finding}
                 onChange={(event) => setFinding(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               >
                 <option value="">Bulgu seçin</option>
                 {findings.map((item) => (
@@ -349,12 +342,12 @@ export default function PhotoDamagePage() {
                 ))}
               </select>
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+            <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Güven seviyesi
               <select
                 value={confidence}
                 onChange={(event) => setConfidence(event.target.value)}
-                className="min-h-12 rounded-xl border border-slate-300 px-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="min-h-12 rounded-theme-sm border border-border px-3"
               >
                 <option value="">Güven seviyesi seçin</option>
                 {confidenceLevels.map((item) => (
@@ -363,12 +356,12 @@ export default function PhotoDamagePage() {
               </select>
             </label>
           </div>
-          <label className="mt-4 grid gap-2 text-sm font-medium text-slate-800 dark:text-slate-300">
+          <label className="mt-4 grid gap-2 text-sm font-medium text-foreground/90">
             Not
             <textarea
               value={note}
               onChange={(event) => setNote(event.target.value)}
-              className="min-h-24 rounded-xl border border-slate-300 px-3 py-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              className="min-h-24 rounded-theme-sm border border-border px-3 py-3"
               placeholder="Örn. sağ ön kapıda ışıkta belli olan renk farkı var."
             />
           </label>
@@ -376,16 +369,14 @@ export default function PhotoDamagePage() {
             type="button"
             onClick={addFinding}
             disabled={!fileCount}
-            className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-slate-950 px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto dark:bg-white dark:text-slate-950"
+            className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-primary px-5 font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto dark:bg-card dark:text-foreground"
           >
             Bulguyu ekle
           </button>
           {formMessage ? (
             <p
-              className={`mt-3 rounded-xl px-3 py-2 text-sm font-medium ${
-                formMessage.includes("eklendi")
-                  ? "bg-teal-50 text-teal-900 dark:bg-teal-950 dark:text-teal-200"
-                  : "bg-amber-50 text-amber-950 dark:bg-amber-950/60 dark:text-amber-200"
+              className={`mt-3 rounded-theme-sm px-3 py-2 text-sm font-medium ${
+                formMessage.includes("eklendi") ? "bg-accent/10 text-accent" : "bg-warning/10 text-warning"
               }`}
               role="status"
             >
@@ -394,27 +385,25 @@ export default function PhotoDamagePage() {
           ) : null}
         </section>
 
-        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h2 className="text-xl font-semibold text-slate-950 dark:text-white">Foto kontrol özeti</h2>
-          <p className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-300">{priority}</p>
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
+          <h2 className="text-xl font-semibold text-foreground">Foto kontrol özeti</h2>
+          <p className="mt-2 text-sm font-medium text-foreground/80">{priority}</p>
           <div className="mt-4 grid gap-3">
             {items.length ? (
               items.map((item, index) => (
                 <article
                   key={`${item.area}-${item.finding}-${index}`}
-                  className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50"
+                  className="rounded-theme-sm border border-border bg-muted p-4"
                 >
-                  <p className="font-semibold text-slate-950 dark:text-white">
+                  <p className="font-semibold text-foreground">
                     {item.area}: {item.finding}
                   </p>
-                  <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">{item.confidence}</p>
-                  {item.note ? (
-                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{item.note}</p>
-                  ) : null}
+                  <p className="mt-1 text-sm text-foreground/80">{item.confidence}</p>
+                  {item.note ? <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.note}</p> : null}
                 </article>
               ))
             ) : (
-              <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-400">
+              <p className="rounded-theme-sm border border-border bg-muted p-4 text-sm text-muted-foreground">
                 Henüz bulgu eklenmedi.
               </p>
             )}
@@ -423,28 +412,24 @@ export default function PhotoDamagePage() {
             type="button"
             onClick={saveAnalysis}
             disabled={!canSave}
-            className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-teal-700 px-5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+            className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-accent px-5 font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             <Save aria-hidden="true" className="h-4 w-4" />
             {saveStatus === "saving" ? "Kaydediliyor" : "Analizi kaydet"}
           </button>
           {saveMessage ? (
             <p
-              className={`mt-3 rounded-xl px-3 py-2 text-sm font-medium ${
-                saveStatus === "error"
-                  ? "bg-amber-50 text-amber-950 dark:bg-amber-950/60 dark:text-amber-200"
-                  : "bg-teal-50 text-teal-900 dark:bg-teal-950 dark:text-teal-200"
+              className={`mt-3 rounded-theme-sm px-3 py-2 text-sm font-medium ${
+                saveStatus === "error" ? "bg-warning/10 text-warning" : "bg-accent/10 text-accent"
               }`}
               role="status"
             >
               {saveMessage}
             </p>
           ) : null}
-          <p className="mt-4 text-sm leading-6 text-slate-500 dark:text-slate-400">
-            Bu ekran kesin hasar kararı vermez.
-          </p>
+          <p className="mt-4 text-sm leading-6 text-muted-foreground">Bu ekran kesin hasar kararı vermez.</p>
         </section>
       </div>
-    </main>
+    </AppShell>
   );
 }
