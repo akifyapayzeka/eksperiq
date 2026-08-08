@@ -51,7 +51,7 @@ Tüm adımların denetlenebilir durum listesi: `docs/all-steps-status.md`
 - [x] Metadata kesin alım, hasarsızlık veya ekspertiz yerine geçme iddiası içermiyor.
 - [x] App Store teslim paketi `dist/app-store-package` altında oluşturuluyor.
 - [x] `npm run appstore:prepare`, `npm run launch:check`, `npm run
-      launch:audit`, `npm run native:build` (build + `cap sync`) — hepsi
+    launch:audit`, `npm run native:build` (build + `cap sync`) — hepsi
       FireVibe entegrasyonu sonrası yeniden doğrulandı, hepsi geçiyor.
 
 ## 4. Kullanıcı Testi ve Kural Geliştirme
