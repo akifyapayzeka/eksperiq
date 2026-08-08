@@ -196,7 +196,6 @@ describe.skipIf(!canRunOpenSsl())("verifyAppleSignedPayload synthetic chain", ()
     const jws = `${headerB64}.${payloadB64}.fake-signature`;
     expect(() => verifyAppleSignedPayload(jws, rootPem)).toThrow(/missing an x5c/);
   });
-
 });
 
 describe("verifyAppleSignedPayload Apple root certificate", () => {
