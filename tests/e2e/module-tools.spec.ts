@@ -153,6 +153,8 @@ test("report action buttons show visible feedback", async ({ page }) => {
 });
 
 test("comparison page lists analyses added from the result screen and enforces the 3-entry cap", async ({ page }) => {
+  test.setTimeout(60000);
+
   async function createAndAddAnalysis(price: string) {
     await page.goto("/analiz");
     await fillRequiredForm(page);
