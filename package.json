@@ -24,6 +24,7 @@
     "ai:live-check": "node scripts/check-ai-live-once.mjs",
     "ai:photo-prod-check": "node scripts/check-photo-ai-production.mjs",
     "supabase:env-check": "node scripts/check-supabase-env.mjs",
+    "external:check": "node scripts/check-external-readiness.mjs",
     "vercel:sync-ai-env": "node scripts/sync-vercel-ai-env.mjs",
     "push:generate-vapid-keys": "node scripts/generate-vapid-keys.mjs",
     "launch:check": "node scripts/check-launch-readiness.mjs",

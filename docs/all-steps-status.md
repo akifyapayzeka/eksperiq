@@ -48,6 +48,11 @@ npm run launch:audit
 - [x] Canlı fotoğraf AI testi araç dışı görselde `isVehiclePhoto=false` ve bulgu sayısı `0` döndürdü.
 - [x] GitHub remote/local commit eşleşme kontrolü var.
 - [x] iOS/TestFlight ön kontrol, QA checklist ve iOS repo stratejisi yazıldı.
+- [x] GitHub `iOS Xcode Build Check` macOS 26 runner üzerinde Xcode 26.6 / iOS 26.5 SDK ile geçti.
+- [x] GitHub `iOS TestFlight Upload` workflow'u eklendi; Xcode 26 kapısını geçiyor ve eksik signing/App Store Connect secret'larında kontrollü duruyor.
+- [x] Supabase production schema ve RLS migration dosyası hazır: `supabase/migrations/202608090001_initial_production_schema.sql`.
+- [x] Supabase client/server boundary ve env kontrolü hazır: `npm run supabase:env-check`.
+- [x] Apple + Supabase GitHub secret durumunu raporlayan dış hazırlık kontrolü hazır: `npm run external:check`.
 - [x] Secret, eski marka ve istenmeyen env taraması yapılıyor.
 - [x] Format, lint, typecheck, unit, e2e, build, native build, App Store package, Hostinger package/check, deploy check ve staging check kapıları geçiyor.
 
@@ -60,9 +65,11 @@ npm run launch:audit
 - [ ] Vercel projesi local klasöre linklenecek; panel erişimi yoksa env güncellemesi Chrome üzerinden yapılacak.
 - [ ] Hostinger kullanılacaksa zip `public_html` içine yüklenip canlı yenileme testi yapılacak.
 - [ ] Apple Developer Program üyeliği açılacak.
-- [ ] macOS üzerinde Xcode 26 veya Apple'ın güncel kabul ettiği sürüm kurulacak.
+- [ ] Apple signing certificate, provisioning profile ve App Store Connect API key GitHub secrets'a eklenecek; `npm run external:check -- --required` temiz geçecek.
+- [x] GitHub macOS 26 runner üzerinde Xcode 26 veya Apple'ın güncel kabul ettiği sürüm doğrulandı.
 - [x] `npm run ios:add` ile Capacitor iOS proje klasörü oluşturuldu; final arşivleme/signing macOS/Xcode ortamında yapılacak.
-- [ ] Xcode signing team ve Bundle ID ayarlanacak.
+- [ ] Supabase production projesi oluşturulacak/linklenecek, `supabase db push` ile migration uygulanacak ve Vercel/GitHub env'leri eklenecek.
+- [ ] Xcode signing team ve Bundle ID Apple hesabında/provisioning profile'da doğrulanacak.
 - [ ] Gerçek iPhone üzerinde TestFlight QA checklist işaretlenecek.
 - [ ] App Store Connect metadata, privacy ve screenshot alanları girilecek.
 - [ ] App Review gönderimi yapılacak.

@@ -8,6 +8,7 @@ Bu dosya Windows tarafında hazırlanabilecek iOS teslim şartlarını net tutar
 npm run launch:check
 npm run native:build
 npm run appstore:prepare
+npm run external:check
 ```
 
 - Web build statik olarak üretiliyor.
@@ -16,6 +17,8 @@ npm run appstore:prepare
 - App Store screenshot paketi üretiliyor.
 - Gizlilik ve kullanım koşulları canlı web rotalarında mevcut.
 - OpenRouter veya Apple secret dosyası commitlenmiyor.
+- GitHub macOS 26 runner üzerinde `iOS Xcode Build Check` workflow'u Xcode 26.6 / iOS 26.5 SDK ile unsigned simulator compile check'i geçiriyor.
+- `iOS TestFlight Upload` workflow'u Xcode kapısını geçiyor; archive/upload için Apple signing ve App Store Connect secret'ları bekliyor.
 
 ## macOS / Xcode ön koşulları
 
@@ -26,6 +29,7 @@ npm run appstore:prepare
 - Display name: `EksperIQ`
 - Signing team seçildi.
 - Release build gerçek iPhone üzerinde açılıyor.
+- GitHub repository secret'ları `npm run external:check -- --required` ile eksiksiz görünüyor.
 
 ## Signing ve secret sınırı
 
