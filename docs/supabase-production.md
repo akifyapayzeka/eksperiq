@@ -42,6 +42,12 @@ supabase db push
 Dogru proje oldugunu SQL editor veya CLI ile kontrol etmeden production SQL
 calistirma.
 
+GitHub Actions icinden migration kontrolu `.github/workflows/supabase.yml`
+dosyasindaki manuel workflow ile yapilir. Varsayilan calisma `dry-run` yapar;
+`apply_migrations=true` secilirse `SUPABASE_DATABASE_URL` uzerinden production
+migration uygulanir. Bu URL `.env`, migration veya workflow dosyalarina
+yazilmamalidir.
+
 ## App Store notu
 
 Supabase hazirligi TestFlight yuklemesinin yerine gecmez. TestFlight icin Apple
