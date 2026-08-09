@@ -26,6 +26,12 @@
 # misc
 .DS_Store
 *.pem
+*.cer
+*.p12
+*.mobileprovision
+*.provisionprofile
+AuthKey_*.p8
+ExportOptions.plist
 
 # debug
 npm-debug.log*

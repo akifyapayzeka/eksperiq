@@ -1,9 +1,9 @@
-name: iOS TestFlight Upload
+name: iOS Archive and TestFlight
 
 on:
   workflow_dispatch:
     inputs:
-      submit:
+      upload_testflight:
         description: "Upload the exported IPA to TestFlight"
         required: true
         default: "false"
@@ -16,33 +16,36 @@ on:
         required: false
         default: ""
 
+permissions:
+  contents: read
+
 jobs:
   archive:
-    name: Archive and optionally upload to TestFlight
+    name: Build signed iOS archive
     runs-on: macos-26
-    timeout-minutes: 60
+    timeout-minutes: 75
     env:
       BUNDLE_ID: com.eksperiq.app
       SCHEME: App
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-      IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
-      IOS_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
-      IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
       APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
       APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
       APP_STORE_CONNECT_API_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
+      IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
+      IOS_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+      IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 22
+      - name: Setup Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
-          cache: "npm"
+          node-version: "24"
+          cache: npm
 
-      - name: Select Xcode
+      - name: Select Xcode 26+
         run: |
           set -euo pipefail
           if [ -n "${{ inputs.xcode_path }}" ]; then
@@ -50,29 +53,73 @@ jobs:
           elif [ -d "/Applications/Xcode_26.app/Contents/Developer" ]; then
             sudo xcode-select -s "/Applications/Xcode_26.app/Contents/Developer"
           fi
+
           xcodebuild -version
           SDK_VERSION="$(xcrun --sdk iphoneos --show-sdk-version)"
           echo "iphoneos SDK: ${SDK_VERSION}"
           case "${SDK_VERSION}" in
             26*|27*|28*|29*) ;;
             *)
-              echo "::error::App Store uploads currently require the iOS 26 SDK or later. Select an Xcode 26+ toolchain."
+              echo "::error::App Store uploads require the iOS 26 SDK or later. Select an Xcode 26+ toolchain."
               exit 1
               ;;
           esac
 
-      - name: Validate required secrets
+      - name: Detect package manager
+        run: |
+          set -euo pipefail
+          if [ -f package-lock.json ]; then
+            echo "PM_INSTALL=npm ci" >> "${GITHUB_ENV}"
+            echo "PM_RUN=npm run" >> "${GITHUB_ENV}"
+          elif [ -f pnpm-lock.yaml ]; then
+            corepack enable
+            echo "PM_INSTALL=pnpm install --frozen-lockfile" >> "${GITHUB_ENV}"
+            echo "PM_RUN=pnpm run" >> "${GITHUB_ENV}"
+          elif [ -f yarn.lock ]; then
+            corepack enable
+            echo "PM_INSTALL=yarn install --immutable" >> "${GITHUB_ENV}"
+            echo "PM_RUN=yarn" >> "${GITHUB_ENV}"
+          else
+            echo "::error::No supported lock file found."
+            exit 1
+          fi
+
+      - name: Install locked dependencies
+        run: $PM_INSTALL
+
+      - name: Typecheck
+        run: $PM_RUN typecheck
+
+      - name: Lint
+        run: $PM_RUN lint
+
+      - name: Test
+        run: $PM_RUN test
+
+      - name: Build web app
+        run: $PM_RUN build
+
+      - name: Capacitor sync iOS
+        run: npx cap sync ios
+
+      - name: Resolve Swift Package Manager dependencies
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project ios/App/App.xcodeproj \
+            -scheme "${SCHEME}"
+
+      - name: Validate signing secrets
         run: |
           set -euo pipefail
           missing=0
           for name in \
             APPLE_TEAM_ID \
-            IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64 \
-            IOS_DISTRIBUTION_CERTIFICATE_PASSWORD \
-            IOS_PROVISIONING_PROFILE_BASE64 \
             APP_STORE_CONNECT_KEY_ID \
             APP_STORE_CONNECT_ISSUER_ID \
-            APP_STORE_CONNECT_API_KEY_P8_BASE64
+            APP_STORE_CONNECT_API_KEY_P8_BASE64 \
+            IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64 \
+            IOS_DISTRIBUTION_CERTIFICATE_PASSWORD \
+            IOS_PROVISIONING_PROFILE_BASE64
           do
             if [ -z "${!name:-}" ]; then
               echo "::error::Missing required repository secret: ${name}"
@@ -81,15 +128,6 @@ jobs:
           done
           exit "${missing}"
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build static export
-        run: npm run build
-
-      - name: Capacitor sync
-        run: npx cap sync ios
-
       - name: Install signing assets
         id: signing
         run: |
@@ -97,7 +135,7 @@ jobs:
           CERT_PATH="${RUNNER_TEMP}/distribution.p12"
           PROFILE_PATH="${RUNNER_TEMP}/profile.mobileprovision"
           PROFILE_PLIST="${RUNNER_TEMP}/profile.plist"
-          KEYCHAIN_PATH="${RUNNER_TEMP}/app-signing.keychain-db"
+          KEYCHAIN_PATH="${RUNNER_TEMP}/ios-signing.keychain-db"
           KEYCHAIN_PASSWORD="$(uuidgen)"
 
           printf "%s" "${IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64}" | base64 --decode > "${CERT_PATH}"
@@ -117,6 +155,7 @@ jobs:
           PROFILE_NAME="$(/usr/libexec/PlistBuddy -c 'Print Name' "${PROFILE_PLIST}")"
           cp "${PROFILE_PATH}" "${HOME}/Library/MobileDevice/Provisioning Profiles/${PROFILE_UUID}.mobileprovision"
 
+          echo "keychain_path=${KEYCHAIN_PATH}" >> "${GITHUB_OUTPUT}"
           echo "profile_name=${PROFILE_NAME}" >> "${GITHUB_OUTPUT}"
 
       - name: Archive
@@ -175,7 +214,7 @@ jobs:
           retention-days: 14
 
       - name: Upload to TestFlight
-        if: ${{ inputs.submit == 'true' }}
+        if: ${{ inputs.upload_testflight == 'true' }}
         run: |
           set -euo pipefail
           mkdir -p "${HOME}/private_keys"
@@ -203,3 +242,11 @@ jobs:
             xcodebuild-export.log
             ExportOptions.plist
           retention-days: 14
+
+      - name: Clean signing assets
+        if: always()
+        run: |
+          set +e
+          security delete-keychain "${{ steps.signing.outputs.keychain_path }}"
+          rm -rf "${HOME}/private_keys"
+          rm -f "${RUNNER_TEMP}/distribution.p12" "${RUNNER_TEMP}/profile.mobileprovision" "${RUNNER_TEMP}/profile.plist"
