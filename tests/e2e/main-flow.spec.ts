@@ -2,6 +2,9 @@ import { expect, test, type Page } from "@playwright/test";
 import { demoVehicleInput } from "../fixtures/demo-vehicle";
 import { stubClipboard } from "./helpers/clipboard";
 
+const MINIMAL_PNG_BASE64 =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+
 async function fillRequiredForm(page: Page) {
   await page.getByLabel("Marka").selectOption(demoVehicleInput.brand);
   await page.locator("#model").selectOption(demoVehicleInput.model);
@@ -16,6 +19,25 @@ async function fillRequiredForm(page: Page) {
   await page.getByLabel("Ekspertiz raporu var").check();
   await page.getByLabel("Yedek anahtar var").check();
   await page.getByLabel("Satıcı açıklaması veya araç notu").fill(demoVehicleInput.sellerDescription);
+}
+
+async function setSyntheticFile(
+  page: Page,
+  selector: string,
+  file: { name: string; mimeType: string; base64: string },
+) {
+  await page.locator(selector).evaluate((input, selectedFile) => {
+    const binary = window.atob(selectedFile.base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index += 1) {
+      bytes[index] = binary.charCodeAt(index);
+    }
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(new File([bytes], selectedFile.name, { type: selectedFile.mimeType }));
+    Object.defineProperty(input, "files", { value: dataTransfer.files, configurable: true });
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }, file);
 }
 
 test("home to analysis form", async ({ page }) => {
@@ -189,10 +211,10 @@ test("shows product module roadmap", async ({ page }) => {
 test("expertise report accepts report files and text", async ({ page }) => {
   await page.goto("/ekspertiz-raporu");
   await expect(page.getByRole("heading", { name: "Ekspertiz raporunu kontrol notuna çevir" })).toBeVisible();
-  await page.locator('input[type="file"]').setInputFiles({
-    name: "ekspertiz-raporu.jpg",
-    mimeType: "image/jpeg",
-    buffer: Buffer.from("fake-report-image"),
+  await setSyntheticFile(page, 'input[type="file"]', {
+    name: "ekspertiz-raporu.png",
+    mimeType: "image/png",
+    base64: MINIMAL_PNG_BASE64,
   });
   await expect(page.getByText("1 dosya seçildi.")).toBeVisible();
   await page.getByLabel("Ekspertiz raporu metni").fill("Araçta şasi kontrolü ve airbag arıza taraması önerilir.");

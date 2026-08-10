@@ -1,16 +1,11 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import path from "node:path";
 import { demoVehicleInput } from "../fixtures/demo-vehicle";
 import { stubClipboard } from "./helpers/clipboard";
 
-// A real, decodable 1x1 PNG — the AI photo flow now compresses/re-encodes
-// uploads via <canvas> before sending them (src/lib/photo-analysis/prepare-ai-image.ts),
-// so a fixture with arbitrary non-image bytes fails to decode and never
-// reaches the mocked route below.
-const MINIMAL_PNG_BASE64 =
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
-const minimalPngBuffer = Buffer.from(MINIMAL_PNG_BASE64, "base64");
+const vehiclePhotoFixturePath = path.join(__dirname, "..", "fixtures", "large-photo.jpg");
 
-async function fillRequiredForm(page: import("@playwright/test").Page) {
+async function fillRequiredForm(page: Page) {
   await page.getByLabel("Marka").selectOption(demoVehicleInput.brand);
   await page.locator("#model").selectOption(demoVehicleInput.model);
   await page.getByLabel("Model yılı").fill(String(demoVehicleInput.year));
@@ -20,6 +15,11 @@ async function fillRequiredForm(page: import("@playwright/test").Page) {
   await page.getByLabel("İstenen fiyat").fill(String(demoVehicleInput.price));
   await page.getByLabel("Şehir").selectOption(demoVehicleInput.city);
   await page.getByLabel("Satıcı açıklaması veya araç notu").fill(demoVehicleInput.sellerDescription);
+}
+
+async function selectVehiclePhoto(page: Page) {
+  await page.locator('input[type="file"]').setInputFiles(vehiclePhotoFixturePath);
+  await expect(page.getByText("1 fotoğraf seçildi.")).toBeVisible();
 }
 
 test("module cards open usable assistant tools", async ({ page }) => {
@@ -53,11 +53,7 @@ test("module cards open usable assistant tools", async ({ page }) => {
   await page.locator('a[href="/fotograf-hasar"]').click();
   await expect(page).toHaveURL(/\/fotograf-hasar$/);
   await expect(page.getByRole("button", { name: "Bulguyu ekle" })).toBeDisabled();
-  await page.locator('input[type="file"]').setInputFiles({
-    name: "arac-on-tampon.jpg",
-    mimeType: "image/jpeg",
-    buffer: minimalPngBuffer,
-  });
+  await selectVehiclePhoto(page);
   await page.getByLabel("Bölge").selectOption("Ön tampon");
   await page.getByLabel("Bulgu").selectOption("Çizik");
   await page.getByLabel("Güven seviyesi").selectOption("Orta olasılık");
@@ -257,10 +253,16 @@ test("maintenance calendar keeps a separate reminder list per vehicle", async ({
 test("maintenance calendar cancels an in-progress edit when the vehicle changes", async ({ page }) => {
   await page.goto("/bakim-odeme-takvimi");
 
-  await page.getByLabel("Tür").selectOption("muayene");
-  await page.getByLabel("Başlık").fill("Aracım muayenesi");
-  await page.getByLabel("Son tarih").fill("2026-12-01");
+  const form = page.locator("section", { has: page.getByRole("heading", { name: "Kayıt ekle" }) });
+  await expect(form.getByLabel("Başlık")).toHaveValue("MTV taksiti");
+  await form.getByLabel("Tür").selectOption("muayene");
+  await form.getByLabel("Başlık").fill("");
+  await form.getByLabel("Başlık").pressSequentially("Aracım muayenesi");
+  await form.getByLabel("Son tarih").fill("2026-12-01");
+  await expect(form.getByLabel("Başlık")).toHaveValue("Aracım muayenesi");
+  await expect(form.getByLabel("Son tarih")).toHaveValue("2026-12-01");
   await page.getByRole("button", { name: "Kaydı ekle", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Aracım muayenesi" })).toBeVisible();
   await page.getByText("Düzenle", { exact: true }).click();
   await expect(page.getByRole("heading", { name: "Kaydı düzenle" })).toBeVisible();
 
@@ -317,14 +319,14 @@ test("expense ledger tracks totals and computes an approximate cost per km", asy
   await expect(page.getByText("Bilgi yetersiz")).toBeVisible();
 
   await page.getByLabel("Tür").selectOption("yakit");
-  await page.getByLabel("Tutar (TL)").fill("1000");
+  await page.getByLabel("Tutar (TL)").pressSequentially("1000");
   await page.getByLabel("Tarih").fill("2026-08-01");
   await page.getByLabel("Kilometre (opsiyonel)").fill("10000");
   await page.getByRole("button", { name: "Gideri kaydet" }).click();
   await expect(page.getByText("Gider eklendi.")).toBeVisible();
 
   await page.getByLabel("Tür").selectOption("bakim");
-  await page.getByLabel("Tutar (TL)").fill("500");
+  await page.getByLabel("Tutar (TL)").pressSequentially("500");
   await page.getByLabel("Tarih").fill("2026-08-15");
   await page.getByLabel("Kilometre (opsiyonel)").fill("10500");
   await page.getByRole("button", { name: "Gideri kaydet" }).click();
@@ -362,11 +364,7 @@ test("photo damage tool refuses non-vehicle photos via the AI's own check", asyn
   });
 
   await page.goto("/fotograf-hasar");
-  await page.locator('input[type="file"]').setInputFiles({
-    name: "yumurta.jpg",
-    mimeType: "image/jpeg",
-    buffer: minimalPngBuffer,
-  });
+  await selectVehiclePhoto(page);
   await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
   await expect(
     page.getByText("AI bu görselde araç veya araç parçası güvenle tespit edemedi. Hasar bulgusu oluşturulmadı."),
@@ -376,11 +374,7 @@ test("photo damage tool refuses non-vehicle photos via the AI's own check", asyn
 
 test("saved photo analysis appears in Analizlerim", async ({ page }) => {
   await page.goto("/fotograf-hasar");
-  await page.locator('input[type="file"]').setInputFiles({
-    name: "arac-on-tampon.jpg",
-    mimeType: "image/jpeg",
-    buffer: minimalPngBuffer,
-  });
+  await selectVehiclePhoto(page);
   await page.getByLabel("Bölge").selectOption("Ön tampon");
   await page.getByLabel("Bulgu").selectOption("Çizik");
   await page.getByLabel("Güven seviyesi").selectOption("Orta olasılık");
