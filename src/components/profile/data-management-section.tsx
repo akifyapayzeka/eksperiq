@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Database, Download, Trash2, Upload } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
 import { exportDataAsJson, importDataFromJson } from "@/lib/data-management/export-import";
@@ -23,13 +23,25 @@ const exportLabels: Record<string, string> = {
 // server-deletion failure can still be shown honestly afterward.
 const SERVER_DELETE_WARNING_KEY = "eksperiq:delete-all-server-warning";
 
+function readImportFile(file: File): Promise<string> {
+  if (typeof file.text === "function") {
+    return file.text();
+  }
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
+    reader.onerror = () => reject(reader.error ?? new Error("FileReader failed"));
+    reader.readAsText(file);
+  });
+}
+
 export function DataManagementSection() {
   const [usage, setUsage] = useState<StorageUsageSummary | null>(null);
   const [importMessage, setImportMessage] = useState("");
   const [importStatus, setImportStatus] = useState<"idle" | "ok" | "error">("idle");
   const [deleteMode, setDeleteMode] = useState<"idle" | "confirming" | "deleting">("idle");
   const [deleteServerWarning, setDeleteServerWarning] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,7 +82,7 @@ export function DataManagementSection() {
     setImportMessage("");
 
     try {
-      const text = await file.text();
+      const text = await readImportFile(file);
       const result = importDataFromJson(text);
       if (!result.ok) {
         setImportStatus("error");
@@ -148,21 +160,16 @@ export function DataManagementSection() {
               <Download aria-hidden="true" className="h-4 w-4" />
               Verilerimi dışa aktar
             </button>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground hover:bg-muted dark:hover:opacity-90"
-            >
+            <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-border px-4 text-sm font-semibold text-foreground transition hover:bg-muted active:scale-95 dark:hover:opacity-90">
               <Upload aria-hidden="true" className="h-4 w-4" />
               Yedekten içe aktar
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="application/json"
-              className="sr-only"
-              onChange={(event) => void handleImportFile(event)}
-            />
+              <input
+                type="file"
+                accept="application/json"
+                className="sr-only"
+                onChange={(event) => void handleImportFile(event)}
+              />
+            </label>
           </div>
 
           {importMessage ? (

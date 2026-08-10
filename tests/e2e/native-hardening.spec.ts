@@ -1,66 +1,45 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-// A real, decodable 1x1 PNG for flows that just need any valid image.
-const MINIMAL_PNG_BASE64 =
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
-const minimalPngBuffer = Buffer.from(MINIMAL_PNG_BASE64, "base64");
+const vehiclePhotoFixturePath = path.join(__dirname, "..", "fixtures", "large-photo.jpg");
 
 /**
- * Spoofs the Capacitor iOS bridge so Capacitor.isNativePlatform() reports
- * true, the same signal src/lib/api/client.ts, src/lib/share/share.ts and
- * src/lib/push/native.ts branch on. No native plugin binary exists in a
+ * Spoofs Capacitor's supported custom platform hook so Capacitor.isNativePlatform()
+ * reports true, the same signal src/lib/api/client.ts, src/lib/share/share.ts
+ * and src/lib/push/native.ts branch on. No native plugin binary exists in a
  * Playwright browser context, so this only exercises the platform-detection
- * branch itself, not real Capacitor plugin bridges (those are Xcode-only —
- * see the manual verification steps in the final report).
+ * branch itself, not real Capacitor plugin bridges (those are Xcode-only).
  */
 async function stubNativeIosBridge(page: import("@playwright/test").Page) {
   await page.addInitScript(() => {
-    (window as unknown as { webkit: unknown }).webkit = { messageHandlers: { bridge: {} } };
+    (window as unknown as { CapacitorCustomPlatform: { name: string } }).CapacitorCustomPlatform = { name: "ios" };
   });
 }
 
-test("resolves API requests to the production origin under a simulated native iOS bridge", async ({ page }) => {
-  await stubNativeIosBridge(page);
+async function setSyntheticFile(
+  page: Page,
+  selector: string,
+  file: { name: string; mimeType: string; base64: string },
+) {
+  await page.locator(selector).evaluate((input, selectedFile) => {
+    const binary = window.atob(selectedFile.base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index += 1) {
+      bytes[index] = binary.charCodeAt(index);
+    }
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(new File([bytes], selectedFile.name, { type: selectedFile.mimeType }));
+    Object.defineProperty(input, "files", { value: dataTransfer.files, configurable: true });
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }, file);
+}
 
-  const seenRequests: string[] = [];
-  await page.route("**/api/ai/photo-damage", async (route) => {
-    seenRequests.push(route.request().url());
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        analysis: { isVehiclePhoto: true, summary: "ok", findings: [], disclaimer: "disclaimer" },
-        remaining: 9,
-      }),
-    });
-  });
-  // Native requests target the absolute production origin, so intercept there too.
-  await page.route("https://eksperiq.vercel.app/api/ai/photo-damage", async (route) => {
-    seenRequests.push(route.request().url());
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        analysis: { isVehiclePhoto: true, summary: "ok", findings: [], disclaimer: "disclaimer" },
-        remaining: 9,
-      }),
-    });
-  });
-
-  await page.goto("/fotograf-hasar");
-  await page.locator('input[type="file"]').setInputFiles({
-    name: "arac-on-tampon.jpg",
-    mimeType: "image/jpeg",
-    buffer: minimalPngBuffer,
-  });
-  await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
-  await expect(page.getByText(/AI fotoğraf kontrolü tamamlandı/)).toBeVisible();
-
-  expect(seenRequests).toHaveLength(1);
-  expect(seenRequests[0]).toBe("https://eksperiq.vercel.app/api/ai/photo-damage");
-});
+async function selectVehiclePhoto(page: Page) {
+  await page.locator('input[type="file"]').setInputFiles(vehiclePhotoFixturePath);
+  await expect(page.getByText("1 fotoğraf seçildi.")).toBeVisible();
+}
 
 test("keeps AI requests same-origin on the web when no native bridge is present", async ({ page, baseURL }) => {
   const seenRequests: string[] = [];
@@ -77,11 +56,7 @@ test("keeps AI requests same-origin on the web when no native bridge is present"
   });
 
   await page.goto("/fotograf-hasar");
-  await page.locator('input[type="file"]').setInputFiles({
-    name: "arac-on-tampon.jpg",
-    mimeType: "image/jpeg",
-    buffer: minimalPngBuffer,
-  });
+  await selectVehiclePhoto(page);
   await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
   await expect(page.getByText(/AI fotoğraf kontrolü tamamlandı/)).toBeVisible();
 
@@ -109,10 +84,10 @@ test("compresses an oversized photo below the AI upload budget before sending", 
   });
 
   await page.goto("/fotograf-hasar");
-  await page.locator('input[type="file"]').setInputFiles({
+  await setSyntheticFile(page, 'input[type="file"]', {
     name: "buyuk-fotograf.jpg",
     mimeType: "image/jpeg",
-    buffer: largePhotoBuffer,
+    base64: largePhotoBuffer.toString("base64"),
   });
   await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
   await expect(page.getByText(/AI fotoğraf kontrolü tamamlandı/)).toBeVisible();
@@ -245,13 +220,50 @@ test("exports data, wipes it via delete-all, then restores it from the export fi
   await expect(page.getByRole("heading", { name: "Yedekleme testi kaydı" })).toHaveCount(0);
 
   await page.goto("/profil");
-  await page.locator('input[type="file"]').setInputFiles({
+  await setSyntheticFile(page, 'input[type="file"]', {
     name: "eksperiq-yedek.json",
     mimeType: "application/json",
-    buffer: Buffer.from(exportedJson),
+    base64: Buffer.from(exportedJson, "utf8").toString("base64"),
   });
   await expect(page.getByText(/kayıt türü içe aktarıldı/)).toBeVisible();
 
   await page.goto("/arac-saglik-karnesi");
   await expect(page.getByRole("heading", { name: "Yedekleme testi kaydı" })).toBeVisible();
+});
+
+test("resolves API requests to the production origin under a simulated native iOS bridge", async ({ page }) => {
+  await stubNativeIosBridge(page);
+
+  const seenRequests: string[] = [];
+  await page.route("**/api/ai/photo-damage", async (route) => {
+    seenRequests.push(route.request().url());
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        analysis: { isVehiclePhoto: true, summary: "ok", findings: [], disclaimer: "disclaimer" },
+        remaining: 9,
+      }),
+    });
+  });
+  // Native requests target the absolute production origin, so intercept there too.
+  await page.route("https://eksperiq.vercel.app/api/ai/photo-damage", async (route) => {
+    seenRequests.push(route.request().url());
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        analysis: { isVehiclePhoto: true, summary: "ok", findings: [], disclaimer: "disclaimer" },
+        remaining: 9,
+      }),
+    });
+  });
+
+  await page.goto("/fotograf-hasar");
+  await selectVehiclePhoto(page);
+  await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
+  await expect(page.getByText(/AI fotoğraf kontrolü tamamlandı/)).toBeVisible();
+
+  expect(seenRequests).toHaveLength(1);
+  expect(seenRequests[0]).toBe("https://eksperiq.vercel.app/api/ai/photo-damage");
 });

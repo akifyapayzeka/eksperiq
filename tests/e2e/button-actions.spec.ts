@@ -21,7 +21,8 @@ test("garage entry opens vehicle record page", async ({ page }) => {
   await page.goto("/");
   const garageLink = page.getByRole("link", { name: "Garajı aç" });
   await expect(garageLink).toHaveAttribute("href", "/arac-saglik-karnesi");
-  await Promise.all([page.waitForURL(/\/arac-saglik-karnesi$/), garageLink.click()]);
+  await garageLink.click();
+  await expect(page).toHaveURL(/\/arac-saglik-karnesi$/);
   await expect(page.getByRole("heading", { name: "Analiz, bakım ve notları tek ekranda tut" })).toBeVisible();
 });
 
