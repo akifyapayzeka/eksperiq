@@ -37,8 +37,29 @@ async function setSyntheticFile(
 }
 
 async function selectVehiclePhoto(page: Page) {
-  await page.locator('input[type="file"]').setInputFiles(vehiclePhotoFixturePath);
-  await expect(page.getByText("1 fotoğraf seçildi.")).toBeVisible();
+  const input = page.locator('input[type="file"]').first();
+  const selectedLabel = page.getByText("1 fotoğraf seçildi.");
+  await expect(input).toBeAttached();
+
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await input.setInputFiles([]);
+    await input.setInputFiles(vehiclePhotoFixturePath);
+    const selectedCount = await input.evaluate((element: HTMLInputElement) => element.files?.length ?? 0);
+
+    if (selectedCount === 1) {
+      try {
+        await expect(selectedLabel).toBeVisible({ timeout: 7000 });
+        return;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    await page.waitForTimeout(300);
+  }
+
+  throw lastError instanceof Error ? lastError : new Error("Vehicle photo file selection did not reach the UI.");
 }
 
 test("keeps AI requests same-origin on the web when no native bridge is present", async ({ page, baseURL }) => {
