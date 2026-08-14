@@ -74,14 +74,16 @@ jobs:
               echo "- [WARN] $label (exit=$code)" >> "$report"
               warned=$((warned + 1))
             fi
-          }          run_optional "AI env check" npm run ai:env-check
+          }
+          run_optional "AI env check" npm run ai:env-check
           run_required "AI unit/photo/openrouter tests" npx vitest run tests/unit/openrouter-client.test.ts tests/unit/openrouter.test.ts tests/unit/photo-damage-endpoint.test.ts tests/unit/photo-damage-model.test.ts tests/unit/prepare-ai-image.test.ts
           run_required "Lint" npm run lint
           run_required "Typecheck" npm run typecheck
           run_required "Unit tests" npm run test
           run_required "Build" npm run build
           run_optional "AI production photo check" npm run ai:photo-prod-check
-          run_optional "External readiness check" npm run external:check          echo "" >> "$report"
+          run_optional "External readiness check" npm run external:check
+          echo "" >> "$report"
           echo "## Result" >> "$report"
           echo "- Failures: $failed" >> "$report"
           echo "- Warnings: $warned" >> "$report"
