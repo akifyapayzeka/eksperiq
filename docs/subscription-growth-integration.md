@@ -20,10 +20,10 @@ Kullanici odeme istemeden en az bir arac fotografi veya ilan metni icin temel ri
 
 Fiyatlar `src/lib/pro/pricing.ts` icinde maliyetin tam 5 kati olarak tutulur; App Store Connect urunleri acilinca ayni tutarlar StoreKit tarafina girilir.
 
-| Plan | Aylik operasyon maliyeti | Aylik fiyat | Yillik fiyat | AI kapsami |
-| --- | ---: | ---: | ---: | --- |
-| EksperIQ Pro | 44 TL | 220 TL | 2.640 TL | Ayda 50 AI fotograf analizi |
-| EksperIQ Pro+ | 200 TL | 1.000 TL | 12.000 TL | Ayda 200 AI fotograf analizi ve daha guclu model |
+| Plan          | Aylik operasyon maliyeti | Aylik fiyat | Yillik fiyat | AI kapsami                                       |
+| ------------- | -----------------------: | ----------: | -----------: | ------------------------------------------------ |
+| EksperIQ Pro  |                    44 TL |      220 TL |     2.640 TL | Ayda 50 AI fotograf analizi                      |
+| EksperIQ Pro+ |                   200 TL |    1.000 TL |    12.000 TL | Ayda 200 AI fotograf analizi ve daha guclu model |
 
 ## Paywall Triggerlari
 
