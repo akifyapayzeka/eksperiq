@@ -19,6 +19,7 @@ export type EntitlementState = "free" | "pro" | "expired" | "billingRetry" | "gr
  * this id is a placeholder until it's created there.
  */
 export const PRO_MONTHLY_PRODUCT_ID = "com.eksperiq.app.pro.monthly";
+export const PRO_PLUS_MONTHLY_PRODUCT_ID = "com.eksperiq.app.proplus.monthly";
 
 export type EntitlementSnapshot = {
   state: EntitlementState;
