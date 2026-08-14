@@ -1,0 +1,158 @@
+name: Codex External Auth Checks
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Istanbul morning authenticated cloud check. Runs separately from local and unauthenticated checks.
+    - cron: "45 4 * * *"
+
+permissions:
+  contents: read
+
+env:
+  CI: "true"
+  OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+  APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+  APP_STORE_CONNECT_API_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
+
+jobs:
+  external-auth:
+    name: Authenticated external service checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Run authenticated external checks
+        shell: bash
+        run: |
+          set +e
+          mkdir -p codex-external-auth-report
+          report="codex-external-auth-report/summary.md"
+          failed=0
+          warned=0
+
+          {
+            echo "# Codex External Auth Checks"
+            echo
+            echo "- Repository: $GITHUB_REPOSITORY"
+            echo "- Ref: $GITHUB_REF_NAME"
+            echo "- SHA: $GITHUB_SHA"
+            echo "- Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            echo "## Authenticated Checks"
+          } > "$report"
+
+          secret_required() {
+            local name="$1"
+            local value="$2"
+            if [ -n "$value" ]; then
+              echo "- [PASS] secret present: $name" >> "$report"
+              return 0
+            fi
+            echo "- [FAIL] secret missing: $name" >> "$report"
+            failed=$((failed + 1))
+            return 1
+          }
+
+          secret_optional() {
+            local name="$1"
+            local value="$2"
+            if [ -n "$value" ]; then
+              echo "- [PASS] optional secret present: $name" >> "$report"
+              return 0
+            fi
+            echo "- [WARN] optional secret missing: $name" >> "$report"
+            warned=$((warned + 1))
+            return 1
+          }
+
+          run_required() {
+            local label="$1"
+            shift
+            echo "Running required authenticated check: $label"
+            "$@"
+            local code=$?
+            if [ "$code" -eq 0 ]; then
+              echo "- [PASS] $label" >> "$report"
+            else
+              echo "- [FAIL] $label (exit=$code)" >> "$report"
+              failed=$((failed + 1))
+            fi
+          }
+
+          run_optional() {
+            local label="$1"
+            shift
+            echo "Running optional authenticated check: $label"
+            "$@"
+            local code=$?
+            if [ "$code" -eq 0 ]; then
+              echo "- [PASS] $label" >> "$report"
+            else
+              echo "- [WARN] $label (exit=$code)" >> "$report"
+              warned=$((warned + 1))
+            fi
+          }
+
+          install_npm_if_needed() {
+            if [ -f package-lock.json ]; then
+              npm ci
+            elif [ -f package.json ]; then
+              npm install
+            fi
+          }
+
+          secret_required "OPENROUTER_API_KEY" "$OPENROUTER_API_KEY"
+          secret_required "NEXT_PUBLIC_SUPABASE_URL" "$NEXT_PUBLIC_SUPABASE_URL"
+          secret_required "NEXT_PUBLIC_SUPABASE_ANON_KEY" "$NEXT_PUBLIC_SUPABASE_ANON_KEY"
+          secret_required "SUPABASE_SERVICE_ROLE_KEY" "$SUPABASE_SERVICE_ROLE_KEY"
+          secret_optional "VERCEL_TOKEN" "$VERCEL_TOKEN"
+          secret_required "APP_STORE_CONNECT_KEY_ID" "$APP_STORE_CONNECT_KEY_ID"
+          secret_required "APP_STORE_CONNECT_ISSUER_ID" "$APP_STORE_CONNECT_ISSUER_ID"
+          secret_required "APP_STORE_CONNECT_API_KEY_P8_BASE64" "$APP_STORE_CONNECT_API_KEY_P8_BASE64"
+
+          install_npm_if_needed
+          if [ -n "$OPENROUTER_API_KEY" ]; then
+            run_required "OpenRouter AI env check" npm run ai:env-check
+            run_optional "Production photo AI endpoint check" npm run ai:photo-prod-check
+          fi
+          if [ -n "$NEXT_PUBLIC_SUPABASE_URL" ] && [ -n "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
+            run_required "Supabase env contract check" npm run supabase:env-check
+          fi
+          run_optional "Public external readiness check" npm run external:check
+
+          {
+            echo
+            echo "## Result"
+            echo "- Failures: $failed"
+            echo "- Warnings: $warned"
+            echo
+            echo "## Boundary"
+            echo "- This workflow proves only the authenticated services it actually reaches with configured repository secrets."
+            echo "- It does not prove TestFlight/App Store/Google Play readiness unless the relevant store credentials are present and a store check runs."
+          } >> "$report"
+
+          if [ "$failed" -gt 0 ]; then
+            exit 1
+          fi
+
+      - name: Upload authenticated report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codex-external-auth-report
+          path: codex-external-auth-report/
+          retention-days: 30
