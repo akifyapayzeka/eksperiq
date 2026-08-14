@@ -11,6 +11,9 @@ permissions:
 
 env:
   CI: "true"
+  OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+  NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true"
+  NEXT_PUBLIC_DOCUMENT_AI_ENABLED: "false"
 
 jobs:
   cloud-autopilot:
@@ -29,10 +32,9 @@ jobs:
         run: npm ci
 
       - name: Run cloud autopilot checks
-    env:
-      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true"        shell: bash
-        run: |          set +e
+        shell: bash
+        run: |
+          set +e
           mkdir -p codex-cloud-report
           report="codex-cloud-report/summary.md"
           failed=0
