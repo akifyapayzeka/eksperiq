@@ -1,0 +1,95 @@
+name: Codex Cloud Autopilot
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Istanbul morning cloud check. Runs even when the local PC is off.
+    - cron: "15 4 * * *"
+
+permissions:
+  contents: read
+
+env:
+  CI: "true"
+
+jobs:
+  cloud-autopilot:
+    name: Cloud quality and AI checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run cloud autopilot checks
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true"        shell: bash
+        run: |          set +e
+          mkdir -p codex-cloud-report
+          report="codex-cloud-report/summary.md"
+          failed=0
+          warned=0
+          echo "# Codex Cloud Autopilot" > "$report"
+          echo "" >> "$report"
+          echo "- Repository: $GITHUB_REPOSITORY" >> "$report"
+          echo "- Ref: $GITHUB_REF_NAME" >> "$report"
+          echo "- SHA: $GITHUB_SHA" >> "$report"
+          echo "- Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> "$report"
+          echo "" >> "$report"
+          echo "## Checks" >> "$report"
+
+          run_required() {
+            local label="$1"
+            shift
+            echo "Running required check: $label"
+            "$@"
+            local code=$?
+            if [ "$code" -eq 0 ]; then
+              echo "- [PASS] $label" >> "$report"
+            else
+              echo "- [FAIL] $label (exit=$code)" >> "$report"
+              failed=$((failed + 1))
+            fi
+          }
+
+          run_optional() {
+            local label="$1"
+            shift
+            echo "Running optional check: $label"
+            "$@"
+            local code=$?
+            if [ "$code" -eq 0 ]; then
+              echo "- [PASS] $label" >> "$report"
+            else
+              echo "- [WARN] $label (exit=$code)" >> "$report"
+              warned=$((warned + 1))
+            fi
+          }          run_optional "AI env check" npm run ai:env-check
+          run_required "AI unit/photo/openrouter tests" npx vitest run tests/unit/openrouter-client.test.ts tests/unit/openrouter.test.ts tests/unit/photo-damage-endpoint.test.ts tests/unit/photo-damage-model.test.ts tests/unit/prepare-ai-image.test.ts
+          run_required "Lint" npm run lint
+          run_required "Typecheck" npm run typecheck
+          run_required "Unit tests" npm run test
+          run_required "Build" npm run build
+          run_optional "AI production photo check" npm run ai:photo-prod-check
+          run_optional "External readiness check" npm run external:check          echo "" >> "$report"
+          echo "## Result" >> "$report"
+          echo "- Failures: $failed" >> "$report"
+          echo "- Warnings: $warned" >> "$report"
+          if [ "$failed" -gt 0 ]; then
+            exit 1
+          fi
+      - name: Upload cloud report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codex-cloud-autopilot-report
+          path: codex-cloud-report/
+          retention-days: 30
