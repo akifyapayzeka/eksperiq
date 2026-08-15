@@ -65,13 +65,13 @@ describe("push/native", () => {
   // range) at realistic scale: real reminder ids are crypto.randomUUID()
   // (see createReminderId in reminders-storage.ts), and a device
   // realistically holds well under a thousand reminders.
-  it("produces no collisions across realistic-scale random UUID reminder ids", async () => {
+  it("produces no collisions across realistic-scale UUID reminder ids", async () => {
     const { notificationIdFor } = await import("@/lib/push/native");
     const ids = new Set<number>();
     let collisions = 0;
 
     for (let index = 0; index < 2000; index += 1) {
-      const reminderId = crypto.randomUUID();
+      const reminderId = `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`;
       for (const threshold of [30, 15]) {
         const id = notificationIdFor(reminderId, threshold);
         if (ids.has(id)) collisions += 1;

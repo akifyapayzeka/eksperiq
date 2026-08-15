@@ -22,7 +22,10 @@ async function setSyntheticFile(
   selector: string,
   file: { name: string; mimeType: string; base64: string },
 ) {
-  await page.locator(selector).evaluate((input, selectedFile) => {
+  const input = page.locator(selector).first();
+  await expect(input).toBeAttached();
+
+  await input.evaluate((input, selectedFile) => {
     const binary = window.atob(selectedFile.base64);
     const bytes = new Uint8Array(binary.length);
     for (let index = 0; index < binary.length; index += 1) {
@@ -60,6 +63,33 @@ async function selectVehiclePhoto(page: Page) {
   }
 
   throw lastError instanceof Error ? lastError : new Error("Vehicle photo file selection did not reach the UI.");
+}
+
+async function importBackupJson(page: Page, exportedJson: string) {
+  const input = page.getByLabel("Yedek dosyası");
+  const importedMessage = page.getByText(/kayıt türü içe aktarıldı/);
+  await expect(page.getByText("Yedekten içe aktar")).toBeVisible();
+  await expect(input).toBeAttached();
+
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await input.setInputFiles({
+      name: "eksperiq-yedek.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(exportedJson, "utf8"),
+    });
+
+    try {
+      await expect(importedMessage).toBeVisible({ timeout: 7000 });
+      return;
+    } catch (error) {
+      lastError = error;
+      await input.setInputFiles([]);
+      await page.waitForTimeout(300);
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error("Backup import did not reach the UI.");
 }
 
 test("keeps AI requests same-origin on the web when no native bridge is present", async ({ page, baseURL }) => {
@@ -110,6 +140,8 @@ test("compresses an oversized photo below the AI upload budget before sending", 
     mimeType: "image/jpeg",
     base64: largePhotoBuffer.toString("base64"),
   });
+  await expect(page.getByText("1 fotoğraf seçildi.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "AI ile fotoğrafı analiz et" })).toBeEnabled();
   await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
   await expect(page.getByText(/AI fotoğraf kontrolü tamamlandı/)).toBeVisible();
 
@@ -241,12 +273,7 @@ test("exports data, wipes it via delete-all, then restores it from the export fi
   await expect(page.getByRole("heading", { name: "Yedekleme testi kaydı" })).toHaveCount(0);
 
   await page.goto("/profil");
-  await setSyntheticFile(page, 'input[type="file"]', {
-    name: "eksperiq-yedek.json",
-    mimeType: "application/json",
-    base64: Buffer.from(exportedJson, "utf8").toString("base64"),
-  });
-  await expect(page.getByText(/kayıt türü içe aktarıldı/)).toBeVisible();
+  await importBackupJson(page, exportedJson);
 
   await page.goto("/arac-saglik-karnesi");
   await expect(page.getByRole("heading", { name: "Yedekleme testi kaydı" })).toBeVisible();

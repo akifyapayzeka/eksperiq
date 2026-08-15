@@ -5,6 +5,13 @@ import { stubClipboard } from "./helpers/clipboard";
 
 const vehiclePhotoFixturePath = path.join(__dirname, "..", "fixtures", "large-photo.jpg");
 
+function formatLocalIsoDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 async function fillRequiredForm(page: Page) {
   await page.getByLabel("Marka").selectOption(demoVehicleInput.brand);
   await page.locator("#model").selectOption(demoVehicleInput.model);
@@ -41,6 +48,20 @@ async function selectVehiclePhoto(page: Page) {
   }
 
   throw lastError instanceof Error ? lastError : new Error("Vehicle photo file selection did not reach the UI.");
+}
+
+async function fillUntilValue(locator: ReturnType<Page["getByLabel"]>, value: string) {
+  let lastValue = "";
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await locator.fill(value);
+    try {
+      await expect(locator).toHaveValue(value, { timeout: 2000 });
+      return;
+    } catch {
+      lastValue = await locator.inputValue();
+    }
+  }
+  throw new Error(`Expected input value "${value}", received "${lastValue}".`);
 }
 
 test("module cards open usable assistant tools", async ({ page }) => {
@@ -232,7 +253,7 @@ test("maintenance and payment calendar tracks upcoming dates and syncs to the ga
   await page.getByLabel("Başlık").fill("Araç muayenesi");
   const nearDate = new Date();
   nearDate.setDate(nearDate.getDate() + 10);
-  await page.getByLabel("Son tarih").fill(nearDate.toISOString().slice(0, 10));
+  await page.getByLabel("Son tarih").fill(formatLocalIsoDate(nearDate));
   await page.getByLabel("Tutar (opsiyonel, TL)").fill("1200");
   await page.getByRole("button", { name: "Kaydı ekle", exact: true }).click();
 
@@ -275,12 +296,13 @@ test("maintenance calendar cancels an in-progress edit when the vehicle changes"
   await page.goto("/bakim-odeme-takvimi");
 
   const form = page.locator("section", { has: page.getByRole("heading", { name: "Kayıt ekle" }) });
-  await expect(form.getByLabel("Başlık")).toHaveValue("MTV taksiti");
+  const titleInput = form.getByLabel("Başlık");
+  await expect(titleInput).toHaveValue("MTV taksiti");
   await form.getByLabel("Tür").selectOption("muayene");
-  await form.getByLabel("Başlık").fill("");
-  await form.getByLabel("Başlık").pressSequentially("Aracım muayenesi");
+  await fillUntilValue(titleInput, "Aracım muayenesi");
   await form.getByLabel("Son tarih").fill("2026-12-01");
-  await expect(form.getByLabel("Başlık")).toHaveValue("Aracım muayenesi");
+  await fillUntilValue(titleInput, "Aracım muayenesi");
+  await expect(titleInput).toHaveValue("Aracım muayenesi");
   await expect(form.getByLabel("Son tarih")).toHaveValue("2026-12-01");
   await page.getByRole("button", { name: "Kaydı ekle", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Aracım muayenesi" })).toBeVisible();

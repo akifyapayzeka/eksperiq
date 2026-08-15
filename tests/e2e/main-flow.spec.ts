@@ -26,18 +26,34 @@ async function setSyntheticFile(
   selector: string,
   file: { name: string; mimeType: string; base64: string },
 ) {
-  await page.locator(selector).evaluate((input, selectedFile) => {
-    const binary = window.atob(selectedFile.base64);
-    const bytes = new Uint8Array(binary.length);
-    for (let index = 0; index < binary.length; index += 1) {
-      bytes[index] = binary.charCodeAt(index);
+  const input = page.locator(selector).first();
+  await expect(input).toBeAttached();
+  await input.setInputFiles({
+    name: file.name,
+    mimeType: file.mimeType,
+    buffer: Buffer.from(file.base64, "base64"),
+  });
+}
+
+async function setSyntheticFileUntilLabel(
+  page: Page,
+  selector: string,
+  file: { name: string; mimeType: string; base64: string },
+  label: string,
+) {
+  const selectedLabel = page.getByText(label);
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await setSyntheticFile(page, selector, file);
+    try {
+      await expect(selectedLabel).toBeVisible({ timeout: 3000 });
+      return;
+    } catch (error) {
+      lastError = error;
+      await page.locator(selector).first().setInputFiles([]);
     }
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(new File([bytes], selectedFile.name, { type: selectedFile.mimeType }));
-    Object.defineProperty(input, "files", { value: dataTransfer.files, configurable: true });
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    input.dispatchEvent(new Event("change", { bubbles: true }));
-  }, file);
+  }
+  throw lastError instanceof Error ? lastError : new Error(`File selection label "${label}" did not appear.`);
 }
 
 test("home to analysis form", async ({ page }) => {
@@ -211,12 +227,16 @@ test("shows product module roadmap", async ({ page }) => {
 test("expertise report accepts report files and text", async ({ page }) => {
   await page.goto("/ekspertiz-raporu");
   await expect(page.getByRole("heading", { name: "Ekspertiz raporunu kontrol notuna çevir" })).toBeVisible();
-  await setSyntheticFile(page, 'input[type="file"]', {
-    name: "ekspertiz-raporu.png",
-    mimeType: "image/png",
-    base64: MINIMAL_PNG_BASE64,
-  });
-  await expect(page.getByText("1 dosya seçildi.")).toBeVisible();
+  await setSyntheticFileUntilLabel(
+    page,
+    'input[type="file"]',
+    {
+      name: "ekspertiz-raporu.png",
+      mimeType: "image/png",
+      base64: MINIMAL_PNG_BASE64,
+    },
+    "1 dosya seçildi.",
+  );
   await page.getByLabel("Ekspertiz raporu metni").fill("Araçta şasi kontrolü ve airbag arıza taraması önerilir.");
   await expect(page.getByText("Şasi/podye ifadesi var; ekspertizde özellikle doğrulanmalı.")).toBeVisible();
   await expect(page.getByText("Airbag ifadesi var; emniyet sistemi arıza taraması istenmeli.")).toBeVisible();
