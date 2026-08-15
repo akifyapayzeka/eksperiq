@@ -22,6 +22,7 @@ const exportLabels: Record<string, string> = {
 // this one-shot sessionStorage flag survives the reload so the (rare)
 // server-deletion failure can still be shown honestly afterward.
 const SERVER_DELETE_WARNING_KEY = "eksperiq:delete-all-server-warning";
+const IMPORT_INPUT_ID = "eksperiq-profile-import-backup";
 
 function readImportFile(file: File): Promise<string> {
   if (typeof file.text === "function") {
@@ -160,16 +161,21 @@ export function DataManagementSection() {
               <Download aria-hidden="true" className="h-4 w-4" />
               Verilerimi dışa aktar
             </button>
-            <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-border px-4 text-sm font-semibold text-foreground transition hover:bg-muted active:scale-95 dark:hover:opacity-90">
+            <label
+              htmlFor={IMPORT_INPUT_ID}
+              className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-border px-4 text-sm font-semibold text-foreground transition hover:bg-muted active:scale-95 dark:hover:opacity-90"
+            >
               <Upload aria-hidden="true" className="h-4 w-4" />
               Yedekten içe aktar
-              <input
-                type="file"
-                accept="application/json"
-                className="sr-only"
-                onChange={(event) => void handleImportFile(event)}
-              />
             </label>
+            <input
+              id={IMPORT_INPUT_ID}
+              type="file"
+              accept="application/json"
+              aria-label="Yedek dosyası"
+              className="sr-only"
+              onChange={(event) => void handleImportFile(event)}
+            />
           </div>
 
           {importMessage ? (

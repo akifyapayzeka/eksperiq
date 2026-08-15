@@ -369,11 +369,7 @@ export default function MaintenancePaymentCalendarPage() {
               Tür
               <select
                 value={category}
-                onChange={(event) => {
-                  const next = event.target.value as ReminderCategory;
-                  setCategory(next);
-                  if (!editingId) setTitle(categoryDefaultTitles[next]);
-                }}
+                onChange={(event) => setCategory(event.target.value as ReminderCategory)}
                 className="min-h-12 rounded-theme-sm border border-border px-3"
               >
                 {Object.entries(reminderCategoryLabels).map(([value, label]) => (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Sparkles } from "lucide-react";
 import { HeroCard } from "@/components/cards/hero-card";
 import { AppShell } from "@/components/layout/app-shell";
@@ -21,17 +21,18 @@ const saleChecklist = [
 
 export default function SmartSalePreparationPage() {
   const [checked, setChecked] = useState<Set<string>>(new Set());
+  const userEditedRef = useRef(false);
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => setChecked(new Set(loadSaleChecklist(saleChecklist))));
-    return () => window.cancelAnimationFrame(frame);
+    setChecked((current) => (userEditedRef.current ? current : new Set(loadSaleChecklist(saleChecklist))));
   }, []);
 
-  function toggle(item: string) {
+  function setItemChecked(item: string, isChecked: boolean) {
+    userEditedRef.current = true;
     setChecked((current) => {
       const next = new Set(current);
-      if (next.has(item)) next.delete(item);
-      else next.add(item);
+      if (isChecked) next.add(item);
+      else next.delete(item);
       saveSaleChecklist([...next]);
       return next;
     });
@@ -62,7 +63,7 @@ export default function SmartSalePreparationPage() {
                 <input
                   type="checkbox"
                   checked={checked.has(item)}
-                  onChange={() => toggle(item)}
+                  onChange={(event) => setItemChecked(item, event.currentTarget.checked)}
                   className="h-5 w-5 accent-accent"
                 />
                 {item}

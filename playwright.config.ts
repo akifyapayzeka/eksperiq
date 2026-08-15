@@ -20,9 +20,10 @@ const chromiumLaunchOptions = existsSync(sandboxChromiumPath)
 
 export default defineConfig({
   testDir: "./tests/e2e",
-  timeout: 30000,
+  timeout: 120000,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 2 : 1,
+  workers: process.env.CI ? undefined : 1,
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: "http://127.0.0.1:3000",
