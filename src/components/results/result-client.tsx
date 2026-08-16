@@ -176,6 +176,7 @@ export function ResultClient() {
   const [aiNoteStatus, setAiNoteStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [aiNoteMessage, setAiNoteMessage] = useState<string>("");
   const [aiNoteFeedback, setAiNoteFeedback] = useState<AiNoteFeedback | null>(null);
+  const [aiNoteConsent, setAiNoteConsent] = useState(false);
   const [scoreRingFilled, setScoreRingFilled] = useState(false);
 
   useEffect(() => {
@@ -301,6 +302,11 @@ export function ResultClient() {
 
   async function requestAiNote() {
     if (!result || aiNoteStatus === "loading") return;
+    if (!aiNoteConsent) {
+      setAiNoteStatus("error");
+      setAiNoteMessage("AI sağlayıcısına veri gönderimini onaylamadan AI notu oluşturulamaz.");
+      return;
+    }
 
     setAiNoteStatus("loading");
     setAiNoteMessage("");
@@ -658,11 +664,23 @@ export function ResultClient() {
                   </p>
                 </div>
               </div>
+              <label className="mt-4 flex items-start gap-3 rounded-theme-sm border border-border bg-card p-3 text-sm font-semibold text-foreground/90">
+                <input
+                  type="checkbox"
+                  checked={aiNoteConsent}
+                  onChange={(event) => setAiNoteConsent(event.target.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 accent-primary"
+                />
+                <span>
+                  AI notu için araç bilgileri, risk skoru ve bulgu başlıklarının OpenRouter gibi AI sağlayıcısına
+                  gönderileceğini anladım ve onaylıyorum.
+                </span>
+              </label>
               <button
                 type="button"
                 onClick={requestAiNote}
-                disabled={aiNoteStatus === "loading"}
-                className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
+                disabled={!aiNoteConsent || aiNoteStatus === "loading"}
+                className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Sparkles aria-hidden="true" className="h-4 w-4" />
                 {aiNoteStatus === "loading" ? "Not hazırlanıyor" : "AI notu oluştur"}

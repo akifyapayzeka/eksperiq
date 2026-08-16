@@ -108,6 +108,7 @@ test("keeps AI requests same-origin on the web when no native bridge is present"
 
   await page.goto("/fotograf-hasar");
   await selectVehiclePhoto(page);
+  await page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/).check();
   await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
   await expect(page.getByText(/AI fotoğraf kontrolü tamamlandı/)).toBeVisible();
 
@@ -141,6 +142,8 @@ test("compresses an oversized photo below the AI upload budget before sending", 
     base64: largePhotoBuffer.toString("base64"),
   });
   await expect(page.getByText("1 fotoğraf seçildi.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "AI ile fotoğrafı analiz et" })).toBeDisabled();
+  await page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/).check();
   await expect(page.getByRole("button", { name: "AI ile fotoğrafı analiz et" })).toBeEnabled();
   await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
   await expect(page.getByText(/AI fotoğraf kontrolü tamamlandı/)).toBeVisible();
@@ -309,6 +312,7 @@ test("resolves API requests to the production origin under a simulated native iO
 
   await page.goto("/fotograf-hasar");
   await selectVehiclePhoto(page);
+  await page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/).check();
   await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
   await expect(page.getByText(/AI fotoğraf kontrolü tamamlandı/)).toBeVisible();
 
