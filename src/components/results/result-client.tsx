@@ -317,7 +317,7 @@ export function ResultClient() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(buildAiAnalysisNoteInput(result)),
+        body: JSON.stringify({ ...buildAiAnalysisNoteInput(result), aiProviderConsent: true }),
       });
       const payload = (await response.json()) as { note?: string; error?: string; remaining?: number };
 

@@ -178,6 +178,7 @@ export default function PhotoDamagePage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          aiProviderConsent: true,
           images,
           userNote: note,
         }),

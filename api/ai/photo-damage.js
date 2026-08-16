@@ -63,6 +63,7 @@ function parseImage(value) {
 // { ok: true, input } | { ok: false, reason: "invalid" | "too-large" }
 function parseInput(value) {
   if (!isRecord(value)) return { ok: false, reason: "invalid" };
+  if (value.aiProviderConsent !== true) return { ok: false, reason: "missing-consent" };
   if (!Array.isArray(value.images) || value.images.length < 1 || value.images.length > 4) {
     return { ok: false, reason: "invalid" };
   }
@@ -353,6 +354,12 @@ async function handler(request, response) {
   if (!parsed.ok && parsed.reason === "too-large") {
     sendJson(response, 413, {
       error: "Fotoğraf verisi çok büyük. Daha az fotoğraf seçip tekrar deneyin.",
+    });
+    return;
+  }
+  if (!parsed.ok && parsed.reason === "missing-consent") {
+    sendJson(response, 400, {
+      error: "AI fotoğraf kontrolü için AI sağlayıcısına veri gönderimi onayı zorunludur.",
     });
     return;
   }

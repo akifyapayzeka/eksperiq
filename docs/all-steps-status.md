@@ -27,6 +27,7 @@ npm run launch:audit
 - [x] Sonuç ekranında satıcıya gönderilebilir kısa mesaj kopyalama aksiyonu eklendi.
 - [x] Satıcı açıklamasındaki belirsiz/kaçamak ifadeler kural tabanlı doğrulama bulgusu olarak yakalanıyor.
 - [x] Fotoğraf AI endpoint'i OpenRouter vision çağrısını JSON schema ile zorluyor.
+- [x] AI karar destek notu ve fotoğraf AI endpoint'leri, kullanıcıdan açık AI sağlayıcı rızası (`aiProviderConsent: true`) gelmeden OpenRouter'a çağrı yapmıyor.
 - [x] Local OpenRouter fotoğraf AI testi araç dışı görselde bulgu üretmeme davranışını doğruluyor.
 - [x] Manuel fotoğraf notu akışı araç/araç parçası onayı olmadan bulgu eklemiyor.
 - [x] Kural geri bildirimi ve kullanıcı testi issue şablonları hazır.

@@ -50,6 +50,7 @@ async function callEndpoint(body: unknown, env: Record<string, string> = {}) {
 }
 
 const validBody = {
+  aiProviderConsent: true,
   images: [
     {
       name: "photo.jpg",
@@ -205,7 +206,7 @@ describe("photo damage AI endpoint", () => {
   it("rejects an oversized combined image payload with 413 before calling OpenRouter", async () => {
     const oversizedDataUrl = `data:image/jpeg;base64,${"A".repeat(4_300_000)}`;
     const response = await callEndpoint(
-      { images: [{ name: "big.jpg", mimeType: "image/jpeg", dataUrl: oversizedDataUrl }] },
+      { aiProviderConsent: true, images: [{ name: "big.jpg", mimeType: "image/jpeg", dataUrl: oversizedDataUrl }] },
       { NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true", OPENROUTER_API_KEY: "test-key" },
     );
 
@@ -232,6 +233,18 @@ describe("photo damage AI endpoint", () => {
 
     expect(response.statusCode).toBe(429);
     expect(response.body.error).toBe("AI fotoğraf analizi şu anda kapalı.");
+  });
+
+  it("rejects requests that do not include explicit AI provider consent before calling OpenRouter", async () => {
+    const withoutConsent: Partial<typeof validBody> = { ...validBody };
+    delete withoutConsent.aiProviderConsent;
+    const response = await callEndpoint(withoutConsent, {
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body.error).toBe("AI fotoğraf kontrolü için AI sağlayıcısına veri gönderimi onayı zorunludur.");
   });
 
   it("returns normalized non-vehicle analysis without findings", async () => {
