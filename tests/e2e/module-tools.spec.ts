@@ -101,6 +101,7 @@ test("module cards open usable assistant tools", async ({ page }) => {
   await page.getByLabel("Güven seviyesi").selectOption("Orta olasılık");
   await page.getByRole("button", { name: "Bulguyu ekle" }).click();
   await expect(page.getByText("Ön tampon: Çizik")).toBeVisible();
+  await page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/).check();
   await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
   await expect(page.getByText("AI fotoğraf kontrolü tamamlandı. Bugün kalan hak: 9")).toBeVisible();
   await expect(page.getByText("Ön tampon: Çizik")).toHaveCount(2);
@@ -408,6 +409,7 @@ test("photo damage tool refuses non-vehicle photos via the AI's own check", asyn
 
   await page.goto("/fotograf-hasar");
   await selectVehiclePhoto(page);
+  await page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/).check();
   await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
   await expect(
     page.getByText("AI bu görselde araç veya araç parçası güvenle tespit edemedi. Hasar bulgusu oluşturulmadı."),

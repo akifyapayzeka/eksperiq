@@ -74,6 +74,7 @@ function isBoundedString(value, min, max) {
 
 function parseAnalysisNoteInput(value) {
   if (!isRecord(value)) return null;
+  if (value.aiProviderConsent !== true) return null;
   if (!isBoundedString(value.vehicleLabel, 3, 120)) return null;
   const totalScore = value.totalScore;
   if (typeof totalScore !== "number" || !Number.isInteger(totalScore) || totalScore < 0 || totalScore > 100) {

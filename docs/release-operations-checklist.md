@@ -56,6 +56,7 @@ Kontrol edilecekler:
 - `/`, `/analiz`, `/sonuc`, `/moduller`, `/gizlilik` sayfaları çalışıyor.
 - Analiz formunda şehir, araç detayları ve hasar parçaları uygun yerlerde seçenekli/dokunulabilir çalışıyor.
 - Sonuç sayfasında yasal uyarı, paylaşma/kopyalama/yazdırma, satıcı mesajı ve geri bildirim bağlantısı görünüyor.
+- Sonuç sayfasındaki AI notu ve Fotoğraftan Hasar Analizi, OpenRouter gibi AI sağlayıcısına veri gönderilmeden önce açık kullanıcı onayı istiyor; ilgili serverless endpoint'ler de `aiProviderConsent: true` gelmeden OpenRouter'a istek atmıyor.
 - Satıcı açıklamasında belirsiz/kaçamak ifade girildiğinde raporda doğrulama bulgusu oluşuyor.
 - Demo/screenshot verisi `tests/fixtures/demo-vehicle.ts` ile tutarlı.
 

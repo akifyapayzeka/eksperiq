@@ -19,6 +19,7 @@ const UPSTASH_ALLOW_RESPONSE = JSON.stringify([
 ]);
 
 const sampleInput = {
+  aiProviderConsent: true,
   vehicleLabel: "2020 Toyota Corolla",
   totalScore: 72,
   riskLabel: "Dikkatli incelenmeli",
@@ -83,6 +84,7 @@ describe("analysis note endpoint", () => {
     const response = createResponse();
     await handler(
       createRequest("POST", {
+        aiProviderConsent: true,
         vehicleLabel: "2020 Toyota Corolla",
         totalScore: 72,
         riskLabel: "Dikkatli incelenmeli",
@@ -118,6 +120,7 @@ describe("analysis note endpoint", () => {
     const response = createResponse();
     await handler(
       createRequest("POST", {
+        aiProviderConsent: true,
         vehicleLabel: "2020 Toyota Corolla",
         totalScore: 72,
         riskLabel: "Dikkatli incelenmeli",
@@ -133,6 +136,31 @@ describe("analysis note endpoint", () => {
     expect(JSON.parse(response.body)).toEqual({
       error: "AI kullanım limiti şu anda doğrulanamadı. Kural tabanlı raporu kullanabilirsiniz.",
     });
+  });
+
+  it("rejects requests that do not include explicit AI provider consent before calling OpenRouter", async () => {
+    const fetchMock = vi.fn<(input: unknown, init?: RequestInit) => Promise<Response>>();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const previousEnv = process.env;
+    process.env = {
+      ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
+      NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+    };
+
+    const withoutConsent: Partial<typeof sampleInput> = { ...sampleInput };
+    delete withoutConsent.aiProviderConsent;
+    const response = createResponse();
+    await handler(createRequest("POST", withoutConsent), response);
+
+    process.env = previousEnv;
+    vi.unstubAllGlobals();
+
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body)).toEqual({ error: "AI notu için gönderilen veri geçerli değil." });
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("returns a note end-to-end and hedges any absolute-certainty language OpenRouter returns", async () => {
