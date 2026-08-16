@@ -58,6 +58,7 @@
     "launch:audit": "node scripts/audit-launch-checklist.mjs"
   },
   "dependencies": {
+    "@capacitor-community/in-app-review": "^8.0.0",
     "@capacitor/core": "^8.4.2",
     "@capacitor/ios": "^8.4.2",
     "@capacitor/local-notifications": "^8.2.1",
