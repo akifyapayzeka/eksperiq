@@ -69,6 +69,7 @@ Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build App
 - AI karar destek ve fotoğraf kontrolü OpenRouter üzerinden geçici, veri saklama karşıtı parametreyle işleme yapabilir.
 - Kötüye kullanımı sınırlamak için anonim, tek yönlü özetlenmiş (hash) kurulum kimliği/IP ile kısa ömürlü istek sayaçları tutulur; kullanıcı kimliğiyle ilişkilendirilemez.
 - Analiz ve diğer kullanıcı verisi (araçlar, hatırlatmalar, giderler, sağlık kayıtları, fotoğraf analizleri) yalnızca cihazda tutulur; geliştirici sunucusunda kalıcı hesap kaydı olarak saklanmaz. Kullanıcı bu veriyi Profil > Verilerim ekranından dışa/içe aktarabilir veya tamamen silebilir.
+- Profil > Verilerim dışa/içe aktarma akışı gerçek localStorage export/import koduna bağlıdır. 2026-08-17'de JSON export download fallback'i Safari/WebView için güçlendirildi: indirme bağlantısı tıklandıktan sonra `URL.revokeObjectURL` kısa gecikmeyle çağrılıyor.
 
 ## Mağaza Varlık Checklist'i
 
