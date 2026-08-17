@@ -4,6 +4,7 @@ const isNativePlatform = vi.fn(() => false);
 const shareMock = vi.fn<(options: { title?: string; text?: string; url?: string }) => Promise<void>>(
   async () => undefined,
 );
+const requestReviewMock = vi.fn(async () => undefined);
 
 vi.mock("@capacitor/core", () => ({
   Capacitor: {
@@ -17,11 +18,19 @@ vi.mock("@capacitor/share", () => ({
   },
 }));
 
+vi.mock("@capacitor-community/in-app-review", () => ({
+  InAppReview: {
+    requestReview: () => requestReviewMock(),
+  },
+}));
+
 describe("shareContent", () => {
   beforeEach(() => {
     isNativePlatform.mockReturnValue(false);
     shareMock.mockClear();
     shareMock.mockResolvedValue(undefined);
+    requestReviewMock.mockClear();
+    requestReviewMock.mockResolvedValue(undefined);
     vi.resetModules();
   });
 
@@ -42,6 +51,7 @@ describe("shareContent", () => {
       text: "özet metni",
       url: "https://eksperiq.vercel.app",
     });
+    expect(requestReviewMock).toHaveBeenCalledTimes(1);
   });
 
   it("falls back to clipboard copy when the native share sheet fails", async () => {
@@ -55,6 +65,7 @@ describe("shareContent", () => {
 
     expect(outcome).toBe("copied");
     expect(writeText).toHaveBeenCalledWith("özet");
+    expect(requestReviewMock).not.toHaveBeenCalled();
   });
 
   it("uses navigator.share with window.location.origin on the web, unchanged from prior behavior", async () => {
