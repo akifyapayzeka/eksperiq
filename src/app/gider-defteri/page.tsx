@@ -14,10 +14,7 @@ import { filterByVehicle, recordVehicleId } from "@/lib/vehicles/model";
 import { createVehicleId, deleteVehicle, loadVehicles, upsertVehicle } from "@/lib/storage/vehicle-storage";
 import type { VehicleProfile } from "@/lib/vehicles/types";
 import { SecondaryButton } from "@/components/ui/button";
-
-function formatTl(amount: number): string {
-  return `${amount.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} TL`;
-}
+import { formatTryAmount, parseTurkishLiraInput } from "@/lib/format/money";
 
 function formatDate(value: string): string {
   const date = new Date(`${value}T00:00:00`);
@@ -101,9 +98,9 @@ export default function ExpenseLedgerPage() {
 
   function submitExpense() {
     if (!selectedVehicleId) return;
-    const parsedAmount = Number(amount);
-    if (!amount.trim() || Number.isNaN(parsedAmount) || parsedAmount <= 0) {
-      setFormMessage("Geçerli bir tutar girin.");
+    const parsedAmount = parseTurkishLiraInput(amount);
+    if (parsedAmount === null || parsedAmount <= 0) {
+      setFormMessage("Geçerli bir TL tutarı girin (örn. 1.200,50).");
       return;
     }
     if (!date) {
@@ -176,7 +173,7 @@ export default function ExpenseLedgerPage() {
         <section className="mt-5 grid gap-4 sm:grid-cols-2">
           <div className="rounded-theme border border-border bg-card p-5 shadow-sm">
             <p className="text-sm text-muted-foreground">Toplam gider (kayıtlı ay sayısı kadar)</p>
-            <p className="mt-1 text-2xl font-semibold text-foreground">{formatTl(overallTotal)}</p>
+            <p className="mt-1 text-2xl font-semibold text-foreground">{formatTryAmount(overallTotal, 2)}</p>
           </div>
           <div className="rounded-theme border border-border bg-card p-5 shadow-sm">
             <p className="text-sm text-muted-foreground">Yaklaşık km başı maliyet</p>
@@ -202,7 +199,7 @@ export default function ExpenseLedgerPage() {
                   </span>
                 ) : null}
                 <div
-                  title={`${month.label}: ${formatTl(month.total)}`}
+                  title={`${month.label}: ${formatTryAmount(month.total, 2)}`}
                   className="w-full rounded-t bg-accent"
                   style={{ height: `${Math.max(2, (month.total / maxMonthTotal) * 100)}%` }}
                 />
@@ -230,7 +227,7 @@ export default function ExpenseLedgerPage() {
                 {months.map((month) => (
                   <tr key={month.monthKey} className="border-t border-border">
                     <td className="py-1 text-foreground/90">{month.label}</td>
-                    <td className="py-1 text-foreground/90">{formatTl(month.total)}</td>
+                    <td className="py-1 text-foreground/90">{formatTryAmount(month.total, 2)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -247,7 +244,7 @@ export default function ExpenseLedgerPage() {
                   <span className="text-sm font-medium text-foreground/90">
                     {expenseCategoryLabels[key as ExpenseCategory]}
                   </span>
-                  <span className="text-sm font-semibold text-foreground">{formatTl(total ?? 0)}</span>
+                  <span className="text-sm font-semibold text-foreground">{formatTryAmount(total ?? 0, 2)}</span>
                 </div>
               ))}
             </div>
@@ -274,10 +271,10 @@ export default function ExpenseLedgerPage() {
             <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Tutar (TL)
               <input
-                type="number"
-                min="0"
+                inputMode="decimal"
                 value={amount}
                 onChange={(event) => setAmount(event.target.value)}
+                placeholder="Örn. 1.200,50"
                 className="min-h-12 rounded-theme-sm border border-border px-3"
               />
             </label>
@@ -336,7 +333,7 @@ export default function ExpenseLedgerPage() {
                       <p className="text-xs font-semibold uppercase text-accent">
                         {expenseCategoryLabels[record.category]}
                       </p>
-                      <p className="mt-1 font-semibold text-foreground">{formatTl(record.amount)}</p>
+                      <p className="mt-1 font-semibold text-foreground">{formatTryAmount(record.amount, 2)}</p>
                       <p className="mt-1 text-sm text-muted-foreground">
                         {formatDate(record.date)}
                         {typeof record.odometer === "number" ? ` · ${record.odometer.toLocaleString("tr-TR")} km` : ""}
