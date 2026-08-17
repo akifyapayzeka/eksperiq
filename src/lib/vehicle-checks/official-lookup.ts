@@ -43,6 +43,13 @@ export const officialLookupItems: OfficialLookupItem[] = [
     where: "İlgili sigorta şirketi veya acentesinden poliçe numarasıyla teyit edin.",
     note: "Poliçesiz veya süresi dolmuş araç kullanımı yasal risk oluşturur.",
   },
+  {
+    id: "mileage-consistency",
+    title: "Kilometre tutarlılığı",
+    where:
+      "TÜVTÜRK muayene geçmişindeki (her muayenede kilometre kaydedilir) ve yetkili servis/bakım faturalarındaki km değerlerini ilandaki km ile karşılaştırın.",
+    note: "Kilometre düşürme ikinci elde sık görülen bir sorundur. Muayene ve servis kayıtlarındaki km zaman içinde geriye gitmemeli; ilandaki km bu kayıtlarla tutarsızsa satıcıya ve ekspertiz firmasına ayrıca sorun.",
+  },
 ];
 
 export const officialLookupDisclaimer =

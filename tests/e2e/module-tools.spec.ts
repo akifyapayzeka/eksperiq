@@ -343,13 +343,13 @@ test("sale preparation checklist persists checked items within the session", asy
 
 test("official lookup guide tracks which sources the user has checked", async ({ page }) => {
   await page.goto("/resmi-sorgu-rehberi");
-  await expect(page.getByRole("heading", { name: "Kontrol ettiklerim: 0 / 6" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Kontrol ettiklerim: 0 / 7" })).toBeVisible();
 
   await page.locator("label", { hasText: "Hasar/TRAMER kaydı" }).locator('input[type="checkbox"]').check();
-  await expect(page.getByRole("heading", { name: "Kontrol ettiklerim: 1 / 6" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Kontrol ettiklerim: 1 / 7" })).toBeVisible();
 
   await page.reload();
-  await expect(page.getByRole("heading", { name: "Kontrol ettiklerim: 1 / 6" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Kontrol ettiklerim: 1 / 7" })).toBeVisible();
   await expect(
     page.locator("label", { hasText: "Hasar/TRAMER kaydı" }).locator('input[type="checkbox"]'),
   ).toBeChecked();

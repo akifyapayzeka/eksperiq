@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FileSearch, Upload } from "lucide-react";
 import { HeroCard } from "@/components/cards/hero-card";
 import { AppShell } from "@/components/layout/app-shell";
-import { WarningAlert, DisclaimerCard } from "@/components/ui/alert";
+import { WarningAlert, DisclaimerCard, InfoAlert } from "@/components/ui/alert";
 import { apiFetch } from "@/lib/api/client";
 import { prepareAiImages } from "@/lib/photo-analysis/prepare-ai-image";
 import { renderPdfPagesToImages } from "@/lib/pdf/render-pdf-pages";
@@ -127,6 +127,22 @@ export default function ExpertiseReportPage() {
           title="Ekspertiz raporunu AI ile kontrol notuna çevir"
           description="PDF veya rapor fotoğrafını seçin; boya/değişen, mekanik, elektronik ve şasi bulgularını AI okuyup önceliklendirir. Elle metin yapıştırmanız gerekmez."
         />
+
+        <div className="mt-5">
+          <InfoAlert>
+            <p className="font-semibold text-foreground">Raporu okumadan önce bilmeniz gereken 3 şey</p>
+            <ul className="mt-2 grid gap-1 text-sm leading-6">
+              <li>
+                <strong className="text-foreground">Orijinal</strong> normaldir. <strong className="text-foreground">Boyalı</strong>{" "}
+                genelde kozmetiktir (tampon/çamurluk gibi darbe alan parçalarda sık görülür). Kaput, tavan, direk veya
+                şaside <strong className="text-foreground">değişen/işlem</strong> görülmesi ise ağır kaza geçmişine
+                işaret edebilir — bu bölgelere özellikle dikkat edin.
+              </li>
+              <li>Ekspertiz firmasını her zaman siz (alıcı) seçin; satıcının anlaşmalı olduğu firma kusur gizleyebilir.</li>
+              <li>1 yıldan eski bir ekspertiz raporuna güvenmeyin, aracın durumu değişmiş olabilir.</li>
+            </ul>
+          </InfoAlert>
+        </div>
 
         <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
           <label className="grid min-h-28 cursor-pointer place-items-center rounded-theme border border-dashed border-border bg-muted p-4 text-center">
