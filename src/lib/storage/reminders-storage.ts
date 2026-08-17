@@ -1,6 +1,7 @@
 "use client";
 
 import { appConfig } from "@/lib/constants/app";
+import { recordProductEvent } from "@/lib/analytics/productEvents";
 import { advanceIfPast } from "@/lib/reminders/model";
 import type { ReminderRecord } from "@/lib/reminders/types";
 
@@ -51,6 +52,12 @@ export function upsertReminder(record: ReminderRecord): ReminderRecord[] {
   const index = current.findIndex((item) => item.id === record.id);
   const next = index === -1 ? [...current, record] : current.map((item, i) => (i === index ? record : item));
   writeRaw(next);
+  recordProductEvent("reminder_saved", {
+    category: record.category,
+    recurrence: record.recurrence,
+    hasAmount: typeof record.amount === "number",
+    hasVehicle: typeof record.vehicleId === "string",
+  });
   return next;
 }
 

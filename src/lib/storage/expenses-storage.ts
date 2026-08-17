@@ -1,6 +1,7 @@
 "use client";
 
 import { appConfig } from "@/lib/constants/app";
+import { recordProductEvent } from "@/lib/analytics/productEvents";
 import type { ExpenseRecord } from "@/lib/expenses/types";
 
 function isExpenseRecord(value: unknown): value is ExpenseRecord {
@@ -43,6 +44,11 @@ export function upsertExpense(record: ExpenseRecord): ExpenseRecord[] {
   const index = current.findIndex((item) => item.id === record.id);
   const next = index === -1 ? [...current, record] : current.map((item, i) => (i === index ? record : item));
   writeRaw(next);
+  recordProductEvent("expense_record_saved", {
+    category: record.category,
+    hasOdometer: typeof record.odometer === "number",
+    hasVehicle: typeof record.vehicleId === "string",
+  });
   return next;
 }
 

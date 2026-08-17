@@ -15,6 +15,7 @@ EksperIQ şu anda ücretsiz çalışan responsive web uygulamasıdır. App Store
 - Fotoğraf AI production kontrolü `npm run ai:photo-prod-check` ile geçer.
 - Kullanıcı verisi geliştirici sunucusunda kalıcı hesap kaydı olarak saklanmaz.
 - Analytics, reklam takip kodu ve çerez bannerı gerektiren servis yoktur.
+- Ürün kullanım sinyalleri yalnızca cihaz içinde `eksperiq:product-events` localStorage anahtarında tutulur; üçüncü taraf analytics yoktur ve araç marka/model, ilan metni, fotoğraf, kullanıcı notu gibi içerikler kaydedilmez.
 
 ## Hazır Native Komutlar
 
@@ -69,6 +70,7 @@ Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build App
 - AI karar destek ve fotoğraf kontrolü OpenRouter üzerinden geçici, veri saklama karşıtı parametreyle işleme yapabilir.
 - Kötüye kullanımı sınırlamak için anonim, tek yönlü özetlenmiş (hash) kurulum kimliği/IP ile kısa ömürlü istek sayaçları tutulur; kullanıcı kimliğiyle ilişkilendirilemez.
 - Analiz ve diğer kullanıcı verisi (araçlar, hatırlatmalar, giderler, sağlık kayıtları, fotoğraf analizleri) yalnızca cihazda tutulur; geliştirici sunucusunda kalıcı hesap kaydı olarak saklanmaz. Kullanıcı bu veriyi Profil > Verilerim ekranından dışa/içe aktarabilir veya tamamen silebilir.
+- Yerel ürün olayları yalnızca iş akışı sayaçları ve kaba bant bilgileri içerir; cihaz dışına gönderilmez, reklam takibi veya üçüncü taraf analytics amacıyla kullanılmaz.
 
 ## Mağaza Varlık Checklist'i
 

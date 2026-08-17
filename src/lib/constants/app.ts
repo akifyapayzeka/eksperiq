@@ -17,6 +17,7 @@ export const appConfig = {
   vehiclesStorageKey: "eksperiq:vehicles",
   photoAnalysesStorageKey: "eksperiq:photo-analyses",
   analysisHistoryStorageKey: "eksperiq:analysis-history",
+  productEventsStorageKey: "eksperiq:product-events",
   disclaimer:
     "Bu analiz yalnızca bilgilendirme ve karar desteği amacıyla hazırlanır. Profesyonel araç ekspertizinin, servis kontrolünün, resmî kayıt sorgularının veya hukuki incelemenin yerine geçmez. Son satın alma kararı kullanıcıya aittir.",
   privacy:

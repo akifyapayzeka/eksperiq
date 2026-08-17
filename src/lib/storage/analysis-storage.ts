@@ -2,6 +2,7 @@
 
 import { appConfig } from "@/lib/constants/app";
 import type { AnalysisResult } from "@/lib/analysis/types";
+import { recordProductEvent } from "@/lib/analytics/productEvents";
 import { createAnalysisHistoryId, upsertAnalysisHistory } from "@/lib/storage/analysis-history-storage";
 
 const checklistStorageKey = `${appConfig.storageKey}:checklist`;
@@ -16,6 +17,13 @@ export function saveAnalysis(result: AnalysisResult): void {
   sessionStorage.removeItem(checklistStorageKey);
   sessionStorage.removeItem(findingFilterStorageKey);
   upsertAnalysisHistory({ id: createAnalysisHistoryId(), result });
+  recordProductEvent("analysis_created", {
+    scoreBand: Math.floor(result.totalScore / 10) * 10,
+    riskLabel: result.riskLabel,
+    findingCount: result.findings.length,
+    highFindingCount: result.findings.filter((finding) => finding.severity === "high").length,
+    completenessPercent: result.completeness.percentage,
+  });
 }
 
 /** Loads a past analysis from device history into the current session slot, so /sonuc can render it. */

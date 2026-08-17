@@ -1,6 +1,7 @@
 "use client";
 
 import { appConfig } from "@/lib/constants/app";
+import { recordProductEvent } from "@/lib/analytics/productEvents";
 import type { PhotoAnalysisRecord } from "@/lib/photo-analysis/types";
 import { deleteThumbnails, loadThumbnails, saveThumbnails } from "@/lib/photo-analysis/indexed-db";
 
@@ -123,6 +124,11 @@ export async function upsertPhotoAnalysis(record: PhotoAnalysisRecord): Promise<
   if (!thumbnailResult.ok) {
     return { ok: false, reason: thumbnailResult.reason, records };
   }
+  recordProductEvent("photo_damage_analysis_saved", {
+    findingCount: record.findings.length,
+    hasAiSummary: typeof record.aiSummary === "string" && record.aiSummary.length > 0,
+    thumbnailCount: record.thumbnails.length,
+  });
   return { ok: true, records };
 }
 
