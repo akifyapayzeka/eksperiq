@@ -1,16 +1,18 @@
 "use client";
 
 import { useState, type FormEvent, type ReactNode } from "react";
-import { CarFront, Check, Mail, ShieldCheck, Sparkles } from "lucide-react";
+import { CarFront, Check, Lock, Mail, Sparkles, UserPlus } from "lucide-react";
 import { useAuth } from "@/lib/auth/auth-context";
 import { EKSPERIQ_PLAN_PRICING, formatTry, type EksperIqPaidPlanId } from "@/lib/pro/pricing";
 import { purchasePlan } from "@/lib/pro/entitlement";
 import { Field } from "@/components/ui/field";
-import { PrimaryButton, SecondaryButton } from "@/components/ui/button";
+import { PrimaryButton } from "@/components/ui/button";
 
 const PLANS_SEEN_KEY_PREFIX = "eksperiq:onboarding-plans-seen:";
+const PLANS_SEEN_ANONYMOUS_KEY = "eksperiq:onboarding-plans-seen:anonymous";
 
-type GateStep = "checking" | "signin-email" | "signin-code" | "plans" | "done";
+type GateStep = "checking" | "signin" | "plans" | "done";
+type AuthMode = "signup" | "signin";
 
 function Screen({ children }: { children: ReactNode }) {
   return (
@@ -21,11 +23,12 @@ function Screen({ children }: { children: ReactNode }) {
 }
 
 export function RequireAuthGate({ children }: { children: ReactNode }) {
-  const { isLoading, user, isConfigured, requestEmailCode, verifyEmailCode } = useAuth();
-  const [codeRequested, setCodeRequested] = useState(false);
+  const { isLoading, user, isConfigured, signUp, signIn } = useAuth();
+  const [authSkipped, setAuthSkipped] = useState(false);
   const [plansDismissed, setPlansDismissed] = useState(false);
+  const [mode, setMode] = useState<AuthMode>("signup");
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
@@ -33,35 +36,20 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
 
   // Derived directly at render time (no effect needed): reading localStorage
   // here is a plain read, not a state sync, so it's safe to do inline.
-  const hasSeenPlans =
-    Boolean(user) &&
-    typeof window !== "undefined" &&
-    window.localStorage.getItem(`${PLANS_SEEN_KEY_PREFIX}${user?.id}`) === "true";
+  const plansSeenKey = user ? `${PLANS_SEEN_KEY_PREFIX}${user.id}` : PLANS_SEEN_ANONYMOUS_KEY;
+  const hasSeenPlans = typeof window !== "undefined" && window.localStorage.getItem(plansSeenKey) === "true";
 
   let step: GateStep;
   if (!isConfigured) step = "done";
   else if (isLoading) step = "checking";
-  else if (!user) step = codeRequested ? "signin-code" : "signin-email";
+  else if (!user && !authSkipped) step = "signin";
   else step = hasSeenPlans || plansDismissed ? "done" : "plans";
 
-  async function handleRequestCode(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setIsSubmitting(true);
-    const result = await requestEmailCode(email.trim());
-    setIsSubmitting(false);
-    if (!result.ok) {
-      setError(result.message);
-      return;
-    }
-    setCodeRequested(true);
-  }
-
-  async function handleVerifyCode(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-    const result = await verifyEmailCode(email.trim(), code.trim());
+    const result = mode === "signup" ? await signUp(email.trim(), password) : await signIn(email.trim(), password);
     setIsSubmitting(false);
     if (!result.ok) {
       setError(result.message);
@@ -71,8 +59,12 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
     // session; `step` above re-derives to "plans" on the next render.
   }
 
+  function continueWithoutAccount() {
+    setAuthSkipped(true);
+  }
+
   function finishOnboarding() {
-    if (user) window.localStorage.setItem(`${PLANS_SEEN_KEY_PREFIX}${user.id}`, "true");
+    window.localStorage.setItem(plansSeenKey, "true");
     setPlansDismissed(true);
   }
 
@@ -93,62 +85,80 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
     );
   }
 
-  if (step === "signin-email" || step === "signin-code") {
+  if (step === "signin") {
     return (
       <Screen>
         <div className="mb-6 flex flex-col items-center gap-2 text-center">
           <CarFront aria-hidden="true" className="h-10 w-10 text-accent" />
           <h1 className="font-heading text-2xl font-bold text-foreground">EksperIQ&apos;a hoş geldiniz</h1>
           <p className="text-sm text-muted-foreground">
-            Devam etmek için hesabınıza giriş yapın. Şifre gerekmez, e-postanıza kod göndeririz.
+            Hesabınız Pro/Pro+ aboneliğinizi cihazlar arasında taşır. İsterseniz hesap açmadan da devam edebilirsiniz.
           </p>
         </div>
         <div className="rounded-theme border border-border bg-card p-5 shadow-sm">
-          {step === "signin-email" ? (
-            <form onSubmit={handleRequestCode} className="grid gap-4">
-              <Field
-                id="gate-email"
-                label="E-posta"
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="ornek@eposta.com"
-              />
-              {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
-              <PrimaryButton type="submit" disabled={isSubmitting || !email.trim()}>
+          <div className="mb-4 flex justify-center gap-1 rounded-full border border-border bg-muted p-1">
+            <button
+              type="button"
+              onClick={() => {
+                setMode("signup");
+                setError(null);
+              }}
+              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${mode === "signup" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+            >
+              Üye ol
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMode("signin");
+                setError(null);
+              }}
+              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${mode === "signin" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+            >
+              Giriş yap
+            </button>
+          </div>
+          <form onSubmit={handleSubmit} className="grid gap-4">
+            <Field
+              id="gate-email"
+              label="E-posta"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="ornek@eposta.com"
+            />
+            <Field
+              id="gate-password"
+              label="Şifre"
+              type="password"
+              autoComplete={mode === "signup" ? "new-password" : "current-password"}
+              minLength={6}
+              required
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="En az 6 karakter"
+            />
+            {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
+            <PrimaryButton type="submit" disabled={isSubmitting || !email.trim() || password.length < 6}>
+              {mode === "signup" ? (
+                <UserPlus aria-hidden="true" className="h-4 w-4" />
+              ) : (
                 <Mail aria-hidden="true" className="h-4 w-4" />
-                {isSubmitting ? "Gönderiliyor..." : "Kod gönder"}
-              </PrimaryButton>
-            </form>
-          ) : (
-            <form onSubmit={handleVerifyCode} className="grid gap-4">
-              <p className="text-sm text-muted-foreground">
-                <strong className="text-foreground">{email}</strong> adresine gönderilen 6 haneli kodu girin.
-              </p>
-              <Field
-                id="gate-code"
-                label="Doğrulama kodu"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
-                required
-                value={code}
-                onChange={(event) => setCode(event.target.value)}
-                placeholder="000000"
-              />
-              {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
-              <PrimaryButton type="submit" disabled={isSubmitting || code.trim().length < 6}>
-                <ShieldCheck aria-hidden="true" className="h-4 w-4" />
-                {isSubmitting ? "Doğrulanıyor..." : "Giriş yap"}
-              </PrimaryButton>
-              <SecondaryButton type="button" onClick={() => setCodeRequested(false)}>
-                Farklı e-posta kullan
-              </SecondaryButton>
-            </form>
-          )}
+              )}
+              {isSubmitting ? "Bekleyin..." : mode === "signup" ? "Üye ol" : "Giriş yap"}
+            </PrimaryButton>
+          </form>
+          <button
+            type="button"
+            onClick={continueWithoutAccount}
+            className="mt-4 flex w-full items-center justify-center gap-1.5 text-sm font-semibold text-muted-foreground underline-offset-4 hover:underline"
+          >
+            <Lock aria-hidden="true" className="h-3.5 w-3.5" />
+            Üye olmadan devam et
+          </button>
         </div>
       </Screen>
     );

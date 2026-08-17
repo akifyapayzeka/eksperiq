@@ -4,6 +4,8 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import type { Session, User } from "@supabase/supabase-js";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
+export type AuthResult = { ok: true } | { ok: false; message: string };
+
 export type AuthState = {
   /** null while the initial session check is in flight. */
   isLoading: boolean;
@@ -11,10 +13,8 @@ export type AuthState = {
   session: Session | null;
   /** False only when NEXT_PUBLIC_SUPABASE_URL/ANON_KEY aren't configured (e.g. local dev without .env.local). */
   isConfigured: boolean;
-  /** Sends a 6-digit e-posta code. Resolves ok:false with a Turkish message on failure. */
-  requestEmailCode: (email: string) => Promise<{ ok: true } | { ok: false; message: string }>;
-  /** Verifies the 6-digit code and completes sign-in/sign-up. */
-  verifyEmailCode: (email: string, code: string) => Promise<{ ok: true } | { ok: false; message: string }>;
+  signUp: (email: string, password: string) => Promise<AuthResult>;
+  signIn: (email: string, password: string) => Promise<AuthResult>;
   signOut: () => Promise<void>;
 };
 
@@ -22,11 +22,20 @@ const AuthContext = createContext<AuthState | null>(null);
 
 function toTurkishError(message: string): string {
   const normalized = message.toLowerCase();
-  if (normalized.includes("token has expired") || normalized.includes("invalid")) {
-    return "Kod geçersiz veya süresi dolmuş. Yeni kod isteyin.";
+  if (normalized.includes("already registered") || normalized.includes("already exists")) {
+    return "Bu e-posta ile zaten bir hesap var. Giriş yapmayı deneyin.";
+  }
+  if (normalized.includes("invalid login credentials") || normalized.includes("invalid email or password")) {
+    return "E-posta veya şifre hatalı.";
+  }
+  if (normalized.includes("password") && normalized.includes("6")) {
+    return "Şifre en az 6 karakter olmalı.";
   }
   if (normalized.includes("rate limit")) {
     return "Çok fazla deneme yapıldı. Birazdan tekrar deneyin.";
+  }
+  if (normalized.includes("email") && normalized.includes("invalid")) {
+    return "Geçerli bir e-posta adresi girin.";
   }
   return "Bir şeyler ters gitti. Lütfen tekrar deneyin.";
 }
@@ -57,18 +66,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user: session?.user ?? null,
       session,
       isConfigured: Boolean(supabase),
-      async requestEmailCode(email: string) {
+      async signUp(email: string, password: string) {
         if (!supabase) return { ok: false, message: "Hesap sistemi şu anda yapılandırılmamış." };
-        const { error } = await supabase.auth.signInWithOtp({
-          email,
-          options: { shouldCreateUser: true },
-        });
+        const { error } = await supabase.auth.signUp({ email, password });
         if (error) return { ok: false, message: toTurkishError(error.message) };
         return { ok: true };
       },
-      async verifyEmailCode(email: string, code: string) {
+      async signIn(email: string, password: string) {
         if (!supabase) return { ok: false, message: "Hesap sistemi şu anda yapılandırılmamış." };
-        const { error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) return { ok: false, message: toTurkishError(error.message) };
         return { ok: true };
       },

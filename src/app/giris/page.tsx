@@ -2,43 +2,31 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Mail, ShieldCheck } from "lucide-react";
+import { Mail, UserPlus } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { Field } from "@/components/ui/field";
-import { PrimaryButton, SecondaryButton } from "@/components/ui/button";
+import { PrimaryButton } from "@/components/ui/button";
 import { DisclaimerCard } from "@/components/ui/alert";
 import { useAuth } from "@/lib/auth/auth-context";
 
-type Step = "email" | "code";
+type AuthMode = "signup" | "signin";
 
 export default function GirisPage() {
   const router = useRouter();
-  const { requestEmailCode, verifyEmailCode, isConfigured } = useAuth();
-  const [step, setStep] = useState<Step>("email");
+  const { signUp, signIn, isConfigured } = useAuth();
+  const [mode, setMode] = useState<AuthMode>("signin");
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleRequestCode(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setIsSubmitting(true);
-    const result = await requestEmailCode(email.trim());
-    setIsSubmitting(false);
-    if (!result.ok) {
-      setError(result.message);
-      return;
-    }
-    setStep("code");
-  }
-
-  async function handleVerifyCode(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-    const result = await verifyEmailCode(email.trim(), code.trim());
+    const result =
+      mode === "signup" ? await signUp(email.trim(), password) : await signIn(email.trim(), password);
     setIsSubmitting(false);
     if (!result.ok) {
       setError(result.message);
@@ -63,54 +51,61 @@ export default function GirisPage() {
       <PageHeader eyebrow="Giriş yap veya hesap oluştur" title="Hesabınız" />
 
       <div className="rounded-theme border border-border bg-card p-5 shadow-sm">
-        {step === "email" ? (
-          <form onSubmit={handleRequestCode} className="grid gap-4">
-            <p className="text-sm text-muted-foreground">
-              E-posta adresinize 6 haneli bir doğrulama kodu göndereceğiz. Şifre gerekmez.
-            </p>
-            <Field
-              id="giris-email"
-              label="E-posta"
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="ornek@eposta.com"
-            />
-            {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
-            <PrimaryButton type="submit" disabled={isSubmitting || !email.trim()}>
+        <div className="mb-4 flex justify-center gap-1 rounded-full border border-border bg-muted p-1">
+          <button
+            type="button"
+            onClick={() => {
+              setMode("signup");
+              setError(null);
+            }}
+            className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${mode === "signup" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+          >
+            Üye ol
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMode("signin");
+              setError(null);
+            }}
+            className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${mode === "signin" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+          >
+            Giriş yap
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="grid gap-4">
+          <Field
+            id="giris-email"
+            label="E-posta"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="ornek@eposta.com"
+          />
+          <Field
+            id="giris-password"
+            label="Şifre"
+            type="password"
+            autoComplete={mode === "signup" ? "new-password" : "current-password"}
+            minLength={6}
+            required
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="En az 6 karakter"
+          />
+          {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
+          <PrimaryButton type="submit" disabled={isSubmitting || !email.trim() || password.length < 6}>
+            {mode === "signup" ? (
+              <UserPlus aria-hidden="true" className="h-4 w-4" />
+            ) : (
               <Mail aria-hidden="true" className="h-4 w-4" />
-              {isSubmitting ? "Gönderiliyor..." : "Kod gönder"}
-            </PrimaryButton>
-          </form>
-        ) : (
-          <form onSubmit={handleVerifyCode} className="grid gap-4">
-            <p className="text-sm text-muted-foreground">
-              <strong className="text-foreground">{email}</strong> adresine gönderilen 6 haneli kodu girin.
-            </p>
-            <Field
-              id="giris-code"
-              label="Doğrulama kodu"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              maxLength={6}
-              required
-              value={code}
-              onChange={(event) => setCode(event.target.value)}
-              placeholder="000000"
-            />
-            {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
-            <PrimaryButton type="submit" disabled={isSubmitting || code.trim().length < 6}>
-              <ShieldCheck aria-hidden="true" className="h-4 w-4" />
-              {isSubmitting ? "Doğrulanıyor..." : "Giriş yap"}
-            </PrimaryButton>
-            <SecondaryButton type="button" onClick={() => setStep("email")}>
-              Farklı e-posta kullan
-            </SecondaryButton>
-          </form>
-        )}
+            )}
+            {isSubmitting ? "Bekleyin..." : mode === "signup" ? "Üye ol" : "Giriş yap"}
+          </PrimaryButton>
+        </form>
       </div>
 
       <div className="mt-4">
