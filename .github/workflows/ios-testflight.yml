@@ -90,6 +90,14 @@ jobs:
       - name: Capacitor sync
         run: npx cap sync ios
 
+      - name: Debug signing secret shape
+        run: |
+          echo "cert length: ${#IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64}"
+          echo "cert prefix: ${IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64:0:12}"
+          echo "profile length: ${#IOS_PROVISIONING_PROFILE_BASE64}"
+          echo "profile prefix: ${IOS_PROVISIONING_PROFILE_BASE64:0:12}"
+          echo "profile suffix: ${IOS_PROVISIONING_PROFILE_BASE64: -12}"
+
       - name: Install signing assets
         id: signing
         run: |
