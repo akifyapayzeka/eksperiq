@@ -98,6 +98,12 @@ Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build App
 11. `/offline` ekranından üretilen `out/offline.html` native fallback olarak kullanılabiliyor mu?
 12. Bakım ve Ödeme Takvimi'nde "Bildirimleri aç" seçildiğinde izin diyaloğu doğru metinle çıkıyor ve gerçek cihazda 30/15 gün öncesi bildirim çalışıyor mu?
 
+2026-08-17 ürün tamlığı eklemesi: `Raporu paylaş` native OS share sheet ile
+başarıyla tamamlandığında `@capacitor-community/in-app-review` üzerinden App
+Store / Play Store in-app review akışı aynı oturumda bir kez best-effort
+denenir. Web/PWA paylaşım ve clipboard fallback davranışı değişmedi; gerçek
+review sheet davranışı TestFlight/gerçek cihaz üzerinde ayrıca doğrulanmalıdır.
+
 Not: Bu bildirim akışı Web Push standardıyla çalışır ve web/PWA sürümünde
 gerçek cihazda test edilebilir. Capacitor ile paketlenen native iOS
 uygulamasında aynı davranış için ayrıca `@capacitor/push-notifications`
