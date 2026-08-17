@@ -87,6 +87,7 @@ jobs:
       # or every one of those specs times out waiting on a button that can
       # never become enabled.
       NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true"
+      NEXT_PUBLIC_EXPERTISE_REPORT_AI_ENABLED: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -125,6 +126,7 @@ jobs:
       HOME: /root
       # See the matching comment in the e2e-chromium job above.
       NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true"
+      NEXT_PUBLIC_EXPERTISE_REPORT_AI_ENABLED: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4

@@ -6,6 +6,7 @@ import { HeroCard } from "@/components/cards/hero-card";
 import { AppShell } from "@/components/layout/app-shell";
 import { downscaleImage } from "@/lib/photo-analysis/downscale-image";
 import { prepareAiImages } from "@/lib/photo-analysis/prepare-ai-image";
+import { RepairCostEstimator } from "@/components/repair-cost/repair-cost-estimator";
 import { createPhotoAnalysisId, upsertPhotoAnalysis } from "@/lib/storage/photo-analysis-storage";
 import type { PhotoAnalysisRecord } from "@/lib/photo-analysis/types";
 import { apiFetch } from "@/lib/api/client";
@@ -452,6 +453,8 @@ export default function PhotoDamagePage() {
           ) : null}
           <p className="mt-4 text-sm leading-6 text-muted-foreground">Bu ekran kesin hasar kararı vermez.</p>
         </section>
+
+        <RepairCostEstimator />
       </div>
     </AppShell>
   );

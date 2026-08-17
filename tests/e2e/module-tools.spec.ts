@@ -106,13 +106,10 @@ test("module cards open usable assistant tools", async ({ page }) => {
   await expect(page.getByText("AI fotoğraf kontrolü tamamlandı. Bugün kalan hak: 9")).toBeVisible();
   await expect(page.getByText("Ön tampon: Çizik")).toHaveCount(2);
 
+  // Eski /bakim-takibi modülü Bakım ve Ödeme Takvimi'yle birleştirildi;
+  // route artık yalnızca oraya yönlendirir.
   await page.goto("/bakim-takibi");
-  await page.getByLabel("Güncel kilometre").fill("98000");
-  await expect(page.getByText("Yakın kontrol").first()).toBeVisible();
-  await expect(page.getByRole("link", { name: "Bakım ve Ödeme Takvimi'ne git" })).toHaveAttribute(
-    "href",
-    "/bakim-odeme-takvimi",
-  );
+  await expect(page).toHaveURL(/\/bakim-odeme-takvimi$/);
 
   await page.goto("/arac-saglik-karnesi");
   // The default vehicle is hydrated asynchronously (a requestAnimationFrame

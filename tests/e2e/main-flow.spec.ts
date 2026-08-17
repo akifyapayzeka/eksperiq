@@ -212,21 +212,46 @@ test("shows product module roadmap", async ({ page }) => {
     page.getByRole("heading", { name: "Sadece ilan analizi değil, araç yolculuğu asistanı." }),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "Tüm modüller" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Modülü aç/ })).toHaveCount(13);
+  await expect(page.getByRole("link", { name: /Modülü aç/ })).toHaveCount(10);
   await expect(page.getByRole("heading", { name: "İlan Analizi", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Fotoğraftan Hasar Analizi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Araç Sağlık Karnesi" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Bakım ve Ödeme Takvimi" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Bakım Takibi", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Test Sürüşü Kontrol Listesi" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Resmi Sorgu Rehberi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Gider Defteri" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Karşılaştırmalı İlan Analizi" })).toBeVisible();
-  await expect(page.getByText("Kesinlik sınırı:")).toHaveCount(13);
+  await expect(page.getByText("Kesinlik sınırı:")).toHaveCount(10);
 });
 
-test("expertise report accepts report files and text", async ({ page }) => {
+test("expertise report is fully AI-driven from an uploaded file", async ({ page }) => {
+  await page.route("**/api/ai/expertise-report", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        analysis: {
+          isReportReadable: true,
+          overallRisk: "high",
+          summary: "Raporda şasi ve airbag ile ilgili dikkat çeken maddeler var.",
+          findings: [
+            {
+              id: "report-1",
+              category: "Şasi/Podye",
+              area: "Sağ ön şasi",
+              status: "podye izi var",
+              explanation: "Rapor podye bölgesinde işlem izine değiniyor.",
+              recommendation: "Bağımsız ekspertizde şasi ölçümü isteyin.",
+            },
+          ],
+          disclaimer: "Bu özet raporun AI ile okunmasından oluşur.",
+        },
+        remaining: 9,
+      }),
+    });
+  });
+
   await page.goto("/ekspertiz-raporu");
-  await expect(page.getByRole("heading", { name: "Ekspertiz raporunu kontrol notuna çevir" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Ekspertiz raporunu AI ile kontrol notuna çevir" })).toBeVisible();
   await setSyntheticFileUntilLabel(
     page,
     'input[type="file"]',
@@ -235,11 +260,14 @@ test("expertise report accepts report files and text", async ({ page }) => {
       mimeType: "image/png",
       base64: MINIMAL_PNG_BASE64,
     },
-    "1 dosya seçildi.",
+    "ekspertiz-raporu.png",
   );
-  await page.getByLabel("Ekspertiz raporu metni").fill("Araçta şasi kontrolü ve airbag arıza taraması önerilir.");
-  await expect(page.getByText("Şasi/podye ifadesi var; ekspertizde özellikle doğrulanmalı.")).toBeVisible();
-  await expect(page.getByText("Airbag ifadesi var; emniyet sistemi arıza taraması istenmeli.")).toBeVisible();
+  await page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/).check();
+  await page.getByRole("button", { name: "AI ile analiz et" }).click();
+  await expect(page.getByText("AI rapor analizi tamamlandı. Bugün kalan hak: 9")).toBeVisible();
+  await expect(page.getByText("Şasi/Podye · Sağ ön şasi")).toBeVisible();
+  await expect(page.getByText("podye izi var")).toBeVisible();
+  await expect(page.getByText("Yüksek risk")).toBeVisible();
 });
 
 test("shows feedback collection flow", async ({ page }) => {

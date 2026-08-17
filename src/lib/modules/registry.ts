@@ -40,25 +40,13 @@ export const productModules: ProductModule[] = [
         description:
           "Göçük, çizik, boya çatlağı, renk farkı, panel hizasızlığı, pas, çatlak ve kırık sinyallerini arar.",
       },
-    ],
-    dataPolicy: "Fotoğraflar için açık kullanıcı onayı, geçici işleme ve silme politikası gerektirir.",
-    certaintyPolicy: "Kesin hasar iddiası üretmez; olasılık ve güven seviyesiyle konuşur.",
-  },
-  {
-    id: "repair-cost-estimation",
-    title: "Tahmini Onarım Maliyeti",
-    status: "active",
-    href: "/onarim-maliyeti",
-    summary: "Olası hasar bulgularına göre şehir, servis ve parça değişkenliğini belirten maliyet aralıkları sunar.",
-    capabilities: [
       {
-        title: "Maliyet aralığı",
-        description:
-          "Tampon boya, göçük düzeltme, far/cam değişimi, jant tamiri, pasta cila ve kapı boya gibi kalemleri gruplayabilir.",
+        title: "Tahmini onarım maliyeti",
+        description: "Bulunan hasar kalemi ve servis tipine göre yaklaşık maliyet aralığı gösterir.",
       },
     ],
-    dataPolicy: "Kullanıcı girdileri ve fotoğraf analizi çıktıları üzerinden çalışır; kesin fiyat kaydı tutmaz.",
-    certaintyPolicy: "Net fiyat vermez; aralık ve değişkenlik uyarısı gösterir.",
+    dataPolicy: "Fotoğraflar için açık kullanıcı onayı, geçici işleme ve silme politikası gerektirir.",
+    certaintyPolicy: "Kesin hasar iddiası veya net fiyat üretmez; olasılık ve aralıklarla konuşur.",
   },
   {
     id: "expertise-report-analysis",
@@ -76,27 +64,11 @@ export const productModules: ProductModule[] = [
     certaintyPolicy: "Raporu yorumlar; resmi kayıt veya ekspertiz doğrulaması yerine geçmez.",
   },
   {
-    id: "maintenance-tracking",
+    id: "maintenance-payment-calendar",
     title: "Bakım Takibi",
     status: "active",
-    href: "/bakim-takibi",
-    summary: "Kullanıcının kendi aracı için bakım, muayene, vergi ve sigorta hatırlatmaları üretir.",
-    capabilities: [
-      {
-        title: "Bakım hatırlatmaları",
-        description:
-          "Yağ, filtre, triger, zincir, fren, disk, lastik, akü, muayene, MTV, trafik sigortası ve kasko başlıklarını takip eder.",
-      },
-    ],
-    dataPolicy: "Kullanıcı hesabı ve açık saklama tercihi olmadan kalıcı araç kaydı oluşturmaz.",
-    certaintyPolicy: "Bakım önerileri üretir; servis teşhisi veya teknik garanti vermez.",
-  },
-  {
-    id: "maintenance-payment-calendar",
-    title: "Bakım ve Ödeme Takvimi",
-    status: "active",
     href: "/bakim-odeme-takvimi",
-    summary: "MTV, trafik sigortası, kasko, muayene ve bakım gibi tarihleri tek ekranda takip eder.",
+    summary: "Bakım, muayene, MTV, trafik sigortası ve kasko gibi tarihleri araç bazında tek takvimde takip eder.",
     capabilities: [
       {
         title: "Tek takvim",
@@ -130,23 +102,6 @@ export const productModules: ProductModule[] = [
     ],
     dataPolicy: "İşaretler yalnızca mevcut tarayıcı oturumunda tutulur; sunucuya kaydedilmez.",
     certaintyPolicy: "Teknik arıza teşhisi yapmaz; şüpheli bulguları bağımsız ekspertize yönlendirir.",
-  },
-  {
-    id: "official-lookup-guide",
-    title: "Resmi Sorgu Rehberi",
-    status: "active",
-    href: "/resmi-sorgu-rehberi",
-    summary:
-      "Hasar kaydı, muayene, MTV borcu, rehin/haciz ve sigorta gibi bilgileri nereden doğrulayacağınızı gösterir.",
-    capabilities: [
-      {
-        title: "Kaynak rehberi",
-        description:
-          "Her bilgi türü için hangi resmi kanaldan (e-Devlet, TÜVTÜRK, noter, sigorta şirketi) kontrol edileceğini listeler.",
-      },
-    ],
-    dataPolicy: "Herhangi bir sorguyu kendisi yapmaz veya scrape etmez; yalnızca yönlendirme metni sunar.",
-    certaintyPolicy: "Sorgu sonuçlarını garanti etmez; yalnızca nereden bakılacağını hatırlatır.",
   },
   {
     id: "expense-ledger",

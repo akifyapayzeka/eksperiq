@@ -9,9 +9,12 @@ import {
   CarFront,
   ClipboardPaste,
   FileCheck2,
+  FileSearch,
   FileText,
+  ImagePlus,
   ScanSearch,
   ShieldCheck,
+  Sparkles,
   UserRound,
   Wrench,
 } from "lucide-react";
@@ -41,7 +44,22 @@ const shortcuts = [
   { icon: CarFront, title: "Garajım", href: "/arac-saglik-karnesi" },
   { icon: FileText, title: "Analizlerim", href: "/analizlerim" },
   { icon: FileCheck2, title: "Raporlarım", href: "/sonuc" },
-  { icon: Wrench, title: "Bakım Takibi", href: "/bakim-takibi" },
+  { icon: Wrench, title: "Bakım Takibi", href: "/bakim-odeme-takvimi" },
+];
+
+const aiTools = [
+  {
+    icon: ImagePlus,
+    title: "Fotoğraftan Hasar Analizi",
+    description: "Araç fotoğraflarını yükle, AI olası hasarı işaretlesin.",
+    href: "/fotograf-hasar",
+  },
+  {
+    icon: FileSearch,
+    title: "Ekspertiz Raporu Analizi",
+    description: "PDF veya rapor fotoğrafını yükle, AI kritik maddeleri çıkarsın.",
+    href: "/ekspertiz-raporu",
+  },
 ];
 
 export default function Home() {
@@ -126,6 +144,36 @@ export default function Home() {
       />
 
       <section className="mt-6">
+        <SectionHeader
+          title="AI ile hızlı kontrol"
+          description="Fotoğraf veya rapor yükle, gerisini AI halletsin."
+          action={
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent">
+              <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />
+              AI destekli
+            </span>
+          }
+        />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {aiTools.map((tool) => (
+            <Link
+              key={tool.href}
+              href={tool.href}
+              className="flex items-start gap-3 rounded-theme border border-border bg-card p-4 shadow-sm transition hover:border-accent"
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">
+                <tool.icon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+              </span>
+              <span className="min-w-0">
+                <span className="block font-heading text-sm font-bold text-foreground">{tool.title}</span>
+                <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">{tool.description}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-7">
         <SectionHeader title="Analiz özetin" description={undefined} action="Son 90 gün" />
         {isReady ? (
           <StatGrid

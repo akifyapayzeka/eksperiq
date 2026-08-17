@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CarFront, ChevronRight, FileText, Info, MessageSquareText, ShieldCheck } from "lucide-react";
+import { CarFront, ChevronRight, FileText, Info, MessageSquareText, ShieldCheck, Search } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
@@ -11,6 +11,7 @@ import { PrimaryButton } from "@/components/ui/button";
 import { DisclaimerCard } from "@/components/ui/alert";
 
 const supportLinks = [
+  { href: "/resmi-sorgu-rehberi", label: "Resmi Sorgu Rehberi", icon: Search },
   { href: "/geri-bildirim", label: "Geri bildirim gönder", icon: MessageSquareText },
   { href: "/gizlilik", label: "Gizlilik politikası", icon: ShieldCheck },
   { href: "/kullanim-kosullari", label: "Kullanım koşulları", icon: FileText },
