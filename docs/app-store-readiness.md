@@ -71,6 +71,7 @@ Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build App
 - Kötüye kullanımı sınırlamak için anonim, tek yönlü özetlenmiş (hash) kurulum kimliği/IP ile kısa ömürlü istek sayaçları tutulur; kullanıcı kimliğiyle ilişkilendirilemez.
 - Analiz ve diğer kullanıcı verisi (araçlar, hatırlatmalar, giderler, sağlık kayıtları, fotoğraf analizleri) yalnızca cihazda tutulur; geliştirici sunucusunda kalıcı hesap kaydı olarak saklanmaz. Kullanıcı bu veriyi Profil > Verilerim ekranından dışa/içe aktarabilir veya tamamen silebilir.
 - Yerel ürün olayları yalnızca iş akışı sayaçları ve kaba bant bilgileri içerir; cihaz dışına gönderilmez, reklam takibi veya üçüncü taraf analytics amacıyla kullanılmaz.
+- Türkçe TL girişi/gösterimi: Gider Defteri ve Bakım/Ödeme Takvimi artık `1.200,50` gibi Türkçe binlik/ondalık biçimini kabul eder; hatalı İngilizce ayırıcı karışımları reddedilir.
 - Profil > Verilerim dışa/içe aktarma akışı gerçek localStorage export/import koduna bağlıdır. 2026-08-17'de JSON export download fallback'i Safari/WebView için güçlendirildi: indirme bağlantısı tıklandıktan sonra `URL.revokeObjectURL` kısa gecikmeyle çağrılıyor.
 
 ## Mağaza Varlık Checklist'i
