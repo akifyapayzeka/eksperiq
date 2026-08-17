@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { appConfig } from "@/lib/constants/app";
 import { themeInitScript } from "@/lib/theme/theme-preference";
+import { AuthProvider } from "@/lib/auth/auth-context";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -64,10 +65,12 @@ export default function RootLayout({
         </Script>
       </head>
       <body className="safe-area-shell flex min-h-full flex-col bg-background text-foreground font-body">
-        <SiteHeader />
-        {children}
-        <SiteFooter />
-        <MobileBottomNav />
+        <AuthProvider>
+          <SiteHeader />
+          {children}
+          <SiteFooter />
+          <MobileBottomNav />
+        </AuthProvider>
       </body>
     </html>
   );

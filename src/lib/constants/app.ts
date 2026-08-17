@@ -21,5 +21,5 @@ export const appConfig = {
   disclaimer:
     "Bu analiz yalnızca bilgilendirme ve karar desteği amacıyla hazırlanır. Profesyonel araç ekspertizinin, servis kontrolünün, resmî kayıt sorgularının veya hukuki incelemenin yerine geçmez. Son satın alma kararı kullanıcıya aittir.",
   privacy:
-    "Girdiğiniz ilan ve araç bilgileri hesabınıza kaydedilmez; yalnızca bu cihaza kaydedilir ve istediğiniz zaman silebilirsiniz.",
+    "Girdiğiniz ilan ve araç bilgileri bu cihazda saklanır ve istediğiniz zaman silebilirsiniz. Hesabınız yalnızca Pro/Pro+ abonelik ve giriş içindir; araç kayıtlarınızı sunucuya göndermez.",
 } as const;

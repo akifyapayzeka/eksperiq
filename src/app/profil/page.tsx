@@ -3,6 +3,7 @@ import { CarFront, ChevronRight, FileText, Info, MessageSquareText, ShieldCheck 
 import { appConfig } from "@/lib/constants/app";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
+import { AccountSection } from "@/components/profile/account-section";
 import { DataManagementSection } from "@/components/profile/data-management-section";
 import { NotificationPreferenceSection } from "@/components/profile/notification-preference-section";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -19,9 +20,11 @@ const supportLinks = [
 export default function ProfilePage() {
   return (
     <AppShell>
-      <PageHeader eyebrow="Hesap gerektirmez" title="Profil ve Ayarlar" />
+      <PageHeader eyebrow="Hesap ve Ayarlar" title="Profil ve Ayarlar" />
 
-      <section className="rounded-theme border border-border bg-card p-5 shadow-sm">
+      <AccountSection />
+
+      <section className="mt-4 rounded-theme border border-border bg-card p-5 shadow-sm">
         <div className="flex items-center justify-between gap-4">
           <div>
             <h2 className="font-heading font-bold text-foreground">Görünüm</h2>

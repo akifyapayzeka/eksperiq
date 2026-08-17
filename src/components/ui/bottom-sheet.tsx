@@ -29,6 +29,22 @@ export function BottomSheet({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open, onClose]);
 
+  useEffect(() => {
+    if (!open) return;
+    // Klavye acildiginda odaklanan alanin (orn. Kilometre) altta kalmamasi
+    // icin gorunur alana kaydir. @capacitor/keyboard "native" resize modu
+    // webview'i kuculttukten sonra bile bazi cihazlarda tarayici hemen
+    // scroll etmiyor, bu yuzden ek bir guvence.
+    function onFocusIn(event: FocusEvent) {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (!["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName)) return;
+      window.setTimeout(() => target.scrollIntoView({ block: "center", behavior: "smooth" }), 150);
+    }
+    document.addEventListener("focusin", onFocusIn);
+    return () => document.removeEventListener("focusin", onFocusIn);
+  }, [open]);
+
   if (!open) return null;
 
   return (

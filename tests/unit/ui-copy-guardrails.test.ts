@@ -6,10 +6,13 @@ import { join } from "node:path";
  * Regression guardrails from the FireVibe UI integration pass:
  * - no lingering FireVibe mock remote-image domain
  * - no "Yakında" (coming soon) label on any active-module surface
- * - no account-style "Çıkış yap"/"Hesabı Sil" controls (this app has no accounts)
  *
  * These complement scripts/check-safe-claims.mjs and
  * scripts/check-sensitive-data.mjs, which cover a different phrase set.
+ *
+ * Note: the app now has real Supabase accounts for Pro/Pro+ subscription
+ * management (src/lib/auth/auth-context.tsx) — "Çıkış yap" is expected UI
+ * copy, not a regression, so the older no-accounts guardrail was removed.
  */
 
 const SRC_ROOT = join(process.cwd(), "src");
@@ -37,14 +40,6 @@ describe("UI copy guardrails", () => {
     const offenders = sourceFiles
       .filter((file) => !file.endsWith(".test.ts") && !file.endsWith(".test.tsx"))
       .filter((file) => readFileSync(file, "utf-8").includes("Yakında"));
-    expect(offenders).toEqual([]);
-  });
-
-  it('never shows "Çıkış yap" or "Hesabı Sil" — this app has no user accounts', () => {
-    const offenders = sourceFiles.filter((file) => {
-      const content = readFileSync(file, "utf-8");
-      return content.includes("Çıkış yap") || content.includes("Hesabı Sil");
-    });
     expect(offenders).toEqual([]);
   });
 

@@ -24,6 +24,18 @@ jobs:
     env:
       BUNDLE_ID: com.eksperiq.app
       SCHEME: App
+      # NEXT_PUBLIC_* degiskenler Next.js static export sirasinda derleme
+      # zamaninda gomulur (bkz. "Build static export" adimi) — bu yuzden
+      # burada Vercel'deki degerden BAGIMSIZ olarak da tanimlanmalari
+      # gerekir, yoksa native uygulama AI ozelliklerini kapali gorur.
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true"
+      NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED: "true"
+      NEXT_PUBLIC_EXPERTISE_REPORT_AI_ENABLED: "true"
+      # Supabase hesap girişi (Pro/Pro+ abonelik) icin — bu iki GitHub Secret
+      # tanimli degilse hesap ozelligi sessizce kapali kalir (getSupabaseBrowserClient
+      # null doner), build hata vermez ama giris yapilamaz.
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
       IOS_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}

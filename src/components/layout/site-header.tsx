@@ -12,7 +12,10 @@ const links = [
 
 export function SiteHeader() {
   return (
-    <header className="no-print sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur">
+    <header
+      className="no-print sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur"
+      style={{ paddingTop: "env(safe-area-inset-top)" }}
+    >
       <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <Link
           href="/"

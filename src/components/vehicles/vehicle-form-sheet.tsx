@@ -7,6 +7,7 @@ import { Field, SelectField } from "@/components/ui/field";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/button";
 import { VehiclePlaceholder } from "@/components/ui/vehicle-placeholder";
 import { createVehicleId, upsertVehicle } from "@/lib/storage/vehicle-storage";
+import { VEHICLE_BRANDS, modelsForBrand } from "@/lib/vehicles/brand-catalog";
 import {
   VEHICLE_FUEL_LABELS,
   VEHICLE_TRANSMISSION_LABELS,
@@ -17,6 +18,9 @@ import {
 
 const FUEL_OPTIONS = Object.entries(VEHICLE_FUEL_LABELS) as [VehicleFuelType, string][];
 const TRANSMISSION_OPTIONS = Object.entries(VEHICLE_TRANSMISSION_LABELS) as [VehicleTransmissionType, string][];
+const OTHER_BRAND = "Diğer";
+const CURRENT_YEAR = new Date().getFullYear();
+const VEHICLE_YEARS = Array.from({ length: CURRENT_YEAR - 1979 }, (_, index) => String(CURRENT_YEAR + 1 - index));
 
 type DraftState = {
   label: string;
@@ -73,6 +77,10 @@ export function VehicleFormSheet({
   function update<K extends keyof DraftState>(key: K, value: DraftState[K]) {
     setDraft((current) => ({ ...current, [key]: value }));
   }
+
+  const isKnownBrand = (VEHICLE_BRANDS as readonly string[]).includes(draft.brand);
+  const brandSelectValue = draft.brand ? (isKnownBrand ? draft.brand : OTHER_BRAND) : "";
+  const modelListId = "vehicle-model-suggestions";
 
   function handlePhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -135,23 +143,54 @@ export function VehicleFormSheet({
         />
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field
+          <SelectField
             id="vehicle-brand"
             label="Marka"
-            value={draft.brand}
-            onChange={(event) => update("brand", event.target.value)}
+            options={[...VEHICLE_BRANDS]}
+            value={brandSelectValue}
+            onChange={(event) => {
+              const value = event.target.value;
+              update("brand", value === OTHER_BRAND ? "" : value);
+            }}
           />
-          <Field
-            id="vehicle-model"
-            label="Model"
-            value={draft.model}
-            onChange={(event) => update("model", event.target.value)}
-          />
-          <Field
+          {brandSelectValue === OTHER_BRAND ? (
+            <Field
+              id="vehicle-brand-custom"
+              label="Marka (elle gir)"
+              placeholder="Örn. Başka bir marka"
+              value={draft.brand}
+              onChange={(event) => update("brand", event.target.value)}
+            />
+          ) : (
+            <>
+              <Field
+                id="vehicle-model"
+                label="Model"
+                placeholder="Listeden seçin veya yazın"
+                list={modelListId}
+                value={draft.model}
+                onChange={(event) => update("model", event.target.value)}
+              />
+              <datalist id={modelListId}>
+                {modelsForBrand(draft.brand).map((model) => (
+                  <option key={model} value={model} />
+                ))}
+              </datalist>
+            </>
+          )}
+          {brandSelectValue === OTHER_BRAND ? (
+            <Field
+              id="vehicle-model"
+              label="Model"
+              placeholder="Örn. model adı"
+              value={draft.model}
+              onChange={(event) => update("model", event.target.value)}
+            />
+          ) : null}
+          <SelectField
             id="vehicle-year"
             label="Model yılı"
-            type="number"
-            inputMode="numeric"
+            options={VEHICLE_YEARS}
             value={draft.modelYear}
             onChange={(event) => update("modelYear", event.target.value)}
           />
