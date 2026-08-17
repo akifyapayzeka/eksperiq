@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Manrope, Inter } from "next/font/google";
 import "./globals.css";
@@ -51,6 +51,16 @@ export const metadata: Metadata = {
     locale: "tr_TR",
     type: "website",
   },
+};
+
+// viewportFit "cover" is required for env(safe-area-inset-*) to report
+// anything other than 0 in the iOS WKWebView — without it every safe-area
+// padding rule in the app (header, bottom nav, footer) is a silent no-op
+// and content sits under the notch/status bar.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
