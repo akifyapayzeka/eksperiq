@@ -69,6 +69,7 @@ Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build App
 - AI karar destek ve fotoğraf kontrolü OpenRouter üzerinden geçici, veri saklama karşıtı parametreyle işleme yapabilir.
 - Kötüye kullanımı sınırlamak için anonim, tek yönlü özetlenmiş (hash) kurulum kimliği/IP ile kısa ömürlü istek sayaçları tutulur; kullanıcı kimliğiyle ilişkilendirilemez.
 - Analiz ve diğer kullanıcı verisi (araçlar, hatırlatmalar, giderler, sağlık kayıtları, fotoğraf analizleri) yalnızca cihazda tutulur; geliştirici sunucusunda kalıcı hesap kaydı olarak saklanmaz. Kullanıcı bu veriyi Profil > Verilerim ekranından dışa/içe aktarabilir veya tamamen silebilir.
+- Türkçe TL girişi/gösterimi: Gider Defteri ve Bakım/Ödeme Takvimi artık `1.200,50` gibi Türkçe binlik/ondalık biçimini kabul eder; hatalı İngilizce ayırıcı karışımları reddedilir.
 
 ## Mağaza Varlık Checklist'i
 

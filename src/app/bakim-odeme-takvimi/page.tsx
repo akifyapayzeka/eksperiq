@@ -22,6 +22,7 @@ import { filterByVehicle, recordVehicleId } from "@/lib/vehicles/model";
 import { createVehicleId, deleteVehicle, loadVehicles, upsertVehicle } from "@/lib/storage/vehicle-storage";
 import type { VehicleProfile } from "@/lib/vehicles/types";
 import { SecondaryButton } from "@/components/ui/button";
+import { formatTryAmount, formatTurkishLiraInputValue, parseTurkishLiraInput } from "@/lib/format/money";
 
 const categoryDefaultTitles: Record<ReminderCategory, string> = {
   mtv: "MTV taksiti",
@@ -61,7 +62,7 @@ function formatDate(value: string): string {
 
 function formatAmount(amount?: number): string | null {
   if (typeof amount !== "number") return null;
-  return `${amount.toLocaleString("tr-TR")} TL`;
+  return formatTryAmount(amount, 2);
 }
 
 export default function MaintenancePaymentCalendarPage() {
@@ -206,9 +207,9 @@ export default function MaintenancePaymentCalendarPage() {
       return;
     }
 
-    const parsedAmount = amount.trim() ? Number(amount) : undefined;
-    if (amount.trim() && (parsedAmount === undefined || Number.isNaN(parsedAmount) || parsedAmount < 0)) {
-      setFormMessage("Tutar geçerli bir sayı olmalıdır.");
+    const parsedAmount = amount.trim() ? parseTurkishLiraInput(amount) : undefined;
+    if (parsedAmount === null || (parsedAmount !== undefined && parsedAmount < 0)) {
+      setFormMessage("Tutar geçerli bir TL tutarı olmalıdır (örn. 1.200,50).");
       return;
     }
 
@@ -238,7 +239,7 @@ export default function MaintenancePaymentCalendarPage() {
     setCategory(record.category);
     setTitle(record.title);
     setDueDate(record.dueDate);
-    setAmount(record.amount !== undefined ? String(record.amount) : "");
+    setAmount(record.amount !== undefined ? formatTurkishLiraInputValue(record.amount) : "");
     setNote(record.note ?? "");
     setRecurrence(record.recurrence);
     setFormMessage("");
@@ -399,10 +400,10 @@ export default function MaintenancePaymentCalendarPage() {
             <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Tutar (opsiyonel, TL)
               <input
-                type="number"
-                min="0"
+                inputMode="decimal"
                 value={amount}
                 onChange={(event) => setAmount(event.target.value)}
+                placeholder="Örn. 1.200,50"
                 className="min-h-12 rounded-theme-sm border border-border px-3"
               />
             </label>
