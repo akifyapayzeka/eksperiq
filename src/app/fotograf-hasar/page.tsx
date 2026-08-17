@@ -10,6 +10,7 @@ import { RepairCostEstimator } from "@/components/repair-cost/repair-cost-estima
 import { createPhotoAnalysisId, upsertPhotoAnalysis } from "@/lib/storage/photo-analysis-storage";
 import type { PhotoAnalysisRecord } from "@/lib/photo-analysis/types";
 import { apiFetch } from "@/lib/api/client";
+import { acceptAiConsent, hasAcceptedAiConsent } from "@/lib/consent/ai-consent";
 
 const areas = [
   "Ön tampon",
@@ -66,7 +67,14 @@ export default function PhotoDamagePage() {
   const [aiStatus, setAiStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [aiMessage, setAiMessage] = useState("");
   const [aiAnalysis, setAiAnalysis] = useState<AiPhotoAnalysis | null>(null);
-  const [aiConsent, setAiConsent] = useState(false);
+  // KVKK/gizlilik/AI onayı normalde üye ol/giriş yap ekranında bir kez
+  // alınır (RequireAuthGate); burada tekrar sorulmaz. Yalnızca o onay hiç
+  // alınmamışsa (örn. hesap sistemi yapılandırılı değilse) yedek olarak
+  // gösterilir.
+  const [aiConsent, setAiConsent] = useState(() => hasAcceptedAiConsent());
+  // Checking the box flips aiConsent to true; the prompt's visibility must
+  // not depend on the same value or it unmounts itself mid-click.
+  const [showConsentPrompt] = useState(() => !hasAcceptedAiConsent());
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [saveMessage, setSaveMessage] = useState("");
   const canRunAi = isPhotoAiEnabled && Boolean(files.length) && aiConsent && aiStatus !== "loading";
@@ -261,7 +269,6 @@ export default function PhotoDamagePage() {
                 setAiStatus("idle");
                 setAiMessage("");
                 setAiAnalysis(null);
-                setAiConsent(false);
               }}
             />
           </label>
@@ -280,12 +287,15 @@ export default function PhotoDamagePage() {
               Canlı AI fotoğraf kontrolü şu anda kapalı. Bu ekranda manuel kontrol notu oluşturabilirsiniz.
             </p>
           ) : null}
-          {isPhotoAiEnabled ? (
+          {isPhotoAiEnabled && showConsentPrompt ? (
             <label className="mt-4 flex items-start gap-3 rounded-theme-sm border border-border bg-muted p-3 text-sm font-semibold text-foreground/90">
               <input
                 type="checkbox"
                 checked={aiConsent}
-                onChange={(event) => setAiConsent(event.target.checked)}
+                onChange={(event) => {
+                  setAiConsent(event.target.checked);
+                  if (event.target.checked) acceptAiConsent();
+                }}
                 className="mt-1 h-4 w-4 shrink-0 accent-primary"
               />
               <span>

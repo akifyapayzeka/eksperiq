@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, type FormEvent, type ReactNode } from "react";
+import Link from "next/link";
 import { CarFront, Check, Lock, Mail, Sparkles, UserPlus } from "lucide-react";
 import { useAuth } from "@/lib/auth/auth-context";
-import { EKSPERIQ_PLAN_PRICING, formatTry, type EksperIqPaidPlanId } from "@/lib/pro/pricing";
-import { purchasePlan } from "@/lib/pro/entitlement";
+import { EKSPERIQ_PLAN_PRICING, formatTry } from "@/lib/pro/pricing";
+import { acceptAiConsent } from "@/lib/consent/ai-consent";
 import { Field } from "@/components/ui/field";
 import { PrimaryButton } from "@/components/ui/button";
 
@@ -29,6 +30,7 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState<AuthMode>("signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
@@ -48,6 +50,10 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    if (!termsAccepted) {
+      setError("Devam etmek için KVKK ve gizlilik onayını işaretleyin.");
+      return;
+    }
     setIsSubmitting(true);
     const result = mode === "signup" ? await signUp(email.trim(), password) : await signIn(email.trim(), password);
     setIsSubmitting(false);
@@ -55,11 +61,17 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
       setError(result.message);
       return;
     }
+    acceptAiConsent();
     // `user` updates via the auth context once Supabase confirms the
     // session; `step` above re-derives to "plans" on the next render.
   }
 
   function continueWithoutAccount() {
+    if (!termsAccepted) {
+      setError("Devam etmek için KVKK ve gizlilik onayını işaretleyin.");
+      return;
+    }
+    acceptAiConsent();
     setAuthSkipped(true);
   }
 
@@ -68,13 +80,13 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
     setPlansDismissed(true);
   }
 
-  async function handlePlanCta(planId: EksperIqPaidPlanId) {
-    setPurchaseMessage(null);
-    try {
-      await purchasePlan(EKSPERIQ_PLAN_PRICING[planId].productId);
-    } catch {
-      setPurchaseMessage("Satın alma yakında aktif olacak. Şimdilik ücretsiz devam edebilirsiniz.");
-    }
+  function handlePlanCta() {
+    // Gercek satin alma henuz devrede degil: App Store Connect'te abonelik
+    // urunleri var ama fiyat atamasi ve StoreKit plugin'inin cihazda
+    // dogrulanmasi hala bekliyor (bkz. EksperIQEntitlementStore.swift basindaki
+    // notlar). Native cagriyi burada denemiyoruz cunku derlenmemis/dogrulanmamis
+    // bir plugin cagrisi kullaniciya "hicbir sey olmadi" gibi donebiliyor.
+    setPurchaseMessage("Satın alma çok yakında aktif olacak. Şimdilik ücretsiz devam edebilirsiniz.");
   }
 
   if (step === "checking") {
@@ -141,6 +153,26 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
               onChange={(event) => setPassword(event.target.value)}
               placeholder="En az 6 karakter"
             />
+            <label className="flex items-start gap-3 rounded-theme-sm border border-border bg-muted p-3 text-sm text-foreground/90">
+              <input
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={(event) => {
+                  setTermsAccepted(event.target.checked);
+                  setError(null);
+                }}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
+              />
+              <span>
+                <Link href="/gizlilik" className="underline">
+                  Gizlilik Politikası
+                </Link>
+                , <Link href="/kullanim-kosullari" className="underline">
+                  Kullanım Koşulları
+                </Link>{" "}
+                ve KVKK kapsamında AI sağlayıcısına (OpenRouter) geçici veri gönderimini kabul ediyorum.
+              </span>
+            </label>
             {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
             <PrimaryButton type="submit" disabled={isSubmitting || !email.trim() || password.length < 6}>
               {mode === "signup" ? (
@@ -212,7 +244,7 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
               </p>
               <button
                 type="button"
-                onClick={() => handlePlanCta(plan.id)}
+                onClick={handlePlanCta}
                 className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-accent px-5 text-sm font-semibold text-primary-foreground"
               >
                 3 gün ücretsiz dene

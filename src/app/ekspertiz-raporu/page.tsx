@@ -8,6 +8,7 @@ import { WarningAlert, DisclaimerCard, InfoAlert } from "@/components/ui/alert";
 import { apiFetch } from "@/lib/api/client";
 import { prepareAiImages } from "@/lib/photo-analysis/prepare-ai-image";
 import { renderPdfPagesToImages } from "@/lib/pdf/render-pdf-pages";
+import { acceptAiConsent, hasAcceptedAiConsent } from "@/lib/consent/ai-consent";
 
 const isExpertiseReportAiEnabled = process.env.NEXT_PUBLIC_EXPERTISE_REPORT_AI_ENABLED === "true";
 
@@ -36,7 +37,14 @@ const riskLabel: Record<ReportAnalysis["overallRisk"], string> = {
 
 export default function ExpertiseReportPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [consent, setConsent] = useState(false);
+  // KVKK/gizlilik/AI onayı normalde üye ol/giriş yap ekranında bir kez
+  // alınır (RequireAuthGate); burada tekrar sorulmaz. Yalnızca o onay hiç
+  // alınmamışsa (örn. hesap sistemi yapılandırılı değilse) yedek olarak
+  // gösterilir.
+  const [consent, setConsent] = useState(() => hasAcceptedAiConsent());
+  // Checking the box flips consent to true; the prompt's visibility must
+  // not depend on the same value or it unmounts itself mid-click.
+  const [showConsentPrompt] = useState(() => !hasAcceptedAiConsent());
   const [status, setStatus] = useState<"idle" | "preparing" | "loading" | "ready" | "error">("idle");
   const [message, setMessage] = useState("");
   const [analysis, setAnalysis] = useState<ReportAnalysis | null>(null);
@@ -165,12 +173,15 @@ export default function ExpertiseReportPage() {
             <p className="mt-3 rounded-theme-sm border border-warning/30 bg-warning/10 px-3 py-2 text-sm font-medium text-foreground">
               AI rapor analizi şu anda kapalı.
             </p>
-          ) : (
+          ) : showConsentPrompt ? (
             <label className="mt-4 flex items-start gap-3 rounded-theme-sm border border-border bg-muted p-3 text-sm font-semibold text-foreground/90">
               <input
                 type="checkbox"
                 checked={consent}
-                onChange={(event) => setConsent(event.target.checked)}
+                onChange={(event) => {
+                  setConsent(event.target.checked);
+                  if (event.target.checked) acceptAiConsent();
+                }}
                 className="mt-1 h-4 w-4 shrink-0 accent-primary"
               />
               <span>
@@ -178,7 +189,7 @@ export default function ExpertiseReportPage() {
                 onaylıyorum.
               </span>
             </label>
-          )}
+          ) : null}
           <button
             type="button"
             onClick={analyzeReportWithAi}
