@@ -80,18 +80,25 @@ export const nativeStoreKitEntitlementProvider: EntitlementProvider = {
 };
 
 /**
- * Starts a real StoreKit 2 purchase. Throws on web (no purchase mechanism
- * there) and, until the manual blockers in docs/ios-storekit-integration.md
- * are resolved, also throws on native (the plugin has no compiled
- * implementation yet) — callers must not render a purchase button that
- * calls this until it has been verified working on a real device.
+ * Starts a real StoreKit 2 purchase for the given App Store Connect product
+ * id. Throws on web (no purchase mechanism there) and, until the manual
+ * blockers in docs/ios-storekit-integration.md are resolved, also throws on
+ * native (the plugin has no compiled implementation yet) — callers must
+ * catch this and show a friendly "coming soon" message rather than crash,
+ * and must not render a purchase button that assumes success until this has
+ * been verified working on a real device.
  */
-export async function purchasePro(): Promise<EntitlementSnapshot> {
+export async function purchasePlan(productId: string): Promise<EntitlementSnapshot> {
   if (!Capacitor.isNativePlatform()) {
     throw new Error("Satın alma yalnızca mağaza sürümünde kullanılabilir.");
   }
-  const result = await EksperIQEntitlementPlugin.purchase({ productId: PRO_MONTHLY_PRODUCT_ID });
+  const result = await EksperIQEntitlementPlugin.purchase({ productId });
   return { state: result.state, expiresAt: result.expiresAt, checkedAt: new Date().toISOString() };
+}
+
+/** @deprecated use purchasePlan(productId) — kept only if older callers still import this name. */
+export async function purchasePro(): Promise<EntitlementSnapshot> {
+  return purchasePlan(PRO_MONTHLY_PRODUCT_ID);
 }
 
 /** Restores previous purchases via StoreKit 2's AppStore.sync(). No-op on web. */
