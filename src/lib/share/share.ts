@@ -1,11 +1,14 @@
 "use client";
 
 import { Capacitor } from "@capacitor/core";
+import { InAppReview } from "@capacitor-community/in-app-review";
 import { Share } from "@capacitor/share";
 import { appConfig } from "@/lib/constants/app";
 
 export type ShareRequest = { title: string; text: string };
 export type ShareOutcome = "shared" | "copied" | "failed";
+
+let didRequestStoreReview = false;
 
 async function copyToClipboardFallback(text: string): Promise<boolean> {
   try {
@@ -49,6 +52,7 @@ export async function shareContent(request: ShareRequest): Promise<ShareOutcome>
         text: request.text,
         url: appConfig.productionUrl,
       });
+      void requestStoreReviewAfterPositiveAction();
       return "shared";
     } catch {
       const copied = await copyToClipboardFallback(request.text);
@@ -67,4 +71,15 @@ export async function shareContent(request: ShareRequest): Promise<ShareOutcome>
 
   const copied = await copyToClipboardFallback(request.text);
   return copied ? "copied" : "failed";
+}
+
+async function requestStoreReviewAfterPositiveAction(): Promise<void> {
+  if (didRequestStoreReview) return;
+  didRequestStoreReview = true;
+
+  try {
+    await InAppReview.requestReview();
+  } catch {
+    // Store review prompts are best-effort and must not interrupt report sharing.
+  }
 }
