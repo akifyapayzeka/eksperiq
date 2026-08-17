@@ -1,6 +1,7 @@
 "use client";
 
 import { appConfig } from "@/lib/constants/app";
+import { recordProductEvent } from "@/lib/analytics/productEvents";
 import { MAX_COMPARISON_ENTRIES } from "@/lib/comparison/types";
 import type { ComparisonEntry } from "@/lib/comparison/types";
 import type { AnalysisResult } from "@/lib/analysis/types";
@@ -57,6 +58,11 @@ export function addToComparison(result: AnalysisResult): AddComparisonResult {
   };
 
   writeRaw([...current, entry]);
+  recordProductEvent("comparison_entry_added", {
+    entryCount: current.length + 1,
+    scoreBand: Math.floor(result.totalScore / 10) * 10,
+    riskLabel: result.riskLabel,
+  });
   return { ok: true };
 }
 

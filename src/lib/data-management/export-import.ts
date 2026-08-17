@@ -1,6 +1,7 @@
 "use client";
 
 import { appConfig } from "@/lib/constants/app";
+import { recordProductEvent } from "@/lib/analytics/productEvents";
 import { CURRENT_DATA_SCHEMA_VERSION, dataExportBundleSchema, type DataExportBundle } from "./schema";
 import { migrateBundle } from "./migrations";
 import { EXPORTABLE_STORAGE_KEYS } from "./keys";
@@ -36,7 +37,12 @@ export function buildDataExportBundle(): DataExportBundle {
 }
 
 export function exportDataAsJson(): string {
-  return JSON.stringify(buildDataExportBundle(), null, 2);
+  const bundle = buildDataExportBundle();
+  recordProductEvent("data_exported", {
+    exportableKeyCount: Object.keys(bundle.data).length,
+    recordCount: Object.values(bundle.data).reduce((total, records) => total + records.length, 0),
+  });
+  return JSON.stringify(bundle, null, 2);
 }
 
 export type ImportResult = { ok: true; importedKeys: string[] } | { ok: false; error: string };
