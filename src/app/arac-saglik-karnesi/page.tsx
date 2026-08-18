@@ -27,6 +27,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { HeroCard } from "@/components/cards/hero-card";
 import { ReminderCard } from "@/components/cards/reminder-card";
 import { SecondaryButton } from "@/components/ui/button";
+import { RepairCostEstimator } from "@/components/repair-cost/repair-cost-estimator";
 
 export default function VehicleHealthRecordPage() {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
@@ -359,6 +360,8 @@ export default function VehicleHealthRecordPage() {
           </>
           )}
         </section>
+
+        <RepairCostEstimator />
 
         <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
           <h2 className="text-xl font-semibold text-foreground">Zaman çizelgesi</h2>

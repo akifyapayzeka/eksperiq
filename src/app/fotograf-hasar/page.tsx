@@ -7,7 +7,6 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Spinner } from "@/components/ui/spinner";
 import { downscaleImage } from "@/lib/photo-analysis/downscale-image";
 import { prepareAiImages } from "@/lib/photo-analysis/prepare-ai-image";
-import { RepairCostEstimator } from "@/components/repair-cost/repair-cost-estimator";
 import { createPhotoAnalysisId, upsertPhotoAnalysis } from "@/lib/storage/photo-analysis-storage";
 import type { PhotoAnalysisRecord } from "@/lib/photo-analysis/types";
 import { apiFetch } from "@/lib/api/client";
@@ -417,12 +416,6 @@ export default function PhotoDamagePage() {
           ) : null}
         </section>
 
-        {aiAnalysis?.findings.length ? (
-          <RepairCostEstimator
-            hint={{ area: aiAnalysis.findings[0].area, signal: aiAnalysis.findings[0].signal }}
-          />
-        ) : null}
-
         <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
           <h2 className="text-xl font-semibold text-foreground">Olası bulgu ekle</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
@@ -539,10 +532,6 @@ export default function PhotoDamagePage() {
           ) : null}
           <p className="mt-4 text-sm leading-6 text-muted-foreground">Bu ekran kesin hasar kararı vermez.</p>
         </section>
-
-        {!aiAnalysis?.findings.length && items[0] ? (
-          <RepairCostEstimator hint={{ area: items[0].area, signal: items[0].finding }} />
-        ) : null}
       </div>
     </AppShell>
   );

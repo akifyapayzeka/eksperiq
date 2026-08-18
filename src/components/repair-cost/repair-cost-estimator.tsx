@@ -50,9 +50,9 @@ function suggestRepairKey(hint: { area: string; signal: string } | undefined): R
 }
 
 /**
- * Önceden ayrı bir "/onarim-maliyeti" modülüydü; her zaman Fotoğraftan Hasar
- * Analizi bulgularına bağımlı olduğu için ayrı bir üst düzey modül olmayı
- * hak etmiyordu — artık o sayfanın bir bölümü.
+ * Yalnızca Garajım'da (kendi aracınız) gösterilir — satın alma öncesi akıştan
+ * kasıtlı olarak ayrı tutulur, çünkü bu bir masraf tahminidir, alım kararını
+ * etkileyecek bir bulgu değildir.
  */
 export function RepairCostEstimator({ hint }: { hint?: { area: string; signal: string } }) {
   const [repair, setRepair] = useState<RepairKey>(() => suggestRepairKey(hint) ?? "Tampon boya");
