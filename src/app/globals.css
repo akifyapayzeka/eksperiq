@@ -131,11 +131,17 @@
   --radius-theme-sm: 0.75rem;
 }
 
+html {
+  background: var(--color-background);
+  overscroll-behavior-y: none;
+}
+
 body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-body);
   padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
+  overscroll-behavior-y: none;
 }
 
 @media (min-width: 640px) {

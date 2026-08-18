@@ -11,6 +11,7 @@ import { PrimaryButton } from "@/components/ui/button";
 
 const PLANS_SEEN_KEY_PREFIX = "eksperiq:onboarding-plans-seen:";
 const PLANS_SEEN_ANONYMOUS_KEY = "eksperiq:onboarding-plans-seen:anonymous";
+const AUTH_SKIPPED_KEY = "eksperiq:onboarding-auth-skipped";
 
 type GateStep = "checking" | "signin" | "plans" | "done";
 type AuthMode = "signup" | "signin";
@@ -40,11 +41,13 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
   // here is a plain read, not a state sync, so it's safe to do inline.
   const plansSeenKey = user ? `${PLANS_SEEN_KEY_PREFIX}${user.id}` : PLANS_SEEN_ANONYMOUS_KEY;
   const hasSeenPlans = typeof window !== "undefined" && window.localStorage.getItem(plansSeenKey) === "true";
+  const hasSkippedAuth =
+    authSkipped || (typeof window !== "undefined" && window.localStorage.getItem(AUTH_SKIPPED_KEY) === "true");
 
   let step: GateStep;
   if (!isConfigured) step = "done";
   else if (isLoading) step = "checking";
-  else if (!user && !authSkipped) step = "signin";
+  else if (!user && !hasSkippedAuth) step = "signin";
   else step = hasSeenPlans || plansDismissed ? "done" : "plans";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -72,6 +75,7 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
       return;
     }
     acceptAiConsent();
+    window.localStorage.setItem(AUTH_SKIPPED_KEY, "true");
     setAuthSkipped(true);
   }
 
