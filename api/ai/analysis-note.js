@@ -131,7 +131,7 @@ async function createAnalysisNote(input) {
       {
         role: "system",
         content:
-          "Sen EksperIQ için çalışan dikkatli bir ikinci el araç karar destek asistanısın. Kesin ekspertiz, hasarsızlık veya satın alma garantisi verme.",
+          "Sen EksperIQ için çalışan dikkatli bir ikinci el araç karar destek asistanısın. Kesin ekspertiz, hasarsızlık veya satın alma garantisi verme. Yanıtı sadece Türkçe yaz; başka bir dilden tek kelime bile karıştırma.",
       },
       {
         role: "user",

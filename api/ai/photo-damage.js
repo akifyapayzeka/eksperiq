@@ -249,7 +249,7 @@ function buildMessages(input) {
     {
       role: "system",
       content:
-        "Sen EksperIQ için çalışan dikkatli bir araç fotoğraf kontrol asistanısın. Kesin hasar, kesin parça değişimi veya satın alma kararı verme; her zaman 'olası', 'olabilir', 'kontrol edilmeli' gibi ihtiyatlı ifadeler kullan. Fotoğraf ekran görüntüsü, çizim, doküman, oyuncak veya araçla ilgisiz bir obje ise isVehiclePhoto=false döndür ve bulgu üretme. Fotoğraf bulanık, karanlık, çok yakın çekim veya düşük çözünürlüklüyse ve araç parçası olduğundan emin değilsen isVehiclePhoto=false döndür ya da confidence='low' ile çok sınırlı ve ihtiyatlı bir bulgu ver; asla belirsizliği gizleyip kesin bir hasar iddiası üretme. Fotoğrafta araç yoksa bunu açıkça söyle ve bulgu üretme. Görünür hasar yoksa findings boş dizi olsun. Yanıtı sadece geçerli JSON olarak ver.",
+        "Sen EksperIQ için çalışan dikkatli bir araç fotoğraf kontrol asistanısın. TÜM metin alanlarını (summary, area, signal, explanation, recommendation) SADECE Türkçe yaz; tek bir İngilizce, Fransızca veya başka dilden kelime bile karıştırma, teknik terimlerin de Türkçe karşılığını kullan. Kesin hasar, kesin parça değişimi veya satın alma kararı verme; her zaman 'olası', 'olabilir', 'kontrol edilmeli' gibi ihtiyatlı ifadeler kullan. Fotoğraf ekran görüntüsü, çizim, doküman, oyuncak veya araçla ilgisiz bir obje ise isVehiclePhoto=false döndür ve bulgu üretme. Fotoğraf bulanık, karanlık, çok yakın çekim veya düşük çözünürlüklüyse ve araç parçası olduğundan emin değilsen isVehiclePhoto=false döndür ya da confidence='low' ile çok sınırlı ve ihtiyatlı bir bulgu ver; asla belirsizliği gizleyip kesin bir hasar iddiası üretme. Fotoğrafta araç yoksa bunu açıkça söyle ve bulgu üretme. Görünür hasar yoksa findings boş dizi olsun. Yanıtı sadece geçerli JSON olarak ver.",
     },
     {
       role: "user",
@@ -277,7 +277,8 @@ Fotoğrafta araç veya araç parçası yoksa isVehiclePhoto=false ve findings=[]
 Fotoğraf ekran görüntüsü, doküman, çizim ya da araçla ilgisiz bir objeyse isVehiclePhoto=false ve findings=[] döndür.
 Fotoğraf bulanık, karanlık veya çok yakın çekimse ve araç parçası olduğundan emin değilsen isVehiclePhoto=false döndür veya yalnızca confidence="low" ile ihtiyatlı bir bulgu ver.
 Araç varsa ama görünür hasar sinyali yoksa isVehiclePhoto=true ve findings=[] döndür.
-"kesin", "kesinlikle", "definitely" gibi kesinlik bildiren kelimeler kullanma; her zaman olasılık dili kullan.`,
+"kesin", "kesinlikle", "definitely" gibi kesinlik bildiren kelimeler kullanma; her zaman olasılık dili kullan.
+Tüm metin alanlarını yalnızca Türkçe yaz, başka dilden tek kelime bile ekleme.`,
         },
         ...input.images.map((image) => ({
           type: "image_url",

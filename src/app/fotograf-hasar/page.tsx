@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Camera, ImagePlus, Save } from "lucide-react";
 import { HeroCard } from "@/components/cards/hero-card";
 import { AppShell } from "@/components/layout/app-shell";
@@ -86,6 +86,13 @@ export default function PhotoDamagePage() {
   const [saveMessage, setSaveMessage] = useState("");
   const canRunAi = isPhotoAiEnabled && Boolean(files.length) && aiConsent && aiStatus !== "loading";
   const canSave = Boolean(fileCount) && (items.length > 0 || Boolean(aiAnalysis)) && saveStatus !== "saving";
+
+  const previewUrls = useMemo(() => files.map((file) => URL.createObjectURL(file)), [files]);
+  useEffect(() => {
+    return () => {
+      for (const url of previewUrls) URL.revokeObjectURL(url);
+    };
+  }, [previewUrls]);
 
   const priority = useMemo(() => {
     if (items.some((item) => item.confidence === "Yüksek olasılık")) return "Ekspertizde öncelikli kontrol edilmeli";
@@ -314,7 +321,20 @@ export default function PhotoDamagePage() {
             />
           </label>
           {fileCount ? (
-            <p className="mt-3 text-sm font-semibold text-foreground">{fileCount} fotoğraf seçildi.</p>
+            <>
+              <p className="mt-3 text-sm font-semibold text-foreground">{fileCount} fotoğraf seçildi.</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {previewUrls.map((url, index) => (
+                  // eslint-disable-next-line @next/next/no-img-element -- local blob: preview, not a remote asset
+                  <img
+                    key={url}
+                    src={url}
+                    alt={`Seçilen fotoğraf ${index + 1}`}
+                    className="h-20 w-20 rounded-theme-sm border border-border object-cover"
+                  />
+                ))}
+              </div>
+            </>
           ) : null}
         </section>
 
@@ -396,6 +416,12 @@ export default function PhotoDamagePage() {
             </div>
           ) : null}
         </section>
+
+        {aiAnalysis?.findings.length ? (
+          <RepairCostEstimator
+            hint={{ area: aiAnalysis.findings[0].area, signal: aiAnalysis.findings[0].signal }}
+          />
+        ) : null}
 
         <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
           <h2 className="text-xl font-semibold text-foreground">Olası bulgu ekle</h2>
@@ -514,15 +540,9 @@ export default function PhotoDamagePage() {
           <p className="mt-4 text-sm leading-6 text-muted-foreground">Bu ekran kesin hasar kararı vermez.</p>
         </section>
 
-        <RepairCostEstimator
-          hint={
-            aiAnalysis?.findings[0]
-              ? { area: aiAnalysis.findings[0].area, signal: aiAnalysis.findings[0].signal }
-              : items[0]
-                ? { area: items[0].area, signal: items[0].finding }
-                : undefined
-          }
-        />
+        {!aiAnalysis?.findings.length && items[0] ? (
+          <RepairCostEstimator hint={{ area: items[0].area, signal: items[0].finding }} />
+        ) : null}
       </div>
     </AppShell>
   );
