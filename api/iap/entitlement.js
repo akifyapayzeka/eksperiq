@@ -4,7 +4,12 @@ const { saveEntitlementRecord } = require("../_lib/iap-store");
 const { deriveEntitlementState } = require("../_lib/iap-entitlement-state");
 const { applyCorsHeaders, handlePreflight } = require("../_lib/cors");
 
-const PRO_MONTHLY_PRODUCT_ID = "com.eksperiq.app.pro.monthly";
+const KNOWN_PRODUCT_IDS = [
+  "com.eksperiq.app.pro.monthly",
+  "com.eksperiq.app.pro.yearly",
+  "com.eksperiq.app.proplus.monthly",
+  "com.eksperiq.app.proplus.yearly",
+];
 // Short-lived on purpose: the client keeps this token in memory only (never
 // localStorage) and re-requests it rather than persisting a long-lived
 // "is pro" credential client-side.
@@ -99,7 +104,7 @@ async function handler(request, response) {
     return;
   }
 
-  if (transactionInfo.productId !== PRO_MONTHLY_PRODUCT_ID) {
+  if (!KNOWN_PRODUCT_IDS.includes(transactionInfo.productId)) {
     sendJson(response, 400, { error: "Unexpected productId." });
     return;
   }
@@ -136,4 +141,4 @@ async function handler(request, response) {
 
 module.exports = handler;
 module.exports.isEnabled = isEnabled;
-module.exports.PRO_MONTHLY_PRODUCT_ID = PRO_MONTHLY_PRODUCT_ID;
+module.exports.KNOWN_PRODUCT_IDS = KNOWN_PRODUCT_IDS;

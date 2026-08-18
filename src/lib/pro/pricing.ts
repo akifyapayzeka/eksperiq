@@ -3,7 +3,10 @@ export type EksperIqPaidPlanId = "pro" | "proPlus";
 export interface EksperIqPlanPricing {
   id: EksperIqPaidPlanId;
   name: string;
-  productId: string;
+  /** App Store Connect subscription product id for the monthly period. */
+  monthlyProductId: string;
+  /** App Store Connect subscription product id for the yearly period. */
+  yearlyProductId: string;
   monthlyOperatingCostTry: number;
   monthlyPriceTry: number;
   yearlyPriceTry: number;
@@ -36,7 +39,8 @@ export const EKSPERIQ_PLAN_PRICING: Record<EksperIqPaidPlanId, EksperIqPlanPrici
     {
       id: "pro",
       name: "EksperIQ Pro",
-      productId: "com.eksperiq.app.pro.monthly",
+      monthlyProductId: "com.eksperiq.app.pro.monthly",
+      yearlyProductId: "com.eksperiq.app.pro.yearly",
       monthlyOperatingCostTry: 44,
       includedAiPhotoAnalyses: 50,
       notes:
@@ -48,7 +52,8 @@ export const EKSPERIQ_PLAN_PRICING: Record<EksperIqPaidPlanId, EksperIqPlanPrici
     {
       id: "proPlus",
       name: "EksperIQ Pro+",
-      productId: "com.eksperiq.app.proplus.monthly",
+      monthlyProductId: "com.eksperiq.app.proplus.monthly",
+      yearlyProductId: "com.eksperiq.app.proplus.yearly",
       monthlyOperatingCostTry: 200,
       includedAiPhotoAnalyses: 200,
       notes:

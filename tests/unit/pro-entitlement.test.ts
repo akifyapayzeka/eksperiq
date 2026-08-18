@@ -82,7 +82,7 @@ describe("nativeStoreKitEntitlementProvider", () => {
 
   it("resolves to unknown, never pro, when the native plugin call fails (e.g. not compiled in yet)", async () => {
     isNativePlatform.mockReturnValue(true);
-    currentEntitlement.mockRejectedValueOnce(new Error("not implemented on ios"));
+    currentEntitlement.mockRejectedValue(new Error("not implemented on ios"));
     const { nativeStoreKitEntitlementProvider } = await import("@/lib/pro/entitlement");
 
     const snapshot = await nativeStoreKitEntitlementProvider.getEntitlement();
@@ -90,13 +90,22 @@ describe("nativeStoreKitEntitlementProvider", () => {
     expect(snapshot.state).toBe("unknown");
   });
 
-  it("forwards the real native result when the plugin succeeds", async () => {
+  it("checks every known product id and forwards whichever one is active", async () => {
     isNativePlatform.mockReturnValue(true);
-    currentEntitlement.mockResolvedValueOnce({ state: "pro", expiresAt: "2027-01-01T00:00:00.000Z" });
-    const { nativeStoreKitEntitlementProvider, PRO_MONTHLY_PRODUCT_ID } = await import("@/lib/pro/entitlement");
+    const { nativeStoreKitEntitlementProvider, PRO_MONTHLY_PRODUCT_ID, ALL_PRODUCT_IDS } = await import(
+      "@/lib/pro/entitlement"
+    );
+    currentEntitlement.mockImplementation((options: { productId: string }) =>
+      Promise.resolve(
+        options.productId === PRO_MONTHLY_PRODUCT_ID
+          ? { state: "pro", expiresAt: "2027-01-01T00:00:00.000Z" }
+          : { state: "free" },
+      ),
+    );
 
     const snapshot = await nativeStoreKitEntitlementProvider.getEntitlement();
 
+    expect(currentEntitlement).toHaveBeenCalledTimes(ALL_PRODUCT_IDS.length);
     expect(currentEntitlement).toHaveBeenCalledWith({ productId: PRO_MONTHLY_PRODUCT_ID });
     expect(snapshot.state).toBe("pro");
     expect(snapshot.expiresAt).toBe("2027-01-01T00:00:00.000Z");

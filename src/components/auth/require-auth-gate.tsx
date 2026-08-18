@@ -2,9 +2,10 @@
 
 import { useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
-import { CarFront, Check, Lock, Mail, Sparkles, UserPlus } from "lucide-react";
+import { CarFront, Check, Lock, Mail, RotateCcw, Sparkles, UserPlus } from "lucide-react";
 import { useAuth } from "@/lib/auth/auth-context";
-import { EKSPERIQ_PLAN_PRICING, formatTry } from "@/lib/pro/pricing";
+import { EKSPERIQ_PLAN_PRICING, formatTry, type EksperIqPlanPricing } from "@/lib/pro/pricing";
+import { purchasePlan, restorePurchases } from "@/lib/pro/entitlement";
 import { acceptAiConsent } from "@/lib/consent/ai-consent";
 import { Field } from "@/components/ui/field";
 import { PrimaryButton } from "@/components/ui/button";
@@ -37,6 +38,8 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const [purchaseMessage, setPurchaseMessage] = useState<string | null>(null);
+  const [purchasingPlanId, setPurchasingPlanId] = useState<string | null>(null);
+  const [isRestoring, setIsRestoring] = useState(false);
 
   // Derived directly at render time (no effect needed): reading localStorage
   // here is a plain read, not a state sync, so it's safe to do inline.
@@ -85,13 +88,51 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
     setPlansDismissed(true);
   }
 
-  function handlePlanCta() {
-    // Gercek satin alma henuz devrede degil: App Store Connect'te abonelik
-    // urunleri var ama fiyat atamasi ve StoreKit plugin'inin cihazda
-    // dogrulanmasi hala bekliyor (bkz. EksperIQEntitlementStore.swift basindaki
-    // notlar). Native cagriyi burada denemiyoruz cunku derlenmemis/dogrulanmamis
-    // bir plugin cagrisi kullaniciya "hicbir sey olmadi" gibi donebiliyor.
-    setPurchaseMessage("Satın alma çok yakında aktif olacak. Şimdilik ücretsiz devam edebilirsiniz.");
+  async function handlePlanCta(plan: EksperIqPlanPricing) {
+    if (purchasingPlanId) return;
+    const productId = billing === "monthly" ? plan.monthlyProductId : plan.yearlyProductId;
+    setPurchasingPlanId(plan.id);
+    setPurchaseMessage(null);
+    try {
+      const result = await purchasePlan(productId);
+      if (result.cancelled) {
+        // User backed out of Apple's own sheet — not an error, say nothing.
+        return;
+      }
+      if (result.state === "pro" || result.state === "gracePeriod") {
+        finishOnboarding();
+        return;
+      }
+      if (result.state === "unknown") {
+        // Apple returned .pending (e.g. "Ask to Buy") — genuinely in progress.
+        setPurchaseMessage("Satın alma onay bekliyor. Onaylandığında otomatik olarak aktif olacak.");
+        return;
+      }
+      setPurchaseMessage("Satın alma tamamlanamadı. Lütfen tekrar deneyin.");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "";
+      setPurchaseMessage(
+        message.includes("bulunamadı") || message.toLowerCase().includes("not found")
+          ? "Bu paket App Store'da henüz aktif değil. Kısa süre içinde açılacak."
+          : "Satın alma şu anda tamamlanamadı. Lütfen birazdan tekrar deneyin.",
+      );
+    } finally {
+      setPurchasingPlanId(null);
+    }
+  }
+
+  async function handleRestore() {
+    if (isRestoring) return;
+    setIsRestoring(true);
+    setPurchaseMessage(null);
+    try {
+      await restorePurchases();
+      setPurchaseMessage("Önceki satın almalar kontrol edildi. Aktif bir aboneliğiniz varsa otomatik tanınacaktır.");
+    } catch {
+      setPurchaseMessage("Satın almalar şu anda geri yüklenemedi. Lütfen birazdan tekrar deneyin.");
+    } finally {
+      setIsRestoring(false);
+    }
   }
 
   if (step === "checking") {
@@ -250,10 +291,12 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
               </p>
               <button
                 type="button"
-                onClick={handlePlanCta}
-                className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-accent px-5 text-sm font-semibold text-primary-foreground"
+                onClick={() => handlePlanCta(plan)}
+                disabled={purchasingPlanId !== null}
+                className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-accent px-5 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-60"
               >
-                3 gün ücretsiz dene
+                {purchasingPlanId === plan.id ? <Spinner /> : null}
+                {purchasingPlanId === plan.id ? "İşleniyor..." : "3 gün ücretsiz dene"}
               </button>
             </div>
           ))}
@@ -263,8 +306,18 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
 
         <button
           type="button"
+          onClick={handleRestore}
+          disabled={isRestoring}
+          className="mt-4 flex w-full items-center justify-center gap-1.5 text-sm font-semibold text-muted-foreground underline-offset-4 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isRestoring ? <Spinner /> : <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />}
+          Satın almaları geri yükle
+        </button>
+
+        <button
+          type="button"
           onClick={finishOnboarding}
-          className="mt-5 w-full text-center text-sm font-semibold text-muted-foreground underline-offset-4 hover:underline"
+          className="mt-2 w-full text-center text-sm font-semibold text-muted-foreground underline-offset-4 hover:underline"
         >
           Şimdilik ücretsiz devam et
         </button>

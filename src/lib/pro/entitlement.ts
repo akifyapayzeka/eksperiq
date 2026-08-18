@@ -19,7 +19,17 @@ export type EntitlementState = "free" | "pro" | "expired" | "billingRetry" | "gr
  * this id is a placeholder until it's created there.
  */
 export const PRO_MONTHLY_PRODUCT_ID = "com.eksperiq.app.pro.monthly";
+export const PRO_YEARLY_PRODUCT_ID = "com.eksperiq.app.pro.yearly";
 export const PRO_PLUS_MONTHLY_PRODUCT_ID = "com.eksperiq.app.proplus.monthly";
+export const PRO_PLUS_YEARLY_PRODUCT_ID = "com.eksperiq.app.proplus.yearly";
+
+/** Every subscription product id this app can sell — checked as a group when resolving entitlement. */
+export const ALL_PRODUCT_IDS = [
+  PRO_MONTHLY_PRODUCT_ID,
+  PRO_YEARLY_PRODUCT_ID,
+  PRO_PLUS_MONTHLY_PRODUCT_ID,
+  PRO_PLUS_YEARLY_PRODUCT_ID,
+];
 
 export type EntitlementSnapshot = {
   state: EntitlementState;
@@ -65,14 +75,44 @@ export const unavailableEntitlementProvider: EntitlementProvider = {
  * would reject with "not implemented" — handled below by resolving to
  * "unknown" rather than ever claiming "pro" on a failure.
  */
+// A user may hold any one of the four Pro/Pro+ x monthly/yearly products —
+// StoreKit only reports status per product id, so every known id is checked
+// and the first non-"free" result wins.
+const ENTITLEMENT_STATE_PRIORITY: EntitlementState[] = [
+  "pro",
+  "gracePeriod",
+  "billingRetry",
+  "revoked",
+  "expired",
+  "unknown",
+  "free",
+];
+
+function pickBestSnapshot(
+  snapshots: Array<{ state: EntitlementState; expiresAt?: string }>,
+): { state: EntitlementState; expiresAt?: string } {
+  for (const wanted of ENTITLEMENT_STATE_PRIORITY) {
+    const match = snapshots.find((snapshot) => snapshot.state === wanted);
+    if (match) return match;
+  }
+  return { state: "free" };
+}
+
 export const nativeStoreKitEntitlementProvider: EntitlementProvider = {
   async getEntitlement(): Promise<EntitlementSnapshot> {
     if (!Capacitor.isNativePlatform()) {
       return { state: "free", checkedAt: new Date().toISOString() };
     }
     try {
-      const result = await EksperIQEntitlementPlugin.currentEntitlement({ productId: PRO_MONTHLY_PRODUCT_ID });
-      return { state: result.state, expiresAt: result.expiresAt, checkedAt: new Date().toISOString() };
+      const results = await Promise.all(
+        ALL_PRODUCT_IDS.map((productId) =>
+          EksperIQEntitlementPlugin.currentEntitlement({ productId }).catch(
+            () => ({ state: "unknown" as EntitlementState }),
+          ),
+        ),
+      );
+      const best = pickBestSnapshot(results);
+      return { state: best.state, expiresAt: best.expiresAt, checkedAt: new Date().toISOString() };
     } catch {
       return { state: "unknown", checkedAt: new Date().toISOString() };
     }
@@ -88,12 +128,17 @@ export const nativeStoreKitEntitlementProvider: EntitlementProvider = {
  * and must not render a purchase button that assumes success until this has
  * been verified working on a real device.
  */
-export async function purchasePlan(productId: string): Promise<EntitlementSnapshot> {
+export async function purchasePlan(productId: string): Promise<EntitlementSnapshot & { cancelled?: boolean }> {
   if (!Capacitor.isNativePlatform()) {
     throw new Error("Satın alma yalnızca mağaza sürümünde kullanılabilir.");
   }
   const result = await EksperIQEntitlementPlugin.purchase({ productId });
-  return { state: result.state, expiresAt: result.expiresAt, checkedAt: new Date().toISOString() };
+  return {
+    state: result.state,
+    expiresAt: result.expiresAt,
+    checkedAt: new Date().toISOString(),
+    cancelled: result.cancelled,
+  };
 }
 
 /** @deprecated use purchasePlan(productId) — kept only if older callers still import this name. */
