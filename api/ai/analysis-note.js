@@ -223,6 +223,7 @@ async function handler(request, response) {
 
   const aiResult = await createAnalysisNote(parsed);
   if ("error" in aiResult) {
+    console.error("[analysis-note] OpenRouter call failed:", aiResult.error);
     sendJson(response, 502, { error: aiResult.error });
     return;
   }

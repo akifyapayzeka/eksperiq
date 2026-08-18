@@ -405,6 +405,7 @@ async function handler(request, response) {
 
   const result = await requestOpenRouterVision(input);
   if ("error" in result) {
+    console.error("[photo-damage] OpenRouter call failed:", result.error);
     sendJson(response, 502, { error: result.error, remaining: rateLimit.remaining });
     return;
   }
