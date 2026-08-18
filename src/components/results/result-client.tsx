@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Capacitor } from "@capacitor/core";
 import {
   AlertTriangle,
   ArrowUpRight,
@@ -199,6 +200,12 @@ export function ResultClient() {
     return () => window.clearTimeout(timer);
   }, [result]);
 
+  useEffect(() => {
+    if (copyStatus === "idle") return;
+    const timer = window.setTimeout(() => setCopyStatus("idle"), 3000);
+    return () => window.clearTimeout(timer);
+  }, [copyStatus]);
+
   async function copyText(
     text: string,
     successStatus: "questions-copied" | "seller-message-copied" | "summary-copied",
@@ -236,7 +243,14 @@ export function ResultClient() {
     }
   }
 
-  function printReport() {
+  async function printReport() {
+    if (Capacitor.isNativePlatform()) {
+      // window.print() has no effect inside Capacitor's WKWebView — there is
+      // no native print dialog wired up. Open the OS share sheet instead;
+      // Print (AirPrint) is one of its standard system actions when available.
+      await shareSummary();
+      return;
+    }
     setCopyStatus("print-opened");
     window.setTimeout(() => window.print(), 0);
   }
@@ -673,7 +687,7 @@ export function ResultClient() {
                   className="mt-1 h-4 w-4 shrink-0 accent-primary"
                 />
                 <span>
-                  Bu not için araç bilgileri, risk skoru ve bulgu başlıklarının OpenRouter gibi bir AI sağlayıcısına
+                  Bu not için araç bilgileri, risk skoru ve bulgu başlıklarının üçüncü taraf bir AI sağlayıcısına
                   gönderileceğini anladım ve onaylıyorum.
                 </span>
               </label>

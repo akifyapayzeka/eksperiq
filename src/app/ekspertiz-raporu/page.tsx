@@ -187,7 +187,7 @@ export default function ExpertiseReportPage() {
                 className="mt-1 h-4 w-4 shrink-0 accent-primary"
               />
               <span>
-                Seçtiğim rapor/fotoğrafın OpenRouter gibi bir AI sağlayıcısına geçici olarak gönderileceğini anladım ve
+                Seçtiğim rapor/fotoğrafın üçüncü taraf bir AI sağlayıcısına geçici olarak gönderileceğini anladım ve
                 onaylıyorum.
               </span>
             </label>

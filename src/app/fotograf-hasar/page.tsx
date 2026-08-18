@@ -359,7 +359,7 @@ export default function PhotoDamagePage() {
                 className="mt-1 h-4 w-4 shrink-0 accent-primary"
               />
               <span>
-                Fotoğraf hasar kontrolü için seçtiğim görsellerin OpenRouter gibi AI sağlayıcısına geçici olarak
+                Fotoğraf hasar kontrolü için seçtiğim görsellerin üçüncü taraf bir AI sağlayıcısına geçici olarak
                 gönderileceğini anladım ve onaylıyorum.
               </span>
             </label>

@@ -47,11 +47,18 @@ async function copyToClipboardFallback(text: string): Promise<boolean> {
 export async function shareContent(request: ShareRequest): Promise<ShareOutcome> {
   if (Capacitor.isNativePlatform()) {
     try {
-      await Share.share({
-        title: request.title,
-        text: request.text,
-        url: appConfig.productionUrl,
-      });
+      // The native share sheet call must never hang the UI indefinitely —
+      // if the bridge call stalls instead of resolving/rejecting, fall back
+      // to the clipboard after a few seconds so the user always sees an
+      // outcome instead of a button that looks like it did nothing.
+      await Promise.race([
+        Share.share({
+          title: request.title,
+          text: request.text,
+          url: appConfig.productionUrl,
+        }),
+        new Promise((_resolve, reject) => window.setTimeout(() => reject(new Error("share-timeout")), 6000)),
+      ]);
       void requestStoreReviewAfterPositiveAction();
       return "shared";
     } catch {

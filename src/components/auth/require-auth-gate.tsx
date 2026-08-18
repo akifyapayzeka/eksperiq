@@ -216,7 +216,7 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
                 , <Link href="/kullanim-kosullari" className="underline">
                   Kullanım Koşulları
                 </Link>{" "}
-                ve KVKK kapsamında AI sağlayıcısına (OpenRouter) geçici veri gönderimini kabul ediyorum.
+                ve KVKK kapsamında üçüncü taraf bir AI sağlayıcısına geçici veri gönderimini kabul ediyorum.
               </span>
             </label>
             {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
