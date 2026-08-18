@@ -1,0 +1,409 @@
+const { PDFDocument, rgb } = require("pdf-lib");
+const fontkit = require("@pdf-lib/fontkit");
+const { checkRateLimit } = require("../_lib/rate-limit.js");
+const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
+const { REPORT_LOGO_PNG_BASE64 } = require("../_lib/report-logo.js");
+const { REPORT_FONT_REGULAR_TTF_BASE64 } = require("../_lib/report-font-regular.js");
+const { REPORT_FONT_BOLD_TTF_BASE64 } = require("../_lib/report-font-bold.js");
+
+const DEFAULT_DAILY_LIMIT = 300;
+const DEFAULT_DAILY_LIMIT_PER_INSTALL = 30;
+const DEFAULT_BURST_LIMIT = 6;
+const DEFAULT_BURST_WINDOW_SECONDS = 60;
+
+const PAGE_WIDTH = 595.28; // A4
+const PAGE_HEIGHT = 841.89;
+const MARGIN = 48;
+const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
+
+const NAVY = rgb(0.0863, 0.2314, 0.3216);
+const BLUE = rgb(0.1333, 0.4549, 0.6471);
+const INK = rgb(0.13, 0.16, 0.19);
+const MUTED = rgb(0.42, 0.46, 0.5);
+const LINE = rgb(0.85, 0.87, 0.89);
+const WHITE = rgb(1, 1, 1);
+
+function sendJson(response, statusCode, body) {
+  response.statusCode = statusCode;
+  response.setHeader("Content-Type", "application/json; charset=utf-8");
+  response.setHeader("Cache-Control", "no-store");
+  response.end(JSON.stringify(body));
+}
+
+function parsePositiveInt(value, fallback) {
+  if (!value) return fallback;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+async function readJsonBody(request) {
+  const chunks = [];
+  for await (const chunk of request) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  const raw = Buffer.concat(chunks).toString("utf8");
+  if (!raw.trim()) return null;
+  return JSON.parse(raw);
+}
+
+function asString(value, fallback = "") {
+  return typeof value === "string" ? value : fallback;
+}
+
+function asStringArray(value, max = 50) {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item) => typeof item === "string" && item.trim()).slice(0, max);
+}
+
+/** A single "word" wider than the line itself (long URL, no-space blob) is hard-broken by character so it can never run off the page edge. */
+function breakLongWord(font, size, maxWidth, word) {
+  const chunks = [];
+  let current = "";
+  for (const char of word) {
+    const attempt = current + char;
+    if (font.widthOfTextAtSize(attempt, size) > maxWidth && current) {
+      chunks.push(current);
+      current = char;
+    } else {
+      current = attempt;
+    }
+  }
+  if (current) chunks.push(current);
+  return chunks;
+}
+
+function wrapText(font, size, maxWidth, text) {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines = [];
+  let current = "";
+  for (const word of words) {
+    const attempt = current ? `${current} ${word}` : word;
+    if (font.widthOfTextAtSize(attempt, size) <= maxWidth) {
+      current = attempt;
+      continue;
+    }
+    if (current) lines.push(current);
+    if (font.widthOfTextAtSize(word, size) > maxWidth) {
+      const chunks = breakLongWord(font, size, maxWidth, word);
+      lines.push(...chunks.slice(0, -1));
+      current = chunks[chunks.length - 1] ?? "";
+    } else {
+      current = word;
+    }
+  }
+  if (current) lines.push(current);
+  return lines.length ? lines : [""];
+}
+
+/** Small stateful writer: tracks the cursor and starts a fresh page (with header) when content would overflow. */
+function createWriter(doc, fonts, logoImage) {
+  const state = { page: null, y: 0 };
+
+  function drawFooter(page) {
+    page.drawLine({
+      start: { x: MARGIN, y: 56 },
+      end: { x: PAGE_WIDTH - MARGIN, y: 56 },
+      thickness: 0.75,
+      color: LINE,
+    });
+    page.drawText("EksperIQ · eksperiq.vercel.app", {
+      x: MARGIN,
+      y: 40,
+      size: 8,
+      font: fonts.regular,
+      color: MUTED,
+    });
+  }
+
+  function newPage() {
+    if (state.page) drawFooter(state.page);
+    const page = doc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+    state.page = page;
+    state.y = PAGE_HEIGHT - MARGIN;
+    return page;
+  }
+
+  function ensureSpace(height) {
+    if (state.y - height < 72) newPage();
+  }
+
+  function drawHeader(vehicleLine) {
+    const page = newPage();
+    page.drawRectangle({ x: 0, y: PAGE_HEIGHT - 96, width: PAGE_WIDTH, height: 96, color: NAVY });
+    if (logoImage) {
+      const logoW = 34;
+      const logoH = (logoImage.height / logoImage.width) * logoW;
+      page.drawImage(logoImage, { x: MARGIN, y: PAGE_HEIGHT - 96 + (96 - logoH) / 2, width: logoW, height: logoH });
+    }
+    page.drawText("EksperIQ", {
+      x: MARGIN + (logoImage ? 46 : 0),
+      y: PAGE_HEIGHT - 52,
+      size: 20,
+      font: fonts.bold,
+      color: WHITE,
+    });
+    page.drawText("Araç Analiz Raporu", {
+      x: MARGIN + (logoImage ? 46 : 0),
+      y: PAGE_HEIGHT - 72,
+      size: 11,
+      font: fonts.regular,
+      color: rgb(0.85, 0.9, 0.94),
+    });
+    if (vehicleLine) {
+      page.drawText(vehicleLine, {
+        x: MARGIN + (logoImage ? 46 : 0),
+        y: PAGE_HEIGHT - 88,
+        size: 10,
+        font: fonts.regular,
+        color: rgb(0.78, 0.85, 0.9),
+      });
+    }
+    state.y = PAGE_HEIGHT - 96 - 28;
+    return page;
+  }
+
+  function sectionTitle(title) {
+    ensureSpace(28);
+    state.page.drawText(title.toUpperCase(), {
+      x: MARGIN,
+      y: state.y,
+      size: 10.5,
+      font: fonts.bold,
+      color: BLUE,
+    });
+    state.y -= 6;
+    state.page.drawLine({
+      start: { x: MARGIN, y: state.y },
+      end: { x: PAGE_WIDTH - MARGIN, y: state.y },
+      thickness: 0.75,
+      color: LINE,
+    });
+    state.y -= 16;
+  }
+
+  function paragraph(text, { size = 10.5, font = fonts.regular, color = INK, gap = 6 } = {}) {
+    const lines = wrapText(font, size, CONTENT_WIDTH, text);
+    for (const line of lines) {
+      ensureSpace(size + 4);
+      state.page.drawText(line, { x: MARGIN, y: state.y, size, font, color });
+      state.y -= size + 4;
+    }
+    state.y -= gap;
+  }
+
+  function numberedList(items, { size = 10.5 } = {}) {
+    items.forEach((item, index) => {
+      const prefix = `${index + 1}. `;
+      const prefixWidth = fonts.bold.widthOfTextAtSize(prefix, size);
+      const lines = wrapText(fonts.regular, size, CONTENT_WIDTH - prefixWidth, item);
+      lines.forEach((line, lineIndex) => {
+        ensureSpace(size + 4);
+        if (lineIndex === 0) {
+          state.page.drawText(prefix, { x: MARGIN, y: state.y, size, font: fonts.bold, color: BLUE });
+        }
+        state.page.drawText(line, { x: MARGIN + prefixWidth, y: state.y, size, font: fonts.regular, color: INK });
+        state.y -= size + 4;
+      });
+    });
+    state.y -= 4;
+  }
+
+  function finish() {
+    if (state.page) drawFooter(state.page);
+  }
+
+  return { drawHeader, sectionTitle, paragraph, numberedList, ensureSpace, get page() {
+    return state.page;
+  }, get y() {
+    return state.y;
+  }, set y(value) {
+    state.y = value;
+  }, finish };
+}
+
+async function buildPdf(payload) {
+  const doc = await PDFDocument.create();
+  doc.registerFontkit(fontkit);
+  // pdf-lib's 14 standard fonts use WinAnsi encoding, which has no Turkish
+  // ş/ğ/ı/İ (widthOfTextAtSize throws on them) — embed a real Unicode font
+  // (Noto Sans subset, see docs/report-pdf-font.md) instead.
+  const fonts = {
+    regular: await doc.embedFont(Buffer.from(REPORT_FONT_REGULAR_TTF_BASE64, "base64"), { subset: true }),
+    bold: await doc.embedFont(Buffer.from(REPORT_FONT_BOLD_TTF_BASE64, "base64"), { subset: true }),
+  };
+
+  let logoImage = null;
+  try {
+    logoImage = await doc.embedPng(Buffer.from(REPORT_LOGO_PNG_BASE64, "base64"));
+  } catch {
+    logoImage = null;
+  }
+
+  const vehicleLabel = [payload.year, payload.brand, payload.model].filter(Boolean).join(" ");
+  const w = createWriter(doc, fonts, logoImage);
+  w.drawHeader(vehicleLabel);
+
+  // Score card
+  w.ensureSpace(70);
+  const scoreBoxY = w.y;
+  w.page.drawRectangle({
+    x: MARGIN,
+    y: scoreBoxY - 62,
+    width: CONTENT_WIDTH,
+    height: 62,
+    color: rgb(0.94, 0.97, 0.99),
+    borderColor: LINE,
+    borderWidth: 0.75,
+  });
+  w.page.drawText(String(payload.totalScore ?? "-"), {
+    x: MARGIN + 16,
+    y: scoreBoxY - 44,
+    size: 30,
+    font: fonts.bold,
+    color: NAVY,
+  });
+  w.page.drawText("/ 100", {
+    x: MARGIN + 16 + fonts.bold.widthOfTextAtSize(String(payload.totalScore ?? "-"), 30) + 4,
+    y: scoreBoxY - 32,
+    size: 11,
+    font: fonts.regular,
+    color: MUTED,
+  });
+  w.page.drawText(asString(payload.riskLabel, "Risk skoru"), {
+    x: MARGIN + 110,
+    y: scoreBoxY - 24,
+    size: 13,
+    font: fonts.bold,
+    color: INK,
+  });
+  const decisionLines = wrapText(fonts.regular, 9.5, CONTENT_WIDTH - 126, asString(payload.decision));
+  decisionLines.slice(0, 2).forEach((line, index) => {
+    w.page.drawText(line, {
+      x: MARGIN + 110,
+      y: scoreBoxY - 38 - index * 13,
+      size: 9.5,
+      font: fonts.regular,
+      color: MUTED,
+    });
+  });
+  w.y = scoreBoxY - 62 - 22;
+
+  const vehicleFacts = [
+    payload.mileage != null ? `${Number(payload.mileage).toLocaleString("tr-TR")} km` : null,
+    payload.price != null ? `${Number(payload.price).toLocaleString("tr-TR")} TL` : null,
+    payload.city || null,
+  ]
+    .filter(Boolean)
+    .join("  ·  ");
+  if (vehicleFacts) {
+    w.paragraph(vehicleFacts, { size: 10, color: MUTED, gap: 12 });
+  }
+
+  const priorityActions = Array.isArray(payload.priorityActions) ? payload.priorityActions.slice(0, 6) : [];
+  if (priorityActions.length) {
+    w.sectionTitle("Öncelikli aksiyonlar");
+    w.numberedList(
+      priorityActions.map((action) =>
+        action && action.reason ? `${asString(action.title)} — ${asString(action.reason)}` : asString(action && action.title),
+      ),
+    );
+  }
+
+  const findings = Array.isArray(payload.findings) ? payload.findings.slice(0, 8) : [];
+  if (findings.length) {
+    w.sectionTitle("Öne çıkan riskler");
+    w.numberedList(
+      findings.map((finding) =>
+        finding && finding.recommendation
+          ? `${asString(finding.title)}: ${asString(finding.recommendation)}`
+          : asString(finding && finding.title),
+      ),
+    );
+  }
+
+  const sellerQuestions = asStringArray(payload.sellerQuestions, 8);
+  if (sellerQuestions.length) {
+    w.sectionTitle("Satıcıya sorulacak sorular");
+    w.numberedList(sellerQuestions);
+  }
+
+  const inspectionFocus = asStringArray(payload.inspectionFocus, 10);
+  if (inspectionFocus.length) {
+    w.sectionTitle("Ekspertizde özellikle kontrol edilmesi gerekenler");
+    inspectionFocus.forEach((item) => w.paragraph(`•  ${item}`, { gap: 2 }));
+    w.y -= 6;
+  }
+
+  w.sectionTitle("Uyarı");
+  w.paragraph(
+    asString(
+      payload.disclaimer,
+      "Bu analiz yalnızca bilgilendirme ve karar desteği amacıyla hazırlanır. Profesyonel araç ekspertizinin, servis kontrolünün, resmî kayıt sorgularının veya hukuki incelemenin yerine geçmez. Son satın alma kararı kullanıcıya aittir.",
+    ),
+    { size: 9.5, color: MUTED, gap: 0 },
+  );
+
+  w.finish();
+  return doc.save();
+}
+
+/**
+ * Generates a branded PDF report from the client's already-computed
+ * AnalysisResult (server does no scoring, just lays out fields it's given).
+ * Replaces the previous "share plain text + vercel.app link" flow: the
+ * native share sheet previously auto-expanded that link into an unwanted
+ * preview card, and a link is a worse artifact than an actual report file.
+ */
+async function handler(request, response) {
+  applyCorsHeaders(request, response);
+  if (handlePreflight(request, response)) return;
+
+  if (request.method !== "POST") {
+    sendJson(response, 405, { error: "Yalnızca POST desteklenir." });
+    return;
+  }
+
+  const rateLimit = await checkRateLimit(request, {
+    usageKey: "report-pdf",
+    burstLimit: parsePositiveInt(process.env.REPORT_PDF_BURST_LIMIT, DEFAULT_BURST_LIMIT),
+    burstWindowSeconds: parsePositiveInt(process.env.REPORT_PDF_BURST_WINDOW_SECONDS, DEFAULT_BURST_WINDOW_SECONDS),
+    dailyLimitPerIdentity: parsePositiveInt(
+      process.env.REPORT_PDF_DAILY_LIMIT_PER_INSTALL,
+      DEFAULT_DAILY_LIMIT_PER_INSTALL,
+    ),
+    globalDailyLimit: parsePositiveInt(process.env.REPORT_PDF_DAILY_REQUEST_LIMIT, DEFAULT_DAILY_LIMIT),
+  });
+
+  if (!rateLimit.ok) {
+    if (rateLimit.reason === "unavailable") {
+      sendJson(response, 503, { error: "Rapor oluşturma şu anda doğrulanamadı." });
+      return;
+    }
+    sendJson(response, 429, { error: "Çok fazla rapor isteği gönderildi. Birazdan tekrar deneyin." });
+    return;
+  }
+
+  let payload;
+  try {
+    payload = await readJsonBody(request);
+  } catch {
+    sendJson(response, 400, { error: "Geçersiz istek gövdesi." });
+    return;
+  }
+
+  if (!payload || typeof payload !== "object") {
+    sendJson(response, 400, { error: "Rapor verisi eksik." });
+    return;
+  }
+
+  try {
+    const pdfBytes = await buildPdf(payload);
+    response.statusCode = 200;
+    response.setHeader("Content-Type", "application/pdf");
+    response.setHeader("Cache-Control", "no-store");
+    response.setHeader("Content-Disposition", 'inline; filename="eksperiq-rapor.pdf"');
+    response.end(Buffer.from(pdfBytes));
+  } catch {
+    sendJson(response, 500, { error: "Rapor oluşturulamadı." });
+  }
+}
+
+module.exports = handler;

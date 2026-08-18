@@ -23,7 +23,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { appConfig } from "@/lib/constants/app";
 import { apiFetch } from "@/lib/api/client";
-import { shareContent } from "@/lib/share/share";
+import { shareReportPdf } from "@/lib/report/pdf-share";
 import { RISK_LEVELS, SCORE_WEIGHTS } from "@/lib/constants/analysis";
 import { formatAnalysisSummary, formatSellerQuestionMessage } from "@/lib/analysis/report-summary";
 import { buildAiAnalysisNoteInput } from "@/lib/ai/analysis-note";
@@ -70,6 +70,17 @@ const findingFilters: Array<{ value: FindingFilter; label: string }> = [
   { value: "high", label: "Yüksek" },
   { value: "medium", label: "Orta" },
   { value: "low", label: "Düşük" },
+];
+
+// Jump targets for the "Raporda neler var" quick-nav — matches the id props
+// set on the corresponding SectionCard elements below.
+const reportSections = [
+  { id: "rapor-aksiyonlar", label: "Öncelikli aksiyonlar" },
+  { id: "rapor-bulgular", label: "Riskli noktalar" },
+  { id: "rapor-masraflar", label: "Olası masraflar" },
+  { id: "rapor-sorular", label: "Satıcı soruları" },
+  { id: "rapor-ekspertiz-kontrol", label: "Ekspertiz kontrol listesi" },
+  { id: "rapor-kontrol-listesi", label: "Son kontrol listesi" },
 ];
 
 function severityClass(severity: string) {
@@ -166,6 +177,7 @@ export function ResultClient() {
     | "seller-message-copied"
     | "summary-copied"
     | "shared"
+    | "downloaded"
     | "print-opened"
     | "failed"
     | "comparison-added"
@@ -180,6 +192,16 @@ export function ResultClient() {
   const [aiNoteFeedback, setAiNoteFeedback] = useState<AiNoteFeedback | null>(null);
   const [aiNoteConsent, setAiNoteConsent] = useState(false);
   const [scoreRingFilled, setScoreRingFilled] = useState(false);
+  const [toastNonce, setToastNonce] = useState(0);
+
+  // setCopyStatus alone doesn't restart the toast if the same action is
+  // repeated within 3s (React bails out on setting an identical primitive
+  // value, so the animation would silently never replay) — bump a nonce
+  // alongside every real status change and key the toast element on it.
+  function announceCopyStatus(status: Exclude<typeof copyStatus, "idle">) {
+    setCopyStatus(status);
+    setToastNonce((current) => current + 1);
+  }
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -216,13 +238,13 @@ export function ResultClient() {
       } else {
         copyTextWithFallback(text);
       }
-      setCopyStatus(successStatus);
+      announceCopyStatus(successStatus);
     } catch {
       try {
         copyTextWithFallback(text);
-        setCopyStatus(successStatus);
+        announceCopyStatus(successStatus);
       } catch {
-        setCopyStatus("failed");
+        announceCopyStatus("failed");
       }
     }
   }
@@ -279,18 +301,14 @@ export function ResultClient() {
   async function shareSummary() {
     if (!result) return;
 
-    const summary = formatAnalysisSummary(result);
-    const outcome = await shareContent({
-      title: `${appConfig.name} araç analiz özeti`,
-      text: summary,
-    });
+    const outcome = await shareReportPdf(result);
 
     if (outcome === "shared") {
-      setCopyStatus("shared");
-    } else if (outcome === "copied") {
-      setCopyStatus("summary-copied");
+      announceCopyStatus("shared");
+    } else if (outcome === "downloaded") {
+      announceCopyStatus("downloaded");
     } else {
-      setCopyStatus("failed");
+      announceCopyStatus("failed");
     }
   }
 
@@ -298,7 +316,8 @@ export function ResultClient() {
     if (copyStatus === "questions-copied") return "Satıcı soruları panoya kopyalandı.";
     if (copyStatus === "seller-message-copied") return "Satıcı mesajı panoya kopyalandı.";
     if (copyStatus === "summary-copied") return "Rapor özeti panoya kopyalandı.";
-    if (copyStatus === "shared") return "Rapor özeti paylaşım paneline gönderildi.";
+    if (copyStatus === "shared") return "Rapor PDF'i paylaşım paneline gönderildi.";
+    if (copyStatus === "downloaded") return "Rapor PDF olarak indirildi.";
     if (copyStatus === "print-opened")
       return "Yazdırma penceresi açıldı. Açılmadıysa tarayıcının paylaş menüsünden yazdırmayı deneyin.";
     if (copyStatus === "failed") return "Paylaşma veya kopyalama tarayıcı tarafından engellendi.";
@@ -311,7 +330,7 @@ export function ResultClient() {
   function addCurrentToComparison() {
     if (!result || addedToComparison) return;
     const outcome = addToComparison(result);
-    setCopyStatus(outcome.ok ? "comparison-added" : "comparison-full");
+    announceCopyStatus(outcome.ok ? "comparison-added" : "comparison-full");
     if (outcome.ok) setAddedToComparison(true);
   }
 
@@ -613,14 +632,23 @@ export function ResultClient() {
               Oturum verisini sil
             </button>
           </div>
-          <p
-            className={`no-print min-h-5 px-4 pb-4 text-sm font-medium ${
-              copyStatus === "failed" ? "text-destructive" : "text-accent"
-            }`}
-            role="status"
-          >
-            {actionStatusMessage()}
-          </p>
+          {copyStatus !== "idle" ? (
+            <div
+              key={toastNonce}
+              role="status"
+              className="animate-toast-pop no-print fixed inset-x-0 bottom-24 z-40 flex justify-center px-4"
+            >
+              <p
+                className={`rounded-full px-4 py-2 text-sm font-semibold shadow-lg ${
+                  copyStatus === "failed"
+                    ? "bg-destructive text-destructive-foreground"
+                    : "bg-accent text-primary-foreground"
+                }`}
+              >
+                {actionStatusMessage()}
+              </p>
+            </div>
+          ) : null}
           <div className="no-print border-t border-border bg-muted p-4 text-sm text-foreground/80">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -654,11 +682,23 @@ export function ResultClient() {
               <ShieldCheck aria-hidden="true" className="h-5 w-5" />
             </span>
             <div>
-              <p className="font-semibold text-foreground">Ekspertiz öncesi hızlı okuma</p>
+              <p className="font-semibold text-foreground">Raporda neler var</p>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                Önce öncelikli bulguları, sonra satıcı sorularını ve son kontrol listesini tamamlayın.
+                Aşağı kaydırmadan doğrudan istediğiniz bölüme atlayın; önce öncelikli aksiyonları ve riskli noktaları
+                okumanızı öneririz.
               </p>
             </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {reportSections.map((section) => (
+              <a
+                key={section.id}
+                href={`#${section.id}`}
+                className="inline-flex min-h-9 items-center rounded-full border border-border px-3 text-sm font-medium text-foreground/90 hover:border-accent hover:text-accent"
+              >
+                {section.label}
+              </a>
+            ))}
           </div>
         </div>
         {showAiAnalysisNote ? (
@@ -963,6 +1003,7 @@ export function ResultClient() {
           </ul>
         </SectionCard>
         <SectionCard
+          id="rapor-aksiyonlar"
           title="Öncelikli ilk aksiyonlar"
           description="Satıcıyla görüşmeden veya ekspertize gitmeden önce netleştirmeniz gereken başlıklar."
         >
@@ -975,7 +1016,7 @@ export function ResultClient() {
             ))}
           </ol>
         </SectionCard>
-        <SectionCard title="Riskli noktalar">
+        <SectionCard id="rapor-bulgular" title="Riskli noktalar">
           <div className="mb-4 grid gap-3 sm:grid-cols-3" aria-label="Risk bulgusu dağılımı">
             <div className="rounded-theme-sm border border-destructive/30 bg-destructive/10 p-3">
               <p className="text-sm font-medium text-destructive">Yüksek riskli bulgu</p>
@@ -1025,7 +1066,7 @@ export function ResultClient() {
             ))}
           </div>
         </SectionCard>
-        <SectionCard title="Yakın zamanda çıkabilecek masraflar">
+        <SectionCard id="rapor-masraflar" title="Yakın zamanda çıkabilecek masraflar">
           <ul className="grid gap-2">
             {result.costs.map((cost) => (
               <li key={cost.item} className="flex justify-between gap-3 rounded-lg border border-border p-3">
@@ -1035,14 +1076,14 @@ export function ResultClient() {
             ))}
           </ul>
         </SectionCard>
-        <SectionCard title="Satıcıya sorulacak sorular">
+        <SectionCard id="rapor-sorular" title="Satıcıya sorulacak sorular">
           <ol className="grid list-decimal gap-2 pl-5">
             {result.sellerQuestions.map((question) => (
               <li key={question}>{question}</li>
             ))}
           </ol>
         </SectionCard>
-        <SectionCard title="Ekspertizde özellikle kontrol edilmesi gerekenler">
+        <SectionCard id="rapor-ekspertiz-kontrol" title="Ekspertizde özellikle kontrol edilmesi gerekenler">
           <div className="grid gap-2 sm:grid-cols-2">
             {result.inspectionFocus.map((item) => (
               <span key={item} className="rounded-lg border border-border bg-card p-3">
@@ -1059,6 +1100,7 @@ export function ResultClient() {
           </Link>
         </SectionCard>
         <SectionCard
+          id="rapor-kontrol-listesi"
           title="Son kontrol listesi"
           description="Bu liste yalnızca mevcut tarayıcı oturumunda saklanır; oturum verisini silerseniz işaretler de temizlenir."
         >

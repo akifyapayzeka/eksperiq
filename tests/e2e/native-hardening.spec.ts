@@ -6,7 +6,7 @@ const vehiclePhotoFixturePath = path.join(__dirname, "..", "fixtures", "large-ph
 
 /**
  * Spoofs Capacitor's supported custom platform hook so Capacitor.isNativePlatform()
- * reports true, the same signal src/lib/api/client.ts, src/lib/share/share.ts
+ * reports true, the same signal src/lib/api/client.ts, src/lib/report/pdf-share.ts
  * and src/lib/push/native.ts branch on. No native plugin binary exists in a
  * Playwright browser context, so this only exercises the platform-detection
  * branch itself, not real Capacitor plugin bridges (those are Xcode-only).

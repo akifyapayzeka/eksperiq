@@ -232,30 +232,61 @@ function resolveVisionModel() {
   return process.env.OPENROUTER_VISION_MODEL?.trim() || process.env.OPENROUTER_MODEL?.trim() || DEFAULT_VISION_MODEL;
 }
 
-async function requestOpenRouterVision(input) {
-  const apiKey = process.env.OPENROUTER_API_KEY?.trim();
-  if (!apiKey) return { error: "OpenRouter API key tanımlı değil." };
+// Rapor gorselleri (coklu sayfa + yogun tablo/checkbox) diger iki uc noktaya
+// (photo-damage 900, analysis-note 700) gore en zorlu girdi; ucretsiz model
+// bazen uretimin cogunu gorunmeyen "reasoning" adimlarina harcayip content
+// alanini bos birakiyor (finish_reason=length). Diger iki uc noktadan daha
+// yuksek bir tavan + bos-yanit durumunda TEK ekstra deneme bu riski azaltir.
+const MAX_TOKENS = 2200;
 
-  const model = resolveVisionModel();
+async function callOnce(apiKey, model, input) {
   const result = await callOpenRouterChatCompletions({
     apiKey,
     model,
     messages: buildMessages(input),
     responseFormat: expertiseReportResponseFormat,
     temperature: 0.1,
-    maxTokens: 1400,
+    maxTokens: MAX_TOKENS,
     refererUrl: productionUrl,
     appName,
   });
   if (!result.ok) return { error: result.error };
 
   const text = extractText(result.payload);
-  if (!text) return { error: "AI yanıtı okunamadı." };
+  if (!text) {
+    const choice = result.payload?.choices?.[0];
+    console.error(
+      "[expertise-report] empty content from model:",
+      JSON.stringify({
+        finishReason: choice?.finish_reason,
+        hasReasoning: typeof choice?.message?.reasoning === "string" && choice.message.reasoning.length > 0,
+        contentType: typeof choice?.message?.content,
+      }),
+    );
+    return { error: "AI yanıtı okunamadı." };
+  }
   const json = extractJson(text);
   if (!json) return { error: "AI rapor sonucu işlenemedi." };
   const analysis = normalizeAnalysis(json);
   if (!analysis) return { error: "AI rapor sonucu işlenemedi." };
-  return { analysis, model };
+  return { analysis };
+}
+
+async function requestOpenRouterVision(input) {
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim();
+  if (!apiKey) return { error: "OpenRouter API key tanımlı değil." };
+
+  const model = resolveVisionModel();
+  const first = await callOnce(apiKey, model, input);
+  if (!("error" in first)) return { analysis: first.analysis, model };
+  if (first.error !== "AI yanıtı okunamadı.") return first;
+
+  // Empty content specifically (not a network/HTTP failure, which
+  // callOpenRouterChatCompletions already retries internally) — one fresh
+  // attempt before surfacing an error to the user.
+  const second = await callOnce(apiKey, model, input);
+  if (!("error" in second)) return { analysis: second.analysis, model };
+  return second;
 }
 
 async function handler(request, response) {
