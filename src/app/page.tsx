@@ -113,7 +113,8 @@ export default function Home() {
           </h1>
         </div>
         <div className="flex items-center gap-3">
-          <IconButton icon={UserRound} label="Profili aç" href="/profil" />
+          {/* Hidden on mobile: the bottom tab bar's "Profil" tab already covers this. */}
+          <IconButton icon={UserRound} label="Profili aç" href="/profil" className="hidden sm:flex" />
           <IconButton
             icon={Bell}
             label="Hatırlatmalar"
