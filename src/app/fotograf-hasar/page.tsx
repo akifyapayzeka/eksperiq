@@ -32,6 +32,11 @@ const areas = [
 const findings = ["Çizik", "Göçük", "Boya çatlağı", "Renk farkı", "Panel hizasızlığı", "Pas", "Çatlak", "Kırık"];
 const confidenceLevels = ["Düşük olasılık", "Orta olasılık", "Yüksek olasılık"];
 const isPhotoAiEnabled = process.env.NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED === "true";
+// A real ilan listing usually has 10-15+ photos. The backend caps a single
+// request at 4 images (Vercel's ~4.5MB serverless body limit), so more than
+// 4 photos are sent as sequential batches and the findings are merged.
+const MAX_ANALYZED_PHOTOS = 20;
+const BATCH_SIZE = 4;
 
 type DamageFinding = {
   area: string;
@@ -68,6 +73,7 @@ export default function PhotoDamagePage() {
   const [aiStatus, setAiStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [aiMessage, setAiMessage] = useState("");
   const [aiAnalysis, setAiAnalysis] = useState<AiPhotoAnalysis | null>(null);
+  const [aiBatchProgress, setAiBatchProgress] = useState<{ done: number; total: number } | null>(null);
   // KVKK/gizlilik/AI onayı normalde üye ol/giriş yap ekranında bir kez
   // alınır (RequireAuthGate); burada tekrar sorulmaz. Yalnızca o onay hiç
   // alınmamışsa (örn. hesap sistemi yapılandırılı değilse) yedek olarak
@@ -170,9 +176,10 @@ export default function PhotoDamagePage() {
     setAiStatus("loading");
     setAiMessage("");
     setAiAnalysis(null);
+    setAiBatchProgress(null);
 
     try {
-      const { images, skippedCount } = await prepareAiImages(files.slice(0, 4));
+      const { images, skippedCount } = await prepareAiImages(files.slice(0, MAX_ANALYZED_PHOTOS));
 
       if (!images.length) {
         setAiStatus("error");
@@ -182,41 +189,69 @@ export default function PhotoDamagePage() {
         return;
       }
 
-      const response = await apiFetch("/api/ai/photo-damage", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          aiProviderConsent: true,
-          images,
-          userNote: note,
-        }),
-      });
-
-      if (response.status === 413) {
-        setAiStatus("error");
-        setAiMessage("Fotoğraf verisi hâlâ çok büyük. Daha az fotoğraf seçip tekrar deneyin.");
-        return;
+      const batches: (typeof images)[] = [];
+      for (let i = 0; i < images.length; i += BATCH_SIZE) {
+        batches.push(images.slice(i, i + BATCH_SIZE));
       }
 
-      const payload = (await response.json()) as { analysis?: AiPhotoAnalysis; error?: string; remaining?: number };
-      if (!response.ok || !payload.analysis) {
-        setAiStatus("error");
-        setAiMessage(formatAiError(payload.error, response.status));
-        return;
+      const combinedFindings: AiPhotoFinding[] = [];
+      let anyVehiclePhoto = false;
+      let summary = "";
+      let disclaimer = "";
+      let remaining: number | undefined;
+
+      for (let batchIndex = 0; batchIndex < batches.length; batchIndex += 1) {
+        setAiBatchProgress({ done: batchIndex, total: batches.length });
+
+        const response = await apiFetch("/api/ai/photo-damage", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            aiProviderConsent: true,
+            images: batches[batchIndex],
+            userNote: note,
+          }),
+        });
+
+        if (response.status === 413) {
+          setAiStatus("error");
+          setAiMessage("Fotoğraf verisi hâlâ çok büyük. Daha az fotoğraf seçip tekrar deneyin.");
+          return;
+        }
+
+        const payload = (await response.json()) as { analysis?: AiPhotoAnalysis; error?: string; remaining?: number };
+        if (!response.ok || !payload.analysis) {
+          setAiStatus("error");
+          setAiMessage(formatAiError(payload.error, response.status));
+          return;
+        }
+
+        if (payload.analysis.isVehiclePhoto) {
+          anyVehiclePhoto = true;
+          combinedFindings.push(
+            ...payload.analysis.findings.map((item) => ({ ...item, id: `b${batchIndex}-${item.id}` })),
+          );
+        }
+        summary = payload.analysis.summary || summary;
+        disclaimer = payload.analysis.disclaimer || disclaimer;
+        remaining = payload.remaining;
       }
 
+      setAiBatchProgress(null);
       const skippedNote = skippedCount > 0 ? ` ${skippedCount} fotoğraf boyut sınırı nedeniyle dahil edilemedi.` : "";
-      setAiAnalysis(payload.analysis);
+      setAiAnalysis({ isVehiclePhoto: anyVehiclePhoto, summary, findings: combinedFindings, disclaimer });
       setAiStatus("ready");
       setAiMessage(
-        (payload.analysis.isVehiclePhoto
-          ? `Fotoğraf kontrolü tamamlandı.${typeof payload.remaining === "number" ? ` Bugün kalan hak: ${payload.remaining}` : ""}`
-          : "Bu görselde araç veya araç parçası güvenle tespit edilemedi. Hasar bulgusu oluşturulmadı.") + skippedNote,
+        (anyVehiclePhoto
+          ? `Fotoğraf kontrolü tamamlandı.${typeof remaining === "number" ? ` Bugün kalan hak: ${remaining}` : ""}`
+          : "Bu görsellerde araç veya araç parçası güvenle tespit edilemedi. Hasar bulgusu oluşturulmadı.") +
+          skippedNote,
       );
     } catch {
       setAiStatus("error");
+      setAiBatchProgress(null);
       setAiMessage(
         "Fotoğraf kontrolüne şu anda ulaşılamadı. Fotoğrafınız kaybolmadı; manuel bulgu ekleyebilir veya biraz sonra tekrar deneyebilirsiniz.",
       );
@@ -262,7 +297,7 @@ export default function PhotoDamagePage() {
               multiple
               className="sr-only"
               onChange={(event) => {
-                const selectedFiles = Array.from(event.currentTarget.files ?? []).slice(0, 4);
+                const selectedFiles = Array.from(event.currentTarget.files ?? []).slice(0, MAX_ANALYZED_PHOTOS);
                 setFiles(selectedFiles);
                 setFileCount(selectedFiles.length);
                 setFormMessage("");
@@ -314,10 +349,12 @@ export default function PhotoDamagePage() {
             {aiStatus === "loading" ? (
               <>
                 <Spinner />
-                İnceleniyor
+                {aiBatchProgress && aiBatchProgress.total > 1
+                  ? `İnceleniyor (${aiBatchProgress.done}/${aiBatchProgress.total})`
+                  : "İnceleniyor"}
               </>
             ) : (
-              "Fotoğrafı analiz et"
+              "İlanı analiz et"
             )}
           </button>
           {aiMessage ? (

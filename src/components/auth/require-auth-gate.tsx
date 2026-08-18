@@ -8,6 +8,7 @@ import { EKSPERIQ_PLAN_PRICING, formatTry } from "@/lib/pro/pricing";
 import { acceptAiConsent } from "@/lib/consent/ai-consent";
 import { Field } from "@/components/ui/field";
 import { PrimaryButton } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 const PLANS_SEEN_KEY_PREFIX = "eksperiq:onboarding-plans-seen:";
 const PLANS_SEEN_ANONYMOUS_KEY = "eksperiq:onboarding-plans-seen:anonymous";
@@ -179,7 +180,9 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
             </label>
             {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
             <PrimaryButton type="submit" disabled={isSubmitting || !email.trim() || password.length < 6}>
-              {mode === "signup" ? (
+              {isSubmitting ? (
+                <Spinner />
+              ) : mode === "signup" ? (
                 <UserPlus aria-hidden="true" className="h-4 w-4" />
               ) : (
                 <Mail aria-hidden="true" className="h-4 w-4" />

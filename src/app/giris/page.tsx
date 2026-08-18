@@ -7,6 +7,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { Field } from "@/components/ui/field";
 import { PrimaryButton } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { DisclaimerCard } from "@/components/ui/alert";
 import { useAuth } from "@/lib/auth/auth-context";
 
@@ -98,7 +99,9 @@ export default function GirisPage() {
           />
           {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
           <PrimaryButton type="submit" disabled={isSubmitting || !email.trim() || password.length < 6}>
-            {mode === "signup" ? (
+            {isSubmitting ? (
+              <Spinner />
+            ) : mode === "signup" ? (
               <UserPlus aria-hidden="true" className="h-4 w-4" />
             ) : (
               <Mail aria-hidden="true" className="h-4 w-4" />

@@ -1,13 +1,22 @@
 "use client";
 
+import { useState } from "react";
 import { LogIn, LogOut, Mail } from "lucide-react";
 import { useAuth } from "@/lib/auth/auth-context";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 export function AccountSection() {
   const { isLoading, user, isConfigured, signOut } = useAuth();
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   if (!isConfigured) return null;
+
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    await signOut();
+    setIsSigningOut(false);
+  }
 
   return (
     <section className="rounded-theme border border-border bg-card p-5 shadow-sm">
@@ -22,9 +31,9 @@ export function AccountSection() {
             </span>
             <span className="min-w-0 truncate font-medium">{user.email}</span>
           </div>
-          <SecondaryButton onClick={() => signOut()}>
-            <LogOut aria-hidden="true" className="h-4 w-4" />
-            Çıkış yap
+          <SecondaryButton onClick={handleSignOut} disabled={isSigningOut}>
+            {isSigningOut ? <Spinner /> : <LogOut aria-hidden="true" className="h-4 w-4" />}
+            {isSigningOut ? "Çıkış yapılıyor..." : "Çıkış yap"}
           </SecondaryButton>
         </div>
       ) : (

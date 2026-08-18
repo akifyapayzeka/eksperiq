@@ -8,9 +8,15 @@ const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
 // yerine görsel girdiyi ve strict JSON şemasını destekleyen, güvenilir,
 // isimli bir ücretsiz model kullan.
 const DEFAULT_VISION_MODEL = "google/gemma-4-26b-a4b-it:free";
-const DEFAULT_PHOTO_DAILY_LIMIT = 10;
-const DEFAULT_PHOTO_DAILY_LIMIT_PER_INSTALL = 4;
-const DEFAULT_BURST_LIMIT = 5;
+// A single request still caps at 4 images (Vercel's serverless body-size
+// limit — see MAX_TOTAL_IMAGE_DATA_URL_CHARS below), so the client sends a
+// listing's photos as sequential batches. 3 free listings/day x up to 20
+// photos (5 batches of 4) = 15 requests/day per device; the burst window
+// needs enough headroom for one full 5-batch listing analysis to complete
+// without tripping on request #5.
+const DEFAULT_PHOTO_DAILY_LIMIT = 300;
+const DEFAULT_PHOTO_DAILY_LIMIT_PER_INSTALL = 15;
+const DEFAULT_BURST_LIMIT = 8;
 const DEFAULT_BURST_WINDOW_SECONDS = 60;
 // Vercel serverless functions reject request bodies over ~4.5MB before this
 // handler even runs. This is a second, independent check: the client already
