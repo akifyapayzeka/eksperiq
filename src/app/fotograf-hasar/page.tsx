@@ -285,7 +285,12 @@ export default function PhotoDamagePage() {
   return (
     <AppShell>
       <div className="max-w-4xl pt-6">
-        <HeroCard icon={Camera} eyebrow="Fotoğraftan Hasar Analizi" title="Fotoğrafları inceleme notuna çevir" />
+        <HeroCard
+          icon={Camera}
+          eyebrow="Fotoğraftan Hasar Analizi"
+          title="Fotoğrafları inceleme notuna çevir"
+          tone="accent"
+        />
 
         <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
           <label className="grid min-h-24 cursor-pointer place-items-center rounded-theme border border-dashed border-border bg-muted p-4 text-center">

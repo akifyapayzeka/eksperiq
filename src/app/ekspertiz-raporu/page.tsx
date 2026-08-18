@@ -134,7 +134,8 @@ export default function ExpertiseReportPage() {
           icon={FileSearch}
           eyebrow="Ekspertiz Raporu Analizi"
           title="Ekspertiz raporunu kontrol notuna çevir"
-          description="PDF veya rapor fotoğrafını seçin; boya/değişen, mekanik, elektronik ve şasi bulgularını AI okuyup önceliklendirir. Elle metin yapıştırmanız gerekmez."
+          description="PDF veya rapor fotoğrafını seçin; boya/değişen, mekanik, elektronik ve şasi bulgularını okuyup önceliklendirelim. Elle metin yapıştırmanız gerekmez."
+          tone="accent"
         />
 
         <div className="mt-5">

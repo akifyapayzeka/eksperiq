@@ -11,6 +11,7 @@ export default function AnalysisPage() {
           icon={ScanSearch}
           title="Yeni araç analizi"
           description="Almak istediğiniz araç için bilgileri seçin veya yazın. Eksik alanlar raporda satıcıdan istenecek bilgiler olarak değerlendirilir."
+          tone="accent"
         />
       </div>
       <div className="mt-5">

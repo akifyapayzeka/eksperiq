@@ -313,9 +313,6 @@ export function AnalysisForm() {
       }}
       noValidate
     >
-      <div className="rounded-theme border border-accent/25 bg-accent/10 p-4 text-sm leading-6 text-foreground">
-        {appConfig.privacy}
-      </div>
       <section className="rounded-theme border border-border bg-card p-4 shadow-sm" aria-labelledby="analysis-start">
         <h2 id="analysis-start" className="font-semibold text-foreground">
           Analiz için araç bilgilerini doldurun
@@ -340,6 +337,7 @@ export function AnalysisForm() {
             Ekspertiz raporu ekle
           </Link>
         </div>
+        <p className="mt-4 text-xs leading-5 text-muted-foreground">{appConfig.privacy}</p>
       </section>
       <FormStepOverview values={progressValues} />
       <FormProgress values={progressValues} />

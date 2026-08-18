@@ -36,7 +36,10 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <PrimaryButton href="/analiz">Yeni Analiz</PrimaryButton>
+        {/* Hidden on mobile: the bottom tab bar's "Analiz" tab already covers this. */}
+        <PrimaryButton href="/analiz" className="hidden sm:inline-flex">
+          Yeni Analiz
+        </PrimaryButton>
       </div>
     </header>
   );
