@@ -19,6 +19,7 @@
 		B00E9C5C6AC45CB8318E1321 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 83CD5080ADE92640BD6E597B /* PrivacyInfo.xcprivacy */; };
 		C2DAE10A60BEAB4C1753D608 /* EksperIQEntitlementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6070A46622544E2773C8F6 /* EksperIQEntitlementStore.swift */; };
 		31503D90E3B20087C4E112F3 /* EksperIQEntitlementPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E34427E195857C9902463E /* EksperIQEntitlementPlugin.swift */; };
+		A77B8DC948FA58CE9B4751F8 /* EksperIQListingFetchPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECD873E77B581F757E2B031 /* EksperIQListingFetchPlugin.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +37,7 @@
 		83CD5080ADE92640BD6E597B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		EC6070A46622544E2773C8F6 /* EksperIQEntitlementStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EksperIQEntitlementStore.swift; sourceTree = "<group>"; };
 		78E34427E195857C9902463E /* EksperIQEntitlementPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EksperIQEntitlementPlugin.swift; sourceTree = "<group>"; };
+		AECD873E77B581F757E2B031 /* EksperIQListingFetchPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EksperIQListingFetchPlugin.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +92,7 @@
 			children = (
 				EC6070A46622544E2773C8F6 /* EksperIQEntitlementStore.swift */,
 				78E34427E195857C9902463E /* EksperIQEntitlementPlugin.swift */,
+				AECD873E77B581F757E2B031 /* EksperIQListingFetchPlugin.swift */,
 			);
 			path = Plugins;
 			sourceTree = "<group>";
@@ -180,6 +183,7 @@
 				B303E5683B758C38367E4F1A /* MainViewController.swift in Sources */,
 				C2DAE10A60BEAB4C1753D608 /* EksperIQEntitlementStore.swift in Sources */,
 				31503D90E3B20087C4E112F3 /* EksperIQEntitlementPlugin.swift in Sources */,
+				A77B8DC948FA58CE9B4751F8 /* EksperIQListingFetchPlugin.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -320,7 +324,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 22;
+				CURRENT_PROJECT_VERSION = 23;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -342,7 +346,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 22;
+				CURRENT_PROJECT_VERSION = 23;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (

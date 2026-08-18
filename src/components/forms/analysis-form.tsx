@@ -17,6 +17,7 @@ import {
   SellerDescriptionSection,
   VehicleInfoSection,
 } from "@/components/forms/analysis-form-sections";
+import { ListingImportSection } from "@/components/forms/listing-import-section";
 
 type ProgressField = keyof VehicleFormInput;
 
@@ -318,8 +319,8 @@ export function AnalysisForm() {
           Analiz için araç bilgilerini doldurun
         </h2>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">
-          Link gerekmez. Araç almadan önce bildiğiniz bilgileri seçin; eksik kalanlar raporda satıcıya sorulacak bilgi
-          olarak yer alır.
+          İlan linkiyle otomatik doldurabilir veya bildiğiniz bilgileri kendiniz girebilirsiniz. Eksik bilgiler
+          raporda satıcıya sorulacak noktalar olarak gösterilir.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <Link
@@ -339,6 +340,12 @@ export function AnalysisForm() {
         </div>
         <p className="mt-4 text-xs leading-5 text-muted-foreground">{appConfig.privacy}</p>
       </section>
+      <ListingImportSection setValue={setValue} />
+      <div className="flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <span className="h-px flex-1 bg-border" aria-hidden="true" />
+        veya bilgileri kendiniz girin
+        <span className="h-px flex-1 bg-border" aria-hidden="true" />
+      </div>
       <FormStepOverview values={progressValues} />
       <FormProgress values={progressValues} />
       <FormSectionLinks />

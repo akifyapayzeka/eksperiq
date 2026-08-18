@@ -117,7 +117,7 @@ test("shows validation errors", async ({ page }) => {
 test("starts analysis with manual vehicle choices", async ({ page }) => {
   await page.goto("/analiz");
   await expect(page.getByRole("heading", { name: "Analiz için araç bilgilerini doldurun" })).toBeVisible();
-  await expect(page.getByText("Link gerekmez.")).toBeVisible();
+  await expect(page.getByText("İlan linkiyle otomatik doldurabilir")).toBeVisible();
   await expect(page.getByRole("button", { name: "Örnek ilanla doldur" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Fotoğrafla hasar notu" })).toHaveAttribute("href", "/fotograf-hasar");
   await expect(page.getByRole("link", { name: "Ekspertiz raporu ekle" })).toHaveAttribute("href", "/ekspertiz-raporu");
