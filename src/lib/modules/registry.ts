@@ -194,6 +194,25 @@ export const productModules: ProductModule[] = [
     dataPolicy: "Kullanıcı aracı ve satış hazırlığı verileri açık onay olmadan kalıcı tutulmaz.",
     certaintyPolicy: "Satışı veya satış fiyatını garanti etmez; hazırlık önerisi üretir.",
   },
+  {
+    id: "nearby-services",
+    title: "Yakınımdaki Ekspertiz, Noter ve Servis",
+    status: "active",
+    href: "/yakinimdaki-hizmetler",
+    summary: "Aracı alırken ya da hemen sonrasında uğranacak ekspertiz, noter ve bakım firmalarını konuma göre bulur.",
+    capabilities: [
+      {
+        title: "Konuma göre en yakın 5",
+        description: "Konum izniyle gerçek firma adı, adres, telefon ve mesafeyi gösterir.",
+      },
+      {
+        title: "Tek dokunuşla yol tarifi",
+        description: "Apple Haritalar, Google Haritalar veya Yandex Haritalar'da doğrudan yol tarifi açar.",
+      },
+    ],
+    dataPolicy: "Konum yalnızca arama isteği sırasında kullanılır, cihazda veya sunucuda saklanmaz.",
+    certaintyPolicy: "Fiyat göstermez — hiçbir harita/işletme kaynağı gerçek fiyat yayınlamaz; telefonla teyit gerekir.",
+  },
 ];
 
 export function activeModules(): ProductModule[] {

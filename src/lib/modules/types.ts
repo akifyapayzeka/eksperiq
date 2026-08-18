@@ -13,7 +13,8 @@ export type ModuleId =
   | "listing-comparison"
   | "vehicle-health-record"
   | "vehicle-value-tracking"
-  | "smart-sale-preparation";
+  | "smart-sale-preparation"
+  | "nearby-services";
 
 export type ModuleCapability = {
   title: string;

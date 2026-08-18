@@ -1036,6 +1036,13 @@ export function ResultClient() {
               </span>
             ))}
           </div>
+          <Link
+            href="/yakinimdaki-hizmetler"
+            className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-accent px-4 text-sm font-semibold text-accent"
+          >
+            Yakınımdaki ekspertiz ve noter firmalarını bul
+            <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+          </Link>
         </SectionCard>
         <SectionCard
           title="Son kontrol listesi"

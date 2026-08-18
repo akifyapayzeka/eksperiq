@@ -1,22 +1,9 @@
 import { apiFetch } from "@/lib/api/client";
+import { getCurrentPosition } from "@/lib/geo/current-position";
 
 export type LocateCityResult =
   | { ok: true; city: string }
   | { ok: false; reason: "permission-denied" | "unavailable" | "not-found" | "network-error" };
-
-function getCurrentPosition(): Promise<GeolocationPosition> {
-  return new Promise((resolve, reject) => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) {
-      reject(new Error("unavailable"));
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(resolve, reject, {
-      enableHighAccuracy: false,
-      timeout: 10_000,
-      maximumAge: 5 * 60_000,
-    });
-  });
-}
 
 /** Konum izni ister, alınırsa şehre çevirir. Şehri bulamazsa/izin verilmezse net bir sebep döner. */
 export async function locateCity(): Promise<LocateCityResult> {
