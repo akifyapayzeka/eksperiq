@@ -38,7 +38,8 @@ export default function VehicleValueTrackingPage() {
           icon={TrendingUp}
           eyebrow="Araç Değer Takibi"
           title="Manuel piyasa aralığıyla fiyatı oku"
-          description="EksperIQ ilan sitelerini scrape etmez. Kullanıcının kendi gördüğü benzer ilan aralığıyla karar desteği üretir."
+          description="EksperIQ ilan sitelerinden otomatik veri çekmez. Kendi gördüğün benzer ilan aralığını girerek karar desteği alırsın."
+          tone="accent"
         />
         <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
           <div className="grid gap-4 sm:grid-cols-2">

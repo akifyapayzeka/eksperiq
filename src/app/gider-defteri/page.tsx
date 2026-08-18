@@ -146,6 +146,7 @@ export default function ExpenseLedgerPage() {
           eyebrow="Gider Defteri"
           title="Aracının maliyetini zaman içinde gör"
           description="Yakıt, bakım, sigorta ve diğer masrafları kaydedin; aylık toplam ve yaklaşık km başı maliyeti görün. Bu kayıtlar bilgilendirme amaçlıdır, resmi mali kayıt yerine geçmez ve yalnızca bu cihazda saklanır."
+          tone="accent"
         />
 
         <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start">

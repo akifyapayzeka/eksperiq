@@ -4,18 +4,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  AlertCircle,
   Bell,
   CarFront,
   ClipboardPaste,
-  FileCheck2,
   FileSearch,
   FileText,
   ImagePlus,
   ScanSearch,
   ShieldCheck,
   UserRound,
-  Wrench,
 } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
 import { openAnalysisFromHistory } from "@/lib/storage/analysis-storage";
@@ -38,13 +35,6 @@ import { DisclaimerCard } from "@/components/ui/alert";
 import { IconButton, PrimaryButton } from "@/components/ui/button";
 import type { AnalysisResult } from "@/lib/analysis/types";
 import type { ReminderRecord } from "@/lib/reminders/types";
-
-const shortcuts = [
-  { icon: CarFront, title: "Garajım", href: "/arac-saglik-karnesi" },
-  { icon: FileText, title: "Analizlerim", href: "/analizlerim" },
-  { icon: FileCheck2, title: "Raporlarım", href: "/sonuc" },
-  { icon: Wrench, title: "Bakım Takibi", href: "/bakim-odeme-takvimi" },
-];
 
 const aiTools = [
   {
@@ -102,6 +92,7 @@ export default function Home() {
   }
 
   const reminderDays = nextReminder ? daysUntil(nextReminder.dueDate) : null;
+  const isFreshUser = isReady && historyCount === 0 && vehicleCount === 0;
 
   return (
     <AppShell>
@@ -181,122 +172,101 @@ export default function Home() {
         )}
       </section>
 
-      <section className="mt-7">
-        <SectionHeader
-          title="Son analizin"
-          description="En son inceleme"
-          action={<Link href="/analizlerim">Tümü</Link>}
-        />
-        {!isReady ? (
+      {!isReady ? (
+        <section className="mt-7">
           <LoadingSkeleton />
-        ) : latest ? (
-          <AnalysisCard
-            title={`${latest.input.year} ${latest.input.brand} ${latest.input.model}`}
-            dateLabel="İlan analizi"
-            score={latest.totalScore}
-            findingLabel={latest.findings[0]?.title ?? "Öncelikli bulgu yok"}
-            onOpen={openLatestReport}
-          />
-        ) : (
-          <EmptyState
-            icon={FileText}
-            title="Henüz analiz yok"
-            description="İlk ilan analizini başlatarak risk skorunu ve önerilen kontrolleri gör."
-            action={<PrimaryButton href="/analiz">Analiz başlat</PrimaryButton>}
-          />
-        )}
-      </section>
-
-      <section className="mt-7">
-        <SectionHeader
-          title="Garajın"
-          description="Kayıtlı araçlar ve yaklaşan hatırlatma"
-          action={<Link href="/arac-saglik-karnesi">Garajı aç</Link>}
-        />
-        {!isReady ? (
-          <LoadingSkeleton />
-        ) : vehicleCount === 0 ? (
+        </section>
+      ) : isFreshUser ? (
+        <section className="mt-7">
           <EmptyState
             icon={CarFront}
-            title="Henüz araç eklenmedi"
-            description="Garajına araç ekleyerek bakım, hatırlatma ve gider kayıtlarını takip et."
-            action={<PrimaryButton href="/arac-saglik-karnesi">Araç ekle</PrimaryButton>}
+            title="Henüz başlamadın"
+            description="İlk ilan analizini yap; araç, hatırlatma ve gider takibi otomatik burada toplanmaya başlayacak."
+            action={<PrimaryButton href="/analiz">İlk analizi başlat</PrimaryButton>}
           />
-        ) : nextReminder && reminderDays !== null ? (
-          <div className="overflow-hidden rounded-theme border border-border bg-card shadow-sm">
-            <ReminderCard
-              title={nextReminder.title || reminderCategoryLabels[nextReminder.category]}
-              subtitle={reminderCategoryLabels[nextReminder.category]}
-              days={reminderDays}
-              urgency={urgencyOf(reminderDays)}
+        </section>
+      ) : (
+        <>
+          <section className="mt-7">
+            <SectionHeader
+              title="Son analizin"
+              description="En son inceleme"
+              action={<Link href="/analizlerim">Tümü</Link>}
             />
-          </div>
-        ) : (
-          <EmptyState
-            icon={Bell}
-            title="Yaklaşan hatırlatma yok"
-            description="Bakım ve ödeme takvimine hatırlatma ekleyebilirsin."
-          />
-        )}
-      </section>
+            {latest ? (
+              <AnalysisCard
+                title={`${latest.input.year} ${latest.input.brand} ${latest.input.model}`}
+                dateLabel="İlan analizi"
+                score={latest.totalScore}
+                findingLabel={latest.findings[0]?.title ?? "Öncelikli bulgu yok"}
+                onOpen={openLatestReport}
+              />
+            ) : (
+              <EmptyState
+                icon={FileText}
+                title="Henüz analiz yok"
+                description="İlk ilan analizini başlatarak risk skorunu ve önerilen kontrolleri gör."
+                action={<PrimaryButton href="/analiz">Analiz başlat</PrimaryButton>}
+              />
+            )}
+          </section>
 
-      <section className="mt-7">
-        <SectionHeader title="Bu ayki giderlerin" action={<Link href="/gider-defteri">Gider defteri</Link>} />
-        {!isReady ? (
-          <Skeleton className="h-16 w-full rounded-theme" />
-        ) : monthExpenseTotal !== null && monthExpenseTotal > 0 ? (
-          <div className="rounded-theme border border-border bg-card p-4 shadow-sm">
-            <p className="font-heading text-2xl font-bold text-foreground">
-              {monthExpenseTotal.toLocaleString("tr-TR", {
-                style: "currency",
-                currency: "TRY",
-                maximumFractionDigits: 0,
-              })}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">Bu ay kaydedilen toplam gider</p>
-          </div>
-        ) : (
-          <EmptyState
-            icon={FileCheck2}
-            title="Henüz gider kaydı yok"
-            description="Yakıt, bakım veya sigorta giderlerini gider defterine ekleyebilirsin."
-          />
-        )}
-      </section>
+          <section className="mt-7">
+            <SectionHeader
+              title="Garajın"
+              description="Kayıtlı araçlar ve yaklaşan hatırlatma"
+              action={<Link href="/arac-saglik-karnesi">Garajı aç</Link>}
+            />
+            {vehicleCount === 0 ? (
+              <EmptyState
+                icon={CarFront}
+                title="Henüz araç eklenmedi"
+                description="Garajına araç ekleyerek bakım, hatırlatma ve gider kayıtlarını takip et."
+                action={<PrimaryButton href="/arac-saglik-karnesi">Araç ekle</PrimaryButton>}
+              />
+            ) : nextReminder && reminderDays !== null ? (
+              <div className="overflow-hidden rounded-theme border border-border bg-card shadow-sm">
+                <ReminderCard
+                  title={nextReminder.title || reminderCategoryLabels[nextReminder.category]}
+                  subtitle={reminderCategoryLabels[nextReminder.category]}
+                  days={reminderDays}
+                  urgency={urgencyOf(reminderDays)}
+                />
+              </div>
+            ) : (
+              <EmptyState
+                icon={Bell}
+                title="Yaklaşan hatırlatma yok"
+                description="Bakım ve ödeme takvimine hatırlatma ekleyebilirsin."
+              />
+            )}
+          </section>
 
-      <section className="mt-7">
-        <SectionHeader
-          title="Diğer araçlar"
-          description="EksperIQ'nun sunduğu tüm modüller"
-          action={<Link href="/moduller">Tüm modüller</Link>}
-        />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {shortcuts.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex min-h-[104px] flex-col justify-between rounded-theme border border-border bg-card p-4 shadow-sm transition hover:border-accent"
-            >
-              <span className="flex h-9 w-9 items-center justify-center rounded-theme bg-secondary text-secondary-foreground">
-                <item.icon aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={1.8} />
-              </span>
-              <span className="font-heading text-xs font-bold leading-4 text-foreground">{item.title}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
+          {monthExpenseTotal !== null && monthExpenseTotal > 0 && (
+            <section className="mt-7">
+              <SectionHeader title="Bu ayki giderlerin" action={<Link href="/gider-defteri">Gider defteri</Link>} />
+              <div className="rounded-theme border border-border bg-card p-4 shadow-sm">
+                <p className="font-heading text-2xl font-bold text-foreground">
+                  {monthExpenseTotal.toLocaleString("tr-TR", {
+                    style: "currency",
+                    currency: "TRY",
+                    maximumFractionDigits: 0,
+                  })}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">Bu ay kaydedilen toplam gider</p>
+              </div>
+            </section>
+          )}
+        </>
+      )}
 
-      <div className="mt-6">
+      <div className="mt-7">
         <DisclaimerCard>
           <p className="flex items-start gap-2">
-            <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-            {appConfig.privacy}
+            <ShieldCheck aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+            EksperIQ kesin hüküm vermez; olası risk sinyallerini ve güven seviyesini gösterir. {appConfig.privacy}
           </p>
         </DisclaimerCard>
-      </div>
-      <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-        <ShieldCheck aria-hidden="true" className="h-4 w-4 text-success" />
-        EksperIQ kesin hüküm vermez; olası risk sinyallerini ve güven seviyesini gösterir.
       </div>
     </AppShell>
   );

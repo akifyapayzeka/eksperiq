@@ -54,6 +54,7 @@ export default function ChecklistPage() {
           icon={ClipboardCheck}
           title="Satın alma öncesi son kontroller"
           description="Bu liste karar desteği sağlar. Resmi kayıt sorgusu, servis kontrolü ve bağımsız ekspertizin yerine geçmez."
+          tone="accent"
         />
       </div>
 

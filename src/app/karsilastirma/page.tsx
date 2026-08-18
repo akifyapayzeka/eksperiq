@@ -41,6 +41,7 @@ export default function ComparisonPage() {
           title="Birden fazla ilanı yan yana gör"
           description='Sonuç sayfasındaki "Karşılaştırmaya ekle" butonuyla en fazla 3 analiz burada yan yana
             görüntülenir. Bu bir karşılaştırma özeti sunar; hangi ilanın alınacağına dair kesin karar vermez.'
+          tone="accent"
         />
 
         {entries.length ? (

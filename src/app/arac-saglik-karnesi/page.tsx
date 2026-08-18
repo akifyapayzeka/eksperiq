@@ -40,6 +40,7 @@ export default function VehicleHealthRecordPage() {
   const [vehicles, setVehicles] = useState<VehicleProfile[]>([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
   const [isVehicleSheetOpen, setIsVehicleSheetOpen] = useState(false);
+  const [isRecordFormOpen, setIsRecordFormOpen] = useState(false);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -126,6 +127,7 @@ export default function VehicleHealthRecordPage() {
     setTitle("");
     setDetail("");
     setScore("");
+    setIsRecordFormOpen(false);
   }
 
   function removeRecord(id: string) {
@@ -269,7 +271,19 @@ export default function VehicleHealthRecordPage() {
         ) : null}
 
         <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
-          <h2 className="text-xl font-semibold text-foreground">Kayıt ekle</h2>
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold text-foreground">Kayıt ekle</h2>
+            {!isRecordFormOpen && (
+              <button
+                type="button"
+                onClick={() => setIsRecordFormOpen(true)}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-accent px-4 text-sm font-semibold text-accent"
+              >
+                <Plus aria-hidden="true" className="h-4 w-4" />
+                Yeni kayıt
+              </button>
+            )}
+          </div>
           {analysis ? (
             <button
               type="button"
@@ -280,6 +294,8 @@ export default function VehicleHealthRecordPage() {
               Şu anki analiz skorunu ({analysis.totalScore}) trende ekle
             </button>
           ) : null}
+          {isRecordFormOpen && (
+          <>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <label className="grid gap-2 text-sm font-medium text-foreground/90">
               Tür
@@ -340,6 +356,8 @@ export default function VehicleHealthRecordPage() {
             <Plus aria-hidden="true" className="h-5 w-5" />
             Kaydı ekle
           </button>
+          </>
+          )}
         </section>
 
         <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">

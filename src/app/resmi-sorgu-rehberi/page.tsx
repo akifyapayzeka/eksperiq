@@ -39,6 +39,7 @@ export default function OfficialLookupGuidePage() {
           eyebrow="Resmi Sorgu Rehberi"
           title="Hangi bilgiyi nereden doğrularsınız?"
           description={<>{officialLookupDisclaimer}</>}
+          tone="accent"
         />
 
         <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">

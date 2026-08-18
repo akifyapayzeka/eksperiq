@@ -284,6 +284,7 @@ export default function MaintenancePaymentCalendarPage() {
           eyebrow="Bakım ve Ödeme Takvimi"
           title="MTV, sigorta, muayene ve bakım tarihlerini tek yerde tut"
           description="Tutarları siz girersiniz; güncel MTV/sigorta tutarlarını resmi kaynaktan doğrulayın. Bu ekran yalnızca cihazınızda saklanır, hesaba kaydedilmez."
+          tone="accent"
         />
 
         <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start">

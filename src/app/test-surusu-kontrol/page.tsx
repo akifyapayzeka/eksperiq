@@ -37,6 +37,7 @@ export default function TestDriveChecklistPage() {
           eyebrow="Test Sürüşü Kontrol Listesi"
           title="Test sürüşünde neye dikkat etmeli?"
           description={<>{testDriveDisclaimer}</>}
+          tone="accent"
         />
 
         <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">

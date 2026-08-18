@@ -46,6 +46,7 @@ export default function SmartSalePreparationPage() {
           eyebrow="Akıllı Satış Hazırlığı"
           title="İlana çıkmadan önce eksikleri kapat"
           description="Bu liste satış garantisi vermez; aracınızı daha şeffaf ve düzenli sunmanıza yardımcı olur."
+          tone="accent"
         />
         <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
           <div className="flex items-center justify-between gap-4">
