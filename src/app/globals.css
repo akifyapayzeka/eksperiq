@@ -158,6 +158,19 @@ body {
   padding-left: env(safe-area-inset-left);
 }
 
+/*
+ * Same as .safe-area-shell but without top inset — for the document <body>,
+ * which already sits below SiteHeader's own safe-area-inset-top padding.
+ * Applying both stacked the notch inset twice and pushed the header (and
+ * everything after it) down by roughly double the real notch height.
+ */
+.safe-area-shell-below-header {
+  min-height: 100dvh;
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+}
+
 button,
 a,
 input,

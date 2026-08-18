@@ -75,7 +75,7 @@ export default function RootLayout({
           {themeInitScript}
         </Script>
       </head>
-      <body className="safe-area-shell flex min-h-full flex-col bg-background text-foreground font-body">
+      <body className="safe-area-shell-below-header flex min-h-full flex-col bg-background text-foreground font-body">
         <AuthProvider>
           <RequireAuthGate>
             <SiteHeader />
