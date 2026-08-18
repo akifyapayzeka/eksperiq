@@ -187,7 +187,7 @@ function FormStepOverview({ values }: { values: Partial<Record<ProgressField, un
       title: "Ekspertiz hazırlığı",
       description: "Sorular ve kontrol listesi üretilir.",
       icon: Wrench,
-      stat: "Analiz et",
+      stat: "Formu bitirince otomatik",
     },
   ] as const;
 

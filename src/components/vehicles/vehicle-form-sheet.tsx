@@ -19,6 +19,7 @@ import {
 const FUEL_OPTIONS = Object.entries(VEHICLE_FUEL_LABELS) as [VehicleFuelType, string][];
 const TRANSMISSION_OPTIONS = Object.entries(VEHICLE_TRANSMISSION_LABELS) as [VehicleTransmissionType, string][];
 const OTHER_BRAND = "Diğer";
+const OTHER_MODEL = "Diğer";
 const CURRENT_YEAR = new Date().getFullYear();
 const VEHICLE_YEARS = Array.from({ length: CURRENT_YEAR - 1979 }, (_, index) => String(CURRENT_YEAR + 1 - index));
 
@@ -80,7 +81,10 @@ export function VehicleFormSheet({
 
   const isKnownBrand = (VEHICLE_BRANDS as readonly string[]).includes(draft.brand);
   const brandSelectValue = draft.brand ? (isKnownBrand ? draft.brand : OTHER_BRAND) : "";
-  const modelListId = "vehicle-model-suggestions";
+
+  const modelOptions = modelsForBrand(draft.brand);
+  const isKnownModel = modelOptions.includes(draft.model);
+  const modelSelectValue = draft.model ? (isKnownModel ? draft.model : OTHER_MODEL) : "";
 
   function handlePhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -163,19 +167,25 @@ export function VehicleFormSheet({
             />
           ) : (
             <>
-              <Field
+              <SelectField
                 id="vehicle-model"
                 label="Model"
-                placeholder="Listeden seçin veya yazın"
-                list={modelListId}
-                value={draft.model}
-                onChange={(event) => update("model", event.target.value)}
+                options={[...modelOptions, OTHER_MODEL]}
+                value={modelSelectValue}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  update("model", value === OTHER_MODEL ? "" : value);
+                }}
               />
-              <datalist id={modelListId}>
-                {modelsForBrand(draft.brand).map((model) => (
-                  <option key={model} value={model} />
-                ))}
-              </datalist>
+              {modelSelectValue === OTHER_MODEL ? (
+                <Field
+                  id="vehicle-model-custom"
+                  label="Model (elle gir)"
+                  placeholder="Örn. model adı"
+                  value={draft.model}
+                  onChange={(event) => update("model", event.target.value)}
+                />
+              ) : null}
             </>
           )}
           {brandSelectValue === OTHER_BRAND ? (
