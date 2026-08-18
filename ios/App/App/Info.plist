@@ -28,6 +28,8 @@
 	<string>EksperIQ, yalnızca fotoğraf ekleme ekranında kullanıcı "Fotoğraf çek" seçeneğini kullandığında kameraya erişir. Çekilen fotoğraf yalnızca ilgili araç kontrolü için kullanılır.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>EksperIQ, yalnızca kullanıcı fotoğraf ekleme ekranında galeriden bir araç fotoğrafı seçtiğinde fotoğraf kitaplığına erişir. Seçilen fotoğraf yalnızca ilgili araç kontrolü için kullanılır.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>EksperIQ, yalnızca kullanıcı "Konumuma göre tahmin et" seçeneğini kullandığında konumunuza erişir. Bu, tahmini onarım maliyetini bulunduğunuz şehre göre ayarlamak için kullanılır ve kaydedilmez.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

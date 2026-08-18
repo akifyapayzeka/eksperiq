@@ -464,7 +464,15 @@ export default function PhotoDamagePage() {
           <p className="mt-4 text-sm leading-6 text-muted-foreground">Bu ekran kesin hasar kararı vermez.</p>
         </section>
 
-        <RepairCostEstimator />
+        <RepairCostEstimator
+          hint={
+            aiAnalysis?.findings[0]
+              ? { area: aiAnalysis.findings[0].area, signal: aiAnalysis.findings[0].signal }
+              : items[0]
+                ? { area: items[0].area, signal: items[0].finding }
+                : undefined
+          }
+        />
       </div>
     </AppShell>
   );
