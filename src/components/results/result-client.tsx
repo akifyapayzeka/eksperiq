@@ -14,7 +14,6 @@ import {
   GitCompareArrows,
   RotateCcw,
   Share2,
-  ShieldCheck,
   Sparkles,
   ThumbsDown,
   ThumbsUp,
@@ -72,15 +71,13 @@ const findingFilters: Array<{ value: FindingFilter; label: string }> = [
   { value: "low", label: "Düşük" },
 ];
 
-// Jump targets for the "Raporda neler var" quick-nav — matches the id props
-// set on the corresponding SectionCard elements below.
-const reportSections = [
-  { id: "rapor-aksiyonlar", label: "Öncelikli aksiyonlar" },
-  { id: "rapor-bulgular", label: "Riskli noktalar" },
-  { id: "rapor-masraflar", label: "Olası masraflar" },
-  { id: "rapor-sorular", label: "Satıcı soruları" },
-  { id: "rapor-ekspertiz-kontrol", label: "Ekspertiz kontrol listesi" },
-  { id: "rapor-kontrol-listesi", label: "Son kontrol listesi" },
+type ReportTab = "ozet" | "bulgular" | "sorular" | "kontrol";
+
+const reportTabs: Array<{ id: ReportTab; label: string }> = [
+  { id: "ozet", label: "Özet" },
+  { id: "bulgular", label: "Bulgular" },
+  { id: "sorular", label: "Sorular" },
+  { id: "kontrol", label: "Kontrol Listesi" },
 ];
 
 function severityClass(severity: string) {
@@ -193,6 +190,7 @@ export function ResultClient() {
   const [aiNoteConsent, setAiNoteConsent] = useState(false);
   const [scoreRingFilled, setScoreRingFilled] = useState(false);
   const [toastNonce, setToastNonce] = useState(0);
+  const [activeTab, setActiveTab] = useState<ReportTab>("ozet");
 
   // setCopyStatus alone doesn't restart the toast if the same action is
   // repeated within 3s (React bails out on setting an identical primitive
@@ -676,31 +674,36 @@ export function ResultClient() {
             <p>{appConfig.disclaimer}</p>
           </div>
         </div>
-        <div className="no-print rounded-theme border border-accent/20 bg-card p-4 shadow-sm">
-          <div className="flex items-start gap-3">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-accent/10 text-accent">
-              <ShieldCheck aria-hidden="true" className="h-5 w-5" />
-            </span>
-            <div>
-              <p className="font-semibold text-foreground">Raporda neler var</p>
-              <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                Aşağı kaydırmadan doğrudan istediğiniz bölüme atlayın; önce öncelikli aksiyonları ve riskli noktaları
-                okumanızı öneririz.
-              </p>
-            </div>
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {reportSections.map((section) => (
-              <a
-                key={section.id}
-                href={`#${section.id}`}
-                className="inline-flex min-h-9 items-center rounded-full border border-border px-3 text-sm font-medium text-foreground/90 hover:border-accent hover:text-accent"
-              >
-                {section.label}
-              </a>
-            ))}
-          </div>
+        <div
+          role="tablist"
+          aria-label="Rapor bölümleri"
+          className="no-print flex gap-2 overflow-x-auto rounded-theme border border-border bg-card p-1.5 shadow-sm"
+        >
+          {reportTabs.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              id={`rapor-sekme-${tab.id}`}
+              aria-selected={activeTab === tab.id}
+              aria-controls={`rapor-panel-${tab.id}`}
+              onClick={() => setActiveTab(tab.id)}
+              className={`min-h-11 shrink-0 rounded-theme-sm px-4 text-sm font-semibold transition ${
+                activeTab === tab.id
+                  ? "bg-primary text-primary-foreground"
+                  : "text-foreground/80 hover:bg-secondary hover:text-foreground"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
+        <div
+          role="tabpanel"
+          id="rapor-panel-ozet"
+          aria-labelledby="rapor-sekme-ozet"
+          className={`report-tab-panel ${activeTab === "ozet" ? "contents" : "hidden"}`}
+        >
         {showAiAnalysisNote ? (
           <SectionCard
             title="Karar destek notu"
@@ -1016,6 +1019,13 @@ export function ResultClient() {
             ))}
           </ol>
         </SectionCard>
+        </div>
+        <div
+          role="tabpanel"
+          id="rapor-panel-bulgular"
+          aria-labelledby="rapor-sekme-bulgular"
+          className={`report-tab-panel ${activeTab === "bulgular" ? "contents" : "hidden"}`}
+        >
         <SectionCard id="rapor-bulgular" title="Riskli noktalar">
           <div className="mb-4 grid gap-3 sm:grid-cols-3" aria-label="Risk bulgusu dağılımı">
             <div className="rounded-theme-sm border border-destructive/30 bg-destructive/10 p-3">
@@ -1076,6 +1086,13 @@ export function ResultClient() {
             ))}
           </ul>
         </SectionCard>
+        </div>
+        <div
+          role="tabpanel"
+          id="rapor-panel-sorular"
+          aria-labelledby="rapor-sekme-sorular"
+          className={`report-tab-panel ${activeTab === "sorular" ? "contents" : "hidden"}`}
+        >
         <SectionCard id="rapor-sorular" title="Satıcıya sorulacak sorular">
           <ol className="grid list-decimal gap-2 pl-5">
             {result.sellerQuestions.map((question) => (
@@ -1099,6 +1116,13 @@ export function ResultClient() {
             <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
           </Link>
         </SectionCard>
+        </div>
+        <div
+          role="tabpanel"
+          id="rapor-panel-kontrol"
+          aria-labelledby="rapor-sekme-kontrol"
+          className={`report-tab-panel ${activeTab === "kontrol" ? "contents" : "hidden"}`}
+        >
         <SectionCard
           id="rapor-kontrol-listesi"
           title="Son kontrol listesi"
@@ -1140,6 +1164,7 @@ export function ResultClient() {
             ))}
           </div>
         </SectionCard>
+        </div>
       </div>
     </main>
   );

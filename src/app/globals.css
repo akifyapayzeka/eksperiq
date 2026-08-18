@@ -247,6 +247,13 @@ textarea {
     display: block;
   }
 
+  /* The result page's report is tabbed on screen (only one section visible
+     at a time) but a printed page has no interactivity — every tab's
+     content must appear regardless of which one was active when printed. */
+  .report-tab-panel {
+    display: contents !important;
+  }
+
   .safe-area-shell {
     min-height: auto;
     padding: 0;
