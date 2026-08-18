@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FileSearch, Upload } from "lucide-react";
 import { HeroCard } from "@/components/cards/hero-card";
 import { AppShell } from "@/components/layout/app-shell";
+import { Spinner } from "@/components/ui/spinner";
 import { WarningAlert, DisclaimerCard, InfoAlert } from "@/components/ui/alert";
 import { apiFetch } from "@/lib/api/client";
 import { prepareAiImages } from "@/lib/photo-analysis/prepare-ai-image";
@@ -62,13 +63,13 @@ export default function ExpertiseReportPage() {
   function formatError(error: string | undefined, status: number) {
     if (status === 429) {
       return error?.includes("limit")
-        ? "Bugünkü AI rapor analizi hakkı doldu. Birazdan tekrar deneyin."
-        : "AI rapor analizi şu anda kapalı.";
+        ? "Bugünkü rapor analizi hakkı doldu. Birazdan tekrar deneyin."
+        : "Rapor analizi şu anda kapalı.";
     }
     if (status === 400 || status === 413) {
       return "Rapor işlenemedi. Lütfen okunaklı bir PDF veya fotoğraf seçip tekrar deneyin.";
     }
-    return "AI rapor analizi şu anda tamamlanamadı. Birazdan tekrar deneyebilirsiniz.";
+    return "Rapor analizi şu anda tamamlanamadı. Birazdan tekrar deneyebilirsiniz.";
   }
 
   async function analyzeReportWithAi() {
@@ -117,12 +118,12 @@ export default function ExpertiseReportPage() {
       setStatus("ready");
       setMessage(
         payload.analysis.isReportReadable
-          ? `AI rapor analizi tamamlandı.${typeof payload.remaining === "number" ? ` Bugün kalan hak: ${payload.remaining}` : ""}`
-          : "AI yüklenen dosyayı ekspertiz raporu olarak okuyamadı. Daha net bir PDF/fotoğraf deneyin.",
+          ? `Rapor analizi tamamlandı.${typeof payload.remaining === "number" ? ` Bugün kalan hak: ${payload.remaining}` : ""}`
+          : "Yüklenen dosya ekspertiz raporu olarak okunamadı. Daha net bir PDF/fotoğraf deneyin.",
       );
     } catch {
       setStatus("error");
-      setMessage("AI rapor analizine şu anda ulaşılamadı. Birazdan tekrar deneyin.");
+      setMessage("Rapor analizine şu anda ulaşılamadı. Birazdan tekrar deneyin.");
     }
   }
 
@@ -132,7 +133,7 @@ export default function ExpertiseReportPage() {
         <HeroCard
           icon={FileSearch}
           eyebrow="Ekspertiz Raporu Analizi"
-          title="Ekspertiz raporunu AI ile kontrol notuna çevir"
+          title="Ekspertiz raporunu kontrol notuna çevir"
           description="PDF veya rapor fotoğrafını seçin; boya/değişen, mekanik, elektronik ve şasi bulgularını AI okuyup önceliklendirir. Elle metin yapıştırmanız gerekmez."
         />
 
@@ -167,11 +168,11 @@ export default function ExpertiseReportPage() {
         <section className="mt-5 rounded-theme border border-accent/20 bg-card p-5 shadow-sm">
           <div className="flex items-center gap-2">
             <FileSearch aria-hidden="true" className="h-5 w-5 text-accent" />
-            <h2 className="text-xl font-semibold text-foreground">AI rapor analizi</h2>
+            <h2 className="text-xl font-semibold text-foreground">Rapor analizi</h2>
           </div>
           {!isExpertiseReportAiEnabled ? (
             <p className="mt-3 rounded-theme-sm border border-warning/30 bg-warning/10 px-3 py-2 text-sm font-medium text-foreground">
-              AI rapor analizi şu anda kapalı.
+              Rapor analizi şu anda kapalı.
             </p>
           ) : showConsentPrompt ? (
             <label className="mt-4 flex items-start gap-3 rounded-theme-sm border border-border bg-muted p-3 text-sm font-semibold text-foreground/90">
@@ -194,9 +195,16 @@ export default function ExpertiseReportPage() {
             type="button"
             onClick={analyzeReportWithAi}
             disabled={!canRunAi}
-            className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-accent px-5 font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+            className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-accent px-5 font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
-            {status === "preparing" ? "Dosya hazırlanıyor" : status === "loading" ? "AI inceliyor" : "AI ile analiz et"}
+            {status === "preparing" || status === "loading" ? (
+              <>
+                <Spinner />
+                {status === "preparing" ? "Dosya hazırlanıyor" : "İnceleniyor"}
+              </>
+            ) : (
+              "Analiz et"
+            )}
           </button>
           {message ? (
             <p className={`mt-3 text-sm font-medium ${status === "error" ? "text-destructive" : "text-foreground"}`}>
@@ -231,7 +239,7 @@ export default function ExpertiseReportPage() {
               ) : (
                 <p className="rounded-theme-sm bg-muted p-4 text-sm text-muted-foreground">
                   {analysis.isReportReadable
-                    ? "AI kritik bir bulgu işaretlemedi. Bu, raporun tamamen temiz olduğu anlamına gelmez."
+                    ? "Kritik bir bulgu işaretlenmedi. Bu, raporun tamamen temiz olduğu anlamına gelmez."
                     : "Bu dosya bir ekspertiz raporu olarak okunamadı."}
                 </p>
               )}

@@ -208,8 +208,7 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
           <Sparkles aria-hidden="true" className="h-9 w-9 text-accent" />
           <h1 className="font-heading text-2xl font-bold text-foreground">3 gün ücretsiz Pro deneyin</h1>
           <p className="text-sm text-muted-foreground">
-            Pro veya Pro+&apos;a geçin, ilk 3 gün en güçlü AI modelleriyle ücretsiz deneyin — istediğiniz an iptal
-            edebilirsiniz.
+            Pro veya Pro+&apos;a geçin, ilk 3 gün ücretsiz deneyin — istediğiniz an iptal edebilirsiniz.
           </p>
         </div>
 
@@ -244,7 +243,7 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
               </div>
               <p className="mt-2 flex items-center gap-2 text-sm text-foreground/90">
                 <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
-                Ayda {plan.includedAiPhotoAnalyses} AI fotoğraf/rapor analizi dahil
+                Ayda {plan.includedAiPhotoAnalyses} fotoğraf/rapor analizi dahil
               </p>
               <button
                 type="button"

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Calculator, MapPin } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { CITY_DISPLAY_NAMES, getCityCostMultiplier } from "@/lib/geo/city-cost-index";
 import { locateCity } from "@/lib/geo/reverse-geocode";
 
@@ -134,7 +135,7 @@ export function RepairCostEstimator({ hint }: { hint?: { area: string; signal: s
         disabled={locateStatus === "locating"}
         className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full border border-border px-4 text-sm font-semibold text-foreground/90 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        <MapPin aria-hidden="true" className="h-4 w-4 text-accent" />
+        {locateStatus === "locating" ? <Spinner /> : <MapPin aria-hidden="true" className="h-4 w-4 text-accent" />}
         {locateStatus === "locating" ? "Konum alınıyor..." : "Konumuma göre tahmin et"}
       </button>
       {locateMessage ? <p className="mt-2 text-sm font-medium text-destructive">{locateMessage}</p> : null}

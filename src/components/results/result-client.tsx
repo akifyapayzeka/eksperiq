@@ -19,6 +19,7 @@ import {
   ThumbsUp,
   Trash2,
 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { appConfig } from "@/lib/constants/app";
 import { apiFetch } from "@/lib/api/client";
 import { shareContent } from "@/lib/share/share";
@@ -304,7 +305,7 @@ export function ResultClient() {
     if (!result || aiNoteStatus === "loading") return;
     if (!aiNoteConsent) {
       setAiNoteStatus("error");
-      setAiNoteMessage("AI sağlayıcısına veri gönderimini onaylamadan AI notu oluşturulamaz.");
+      setAiNoteMessage("AI sağlayıcısına veri gönderimini onaylamadan karar destek notu oluşturulamaz.");
       return;
     }
 
@@ -323,18 +324,18 @@ export function ResultClient() {
 
       if (!response.ok || !payload.note) {
         setAiNoteStatus("error");
-        setAiNoteMessage(payload.error ?? "AI notu şu anda oluşturulamadı.");
+        setAiNoteMessage(payload.error ?? "Karar destek notu şu anda oluşturulamadı.");
         return;
       }
 
       setAiNote(payload.note);
       setAiNoteStatus("ready");
       setAiNoteMessage(
-        typeof payload.remaining === "number" ? `Bugün kalan AI deneme hakkı: ${payload.remaining}` : "",
+        typeof payload.remaining === "number" ? `Bugün kalan deneme hakkı: ${payload.remaining}` : "",
       );
     } catch {
       setAiNoteStatus("error");
-      setAiNoteMessage("AI notu alınamadı. Kural tabanlı rapor kullanılmaya devam edebilir.");
+      setAiNoteMessage("Karar destek notu alınamadı. Kural tabanlı rapor kullanılmaya devam edebilir.");
     }
   }
 
@@ -648,7 +649,7 @@ export function ResultClient() {
         </div>
         {showAiAnalysisNote ? (
           <SectionCard
-            title="AI karar destek notu"
+            title="Karar destek notu"
             description="Kural tabanlı raporu bozmadan, riskleri daha sade açıklayan opsiyonel bir not üretir."
           >
             <div className="rounded-theme border border-accent/15 bg-secondary p-4">
@@ -659,7 +660,7 @@ export function ResultClient() {
                 <div>
                   <p className="font-semibold text-foreground">Ek açıklama üret</p>
                   <p className="mt-1 text-sm leading-6 text-foreground/80">
-                    Kural tabanlı rapor ana karar desteği olarak kalır. AI notu yalnızca riskleri sadeleştiren ek bir
+                    Kural tabanlı rapor ana karar desteği olarak kalır. Bu not yalnızca riskleri sadeleştiren ek bir
                     açıklama üretir ve kesin ekspertiz sonucu vermez.
                   </p>
                 </div>
@@ -672,7 +673,7 @@ export function ResultClient() {
                   className="mt-1 h-4 w-4 shrink-0 accent-primary"
                 />
                 <span>
-                  AI notu için araç bilgileri, risk skoru ve bulgu başlıklarının OpenRouter gibi AI sağlayıcısına
+                  Bu not için araç bilgileri, risk skoru ve bulgu başlıklarının OpenRouter gibi bir AI sağlayıcısına
                   gönderileceğini anladım ve onaylıyorum.
                 </span>
               </label>
@@ -682,8 +683,8 @@ export function ResultClient() {
                 disabled={!aiNoteConsent || aiNoteStatus === "loading"}
                 className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                <Sparkles aria-hidden="true" className="h-4 w-4" />
-                {aiNoteStatus === "loading" ? "Not hazırlanıyor" : "AI notu oluştur"}
+                {aiNoteStatus === "loading" ? <Spinner /> : <Sparkles aria-hidden="true" className="h-4 w-4" />}
+                {aiNoteStatus === "loading" ? "Not hazırlanıyor" : "Not oluştur"}
               </button>
               {aiNote ? (
                 <div className="mt-4 rounded-theme-sm border border-border bg-card p-4 text-sm leading-6 text-foreground/80">
@@ -692,7 +693,7 @@ export function ResultClient() {
               ) : null}
               {aiNote ? (
                 <div className="mt-4 rounded-theme-sm border border-border bg-card p-3">
-                  <p className="text-sm font-semibold text-foreground">Bu AI notu faydalı mı?</p>
+                  <p className="text-sm font-semibold text-foreground">Bu not faydalı mı?</p>
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     <button
                       type="button"

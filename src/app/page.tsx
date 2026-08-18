@@ -14,7 +14,6 @@ import {
   ImagePlus,
   ScanSearch,
   ShieldCheck,
-  Sparkles,
   UserRound,
   Wrench,
 } from "lucide-react";
@@ -51,13 +50,13 @@ const aiTools = [
   {
     icon: ImagePlus,
     title: "Fotoğraftan Hasar Analizi",
-    description: "Araç fotoğraflarını yükle, AI olası hasarı işaretlesin.",
+    description: "Araç fotoğraflarını yükle, olası hasarı işaretleyelim.",
     href: "/fotograf-hasar",
   },
   {
     icon: FileSearch,
     title: "Ekspertiz Raporu Analizi",
-    description: "PDF veya rapor fotoğrafını yükle, AI kritik maddeleri çıkarsın.",
+    description: "PDF veya rapor fotoğrafını yükle, kritik maddeleri çıkaralım.",
     href: "/ekspertiz-raporu",
   },
 ];
@@ -144,16 +143,7 @@ export default function Home() {
       />
 
       <section className="mt-6">
-        <SectionHeader
-          title="AI ile hızlı kontrol"
-          description="Fotoğraf veya rapor yükle, gerisini AI halletsin."
-          action={
-            <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent">
-              <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />
-              AI destekli
-            </span>
-          }
-        />
+        <SectionHeader title="Hızlı kontrol" description="Fotoğraf veya rapor yükle, gerisini biz halledelim." />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {aiTools.map((tool) => (
             <Link

@@ -4,5 +4,10 @@
       "path": "/api/cron/check-reminders",
       "schedule": "0 8 * * *"
     }
-  ]
+  ],
+  "functions": {
+    "api/ai/*.js": {
+      "maxDuration": 30
+    }
+  }
 }

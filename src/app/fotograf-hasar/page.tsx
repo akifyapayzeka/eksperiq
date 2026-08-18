@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Camera, ImagePlus, Save } from "lucide-react";
 import { HeroCard } from "@/components/cards/hero-card";
 import { AppShell } from "@/components/layout/app-shell";
+import { Spinner } from "@/components/ui/spinner";
 import { downscaleImage } from "@/lib/photo-analysis/downscale-image";
 import { prepareAiImages } from "@/lib/photo-analysis/prepare-ai-image";
 import { RepairCostEstimator } from "@/components/repair-cost/repair-cost-estimator";
@@ -114,7 +115,7 @@ export default function PhotoDamagePage() {
 
     if (!items.length && !aiAnalysis) {
       setSaveStatus("error");
-      setSaveMessage("Kaydedilecek bir bulgu yok. Önce bulgu ekleyin veya AI ile analiz edin.");
+      setSaveMessage("Kaydedilecek bir bulgu yok. Önce bulgu ekleyin veya analiz edin.");
       return;
     }
 
@@ -156,13 +157,13 @@ export default function PhotoDamagePage() {
 
     if (!isPhotoAiEnabled) {
       setAiStatus("error");
-      setAiMessage("AI fotoğraf kontrolü şu anda kapalı. Manuel kontrol notu ekleyebilirsiniz.");
+      setAiMessage("Fotoğraf kontrolü şu anda kapalı. Manuel kontrol notu ekleyebilirsiniz.");
       return;
     }
 
     if (!aiConsent) {
       setAiStatus("error");
-      setAiMessage("Fotoğrafı AI sağlayıcısına göndermeyi onaylamadan AI fotoğraf kontrolü başlatılamaz.");
+      setAiMessage("Fotoğrafı AI sağlayıcısına göndermeyi onaylamadan fotoğraf kontrolü başlatılamaz.");
       return;
     }
 
@@ -211,13 +212,13 @@ export default function PhotoDamagePage() {
       setAiStatus("ready");
       setAiMessage(
         (payload.analysis.isVehiclePhoto
-          ? `AI fotoğraf kontrolü tamamlandı.${typeof payload.remaining === "number" ? ` Bugün kalan hak: ${payload.remaining}` : ""}`
-          : "AI bu görselde araç veya araç parçası güvenle tespit edemedi. Hasar bulgusu oluşturulmadı.") + skippedNote,
+          ? `Fotoğraf kontrolü tamamlandı.${typeof payload.remaining === "number" ? ` Bugün kalan hak: ${payload.remaining}` : ""}`
+          : "Bu görselde araç veya araç parçası güvenle tespit edilemedi. Hasar bulgusu oluşturulmadı.") + skippedNote,
       );
     } catch {
       setAiStatus("error");
       setAiMessage(
-        "AI fotoğraf kontrolüne şu anda ulaşılamadı. Fotoğrafınız kaybolmadı; manuel bulgu ekleyebilir veya biraz sonra tekrar deneyebilirsiniz.",
+        "Fotoğraf kontrolüne şu anda ulaşılamadı. Fotoğrafınız kaybolmadı; manuel bulgu ekleyebilir veya biraz sonra tekrar deneyebilirsiniz.",
       );
     }
   }
@@ -225,8 +226,8 @@ export default function PhotoDamagePage() {
   function formatAiError(error: string | undefined, status: number) {
     if (status === 429) {
       return error?.includes("limit")
-        ? "Bugünkü AI fotoğraf kontrol hakkı doldu. Manuel bulgu ekleyerek devam edebilirsiniz."
-        : "AI fotoğraf kontrolü şu anda kapalı. Manuel bulgu ekleyerek devam edebilirsiniz.";
+        ? "Bugünkü fotoğraf kontrol hakkı doldu. Manuel bulgu ekleyerek devam edebilirsiniz."
+        : "Fotoğraf kontrolü şu anda kapalı. Manuel bulgu ekleyerek devam edebilirsiniz.";
     }
 
     if (status === 400) {
@@ -234,10 +235,10 @@ export default function PhotoDamagePage() {
     }
 
     if (error?.toLocaleLowerCase("tr-TR").includes("openrouter")) {
-      return "AI servisinden şu anda güvenilir yanıt alınamadı. Manuel bulgu ekleyerek rapora devam edebilirsiniz.";
+      return "Şu anda güvenilir yanıt alınamadı. Manuel bulgu ekleyerek rapora devam edebilirsiniz.";
     }
 
-    return "AI fotoğraf analizi şu anda tamamlanamadı. Manuel bulgu ekleyerek devam edebilirsiniz.";
+    return "Fotoğraf analizi şu anda tamamlanamadı. Manuel bulgu ekleyerek devam edebilirsiniz.";
   }
 
   function confidenceLabel(value: AiPhotoFinding["confidence"]) {
@@ -280,11 +281,11 @@ export default function PhotoDamagePage() {
         <section className="mt-5 rounded-theme border border-accent/20 bg-card p-5 shadow-sm">
           <div className="flex items-center gap-2">
             <Camera aria-hidden="true" className="h-5 w-5 text-accent" />
-            <h2 className="text-xl font-semibold text-foreground">AI fotoğraf kontrolü</h2>
+            <h2 className="text-xl font-semibold text-foreground">Fotoğraf kontrolü</h2>
           </div>
           {!isPhotoAiEnabled ? (
             <p className="mt-3 rounded-theme-sm border border-warning/30 bg-warning/10 px-3 py-2 text-sm font-medium text-foreground">
-              Canlı AI fotoğraf kontrolü şu anda kapalı. Bu ekranda manuel kontrol notu oluşturabilirsiniz.
+              Canlı fotoğraf kontrolü şu anda kapalı. Bu ekranda manuel kontrol notu oluşturabilirsiniz.
             </p>
           ) : null}
           {isPhotoAiEnabled && showConsentPrompt ? (
@@ -308,9 +309,16 @@ export default function PhotoDamagePage() {
             type="button"
             onClick={analyzePhotosWithAi}
             disabled={!canRunAi}
-            className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-accent px-5 font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+            className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-accent px-5 font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
-            {aiStatus === "loading" ? "AI inceliyor" : "AI ile fotoğrafı analiz et"}
+            {aiStatus === "loading" ? (
+              <>
+                <Spinner />
+                İnceleniyor
+              </>
+            ) : (
+              "Fotoğrafı analiz et"
+            )}
           </button>
           {aiMessage ? (
             <p
@@ -340,7 +348,7 @@ export default function PhotoDamagePage() {
                 ))
               ) : (
                 <p className="rounded-theme-sm border border-border bg-muted p-4 text-sm text-muted-foreground">
-                  AI bu fotoğraf için hasar bulgusu üretmedi.
+                  Bu fotoğraf için hasar bulgusu üretilmedi.
                 </p>
               )}
             </div>
