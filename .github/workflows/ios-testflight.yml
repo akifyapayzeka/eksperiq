@@ -143,6 +143,15 @@ jobs:
       - name: Archive
         run: |
           set -o pipefail
+          # Signing (CODE_SIGN_STYLE/IDENTITY/PROVISIONING_PROFILE_SPECIFIER) is
+          # intentionally NOT passed here as a global xcodebuild override — that
+          # applies to every target in the build graph, including the resource
+          # bundle targets that Capacitor plugins with bundled resources (e.g.
+          # @capacitor/camera's ion-ios-camera SPM package) auto-generate. Those
+          # bundle-only targets can't carry an app provisioning profile and the
+          # archive fails with "does not support provisioning profiles". Signing
+          # is instead scoped to just the App target in project.pbxproj, so only
+          # DEVELOPMENT_TEAM (harmless project-wide) is passed here.
           xcodebuild archive \
             -project ios/App/App.xcodeproj \
             -scheme "${SCHEME}" \
@@ -150,9 +159,6 @@ jobs:
             -destination "generic/platform=iOS" \
             -archivePath build/EksperIQ.xcarchive \
             DEVELOPMENT_TEAM="${APPLE_TEAM_ID}" \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="${{ steps.signing.outputs.profile_name }}" \
             2>&1 | tee xcodebuild-archive.log
 
       - name: Create export options
