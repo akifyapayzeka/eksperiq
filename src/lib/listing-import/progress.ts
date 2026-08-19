@@ -22,30 +22,23 @@ const STAGE_RANGE: Record<Exclude<ImportStage, "done">, { floor: number; ceiling
  * passes, never quite reaching it — so the number keeps creeping up for as
  * long as the real operation takes, instead of parking at a fixed value.
  *
- * `continueFrom` is the percent already on screen from the previous stage.
- * A stage's *configured* floor (e.g. normalizing's 70) is really "at least
- * this far in" — reasonable as a starting point when nothing has been
- * shown yet, but if "opening-page" finished quickly and its own easing had
- * only reached, say, ~25% before normalizing began, jumping straight to 70
- * reads as broken (reported: "20%'den 70%'e atlıyor"). Continuing the
- * easing from wherever the number already was — toward the new stage's
- * ceiling, at the new stage's pace — keeps it visually continuous instead.
- * The configured floor is still the fallback for the very first stage,
- * when there's nothing to continue from yet.
+ * A prior version of this tried to continue easing from the previous
+ * stage's last-shown percent instead of jumping to the new stage's own
+ * floor, to avoid a visible jump on a fast stage transition. That requires
+ * feeding the previous render's own output back in as this render's floor
+ * — which, wired through React's "adjust state during render" pattern,
+ * turned into a self-reinforcing loop (each render's result became a
+ * strictly higher floor for the next, so it never stabilized in one pass)
+ * and crashed the screen with "Too many re-renders" in production. Simple
+ * and correct beats smooth and crash-prone: back to a pure function of the
+ * current stage alone.
  */
-export function computeDisplayPercent(
-  stage: ImportStage | null,
-  stageStartedAt: string | null,
-  now: number,
-  continueFrom = 0,
-): number {
+export function computeDisplayPercent(stage: ImportStage | null, stageStartedAt: string | null, now: number): number {
   if (!stage) return 0;
   if (stage === "done") return 100;
   const range = STAGE_RANGE[stage];
-  const floor = continueFrom > 0 ? continueFrom : range.floor;
-  const ceiling = Math.max(range.ceiling, floor);
-  if (!stageStartedAt) return floor;
+  if (!stageStartedAt) return range.floor;
   const elapsedSeconds = Math.max(0, (now - new Date(stageStartedAt).getTime()) / 1000);
   const eased = 1 - Math.exp(-elapsedSeconds / range.halfLifeSeconds);
-  return Math.round(floor + (ceiling - floor) * eased);
+  return Math.round(range.floor + (range.ceiling - range.floor) * eased);
 }

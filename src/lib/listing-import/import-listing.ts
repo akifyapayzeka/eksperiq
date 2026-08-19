@@ -49,8 +49,12 @@ type ListingImportApiResponse = {
  * — the UI was stuck on the progress bar indefinitely with no way out. This
  * caps the whole operation from the JS side as a backstop, independent of
  * whatever the native timeouts do or don't do.
+ *
+ * runNativeImport can now run the whole page-open + AI-normalize sequence
+ * twice (see the blocked-page retry below) — was 65s, which is enough for
+ * one pass but too tight for two back-to-back worst-case ones.
  */
-const CLIENT_HARD_TIMEOUT_MS = 65_000;
+const CLIENT_HARD_TIMEOUT_MS = 110_000;
 
 /**
  * Loads the URL on the user's own device (WKWebView, not a server fetch —
@@ -87,7 +91,7 @@ export async function importListingFromUrl(
   const timeoutOutcome: ListingImportOutcome = {
     ok: false,
     reason: "fetch-failed",
-    detail: "İşlem 65 saniyeden uzun sürdüğü için durduruldu.",
+    detail: "İşlem çok uzun sürdüğü için durduruldu.",
   };
 
   let resolveTimeout: (outcome: ListingImportOutcome) => void = () => {};
