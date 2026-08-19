@@ -3,7 +3,7 @@
 import { Capacitor } from "@capacitor/core";
 import { getInstallId } from "@/lib/api/install-id";
 import { EksperIQListingFetchPlugin } from "./native-plugin";
-import { detectListingSource } from "./url";
+import { detectListingSource, type ListingSourceCheck } from "./url";
 import type { ListingImportOutcome, ListingImportResult } from "./types";
 
 export type ImportStage = "checking-url" | "opening-page" | "normalizing" | "done";
@@ -22,6 +22,18 @@ type ListingImportApiResponse = {
   result?: Omit<ListingImportResult, "images">;
   error?: string;
 };
+
+/**
+ * The native side has its own timeouts (35s to open the page, 20s for the
+ * AI-normalize call — see EksperIQListingFetchPlugin.swift), but nothing on
+ * the JS side ever bounded the wait for those to fire. If anything before
+ * or around them hangs instead of rejecting — e.g. the addListener() call
+ * below, or the native call silently never invoking its completion handler
+ * — the UI was stuck on the progress bar indefinitely with no way out. This
+ * caps the whole operation from the JS side as a backstop, independent of
+ * whatever the native timeouts do or don't do.
+ */
+const CLIENT_HARD_TIMEOUT_MS = 65_000;
 
 /**
  * Loads the URL on the user's own device (WKWebView, not a server fetch —
@@ -44,12 +56,38 @@ export async function importListingFromUrl(
     return { ok: false, reason: "unsupported-platform" };
   }
 
+  let timedOut = false;
+  const guardedOnStage = (stage: ImportStage) => {
+    // Ignore any stage event that arrives after the client timeout already
+    // resolved the race below — the native call may still finish late, but
+    // the UI has already moved on to an error state by then.
+    if (!timedOut) onStage?.(stage);
+  };
+
+  const timeoutPromise = new Promise<ListingImportOutcome>((resolve) => {
+    setTimeout(() => {
+      timedOut = true;
+      resolve({
+        ok: false,
+        reason: "fetch-failed",
+        detail: "İşlem 65 saniyeden uzun sürdüğü için durduruldu.",
+      });
+    }, CLIENT_HARD_TIMEOUT_MS);
+  });
+
+  return Promise.race([runNativeImport(detected, guardedOnStage), timeoutPromise]);
+}
+
+async function runNativeImport(
+  detected: Extract<ListingSourceCheck, { ok: true }>,
+  onStage: (stage: ImportStage) => void,
+): Promise<ListingImportOutcome> {
   // The Swift plugin emits "progress" events as it moves through the
   // single native call below (opening-page -> normalizing -> done), so the
   // UI's progress indicator reflects what's actually happening natively
   // instead of guessing.
   const listener = await EksperIQListingFetchPlugin.addListener("progress", (event: { stage?: ImportStage }) => {
-    if (event.stage) onStage?.(event.stage);
+    if (event.stage) onStage(event.stage);
   });
 
   let pageData: ExtractedPageData;
@@ -86,6 +124,6 @@ export async function importListingFromUrl(
   }
   if (importHttpStatus !== 200 || !payload.result) return { ok: false, reason: "ai-failed" };
 
-  onStage?.("done");
+  onStage("done");
   return { ok: true, result: { ...payload.result, images: pageData.images } };
 }
