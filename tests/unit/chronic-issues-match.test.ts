@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { findChronicIssues } from "@/lib/chronic-issues/match";
+import { CHRONIC_ISSUES_DB } from "@/lib/chronic-issues/data";
 
 describe("findChronicIssues", () => {
   it("matches by engine code mentioned in the seller description over bare displacement", () => {
@@ -61,6 +62,17 @@ describe("findChronicIssues", () => {
 
     expect(entry).toBeNull();
     expect(issues).toEqual([]);
+  });
+
+  it("never has two entries for the same brand+model (findChronicIssues only matches the first)", () => {
+    const seen = new Set<string>();
+    const duplicates: string[] = [];
+    for (const entry of CHRONIC_ISSUES_DB) {
+      const key = `${entry.brand.toLocaleLowerCase("tr-TR")}::${entry.model.toLocaleLowerCase("tr-TR")}`;
+      if (seen.has(key)) duplicates.push(key);
+      seen.add(key);
+    }
+    expect(duplicates).toEqual([]);
   });
 
   it("returns nothing when the year falls outside the model's production range", () => {
