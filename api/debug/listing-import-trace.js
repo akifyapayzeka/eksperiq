@@ -28,6 +28,8 @@ const ALLOWED_STEPS = new Set([
   "swift-normalizing",
   "swift-done",
   "swift-error",
+  "js-payload-parse-error",
+  "js-payload-missing-result",
 ]);
 
 function sendJson(response, statusCode, body) {

@@ -200,10 +200,15 @@ async function runNativeImport(
   let payload: ListingImportApiResponse;
   try {
     payload = JSON.parse(importResponseJson) as ListingImportApiResponse;
-  } catch {
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    trace("js-payload-parse-error", `${detail} | raw=${importResponseJson}`.slice(0, 300));
     return { ok: false, reason: "ai-failed" };
   }
-  if (importHttpStatus !== 200 || !payload.result) return { ok: false, reason: "ai-failed" };
+  if (importHttpStatus !== 200 || !payload.result) {
+    trace("js-payload-missing-result", `status=${importHttpStatus} keys=${Object.keys(payload).join(",")}`.slice(0, 300));
+    return { ok: false, reason: "ai-failed" };
+  }
 
   onStage("done");
   return { ok: true, result: { ...payload.result, images: pageData.images } };
