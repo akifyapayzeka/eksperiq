@@ -64,18 +64,38 @@ export async function importListingFromUrl(
     if (!timedOut) onStage?.(stage);
   };
 
-  const timeoutPromise = new Promise<ListingImportOutcome>((resolve) => {
-    setTimeout(() => {
-      timedOut = true;
-      resolve({
-        ok: false,
-        reason: "fetch-failed",
-        detail: "İşlem 65 saniyeden uzun sürdüğü için durduruldu.",
-      });
-    }, CLIENT_HARD_TIMEOUT_MS);
-  });
+  const deadline = Date.now() + CLIENT_HARD_TIMEOUT_MS;
+  const timeoutOutcome: ListingImportOutcome = {
+    ok: false,
+    reason: "fetch-failed",
+    detail: "İşlem 65 saniyeden uzun sürdüğü için durduruldu.",
+  };
 
-  return Promise.race([runNativeImport(detected, guardedOnStage), timeoutPromise]);
+  let resolveTimeout: (outcome: ListingImportOutcome) => void = () => {};
+  const timeoutPromise = new Promise<ListingImportOutcome>((resolve) => {
+    resolveTimeout = resolve;
+  });
+  const timer = setTimeout(() => resolveTimeout(timeoutOutcome), CLIENT_HARD_TIMEOUT_MS);
+
+  // A plain setTimeout can be throttled or paused for as long as the
+  // WKWebView is backgrounded — exactly the situation most likely to
+  // coincide with a slow or stuck native call, since that's often when
+  // someone switches away to wait. Re-checking the wall-clock deadline on
+  // return-to-foreground means a throttled timer can't leave this hanging
+  // well past when it should already have given up.
+  function onVisible() {
+    if (document.visibilityState === "visible" && Date.now() >= deadline) resolveTimeout(timeoutOutcome);
+  }
+  document.addEventListener("visibilitychange", onVisible);
+
+  try {
+    const outcome = await Promise.race([runNativeImport(detected, guardedOnStage), timeoutPromise]);
+    if (outcome === timeoutOutcome) timedOut = true;
+    return outcome;
+  } finally {
+    clearTimeout(timer);
+    document.removeEventListener("visibilitychange", onVisible);
+  }
 }
 
 async function runNativeImport(

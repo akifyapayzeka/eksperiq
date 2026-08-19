@@ -81,6 +81,26 @@ describe("importListingFromUrl", () => {
     expect(onStage).not.toHaveBeenCalledWith("opening-page");
   });
 
+  it("recovers via visibilitychange when the timer itself was throttled by backgrounding", async () => {
+    // A plain setTimeout can be paused for as long as the WKWebView is
+    // backgrounded, which is exactly when a stuck native call is most
+    // likely to be waited out. Simulate that: the wall clock jumps past
+    // the deadline (vi.setSystemTime, unlike advanceTimersByTime, does not
+    // run any due callbacks), so only the visibilitychange re-check —not
+    // the timer— can end this.
+    addListener.mockReturnValue(new Promise(() => {}));
+    const { importListingFromUrl } = await import("@/lib/listing-import/import-listing");
+
+    const outcomePromise = importListingFromUrl(SUPPORTED_URL);
+
+    vi.setSystemTime(Date.now() + 70_000);
+    Object.defineProperty(document, "visibilityState", { value: "visible", configurable: true });
+    document.dispatchEvent(new Event("visibilitychange"));
+
+    const outcome = await outcomePromise;
+    expect(outcome.ok).toBe(false);
+  });
+
   it("does not time out for an import that finishes well within the limit", async () => {
     const remove = vi.fn().mockResolvedValue(undefined);
     addListener.mockResolvedValue({ remove });
