@@ -1,4 +1,5 @@
 import type { VehicleFormData } from "@/lib/schemas/vehicle";
+import type { MatchedIssue } from "@/lib/chronic-issues/match";
 
 export type Severity = "low" | "medium" | "high";
 
@@ -59,5 +60,11 @@ export type AnalysisResult = {
   finalChecklist: string[];
   mileage: MileageEvaluation;
   completeness: DataCompleteness;
+  /**
+   * Bu markanın/modelin/motorun genelinde bilinen kronik sorunlar —
+   * BU aracın kendi durumu/geçmişiyle ilgili değil, o yüzden risk skorunu
+   * etkilemez. Eşleşme bulunamazsa boş dizi.
+   */
+  knownIssues: MatchedIssue[];
   generatedAt: string;
 };

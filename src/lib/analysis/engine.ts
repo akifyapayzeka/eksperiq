@@ -1,4 +1,5 @@
 import type { VehicleFormData } from "@/lib/schemas/vehicle";
+import { findChronicIssues } from "@/lib/chronic-issues/match";
 import { damageRules } from "./rules/damage-rules";
 import { documentRules } from "./rules/document-rules";
 import { evaluateMileage, mileageRules } from "./rules/mileage-rules";
@@ -50,6 +51,7 @@ export function analyzeVehicle(input: VehicleFormData): AnalysisResult {
     finalChecklist,
     mileage: evaluateMileage(input),
     completeness,
+    knownIssues: findChronicIssues(input).issues,
     generatedAt: new Date().toISOString(),
   };
 }

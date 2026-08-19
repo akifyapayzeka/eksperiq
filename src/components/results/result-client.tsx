@@ -1076,6 +1076,36 @@ export function ResultClient() {
             ))}
           </div>
         </SectionCard>
+        {result.knownIssues.length > 0 ? (
+          <SectionCard
+            id="rapor-kronik-sorunlar"
+            title="Bu motor için bilinen kronik sorunlar"
+            description="Bu bölüm BU aracın kendi durumuyla değil, aynı marka/model/motoru kullanan araçlarda genel olarak bildirilen sorunlarla ilgilidir — risk skorunu etkilemez, ekspertizde nelere özellikle bakılması gerektiğine dair bir rehberdir."
+          >
+            {result.knownIssues.some((issue) => issue.broadMatch) ? (
+              <p className="mb-3 rounded-theme-sm border border-border bg-muted p-3 text-sm text-muted-foreground">
+                Motor hacmi/kodu belirtilmediği için bu marka/modelin bu yıl aralığındaki tüm motor seçeneklerinin
+                bilinen sorunları gösteriliyor. Motor bilgisini eklerseniz liste daralır.
+              </p>
+            ) : null}
+            <div className="grid gap-3">
+              {result.knownIssues.map((issue) => (
+                <article key={`${issue.engineLabel}-${issue.id}`} className={`rounded-lg border p-4 ${severityClass(issue.severity)}`}>
+                  <p className="text-xs font-semibold uppercase tracking-wide">
+                    {issue.engineLabel} / {severityLabels[issue.severity]}
+                  </p>
+                  <h3 className="mt-1 font-semibold">{issue.title}</h3>
+                  <p className="mt-2 text-sm leading-6">{issue.detail}</p>
+                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium opacity-80">
+                    {issue.typicalOnset ? <span>Tipik görülme: {issue.typicalOnset}</span> : null}
+                    {issue.costLevel ? <span>Tahmini maliyet: {issue.costLevel}</span> : null}
+                  </div>
+                  <p className="mt-2 text-xs italic opacity-70">{issue.sourceNote}</p>
+                </article>
+              ))}
+            </div>
+          </SectionCard>
+        ) : null}
         <SectionCard id="rapor-masraflar" title="Yakın zamanda çıkabilecek masraflar">
           <ul className="grid gap-2">
             {result.costs.map((cost) => (

@@ -14,7 +14,8 @@ export type ModuleId =
   | "vehicle-health-record"
   | "vehicle-value-tracking"
   | "smart-sale-preparation"
-  | "nearby-services";
+  | "nearby-services"
+  | "model-guide";
 
 export type ModuleCapability = {
   title: string;
