@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Camera, ClipboardCheck, FileSearch, FileText, ShieldCheck, Wrench } from "lucide-react";
+import { Camera, ClipboardCheck, FileText, ShieldCheck, Wrench } from "lucide-react";
 import { saveAnalysis } from "@/lib/storage/analysis-storage";
 import { vehicleSchema, type VehicleFormData, type VehicleFormInput } from "@/lib/schemas/vehicle";
 import { createAnalysis } from "@/lib/services/analysis-service";
@@ -322,22 +321,6 @@ export function AnalysisForm() {
           İlan linkiyle otomatik doldurabilir veya bildiğiniz bilgileri kendiniz girebilirsiniz. Eksik bilgiler
           raporda satıcıya sorulacak noktalar olarak gösterilir.
         </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <Link
-            href="/fotograf-hasar"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground hover:border-accent"
-          >
-            <Camera aria-hidden="true" className="h-4 w-4" />
-            Fotoğrafla hasar notu
-          </Link>
-          <Link
-            href="/ekspertiz-raporu"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground hover:border-accent"
-          >
-            <FileSearch aria-hidden="true" className="h-4 w-4" />
-            Ekspertiz raporu ekle
-          </Link>
-        </div>
         <p className="mt-4 text-xs leading-5 text-muted-foreground">{appConfig.privacy}</p>
       </section>
       <ListingImportSection setValue={setValue} />

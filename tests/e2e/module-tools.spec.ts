@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import path from "node:path";
 import { demoVehicleInput } from "../fixtures/demo-vehicle";
 import { stubClipboard } from "./helpers/clipboard";
+import { gotoAnalysisForm } from "./helpers/analysis-flow";
 
 const vehiclePhotoFixturePath = path.join(__dirname, "..", "fixtures", "large-photo.jpg");
 
@@ -102,8 +103,8 @@ test("module cards open usable assistant tools", async ({ page }) => {
   await page.getByRole("button", { name: "Bulguyu ekle" }).click();
   await expect(page.getByText("Ön tampon: Çizik")).toBeVisible();
   await page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/).check();
-  await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
-  await expect(page.getByText("AI fotoğraf kontrolü tamamlandı. Bugün kalan hak: 9")).toBeVisible();
+  await page.getByRole("button", { name: "İlanı analiz et" }).click();
+  await expect(page.getByText("Fotoğraf kontrolü tamamlandı. Bugün kalan hak: 9")).toBeVisible();
   await expect(page.getByText("Ön tampon: Çizik")).toHaveCount(2);
 
   // Eski /bakim-takibi modülü Bakım ve Ödeme Takvimi'yle birleştirildi;
@@ -116,6 +117,7 @@ test("module cards open usable assistant tools", async ({ page }) => {
   // after mount) — filling and submitting the form before that lands can
   // silently no-op addRecord()'s `if (!selectedVehicleId) return;` guard.
   await expect(page.getByLabel("Araç seç")).not.toHaveValue("");
+  await page.getByRole("button", { name: "Yeni kayıt" }).click();
   await page.getByLabel("Başlık").fill("90 bin km bakımı");
   await page.getByRole("button", { name: "Kaydı ekle" }).click();
   await expect(page.getByRole("heading", { name: "90 bin km bakımı" })).toBeVisible();
@@ -139,13 +141,19 @@ test("health record entries persist across reloads and build a score trend", asy
   // tools" test above — the default vehicle hydrates asynchronously.
   await expect(page.getByLabel("Araç seç")).not.toHaveValue("");
 
-  await page.getByLabel("Tür").selectOption("Sağlık Skoru");
+  // Scoped to the record-add section: getByLabel("Tür") alone is ambiguous —
+  // the page's separate Repair Cost Estimator has a "Şehir" select whose
+  // default option text ("...Türkiye ortalaması") also contains "Tür".
+  const recordForm = page.locator("section", { has: page.getByRole("heading", { name: "Kayıt ekle" }) });
+  await page.getByRole("button", { name: "Yeni kayıt" }).click();
+  await recordForm.getByLabel("Tür").selectOption("Sağlık Skoru");
   await page.getByLabel("Başlık").fill("İlk kontrol");
   await page.getByLabel("Tarih", { exact: true }).fill("2026-06-01");
   await page.getByLabel("Skor (opsiyonel, 0-100)").fill("60");
   await page.getByRole("button", { name: "Kaydı ekle" }).click();
   await expect(page.getByRole("heading", { name: "İlk kontrol" })).toBeVisible();
 
+  await page.getByRole("button", { name: "Yeni kayıt" }).click();
   await page.getByLabel("Başlık").fill("İkinci kontrol");
   await page.getByLabel("Tarih", { exact: true }).fill("2026-08-01");
   await page.getByLabel("Skor (opsiyonel, 0-100)").fill("80");
@@ -176,7 +184,7 @@ test("health record entries persist across reloads and build a score trend", asy
 
 test("report action buttons show visible feedback", async ({ page }) => {
   await stubClipboard(page);
-  await page.goto("/analiz");
+  await gotoAnalysisForm(page);
   await fillRequiredForm(page);
   await page.getByRole("button", { name: "Analiz oluştur" }).click();
   await expect(page).toHaveURL(/\/sonuc$/);
@@ -192,7 +200,7 @@ test("comparison page lists analyses added from the result screen and enforces t
   test.setTimeout(60000);
 
   async function createAndAddAnalysis(price: string) {
-    await page.goto("/analiz");
+    await gotoAnalysisForm(page);
     await fillRequiredForm(page);
     await page.getByLabel("İstenen fiyat").fill(price);
     await page.getByRole("button", { name: "Analiz oluştur" }).click();
@@ -225,7 +233,7 @@ test("comparison page lists analyses added from the result screen and enforces t
 });
 
 test("clicking 'Karşılaştırmaya ekle' twice on the same result only adds one entry", async ({ page }) => {
-  await page.goto("/analiz");
+  await gotoAnalysisForm(page);
   await fillRequiredForm(page);
   await page.getByLabel("İstenen fiyat").fill("999000");
   await page.getByRole("button", { name: "Analiz oluştur" }).click();
@@ -407,9 +415,9 @@ test("photo damage tool refuses non-vehicle photos via the AI's own check", asyn
   await page.goto("/fotograf-hasar");
   await selectVehiclePhoto(page);
   await page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/).check();
-  await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
+  await page.getByRole("button", { name: "İlanı analiz et" }).click();
   await expect(
-    page.getByText("AI bu görselde araç veya araç parçası güvenle tespit edemedi. Hasar bulgusu oluşturulmadı."),
+    page.getByText("Bu görsellerde araç veya araç parçası güvenle tespit edilemedi. Hasar bulgusu oluşturulmadı."),
   ).toBeVisible();
   await expect(page.getByText("Ön tampon: Çizik")).toHaveCount(0);
 });

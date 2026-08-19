@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { gotoAnalysisForm } from "./helpers/analysis-flow";
 
 const vehiclePhotoFixturePath = path.join(__dirname, "..", "fixtures", "large-photo.jpg");
 
@@ -109,8 +110,8 @@ test("keeps AI requests same-origin on the web when no native bridge is present"
   await page.goto("/fotograf-hasar");
   await selectVehiclePhoto(page);
   await page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/).check();
-  await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
-  await expect(page.getByText(/AI fotoğraf kontrolü tamamlandı/)).toBeVisible();
+  await page.getByRole("button", { name: "İlanı analiz et" }).click();
+  await expect(page.getByText(/Fotoğraf kontrolü tamamlandı/)).toBeVisible();
 
   expect(seenRequests).toHaveLength(1);
   expect(seenRequests[0]).toBe(`${baseURL}/api/ai/photo-damage`);
@@ -142,11 +143,11 @@ test("compresses an oversized photo below the AI upload budget before sending", 
     base64: largePhotoBuffer.toString("base64"),
   });
   await expect(page.getByText("1 fotoğraf seçildi.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "AI ile fotoğrafı analiz et" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "İlanı analiz et" })).toBeDisabled();
   await page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/).check();
-  await expect(page.getByRole("button", { name: "AI ile fotoğrafı analiz et" })).toBeEnabled();
-  await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
-  await expect(page.getByText(/AI fotoğraf kontrolü tamamlandı/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "İlanı analiz et" })).toBeEnabled();
+  await page.getByRole("button", { name: "İlanı analiz et" }).click();
+  await expect(page.getByText(/Fotoğraf kontrolü tamamlandı/)).toBeVisible();
 
   // The full request body (JSON envelope + base64 image) must stay under the
   // combined AI upload budget documented in prepare-ai-image.ts.
@@ -155,7 +156,7 @@ test("compresses an oversized photo below the AI upload budget before sending", 
 });
 
 test("keeps already-loaded client state usable after the app has gone offline", async ({ page, context }) => {
-  await page.goto("/analiz");
+  await gotoAnalysisForm(page);
   await page.getByLabel("Marka").selectOption("Toyota");
   await page.locator("#model").selectOption("Corolla");
   await page.getByLabel("Model yılı").fill("2019");
@@ -178,8 +179,10 @@ test("keeps already-loaded client state usable after the app has gone offline", 
   // work — that's a known, separate limitation, not covered by this test.
   await context.setOffline(true);
 
+  await page.getByRole("tab", { name: "Kontrol Listesi" }).click();
   await page.getByLabel("Ruhsat sahibini doğruladım").check();
   await expect(page.getByLabel("Tamamlanan kontroller 1 / 10")).toBeVisible();
+  await page.getByRole("tab", { name: "Bulgular" }).click();
   await page.getByRole("button", { name: /Yüksek \(/ }).click();
   await expect(page.getByRole("button", { name: /Yüksek \(/ })).toHaveAttribute("aria-pressed", "true");
 
@@ -252,6 +255,7 @@ test("exports data, wipes it via delete-all, then restores it from the export fi
   // click if the form is submitted first. Wait for a real vehicle id to
   // land in the switcher before racing it.
   await expect(page.getByLabel("Araç seç")).not.toHaveValue("");
+  await page.getByRole("button", { name: "Yeni kayıt" }).click();
   await page.getByLabel("Başlık").fill("Yedekleme testi kaydı");
   await page.getByRole("button", { name: "Kaydı ekle" }).click();
   await expect(page.getByRole("heading", { name: "Yedekleme testi kaydı" })).toBeVisible();
@@ -313,8 +317,8 @@ test("resolves API requests to the production origin under a simulated native iO
   await page.goto("/fotograf-hasar");
   await selectVehiclePhoto(page);
   await page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/).check();
-  await page.getByRole("button", { name: "AI ile fotoğrafı analiz et" }).click();
-  await expect(page.getByText(/AI fotoğraf kontrolü tamamlandı/)).toBeVisible();
+  await page.getByRole("button", { name: "İlanı analiz et" }).click();
+  await expect(page.getByText(/Fotoğraf kontrolü tamamlandı/)).toBeVisible();
 
   expect(seenRequests).toHaveLength(1);
   expect(seenRequests[0]).toBe("https://eksperiq.vercel.app/api/ai/photo-damage");

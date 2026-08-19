@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
-import { PrimaryButton } from "@/components/ui/button";
 import { Logo } from "@/components/layout/logo";
 
 const links = [
@@ -65,10 +64,6 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
-        {/* Hidden on mobile: the bottom tab bar's "Analiz" tab already covers this. */}
-        <PrimaryButton href="/analiz" className="hidden sm:inline-flex">
-          Yeni Analiz
-        </PrimaryButton>
       </div>
     </header>
   );

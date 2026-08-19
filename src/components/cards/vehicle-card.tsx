@@ -22,7 +22,12 @@ export function VehicleCard({
     <article className="overflow-hidden rounded-theme border border-border bg-card shadow-sm">
       <div className="flex items-center gap-4 p-4">
         <div className="h-16 w-16 shrink-0 overflow-hidden rounded-theme">
-          <VehiclePlaceholder />
+          {vehicle.photoDataUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- local data: URL, not a remote/next/image source
+            <img src={vehicle.photoDataUrl} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <VehiclePlaceholder />
+          )}
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="truncate font-heading text-[15px] font-bold leading-5 text-foreground">{title}</h3>

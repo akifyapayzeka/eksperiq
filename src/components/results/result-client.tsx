@@ -422,10 +422,10 @@ export function ResultClient() {
             Sayfa yenilenmiş olabilir. Sonuç verisi URL içine yazılmaz ve yalnızca mevcut tarayıcı oturumunda tutulur.
           </p>
           <Link
-            href="/analiz"
+            href="/"
             className="mt-6 inline-flex min-h-12 items-center rounded-full bg-primary px-5 font-semibold text-primary-foreground"
           >
-            Analizi yeniden başlat
+            Ana sayfaya dön
           </Link>
         </div>
       </main>
@@ -606,11 +606,11 @@ export function ResultClient() {
               Raporu paylaş
             </button>
             <Link
-              href="/analiz"
+              href="/"
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent hover:text-accent"
             >
               <RotateCcw aria-hidden="true" className="h-4 w-4" />
-              Yeni analiz
+              Ana sayfa
             </Link>
             <button
               type="button"

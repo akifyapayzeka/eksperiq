@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertCircle, ArrowUpRight, Camera, FileText, Plus, Search, SlidersHorizontal, Trash2 } from "lucide-react";
+import { AlertCircle, ArrowUpRight, Camera, FileText, Search, SlidersHorizontal, Trash2 } from "lucide-react";
 import { openAnalysisFromHistory } from "@/lib/storage/analysis-storage";
 import {
   type AnalysisHistoryRecord,
@@ -129,16 +129,7 @@ export default function MyAnalysesPage() {
 
   return (
     <AppShell>
-      <PageHeader
-        eyebrow="Kayıtlı incelemelerin"
-        title="Analizlerim"
-        actions={
-          <PrimaryButton href="/analiz">
-            <Plus aria-hidden="true" className="h-4 w-4" />
-            Yeni Analiz
-          </PrimaryButton>
-        }
-      />
+      <PageHeader eyebrow="Kayıtlı incelemelerin" title="Analizlerim" />
 
       <section className="rounded-theme border border-border bg-card p-4 shadow-sm sm:p-5">
         {isReady ? (
@@ -260,7 +251,7 @@ export default function MyAnalysesPage() {
                 history.length ? (
                   <PrimaryButton onClick={clearFilters}>Filtreleri temizle</PrimaryButton>
                 ) : (
-                  <PrimaryButton href="/analiz">Analiz başlat</PrimaryButton>
+                  <PrimaryButton href="/">Ana sayfaya dön</PrimaryButton>
                 )
               }
             />

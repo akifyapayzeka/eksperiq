@@ -2,97 +2,81 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import {
-  Bell,
-  CarFront,
-  ClipboardPaste,
-  FileSearch,
-  FileText,
-  ImagePlus,
-  ScanSearch,
-  ShieldCheck,
-  UserRound,
-} from "lucide-react";
+import { Bell, CarFront, ClipboardPaste, ScanSearch, ShieldCheck, UserRound } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
-import { openAnalysisFromHistory } from "@/lib/storage/analysis-storage";
-import { loadAnalysisHistory } from "@/lib/storage/analysis-history-storage";
 import { loadVehicles } from "@/lib/storage/vehicle-storage";
 import { loadReminders } from "@/lib/storage/reminders-storage";
-import { loadExpenses } from "@/lib/storage/expenses-storage";
 import { sortByUrgency, daysUntil, urgencyOf } from "@/lib/reminders/model";
-import { monthKey, totalAmount } from "@/lib/expenses/model";
 import { reminderCategoryLabels } from "@/lib/reminders/types";
+import type { ReminderCategory, ReminderRecord } from "@/lib/reminders/types";
+import type { VehicleProfile } from "@/lib/vehicles/types";
 import { AppShell } from "@/components/layout/app-shell";
 import { SectionHeader } from "@/components/layout/section-header";
 import { HeroCard } from "@/components/cards/hero-card";
-import { StatGrid } from "@/components/cards/stat-card";
-import { AnalysisCard } from "@/components/cards/analysis-card";
+import { VehicleCard } from "@/components/cards/vehicle-card";
 import { ReminderCard } from "@/components/cards/reminder-card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { LoadingSkeleton, Skeleton } from "@/components/ui/skeleton";
+import { LoadingSkeleton } from "@/components/ui/skeleton";
 import { DisclaimerCard } from "@/components/ui/alert";
 import { IconButton, PrimaryButton } from "@/components/ui/button";
-import type { AnalysisResult } from "@/lib/analysis/types";
-import type { ReminderRecord } from "@/lib/reminders/types";
 
-const aiTools = [
-  {
-    icon: ImagePlus,
-    title: "Fotoğraftan Hasar Analizi",
-    description: "Araç fotoğraflarını yükle, olası hasarı işaretleyelim.",
-    href: "/fotograf-hasar",
-  },
-  {
-    icon: FileSearch,
-    title: "Ekspertiz Raporu Analizi",
-    description: "PDF veya rapor fotoğrafını yükle, kritik maddeleri çıkaralım.",
-    href: "/ekspertiz-raporu",
-  },
-];
+const TAX_CATEGORIES = new Set<ReminderCategory>(["mtv", "trafik-sigortasi", "kasko"]);
+const MAX_LIST_ITEMS = 4;
+
+function ReminderList({
+  items,
+  emptyIcon,
+  emptyTitle,
+  emptyDescription,
+}: {
+  items: ReminderRecord[];
+  emptyIcon: typeof Bell;
+  emptyTitle: string;
+  emptyDescription: string;
+}) {
+  if (!items.length) {
+    return <EmptyState icon={emptyIcon} title={emptyTitle} description={emptyDescription} />;
+  }
+  return (
+    <div className="overflow-hidden rounded-theme border border-border bg-card shadow-sm">
+      {items.map((reminder) => {
+        const days = daysUntil(reminder.dueDate);
+        return (
+          <ReminderCard
+            key={reminder.id}
+            title={reminder.title || reminderCategoryLabels[reminder.category]}
+            subtitle={reminderCategoryLabels[reminder.category]}
+            days={days}
+            urgency={urgencyOf(days)}
+          />
+        );
+      })}
+    </div>
+  );
+}
 
 export default function Home() {
-  const router = useRouter();
   const [isReady, setIsReady] = useState(false);
-  const [historyCount, setHistoryCount] = useState(0);
-  const [averageScore, setAverageScore] = useState<number | null>(null);
-  const [vehicleCount, setVehicleCount] = useState(0);
-  const [latest, setLatest] = useState<AnalysisResult | null>(null);
+  const [vehicle, setVehicle] = useState<VehicleProfile | null>(null);
+  const [reminders, setReminders] = useState<ReminderRecord[]>([]);
   const [nextReminder, setNextReminder] = useState<ReminderRecord | null>(null);
-  const [monthExpenseTotal, setMonthExpenseTotal] = useState<number | null>(null);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-      const history = loadAnalysisHistory();
-      setHistoryCount(history.length);
-      setVehicleCount(loadVehicles().length);
-      setLatest(history[0]?.result ?? null);
-      setAverageScore(
-        history.length
-          ? Math.round(history.reduce((sum, record) => sum + record.result.totalScore, 0) / history.length)
-          : null,
-      );
+      const vehicles = loadVehicles();
+      setVehicle(vehicles[0] ?? null);
 
-      const reminders = sortByUrgency(loadReminders());
-      setNextReminder(reminders[0] ?? null);
-
-      const expenses = loadExpenses();
-      const currentMonth = monthKey(new Date().toISOString());
-      setMonthExpenseTotal(totalAmount(expenses.filter((record) => monthKey(record.date) === currentMonth)));
+      const sorted = sortByUrgency(loadReminders());
+      setReminders(sorted);
+      setNextReminder(sorted[0] ?? null);
 
       setIsReady(true);
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
-  function openLatestReport() {
-    if (!latest) return;
-    openAnalysisFromHistory(latest);
-    router.push("/sonuc");
-  }
-
-  const reminderDays = nextReminder ? daysUntil(nextReminder.dueDate) : null;
-  const isFreshUser = isReady && historyCount === 0 && vehicleCount === 0;
+  const maintenanceReminders = reminders.filter((reminder) => !TAX_CATEGORIES.has(reminder.category)).slice(0, MAX_LIST_ITEMS);
+  const taxReminders = reminders.filter((reminder) => TAX_CATEGORIES.has(reminder.category)).slice(0, MAX_LIST_ITEMS);
 
   return (
     <AppShell>
@@ -117,8 +101,8 @@ export default function Home() {
 
       <HeroCard
         icon={ScanSearch}
-        title="Yeni İlan Analiz Et"
-        description="Araç bilgilerini ve ilan açıklamasını gir. Belirsizlikleri kanıtlarıyla birlikte inceleyelim."
+        title="Yeni analiz oluştur"
+        description="Satın almayı düşündüğünüz bir ilanı mı, yoksa kendi aracınızı mı analiz edeceksiniz? Devam edin, seçenekleri gösterelim."
         action={
           <PrimaryButton
             href="/analiz"
@@ -128,137 +112,63 @@ export default function Home() {
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
                 <ClipboardPaste aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
               </span>
-              <span className="text-sm font-semibold">Yeni analiz başlat</span>
+              <span className="text-sm font-semibold">Yeni analiz oluştur</span>
             </span>
           </PrimaryButton>
         }
       />
 
-      <section className="mt-6">
-        <SectionHeader title="Hızlı kontrol" description="Fotoğraf veya rapor yükle, gerisini biz halledelim." />
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {aiTools.map((tool) => (
-            <Link
-              key={tool.href}
-              href={tool.href}
-              className="flex items-start gap-3 rounded-theme border border-border bg-card p-4 shadow-sm transition hover:border-accent"
-            >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">
-                <tool.icon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
-              </span>
-              <span className="min-w-0">
-                <span className="block font-heading text-sm font-bold text-foreground">{tool.title}</span>
-                <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">{tool.description}</span>
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
       <section className="mt-7">
-        <SectionHeader title="Analiz özetin" description={undefined} action="Son 90 gün" />
-        {isReady ? (
-          <StatGrid
-            items={[
-              { key: "count", value: historyCount, label: "analiz yapıldı" },
-              { key: "score", value: averageScore ?? "—", label: "ort. risk skoru" },
-              { key: "vehicles", value: vehicleCount, label: "araç takipte" },
-            ]}
-          />
+        <SectionHeader title="Aracın" description="Kayıtlı araç bilgileri" action={<Link href="/arac-saglik-karnesi">Garajı aç</Link>} />
+        {!isReady ? (
+          <LoadingSkeleton />
+        ) : vehicle ? (
+          <VehicleCard vehicle={vehicle} />
         ) : (
-          <div className="grid grid-cols-3 gap-0 rounded-theme border border-border bg-card p-4 shadow-sm">
-            <Skeleton className="h-10 w-full" />
-          </div>
+          <EmptyState
+            icon={CarFront}
+            title="Henüz araç eklenmedi"
+            description="Garajına araç ekleyerek bakım, vergi ve gider kayıtlarını takip et."
+            action={<PrimaryButton href="/arac-saglik-karnesi">Araç ekle</PrimaryButton>}
+          />
         )}
       </section>
 
-      {!isReady ? (
-        <section className="mt-7">
+      <section className="mt-7">
+        <SectionHeader
+          title="Yaklaşan bakım"
+          description="Muayene, bakım, lastik ve akü hatırlatmaları"
+          action={<Link href="/bakim-odeme-takvimi">Tümü</Link>}
+        />
+        {!isReady ? (
           <LoadingSkeleton />
-        </section>
-      ) : isFreshUser ? (
-        <section className="mt-7">
-          <EmptyState
-            icon={CarFront}
-            title="Henüz başlamadın"
-            description="İlk ilan analizini yap; araç, hatırlatma ve gider takibi otomatik burada toplanmaya başlayacak."
-            action={<PrimaryButton href="/analiz">İlk analizi başlat</PrimaryButton>}
+        ) : (
+          <ReminderList
+            items={maintenanceReminders}
+            emptyIcon={Bell}
+            emptyTitle="Yaklaşan bakım yok"
+            emptyDescription="Bakım takvimine hatırlatma ekleyebilirsin."
           />
-        </section>
-      ) : (
-        <>
-          <section className="mt-7">
-            <SectionHeader
-              title="Son analizin"
-              description="En son inceleme"
-              action={<Link href="/analizlerim">Tümü</Link>}
-            />
-            {latest ? (
-              <AnalysisCard
-                title={`${latest.input.year} ${latest.input.brand} ${latest.input.model}`}
-                dateLabel="İlan analizi"
-                score={latest.totalScore}
-                findingLabel={latest.findings[0]?.title ?? "Öncelikli bulgu yok"}
-                onOpen={openLatestReport}
-              />
-            ) : (
-              <EmptyState
-                icon={FileText}
-                title="Henüz analiz yok"
-                description="İlk ilan analizini başlatarak risk skorunu ve önerilen kontrolleri gör."
-                action={<PrimaryButton href="/analiz">Analiz başlat</PrimaryButton>}
-              />
-            )}
-          </section>
+        )}
+      </section>
 
-          <section className="mt-7">
-            <SectionHeader
-              title="Garajın"
-              description="Kayıtlı araçlar ve yaklaşan hatırlatma"
-              action={<Link href="/arac-saglik-karnesi">Garajı aç</Link>}
-            />
-            {vehicleCount === 0 ? (
-              <EmptyState
-                icon={CarFront}
-                title="Henüz araç eklenmedi"
-                description="Garajına araç ekleyerek bakım, hatırlatma ve gider kayıtlarını takip et."
-                action={<PrimaryButton href="/arac-saglik-karnesi">Araç ekle</PrimaryButton>}
-              />
-            ) : nextReminder && reminderDays !== null ? (
-              <div className="overflow-hidden rounded-theme border border-border bg-card shadow-sm">
-                <ReminderCard
-                  title={nextReminder.title || reminderCategoryLabels[nextReminder.category]}
-                  subtitle={reminderCategoryLabels[nextReminder.category]}
-                  days={reminderDays}
-                  urgency={urgencyOf(reminderDays)}
-                />
-              </div>
-            ) : (
-              <EmptyState
-                icon={Bell}
-                title="Yaklaşan hatırlatma yok"
-                description="Bakım ve ödeme takvimine hatırlatma ekleyebilirsin."
-              />
-            )}
-          </section>
-
-          {monthExpenseTotal !== null && monthExpenseTotal > 0 && (
-            <section className="mt-7">
-              <SectionHeader title="Bu ayki giderlerin" action={<Link href="/gider-defteri">Gider defteri</Link>} />
-              <div className="rounded-theme border border-border bg-card p-4 shadow-sm">
-                <p className="font-heading text-2xl font-bold text-foreground">
-                  {monthExpenseTotal.toLocaleString("tr-TR", {
-                    style: "currency",
-                    currency: "TRY",
-                    maximumFractionDigits: 0,
-                  })}
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">Bu ay kaydedilen toplam gider</p>
-              </div>
-            </section>
-          )}
-        </>
-      )}
+      <section className="mt-7">
+        <SectionHeader
+          title="Yaklaşan vergi ve ödemeler"
+          description="MTV, trafik sigortası ve kasko"
+          action={<Link href="/bakim-odeme-takvimi">Tümü</Link>}
+        />
+        {!isReady ? (
+          <LoadingSkeleton />
+        ) : (
+          <ReminderList
+            items={taxReminders}
+            emptyIcon={Bell}
+            emptyTitle="Yaklaşan vergi/ödeme yok"
+            emptyDescription="Ödeme takvimine hatırlatma ekleyebilirsin."
+          />
+        )}
+      </section>
 
       <div className="mt-7">
         <DisclaimerCard>

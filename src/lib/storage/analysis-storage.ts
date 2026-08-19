@@ -39,7 +39,11 @@ export function loadAnalysis(): AnalysisResult | null {
   const raw = sessionStorage.getItem(appConfig.storageKey);
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as AnalysisResult;
+    const parsed = JSON.parse(raw) as AnalysisResult;
+    // Reports saved before knownIssues (chronic-issues) shipped lack the field entirely;
+    // default it so reopening an older history entry doesn't crash the report page.
+    if (!Array.isArray(parsed.knownIssues)) parsed.knownIssues = [];
+    return parsed;
   } catch {
     sessionStorage.removeItem(appConfig.storageKey);
     return null;

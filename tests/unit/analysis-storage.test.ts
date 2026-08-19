@@ -3,6 +3,7 @@ import { analyzeVehicle } from "@/lib/analysis/engine";
 import { appConfig } from "@/lib/constants/app";
 import {
   clearAnalysis,
+  loadAnalysis,
   loadChecklist,
   loadFindingFilter,
   openAnalysisFromHistory,
@@ -123,6 +124,14 @@ describe("analysis storage", () => {
 
     expect(JSON.parse(sessionStorage.getItem(appConfig.storageKey) ?? "null")?.totalScore).toBe(first.totalScore);
     expect(loadAnalysisHistory()).toHaveLength(2);
+  });
+
+  it("defaults knownIssues to an empty array when loading a report saved before that field existed", () => {
+    const legacy = analyzeVehicle(input) as unknown as Record<string, unknown>;
+    delete legacy.knownIssues;
+    sessionStorage.setItem(appConfig.storageKey, JSON.stringify(legacy));
+
+    expect(loadAnalysis()?.knownIssues).toEqual([]);
   });
 
   it("persists only valid finding filters", () => {

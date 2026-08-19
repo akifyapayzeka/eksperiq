@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { demoVehicleInput } from "../fixtures/demo-vehicle";
+import { gotoAnalysisForm } from "./helpers/analysis-flow";
 
 async function fillRequiredForm(page: Page) {
   await page.locator("#brand").selectOption(demoVehicleInput.brand);
@@ -27,7 +28,7 @@ test("garage entry opens vehicle record page", async ({ page }) => {
 });
 
 test("analysis list filters and search controls update results", async ({ page }) => {
-  await page.goto("/analiz");
+  await gotoAnalysisForm(page);
   await fillRequiredForm(page);
   await page.getByRole("button", { name: "Analiz oluştur" }).click();
   await expect(page).toHaveURL(/\/sonuc$/);

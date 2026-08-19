@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CarFront, ChevronRight, FileText, Info, MessageSquareText, ShieldCheck, Search } from "lucide-react";
+import { ChevronRight, FileText, Info, MessageSquareText, ShieldCheck, Search } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
@@ -7,7 +7,6 @@ import { AccountSection } from "@/components/profile/account-section";
 import { DataManagementSection } from "@/components/profile/data-management-section";
 import { NotificationPreferenceSection } from "@/components/profile/notification-preference-section";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { PrimaryButton } from "@/components/ui/button";
 import { DisclaimerCard } from "@/components/ui/alert";
 
 const supportLinks = [
@@ -70,12 +69,6 @@ export default function ProfilePage() {
         <DisclaimerCard>{appConfig.privacy}</DisclaimerCard>
       </div>
 
-      <div className="mt-5">
-        <PrimaryButton href="/analiz">
-          <CarFront aria-hidden="true" className="h-5 w-5" />
-          Yeni analiz başlat
-        </PrimaryButton>
-      </div>
     </AppShell>
   );
 }

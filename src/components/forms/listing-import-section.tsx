@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { UseFormSetValue } from "react-hook-form";
 import { Capacitor } from "@capacitor/core";
 import { ClipboardPaste, LinkIcon, X } from "lucide-react";
@@ -10,7 +10,7 @@ import type { VehicleFormInput } from "@/lib/schemas/vehicle";
 import { detectListingSource } from "@/lib/listing-import/url";
 import { importListingFromUrl, type ImportStage } from "@/lib/listing-import/import-listing";
 import { applyImportedFieldsToForm } from "@/lib/listing-import/apply-to-form";
-import type { ListingImportResult } from "@/lib/listing-import/types";
+import { getImportSession, setImportSession, useImportSession } from "@/lib/listing-import/import-session-store";
 import { acceptAiConsent, hasAcceptedAiConsent } from "@/lib/consent/ai-consent";
 
 const isListingImportEnabled = process.env.NEXT_PUBLIC_LISTING_IMPORT_ENABLED === "true";
@@ -35,66 +35,65 @@ const errorMessages: Record<string, string> = {
 };
 
 export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<VehicleFormInput> }) {
-  const [url, setUrl] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [stage, setStage] = useState<ImportStage | null>(null);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [errorDetail, setErrorDetail] = useState("");
-  const [result, setResult] = useState<ListingImportResult | null>(null);
+  const { url, status, stage, errorMessage, errorDetail, result } = useImportSession();
   const [consent, setConsent] = useState(() => hasAcceptedAiConsent());
   const [showConsentPrompt] = useState(() => !hasAcceptedAiConsent());
+  const appliedResultRef = useRef<typeof result>(null);
+
+  // Re-applies the last successful import's fields whenever this section (re)mounts —
+  // covers the case where the import finished natively while the user was on another
+  // tab, so the freshly mounted form still picks up the result once they come back.
+  useEffect(() => {
+    if (status === "success" && result && appliedResultRef.current !== result) {
+      appliedResultRef.current = result;
+      applyImportedFieldsToForm(result.fields, setValue);
+      const detected = detectListingSource(url);
+      setValue("listingUrl", detected.ok ? detected.url : url.trim(), { shouldDirty: true, shouldValidate: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, result]);
 
   if (!isListingImportEnabled || !Capacitor.isNativePlatform()) return null;
 
   async function handlePaste() {
     try {
       const text = await navigator.clipboard.readText();
-      if (text) setUrl(text.trim());
+      if (text) setImportSession({ url: text.trim() });
     } catch {
       // Clipboard read can be denied by the OS — user can still paste manually.
     }
   }
 
   async function handleImport() {
-    if (!url.trim()) return;
+    const currentUrl = getImportSession().url;
+    if (!currentUrl.trim()) return;
     if (!consent) {
-      setStatus("error");
-      setErrorMessage("İlan sayfası içeriğinin üçüncü taraf bir AI sağlayıcısına gönderilmesini onaylamadan devam edilemez.");
+      setImportSession({
+        status: "error",
+        errorMessage: "İlan sayfası içeriğinin üçüncü taraf bir AI sağlayıcısına gönderilmesini onaylamadan devam edilemez.",
+      });
       return;
     }
 
-    setStatus("loading");
-    setErrorMessage("");
-    setErrorDetail("");
-    setResult(null);
-    setStage("checking-url");
+    setImportSession({ status: "loading", errorMessage: "", errorDetail: "", result: null, stage: "checking-url" });
 
-    const outcome = await importListingFromUrl(url, (nextStage) => setStage(nextStage));
+    const outcome = await importListingFromUrl(currentUrl, (nextStage) => setImportSession({ stage: nextStage }));
 
     if (!outcome.ok) {
-      setStatus("error");
-      setErrorMessage(errorMessages[outcome.reason] ?? errorMessages["ai-failed"]);
-      setErrorDetail("detail" in outcome ? (outcome.detail ?? "") : "");
-      setStage(null);
+      setImportSession({
+        status: "error",
+        errorMessage: errorMessages[outcome.reason] ?? errorMessages["ai-failed"],
+        errorDetail: "detail" in outcome ? (outcome.detail ?? "") : "",
+        stage: null,
+      });
       return;
     }
 
-    applyImportedFieldsToForm(outcome.result.fields, setValue);
-    const detected = detectListingSource(url);
-    setValue("listingUrl", detected.ok ? detected.url : url.trim(), { shouldDirty: true, shouldValidate: true });
-
-    setResult(outcome.result);
-    setStatus("success");
-    setStage(null);
+    setImportSession({ status: "success", result: outcome.result, stage: null });
   }
 
   function handleClear() {
-    setUrl("");
-    setStatus("idle");
-    setResult(null);
-    setErrorMessage("");
-    setErrorDetail("");
-    setStage(null);
+    setImportSession({ url: "", status: "idle", result: null, errorMessage: "", errorDetail: "", stage: null });
   }
 
   const stageIndex = stage ? stageOrder.indexOf(stage) : -1;
@@ -138,7 +137,7 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
             aria-label="Araç ilanı bağlantısı"
             placeholder="Araç ilanı bağlantısını yapıştırın"
             value={url}
-            onChange={(event) => setUrl(event.target.value)}
+            onChange={(event) => setImportSession({ url: event.target.value })}
             disabled={status === "loading"}
           />
         </div>

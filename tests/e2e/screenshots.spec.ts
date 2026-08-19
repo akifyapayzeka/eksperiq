@@ -2,6 +2,7 @@ import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { demoVehicleInput } from "../fixtures/demo-vehicle";
+import { gotoAnalysisForm } from "./helpers/analysis-flow";
 
 const screenshotDir = path.join("test-results", "screenshots");
 const screenshotOnlyCss = `
@@ -96,7 +97,7 @@ test("captures release screenshots", async ({ page, isMobile }, testInfo) => {
   await expect(page.getByRole("heading", { name: /Aracınız için bugün ne yapalım/ })).toBeVisible();
   await captureReleaseScreenshot(page, prefix, isMobile, "home");
 
-  await page.goto("/analiz");
+  await gotoAnalysisForm(page);
   await prepareScreenshotPage(page);
   await fillDemoVehicle(page);
   await page.getByLabel("Yakıt türü").scrollIntoViewIfNeeded();

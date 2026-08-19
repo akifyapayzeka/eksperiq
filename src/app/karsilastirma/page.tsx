@@ -141,10 +141,10 @@ export default function ComparisonPage() {
               ekle&quot; butonunu kullanın.
             </p>
             <Link
-              href="/analiz"
+              href="/"
               className="mt-4 inline-flex min-h-11 items-center rounded-full bg-accent px-4 text-sm font-semibold text-primary-foreground"
             >
-              Analiz başlat
+              Ana sayfaya dön
             </Link>
           </section>
         )}
