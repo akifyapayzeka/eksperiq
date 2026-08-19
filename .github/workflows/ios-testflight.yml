@@ -31,6 +31,7 @@ jobs:
       NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true"
       NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED: "true"
       NEXT_PUBLIC_EXPERTISE_REPORT_AI_ENABLED: "true"
+      NEXT_PUBLIC_LISTING_IMPORT_ENABLED: "true"
       # Supabase hesap girişi (Pro/Pro+ abonelik) icin — bu iki GitHub Secret
       # tanimli degilse hesap ozelligi sessizce kapali kalir (getSupabaseBrowserClient
       # null doner), build hata vermez ama giris yapilamaz.
