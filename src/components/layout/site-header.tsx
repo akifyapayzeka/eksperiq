@@ -47,7 +47,10 @@ export function SiteHeader() {
             className="flex min-h-11 min-w-0 items-center gap-2 font-heading font-bold text-foreground"
             aria-label={appConfig.name}
           >
-            <Logo variant="amblem" className="h-8 w-auto sm:hidden" />
+            <Logo variant="amblem" className="h-8 w-auto shrink-0 sm:hidden" />
+            <span className="truncate text-base font-heading font-bold text-foreground sm:hidden">
+              {appConfig.name}
+            </span>
             <Logo variant="yatay" className="hidden h-7 w-auto sm:block" />
           </Link>
         </div>
