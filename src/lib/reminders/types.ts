@@ -33,3 +33,9 @@ export const reminderCategoryLabels: Record<ReminderCategory, string> = {
   aku: "Akü",
   diger: "Diğer",
 };
+
+/** Categories shown on the "Vergi ve Ödeme" calendar screen — everything else belongs to "Bakım". */
+export const TAX_CATEGORIES = new Set<ReminderCategory>(["mtv", "trafik-sigortasi", "kasko"]);
+export const MAINTENANCE_CATEGORIES: ReminderCategory[] = (
+  Object.keys(reminderCategoryLabels) as ReminderCategory[]
+).filter((category) => !TAX_CATEGORIES.has(category));

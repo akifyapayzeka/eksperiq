@@ -7,7 +7,6 @@ import { AccountSection } from "@/components/profile/account-section";
 import { ProfileWelcomeBanner } from "@/components/profile/welcome-banner";
 import { ProfilePlansPromoSection } from "@/components/profile/plans-promo-section";
 import { DataManagementSection } from "@/components/profile/data-management-section";
-import { NotificationPreferenceSection } from "@/components/profile/notification-preference-section";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { DisclaimerCard } from "@/components/ui/alert";
 
@@ -38,10 +37,6 @@ export default function ProfilePage() {
           <ThemeToggle />
         </div>
       </section>
-
-      <div className="mt-4">
-        <NotificationPreferenceSection />
-      </div>
 
       <div className="mt-4">
         <DataManagementSection />

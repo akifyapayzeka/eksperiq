@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Camera, ImagePlus, Save } from "lucide-react";
+import { Camera, ImageIcon, ImagePlus, Save } from "lucide-react";
 import { HeroCard } from "@/components/cards/hero-card";
 import { AppShell } from "@/components/layout/app-shell";
 import { Spinner } from "@/components/ui/spinner";
+import { chooseFromGalleryAsFiles, takePhotoAsFile } from "@/lib/media/pick-photos";
 import { downscaleImage } from "@/lib/photo-analysis/downscale-image";
 import { prepareAiImages } from "@/lib/photo-analysis/prepare-ai-image";
 import { createPhotoAnalysisId, upsertPhotoAnalysis } from "@/lib/storage/photo-analysis-storage";
@@ -160,6 +161,28 @@ export default function PhotoDamagePage() {
     setSaveMessage("Analiz kaydedildi. Analizlerim sayfasında görebilirsiniz.");
   }
 
+  function applySelectedFiles(selectedFiles: File[]) {
+    if (!selectedFiles.length) return;
+    const capped = selectedFiles.slice(0, MAX_ANALYZED_PHOTOS);
+    setFiles(capped);
+    setFileCount(capped.length);
+    setFormMessage("");
+    setItems([]);
+    setAiStatus("idle");
+    setAiMessage("");
+    setAiAnalysis(null);
+  }
+
+  async function handleTakePhoto() {
+    const file = await takePhotoAsFile();
+    if (file) applySelectedFiles([file]);
+  }
+
+  async function handleChooseFromGallery() {
+    const selectedFiles = await chooseFromGalleryAsFiles(MAX_ANALYZED_PHOTOS);
+    applySelectedFiles(selectedFiles);
+  }
+
   async function analyzePhotosWithAi() {
     if (!files.length) {
       setAiStatus("error");
@@ -299,26 +322,30 @@ export default function PhotoDamagePage() {
         />
 
         <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
-          <label className="grid min-h-24 cursor-pointer place-items-center rounded-theme border border-dashed border-border bg-muted p-4 text-center">
-            <ImagePlus aria-hidden="true" className="h-8 w-8 text-accent" />
-            <span className="mt-2 text-sm font-semibold text-foreground">Fotoğraf seç</span>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              className="sr-only"
-              onChange={(event) => {
-                const selectedFiles = Array.from(event.currentTarget.files ?? []).slice(0, MAX_ANALYZED_PHOTOS);
-                setFiles(selectedFiles);
-                setFileCount(selectedFiles.length);
-                setFormMessage("");
-                setItems([]);
-                setAiStatus("idle");
-                setAiMessage("");
-                setAiAnalysis(null);
-              }}
-            />
-          </label>
+          <div className="grid min-h-24 place-items-center gap-3 rounded-theme border border-dashed border-border bg-muted p-4 text-center">
+            <div className="flex items-center gap-2">
+              <ImagePlus aria-hidden="true" className="h-6 w-6 text-accent" />
+              <span className="text-sm font-semibold text-foreground">Fotoğraf seç</span>
+            </div>
+            <div className="flex flex-wrap justify-center gap-2">
+              <button
+                type="button"
+                onClick={handleTakePhoto}
+                className="inline-flex min-h-11 items-center gap-2 rounded-theme border border-border bg-card px-4 text-sm font-semibold text-foreground/90 hover:border-accent"
+              >
+                <Camera aria-hidden="true" className="h-4 w-4" />
+                Fotoğraf çek
+              </button>
+              <button
+                type="button"
+                onClick={handleChooseFromGallery}
+                className="inline-flex min-h-11 items-center gap-2 rounded-theme border border-border bg-card px-4 text-sm font-semibold text-foreground/90 hover:border-accent"
+              >
+                <ImageIcon aria-hidden="true" className="h-4 w-4" />
+                Galeriden seç
+              </button>
+            </div>
+          </div>
           {fileCount ? (
             <>
               <p className="mt-3 text-sm font-semibold text-foreground">{fileCount} fotoğraf seçildi.</p>

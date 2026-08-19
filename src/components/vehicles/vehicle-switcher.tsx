@@ -11,6 +11,8 @@ type VehicleSwitcherProps = {
   onAdd: (label: string) => void;
   onRename: (id: string, label: string) => void;
   onDelete: (id: string) => void;
+  /** Hide the inline "Araç ekle" button — set when the parent page already offers its own add entry point. */
+  hideAddButton?: boolean;
 };
 
 export function VehicleSwitcher({
@@ -20,6 +22,7 @@ export function VehicleSwitcher({
   onAdd,
   onRename,
   onDelete,
+  hideAddButton = false,
 }: VehicleSwitcherProps) {
   const [mode, setMode] = useState<"idle" | "adding" | "renaming" | "confirming-delete">("idle");
   const [draftLabel, setDraftLabel] = useState("");
@@ -85,14 +88,16 @@ export function VehicleSwitcher({
             <Pencil aria-hidden="true" className="h-4 w-4" />
             Yeniden adlandır
           </button>
-          <button
-            type="button"
-            onClick={startAdding}
-            className="inline-flex min-h-11 items-center gap-1 rounded-theme transition active:scale-95 border border-accent px-3 text-sm font-semibold text-accent"
-          >
-            <Plus aria-hidden="true" className="h-4 w-4" />
-            Araç ekle
-          </button>
+          {hideAddButton ? null : (
+            <button
+              type="button"
+              onClick={startAdding}
+              className="inline-flex min-h-11 items-center gap-1 rounded-theme transition active:scale-95 border border-accent px-3 text-sm font-semibold text-accent"
+            >
+              <Plus aria-hidden="true" className="h-4 w-4" />
+              Araç ekle
+            </button>
+          )}
           {canDelete ? (
             <button
               type="button"

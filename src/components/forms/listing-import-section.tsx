@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { UseFormSetValue } from "react-hook-form";
 import { Capacitor } from "@capacitor/core";
+import { Clipboard } from "@capacitor/clipboard";
 import { ClipboardPaste, LinkIcon, X } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Field } from "@/components/ui/field";
@@ -65,8 +66,15 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
 
   async function handlePaste() {
     try {
-      const text = await navigator.clipboard.readText();
-      if (text) setImportSession({ url: text.trim() });
+      // The web Clipboard API (navigator.clipboard.readText()) always
+      // triggers iOS's "Would Like to Paste" confirmation banner inside a
+      // WKWebView, even right after a tap on this very button — WebKit
+      // treats web content as untrusted for cross-app paste regardless of
+      // gesture timing. The native Capacitor plugin reads UIPasteboard
+      // directly from Swift, which iOS credits as the same user gesture
+      // that triggered it and pastes immediately, no extra confirmation.
+      const { value } = await Clipboard.read();
+      if (value) setImportSession({ url: value.trim() });
     } catch {
       // Clipboard read can be denied by the OS — user can still paste manually.
     }

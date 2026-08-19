@@ -1,32 +1,26 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { ArrowUpRight, CalendarClock, HeartPulse, Pencil, Plus } from "lucide-react";
+import { CarFront, Gauge, HeartPulse, ListChecks, Plus, Sparkles } from "lucide-react";
 import { loadAnalysis } from "@/lib/storage/analysis-storage";
-import { loadReminders } from "@/lib/storage/reminders-storage";
 import {
   createHealthRecordId,
   deleteHealthRecord,
   loadHealthRecords,
   upsertHealthRecord,
 } from "@/lib/storage/health-record-storage";
-import { daysUntil, sortByUrgency, urgencyOf } from "@/lib/reminders/model";
 import { scoreTrend } from "@/lib/health-record/model";
-import { reminderCategoryLabels } from "@/lib/reminders/types";
 import { healthRecordTypes } from "@/lib/health-record/types";
-import type { ReminderRecord } from "@/lib/reminders/types";
 import type { HealthRecord, HealthRecordType } from "@/lib/health-record/types";
 import type { AnalysisResult } from "@/lib/analysis/types";
 import { VehicleSwitcher } from "@/components/vehicles/vehicle-switcher";
 import { VehicleFormSheet } from "@/components/vehicles/vehicle-form-sheet";
+import { VehicleCard } from "@/components/cards/vehicle-card";
 import { filterByVehicle, recordVehicleId } from "@/lib/vehicles/model";
 import { createVehicleId, deleteVehicle, loadVehicles, upsertVehicle } from "@/lib/storage/vehicle-storage";
 import type { VehicleProfile } from "@/lib/vehicles/types";
 import { AppShell } from "@/components/layout/app-shell";
 import { HeroCard } from "@/components/cards/hero-card";
-import { ReminderCard } from "@/components/cards/reminder-card";
-import { SecondaryButton } from "@/components/ui/button";
 import { RepairCostEstimator } from "@/components/repair-cost/repair-cost-estimator";
 
 export default function VehicleHealthRecordPage() {
@@ -37,10 +31,10 @@ export default function VehicleHealthRecordPage() {
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [score, setScore] = useState("");
   const [records, setRecords] = useState<HealthRecord[]>([]);
-  const [reminders, setReminders] = useState<ReminderRecord[]>([]);
   const [vehicles, setVehicles] = useState<VehicleProfile[]>([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
   const [isVehicleSheetOpen, setIsVehicleSheetOpen] = useState(false);
+  const [isAddVehicleSheetOpen, setIsAddVehicleSheetOpen] = useState(false);
   const [isRecordFormOpen, setIsRecordFormOpen] = useState(false);
 
   useEffect(() => {
@@ -49,21 +43,15 @@ export default function VehicleHealthRecordPage() {
       setVehicles(loadedVehicles);
       setSelectedVehicleId(loadedVehicles[0]?.id ?? "");
       setAnalysis(loadAnalysis());
-      setReminders(loadReminders());
       setRecords(loadHealthRecords());
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
-  const remindersForVehicle = useMemo(
-    () => filterByVehicle(reminders, selectedVehicleId, vehicles),
-    [reminders, selectedVehicleId, vehicles],
-  );
   const recordsForVehicle = useMemo(
     () => filterByVehicle(records, selectedVehicleId, vehicles),
     [records, selectedVehicleId, vehicles],
   );
-  const upcomingReminders = useMemo(() => sortByUrgency(remindersForVehicle).slice(0, 4), [remindersForVehicle]);
   const trend = useMemo(() => scoreTrend(recordsForVehicle), [recordsForVehicle]);
   const selectedVehicle = vehicles.find((vehicle) => vehicle.id === selectedVehicleId) ?? null;
 
@@ -161,20 +149,43 @@ export default function VehicleHealthRecordPage() {
           description="Bu ekranda eklediğiniz kayıtlar hesaba değil, yalnızca bu cihaza kaydedilir. Araç özeti ise mevcut tarayıcı oturumundaki son analiz raporundan gelir."
         />
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start">
-          <VehicleSwitcher
-            vehicles={vehicles}
-            selectedVehicleId={selectedVehicleId}
-            onSelect={selectVehicle}
-            onAdd={addVehicle}
-            onRename={renameVehicle}
-            onDelete={removeVehicle}
-          />
-          <SecondaryButton onClick={() => setIsVehicleSheetOpen(true)} className="sm:mt-0">
-            <Pencil aria-hidden="true" className="h-4 w-4" />
-            Araç bilgilerini düzenle
-          </SecondaryButton>
-        </div>
+        <section className="mt-5" aria-labelledby="vehicle-section-title">
+          <div className="flex items-end justify-between gap-3">
+            <h2 id="vehicle-section-title" className="font-heading text-lg font-bold text-foreground">
+              Araç
+            </h2>
+            <button
+              type="button"
+              onClick={() => setIsAddVehicleSheetOpen(true)}
+              className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-accent"
+            >
+              <Plus aria-hidden="true" className="h-3.5 w-3.5" />
+              Araç ekle
+            </button>
+          </div>
+
+          {selectedVehicle ? (
+            <div className="mt-3">
+              <VehicleCard vehicle={selectedVehicle} onOpen={() => setIsVehicleSheetOpen(true)} />
+            </div>
+          ) : (
+            <p className="mt-3 rounded-theme-sm bg-muted p-4 text-sm text-muted-foreground">
+              Henüz araç eklenmedi. Yukarıdaki &quot;Araç ekle&quot; ile ilk aracınızı ekleyin.
+            </p>
+          )}
+
+          <div className="mt-3">
+            <VehicleSwitcher
+              vehicles={vehicles}
+              selectedVehicleId={selectedVehicleId}
+              onSelect={selectVehicle}
+              onAdd={addVehicle}
+              onRename={renameVehicle}
+              onDelete={removeVehicle}
+              hideAddButton
+            />
+          </div>
+        </section>
 
         <VehicleFormSheet
           open={isVehicleSheetOpen}
@@ -183,24 +194,46 @@ export default function VehicleHealthRecordPage() {
           onClose={() => setIsVehicleSheetOpen(false)}
           onSaved={handleVehicleSaved}
         />
+        <VehicleFormSheet
+          open={isAddVehicleSheetOpen}
+          vehicle={null}
+          vehicleCount={vehicles.length}
+          onClose={() => setIsAddVehicleSheetOpen(false)}
+          onSaved={(saved) => {
+            handleVehicleSaved(saved);
+            setIsAddVehicleSheetOpen(false);
+          }}
+        />
 
         <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
-          <h2 className="text-xl font-semibold text-foreground">Araç özeti</h2>
+          <div className="flex items-center gap-2">
+            <Sparkles aria-hidden="true" className="h-5 w-5 text-accent" />
+            <h2 className="text-xl font-semibold text-foreground">Araç özeti</h2>
+          </div>
           {analysis ? (
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-theme-sm bg-muted p-4">
-                <p className="text-sm text-muted-foreground">Araç</p>
-                <p className="mt-1 font-semibold text-foreground">
-                  {analysis.input.year} {analysis.input.brand} {analysis.input.model}
-                </p>
+              <div className="flex items-center gap-3 rounded-theme-sm bg-muted p-4">
+                <CarFront aria-hidden="true" className="h-7 w-7 shrink-0 text-accent" />
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">Araç</p>
+                  <p className="mt-0.5 truncate font-semibold text-foreground">
+                    {analysis.input.year} {analysis.input.brand} {analysis.input.model}
+                  </p>
+                </div>
               </div>
-              <div className="rounded-theme-sm bg-muted p-4">
-                <p className="text-sm text-muted-foreground">Risk skoru</p>
-                <p className="mt-1 font-semibold text-foreground">{analysis.totalScore}/100</p>
+              <div className="flex items-center gap-3 rounded-theme-sm bg-muted p-4">
+                <Gauge aria-hidden="true" className="h-7 w-7 shrink-0 text-accent" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Risk skoru</p>
+                  <p className="mt-0.5 font-semibold text-foreground">{analysis.totalScore}/100</p>
+                </div>
               </div>
-              <div className="rounded-theme-sm bg-muted p-4">
-                <p className="text-sm text-muted-foreground">Kontrol başlığı</p>
-                <p className="mt-1 font-semibold text-foreground">{analysis.inspectionFocus.length}</p>
+              <div className="flex items-center gap-3 rounded-theme-sm bg-muted p-4">
+                <ListChecks aria-hidden="true" className="h-7 w-7 shrink-0 text-accent" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Kontrol başlığı</p>
+                  <p className="mt-0.5 font-semibold text-foreground">{analysis.inspectionFocus.length}</p>
+                </div>
               </div>
             </div>
           ) : (
@@ -208,51 +241,6 @@ export default function VehicleHealthRecordPage() {
               Henüz oturumda analiz yok. Yeni araç analizi oluşturduğunuzda burada araç özeti görünecek.
             </p>
           )}
-        </section>
-
-        <section
-          className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm"
-          aria-labelledby="upcoming-dates"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <CalendarClock aria-hidden="true" className="h-5 w-5 text-accent" />
-              <h2 id="upcoming-dates" className="text-xl font-semibold text-foreground">
-                Yaklaşan tarihler
-              </h2>
-            </div>
-            <Link
-              href="/bakim-odeme-takvimi"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-accent hover:underline"
-            >
-              Tümünü gör
-              <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
-            </Link>
-          </div>
-          <div className="mt-4 overflow-hidden rounded-theme-sm border border-border">
-            {upcomingReminders.length ? (
-              upcomingReminders.map((record) => {
-                const days = daysUntil(record.dueDate);
-                return (
-                  <ReminderCard
-                    key={record.id}
-                    title={record.title}
-                    subtitle={reminderCategoryLabels[record.category]}
-                    days={days}
-                    urgency={urgencyOf(days)}
-                  />
-                );
-              })
-            ) : (
-              <p className="bg-muted p-4 text-sm text-muted-foreground">
-                Henüz MTV, sigorta, muayene veya bakım tarihi eklenmedi.{" "}
-                <Link href="/bakim-odeme-takvimi" className="font-semibold text-accent hover:underline">
-                  Bakım ve Ödeme Takvimi
-                </Link>{" "}
-                sayfasından ekleyebilirsiniz.
-              </p>
-            )}
-          </div>
         </section>
 
         {trend.length ? (

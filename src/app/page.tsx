@@ -2,13 +2,19 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Bell, CarFront, ClipboardPaste, ScanSearch, ShieldCheck, UserRound } from "lucide-react";
+import { Bell, BellOff, CarFront, ClipboardPaste, ScanSearch, ShieldCheck, UserRound } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
 import { loadVehicles } from "@/lib/storage/vehicle-storage";
 import { loadReminders } from "@/lib/storage/reminders-storage";
+import {
+  disableNotifications,
+  enableNotifications,
+  getNotificationState,
+  type NotificationState,
+} from "@/lib/push/notifications";
 import { sortByUrgency, daysUntil, urgencyOf } from "@/lib/reminders/model";
-import { reminderCategoryLabels } from "@/lib/reminders/types";
-import type { ReminderCategory, ReminderRecord } from "@/lib/reminders/types";
+import { reminderCategoryLabels, TAX_CATEGORIES } from "@/lib/reminders/types";
+import type { ReminderRecord } from "@/lib/reminders/types";
 import type { VehicleProfile } from "@/lib/vehicles/types";
 import { AppShell } from "@/components/layout/app-shell";
 import { SectionHeader } from "@/components/layout/section-header";
@@ -20,7 +26,6 @@ import { LoadingSkeleton } from "@/components/ui/skeleton";
 import { DisclaimerCard } from "@/components/ui/alert";
 import { IconButton, PrimaryButton } from "@/components/ui/button";
 
-const TAX_CATEGORIES = new Set<ReminderCategory>(["mtv", "trafik-sigortasi", "kasko"]);
 const MAX_LIST_ITEMS = 4;
 
 function ReminderList({
@@ -59,7 +64,9 @@ export default function Home() {
   const [isReady, setIsReady] = useState(false);
   const [vehicle, setVehicle] = useState<VehicleProfile | null>(null);
   const [reminders, setReminders] = useState<ReminderRecord[]>([]);
-  const [nextReminder, setNextReminder] = useState<ReminderRecord | null>(null);
+  const [notificationState, setNotificationState] = useState<NotificationState>("unsubscribed");
+  const [notificationBusy, setNotificationBusy] = useState(false);
+  const [notificationToast, setNotificationToast] = useState<{ text: string; nonce: number } | null>(null);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -68,12 +75,44 @@ export default function Home() {
 
       const sorted = sortByUrgency(loadReminders());
       setReminders(sorted);
-      setNextReminder(sorted[0] ?? null);
+
+      void getNotificationState().then(setNotificationState);
 
       setIsReady(true);
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);
+
+  useEffect(() => {
+    if (!notificationToast) return;
+    const timer = window.setTimeout(() => setNotificationToast(null), 2000);
+    return () => window.clearTimeout(timer);
+  }, [notificationToast]);
+
+  async function toggleNotifications() {
+    if (notificationBusy) return;
+    setNotificationBusy(true);
+    try {
+      if (notificationState === "subscribed") {
+        await disableNotifications(loadReminders());
+        setNotificationState("unsubscribed");
+        setNotificationToast((current) => ({ text: "Bildirimler kapalı", nonce: (current?.nonce ?? 0) + 1 }));
+      } else {
+        const result = await enableNotifications(loadReminders());
+        if (result.ok) {
+          setNotificationState("subscribed");
+          setNotificationToast((current) => ({ text: "Bildirimler açık", nonce: (current?.nonce ?? 0) + 1 }));
+        } else {
+          setNotificationToast((current) => ({
+            text: result.error ?? "Bildirim izni alınamadı",
+            nonce: (current?.nonce ?? 0) + 1,
+          }));
+        }
+      }
+    } finally {
+      setNotificationBusy(false);
+    }
+  }
 
   const maintenanceReminders = reminders.filter((reminder) => !TAX_CATEGORIES.has(reminder.category)).slice(0, MAX_LIST_ITEMS);
   const taxReminders = reminders.filter((reminder) => TAX_CATEGORIES.has(reminder.category)).slice(0, MAX_LIST_ITEMS);
@@ -91,13 +130,25 @@ export default function Home() {
           {/* Hidden on mobile: the bottom tab bar's "Profil" tab already covers this. */}
           <IconButton icon={UserRound} label="Profili aç" href="/profil" className="hidden sm:flex" />
           <IconButton
-            icon={Bell}
-            label="Hatırlatmalar"
-            href="/bakim-odeme-takvimi"
-            withNotificationDot={Boolean(nextReminder)}
+            icon={notificationState === "subscribed" ? Bell : BellOff}
+            label={notificationState === "subscribed" ? "Bildirimleri kapat" : "Bildirimleri aç"}
+            onClick={toggleNotifications}
+            disabled={notificationBusy}
           />
         </div>
       </header>
+
+      {notificationToast ? (
+        <div
+          key={notificationToast.nonce}
+          role="status"
+          className="animate-toast-pop pointer-events-none fixed inset-x-0 top-16 z-40 flex justify-center px-4"
+        >
+          <p className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg">
+            {notificationToast.text}
+          </p>
+        </div>
+      ) : null}
 
       <HeroCard
         icon={ScanSearch}
@@ -138,7 +189,7 @@ export default function Home() {
         <SectionHeader
           title="Yaklaşan bakım"
           description="Muayene, bakım, lastik ve akü hatırlatmaları"
-          action={<Link href="/bakim-odeme-takvimi">Tümü</Link>}
+          action={<Link href="/bakim-odeme-takvimi/bakim">Tümü</Link>}
         />
         {!isReady ? (
           <LoadingSkeleton />
@@ -156,7 +207,7 @@ export default function Home() {
         <SectionHeader
           title="Yaklaşan vergi ve ödemeler"
           description="MTV, trafik sigortası ve kasko"
-          action={<Link href="/bakim-odeme-takvimi">Tümü</Link>}
+          action={<Link href="/bakim-odeme-takvimi/vergi">Tümü</Link>}
         />
         {!isReady ? (
           <LoadingSkeleton />

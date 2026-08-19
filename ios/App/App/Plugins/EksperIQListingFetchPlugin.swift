@@ -257,10 +257,28 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
         try await withCheckedThrowingContinuation { continuation in
             self.continuation = continuation
 
-            let webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
+            // A WKWebView that's sized .zero and never added to any window
+            // reports anomalous values to its own JS — 0x0 viewport,
+            // document.visibilityState never "visible", document.hasFocus()
+            // always false, no real layout/composite pass ever runs. None
+            // of that is true of the real Safari tab this is meant to
+            // behave like, and it's exactly the kind of signal bot-scoring
+            // systems (e.g. Cloudflare) check for. Give it the device's
+            // actual screen size and attach it to the key window — shifted
+            // off to the side, so nothing is ever visibly shown — instead
+            // of skipping that step for our own implementation convenience.
+            let screenBounds = UIScreen.main.bounds
+            let webView = WKWebView(frame: screenBounds, configuration: WKWebViewConfiguration())
             webView.customUserAgent = Self.mobileSafariUserAgent
             webView.navigationDelegate = self
             self.webView = webView
+
+            if let window = UIApplication.shared.connectedScenes
+                .compactMap({ ($0 as? UIWindowScene)?.keyWindow })
+                .first {
+                webView.frame = webView.frame.offsetBy(dx: screenBounds.width + 200, dy: 0)
+                window.addSubview(webView)
+            }
 
             let timeout = DispatchWorkItem { [weak self] in
                 self?.finish(.failure(Self.makeError("İlan sayfası zaman aşımına uğradı.")))
@@ -332,6 +350,7 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
         timeoutWorkItem?.cancel()
         webView?.navigationDelegate = nil
         webView?.stopLoading()
+        webView?.removeFromSuperview()
         webView = nil
 
         switch outcome {

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { Camera } from "lucide-react";
+import { Camera, ImageIcon } from "lucide-react";
+import { chooseFromGalleryAsDataUrls, takePhotoAsDataUrl } from "@/lib/media/pick-photos";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Field, SelectField } from "@/components/ui/field";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/button";
@@ -95,14 +96,14 @@ export function VehicleFormSheet({
   const isKnownModel = modelOptions.includes(draft.model);
   const modelSelectValue = draft.model ? (isKnownModel ? draft.model : OTHER_MODEL) : "";
 
-  function handlePhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") update("photoDataUrl", reader.result);
-    };
-    reader.readAsDataURL(file);
+  async function handleTakePhoto() {
+    const dataUrl = await takePhotoAsDataUrl();
+    if (dataUrl) update("photoDataUrl", dataUrl);
+  }
+
+  async function handleChooseFromGallery() {
+    const [dataUrl] = await chooseFromGalleryAsDataUrls(1);
+    if (dataUrl) update("photoDataUrl", dataUrl);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -153,11 +154,24 @@ export function VehicleFormSheet({
               <VehiclePlaceholder />
             )}
           </div>
-          <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-theme border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent">
-            <Camera aria-hidden="true" className="h-4 w-4" />
-            Fotoğraf ekle (opsiyonel)
-            <input type="file" accept="image/*" onChange={handlePhotoChange} className="sr-only" />
-          </label>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={handleTakePhoto}
+              className="inline-flex min-h-11 items-center gap-2 rounded-theme border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent"
+            >
+              <Camera aria-hidden="true" className="h-4 w-4" />
+              Fotoğraf çek
+            </button>
+            <button
+              type="button"
+              onClick={handleChooseFromGallery}
+              className="inline-flex min-h-11 items-center gap-2 rounded-theme border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent"
+            >
+              <ImageIcon aria-hidden="true" className="h-4 w-4" />
+              Galeriden seç
+            </button>
+          </div>
         </div>
 
         <Field
