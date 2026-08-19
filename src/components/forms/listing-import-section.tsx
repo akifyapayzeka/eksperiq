@@ -24,8 +24,7 @@ const stageLabels: Record<ImportStage, string> = {
 };
 
 const errorMessages: Record<string, string> = {
-  "invalid-url":
-    "Bu bağlantı desteklenmiyor. Şu an yalnızca sahibinden.com ve arabam.com ilan bağlantıları desteklenir.",
+  "invalid-url": "Bu bağlantı desteklenmiyor. Desteklenen ilan sitelerinden birinin bağlantısını yapıştırın.",
   "unsupported-platform": "İlan linkiyle otomatik doldurma yalnızca mobil uygulamada kullanılabilir.",
   "fetch-failed": "İlan sayfası açılamadı. Bağlantıyı kontrol edip tekrar deneyin.",
   blocked: "Bu ilan otomatik olarak alınamadı. Ekran görüntüsü, ekspertiz raporu veya manuel girişle devam edebilirsiniz.",
@@ -140,7 +139,7 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
         </h2>
       </div>
       <p className="mt-1 text-sm leading-6 text-muted-foreground">
-        Sahibinden veya Arabam ilanının bağlantısını yapıştırın; araç bilgileri otomatik doldurulsun.
+        Bir araç ilanının bağlantısını yapıştırın; araç bilgileri otomatik doldurulsun.
       </p>
 
       {showConsentPrompt ? (

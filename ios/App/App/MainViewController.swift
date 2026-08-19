@@ -17,10 +17,22 @@ class MainViewController: CAPBridgeViewController {
     // directly in the app target, like EksperIQListingFetchPlugin, is
     // compiled in but never added to capacitor.config.json's
     // packageClassList, so the JS bridge reports "plugin is not
-    // implemented" even though the native code is right there. Register
-    // it manually here, which is Capacitor's documented mechanism for
-    // exactly this case.
+    // implemented" even though the native code is right there.
+    //
+    // registerPluginType(_:) looked like Capacitor's documented mechanism
+    // for exactly this case, but its own implementation silently no-ops
+    // whenever autoRegisterPlugins is true (`if autoRegisterPlugins {
+    // return }` in CapacitorBridge.registerPluginType — see
+    // node_modules/@capacitor/ios/.../CapacitorBridge.swift), and
+    // CAPBridgeViewController.loadView() always creates the bridge with
+    // the default autoRegisterPlugins: true, with no way for a subclass
+    // to override that (loadView() is `final`). So this call has been a
+    // no-op on every build — the plugin was never actually registered,
+    // which is the real reason "EksperIQListingFetch plugin is not
+    // implemented on ios" kept surfacing however far the JS side got.
+    // registerPluginInstance(_:) has no such guard — it unconditionally
+    // registers the instance and injects its JS bridge script.
     override func capacitorDidLoad() {
-        bridge?.registerPluginType(EksperIQListingFetchPlugin.self)
+        bridge?.registerPluginInstance(EksperIQListingFetchPlugin())
     }
 }
