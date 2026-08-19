@@ -50,19 +50,24 @@ public class EksperIQListingFetchPlugin: CAPPlugin, CAPBridgedPlugin {
         let installId = call.getString("installId")
 
         Task {
+            DiagnosticTrace.send("swift-task-started")
             let backgroundTask = await BackgroundTaskGuard.begin(name: "EksperIQListingFetch")
             defer { Task { await backgroundTask.end() } }
 
             do {
                 self.notifyListeners("progress", data: ["stage": "opening-page"])
+                DiagnosticTrace.send("swift-opening-page")
                 let pageData = try await ListingPageFetcher.fetch(url: url)
+                DiagnosticTrace.send("swift-page-fetched")
                 self.notifyListeners("progress", data: ["stage": "normalizing"])
+                DiagnosticTrace.send("swift-normalizing")
                 let importOutcome = await ListingImportRequester.normalize(
                     pageData: pageData,
                     source: source,
                     installId: installId
                 )
                 self.notifyListeners("progress", data: ["stage": "done"])
+                DiagnosticTrace.send("swift-done")
                 await NotificationHelper.notifyIfBackgrounded(
                     title: "EksperIQ",
                     body: importOutcome.succeeded
@@ -75,6 +80,7 @@ public class EksperIQListingFetchPlugin: CAPPlugin, CAPBridgedPlugin {
                     "importResponseJson": importOutcome.responseJson,
                 ])
             } catch {
+                DiagnosticTrace.send("swift-error", detail: error.localizedDescription)
                 await NotificationHelper.notifyIfBackgrounded(
                     title: "EksperIQ",
                     body: "İlan analizi tamamlanamadı. Uygulamaya dönüp tekrar deneyebilirsiniz."
@@ -82,6 +88,25 @@ public class EksperIQListingFetchPlugin: CAPPlugin, CAPBridgedPlugin {
                 call.reject(error.localizedDescription, nil, error)
             }
         }
+    }
+}
+
+/// TEMPORARY: mirrors the JS-side trace() in src/lib/listing-import/import-listing.ts —
+/// see that file's comment for why this exists. Fire-and-forget, best-effort,
+/// never affects the real call. Delete alongside the JS side and the
+/// api/debug/listing-import-trace.js endpoint once the hang is root-caused.
+private enum DiagnosticTrace {
+    private static let endpoint = URL(string: "https://eksperiq.vercel.app/api/debug/listing-import-trace")!
+
+    static func send(_ step: String, detail: String? = nil) {
+        var request = URLRequest(url: endpoint, timeoutInterval: 10)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var body: [String: Any] = ["step": step]
+        if let detail { body["detail"] = String(detail.prefix(300)) }
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        let task = URLSession.shared.dataTask(with: request)
+        task.resume()
     }
 }
 

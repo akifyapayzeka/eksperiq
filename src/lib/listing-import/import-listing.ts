@@ -1,10 +1,27 @@
 "use client";
 
 import { Capacitor } from "@capacitor/core";
+import { apiFetch } from "@/lib/api/client";
 import { getInstallId } from "@/lib/api/install-id";
 import { EksperIQListingFetchPlugin } from "./native-plugin";
 import { detectListingSource, type ListingSourceCheck } from "./url";
 import type { ListingImportOutcome, ListingImportResult } from "./types";
+
+/**
+ * TEMPORARY: a reported production hang has no trace at all in
+ * api/ai/listing-import's own logs, and there's no way to get real device
+ * console logs to see where it actually stalls. Fires a small, best-effort,
+ * fire-and-forget ping to api/debug/listing-import-trace.js at each stage
+ * boundary — never awaited, never throws, and never affects the real
+ * outcome. Delete both this and that endpoint once the hang is root-caused.
+ */
+function trace(step: string, detail?: string): void {
+  void apiFetch("/api/debug/listing-import-trace", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ step, detail }),
+  }).catch(() => {});
+}
 
 export type ImportStage = "checking-url" | "opening-page" | "normalizing" | "done";
 
@@ -48,6 +65,7 @@ export async function importListingFromUrl(
   rawUrl: string,
   onStage?: (stage: ImportStage) => void,
 ): Promise<ListingImportOutcome> {
+  trace("js-start");
   onStage?.("checking-url");
   const detected = detectListingSource(rawUrl);
   if (!detected.ok) return { ok: false, reason: "invalid-url" };
@@ -55,6 +73,7 @@ export async function importListingFromUrl(
   if (!Capacitor.isNativePlatform()) {
     return { ok: false, reason: "unsupported-platform" };
   }
+  trace("js-native-confirmed");
 
   let timedOut = false;
   const guardedOnStage = (stage: ImportStage) => {
@@ -75,7 +94,10 @@ export async function importListingFromUrl(
   const timeoutPromise = new Promise<ListingImportOutcome>((resolve) => {
     resolveTimeout = resolve;
   });
-  const timer = setTimeout(() => resolveTimeout(timeoutOutcome), CLIENT_HARD_TIMEOUT_MS);
+  const timer = setTimeout(() => {
+    trace("js-client-timeout", "resolved via setTimeout");
+    resolveTimeout(timeoutOutcome);
+  }, CLIENT_HARD_TIMEOUT_MS);
 
   // A plain setTimeout can be throttled or paused for as long as the
   // WKWebView is backgrounded — exactly the situation most likely to
@@ -84,7 +106,10 @@ export async function importListingFromUrl(
   // return-to-foreground means a throttled timer can't leave this hanging
   // well past when it should already have given up.
   function onVisible() {
-    if (document.visibilityState === "visible" && Date.now() >= deadline) resolveTimeout(timeoutOutcome);
+    if (document.visibilityState === "visible" && Date.now() >= deadline) {
+      trace("js-client-timeout", "resolved via visibilitychange");
+      resolveTimeout(timeoutOutcome);
+    }
   }
   document.addEventListener("visibilitychange", onVisible);
 
@@ -106,25 +131,30 @@ async function runNativeImport(
   // single native call below (opening-page -> normalizing -> done), so the
   // UI's progress indicator reflects what's actually happening natively
   // instead of guessing.
+  trace("js-before-add-listener");
   const listener = await EksperIQListingFetchPlugin.addListener("progress", (event: { stage?: ImportStage }) => {
     if (event.stage) onStage(event.stage);
   });
+  trace("js-after-add-listener");
 
   let pageData: ExtractedPageData;
   let importHttpStatus: number;
   let importResponseJson: string;
   try {
+    trace("js-before-fetch");
     const result = await EksperIQListingFetchPlugin.fetchListingPage({
       url: detected.url,
       source: detected.source,
       installId: getInstallId(),
     });
+    trace("js-after-fetch-ok");
     pageData = JSON.parse(result.pageDataJson) as ExtractedPageData;
     importHttpStatus = result.importHttpStatus;
     importResponseJson = result.importResponseJson;
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     console.error("[listing-import] fetchListingPage failed:", detail);
+    trace("js-after-fetch-error", detail.slice(0, 300));
     return { ok: false, reason: "fetch-failed", detail };
   } finally {
     await listener.remove();
