@@ -45,8 +45,10 @@ export async function importListingFromUrl(
   try {
     const { pageDataJson } = await EksperIQListingFetchPlugin.fetchListingPage({ url: detected.url });
     pageData = JSON.parse(pageDataJson) as ExtractedPageData;
-  } catch {
-    return { ok: false, reason: "fetch-failed" };
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    console.error("[listing-import] fetchListingPage failed:", detail);
+    return { ok: false, reason: "fetch-failed", detail };
   }
 
   if (!pageData.bodyText || pageData.bodyText.trim().length < 80) {

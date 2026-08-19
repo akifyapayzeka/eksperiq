@@ -52,7 +52,7 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
     private static let mobileSafariUserAgent =
         "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 " +
         "(KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1"
-    private static let hardTimeoutSeconds: TimeInterval = 25
+    private static let hardTimeoutSeconds: TimeInterval = 35
     private static let settleDelaySeconds: TimeInterval = 2.0
 
     private var continuation: CheckedContinuation<JSObject, Error>?
@@ -79,7 +79,7 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
             self.timeoutWorkItem = timeout
             DispatchQueue.main.asyncAfter(deadline: .now() + Self.hardTimeoutSeconds, execute: timeout)
 
-            webView.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 20))
+            webView.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 30))
         }
     }
 

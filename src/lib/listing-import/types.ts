@@ -38,4 +38,5 @@ export type ListingImportOutcome =
   | {
       ok: false;
       reason: "invalid-url" | "unsupported-platform" | "fetch-failed" | "blocked" | "ai-failed" | "rate-limited";
+      detail?: string;
     };

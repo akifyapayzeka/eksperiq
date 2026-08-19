@@ -40,6 +40,7 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [stage, setStage] = useState<ImportStage | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [errorDetail, setErrorDetail] = useState("");
   const [result, setResult] = useState<ListingImportResult | null>(null);
   const [consent, setConsent] = useState(() => hasAcceptedAiConsent());
   const [showConsentPrompt] = useState(() => !hasAcceptedAiConsent());
@@ -65,6 +66,7 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
 
     setStatus("loading");
     setErrorMessage("");
+    setErrorDetail("");
     setResult(null);
     setStage("checking-url");
 
@@ -73,6 +75,7 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
     if (!outcome.ok) {
       setStatus("error");
       setErrorMessage(errorMessages[outcome.reason] ?? errorMessages["ai-failed"]);
+      setErrorDetail("detail" in outcome ? (outcome.detail ?? "") : "");
       setStage(null);
       return;
     }
@@ -91,6 +94,7 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
     setStatus("idle");
     setResult(null);
     setErrorMessage("");
+    setErrorDetail("");
     setStage(null);
   }
 
@@ -182,9 +186,10 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
       ) : null}
 
       {status === "error" && errorMessage ? (
-        <p className="mt-3 rounded-theme-sm border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive" role="status">
-          {errorMessage}
-        </p>
+        <div className="mt-3 rounded-theme-sm border border-destructive/30 bg-destructive/10 px-3 py-2" role="status">
+          <p className="text-sm font-medium text-destructive">{errorMessage}</p>
+          {errorDetail ? <p className="mt-1 text-xs text-destructive/70">Teknik detay: {errorDetail}</p> : null}
+        </div>
       ) : null}
 
       {status === "success" && result ? (
