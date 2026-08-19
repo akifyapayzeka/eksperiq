@@ -179,6 +179,7 @@ export default function VehicleHealthRecordPage() {
         <VehicleFormSheet
           open={isVehicleSheetOpen}
           vehicle={selectedVehicle}
+          vehicleCount={vehicles.length}
           onClose={() => setIsVehicleSheetOpen(false)}
           onSaved={handleVehicleSaved}
         />

@@ -305,6 +305,7 @@ export default function MaintenancePaymentCalendarPage() {
         <VehicleFormSheet
           open={isVehicleSheetOpen}
           vehicle={selectedVehicle}
+          vehicleCount={vehicles.length}
           onClose={() => setIsVehicleSheetOpen(false)}
           onSaved={handleVehicleSaved}
         />

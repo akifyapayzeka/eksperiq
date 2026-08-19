@@ -167,6 +167,7 @@ export default function ExpenseLedgerPage() {
         <VehicleFormSheet
           open={isVehicleSheetOpen}
           vehicle={selectedVehicle}
+          vehicleCount={vehicles.length}
           onClose={() => setIsVehicleSheetOpen(false)}
           onSaved={handleVehicleSaved}
         />

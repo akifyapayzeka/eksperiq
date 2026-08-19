@@ -15,6 +15,9 @@ import {
   type VehicleProfile,
   type VehicleTransmissionType,
 } from "@/lib/vehicles/types";
+import { useSubscriptionTier } from "@/lib/pro/tier";
+import { canAddVehicle } from "@/lib/pro/vehicle-limit";
+import { PaywallPlansScreen } from "@/components/paywall/paywall-plans";
 
 const FUEL_OPTIONS = Object.entries(VEHICLE_FUEL_LABELS) as [VehicleFuelType, string][];
 const TRANSMISSION_OPTIONS = Object.entries(VEHICLE_TRANSMISSION_LABELS) as [VehicleTransmissionType, string][];
@@ -57,15 +60,21 @@ function toDraft(vehicle: VehicleProfile | null): DraftState {
 export function VehicleFormSheet({
   open,
   vehicle,
+  vehicleCount,
   onClose,
   onSaved,
 }: {
   open: boolean;
   vehicle: VehicleProfile | null;
+  /** Current number of vehicles already saved — only checked when adding a new one (vehicle === null). */
+  vehicleCount: number;
   onClose: () => void;
   onSaved: (vehicle: VehicleProfile) => void;
 }) {
   const [draft, setDraft] = useState<DraftState>(() => toDraft(vehicle));
+  const tier = useSubscriptionTier();
+  const isAddingNew = vehicle === null;
+  const vehicleCapReached = isAddingNew && !canAddVehicle(tier, vehicleCount);
 
   useEffect(() => {
     if (!open) return;
@@ -117,6 +126,19 @@ export function VehicleFormSheet({
     upsertVehicle(saved);
     onSaved(saved);
     onClose();
+  }
+
+  if (vehicleCapReached) {
+    return (
+      <BottomSheet open={open} title="Araç Ekle" onClose={onClose}>
+        <PaywallPlansScreen
+          headline="Garajınızda yer kalmadı"
+          description="Ücretsiz sürümde bir araç ekleyebilirsiniz. Daha fazla araç eklemek için Pro veya Pro+'a geçin."
+          dismissLabel="Vazgeç"
+          onDismiss={onClose}
+        />
+      </BottomSheet>
+    );
   }
 
   return (

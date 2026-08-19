@@ -200,7 +200,15 @@ test("comparison page lists analyses added from the result screen and enforces t
   test.setTimeout(60000);
 
   async function createAndAddAnalysis(price: string) {
-    await gotoAnalysisForm(page);
+    // This test creates 4 listing analyses to exercise the comparison
+    // list's own 3-entry cap — unrelated to (and would otherwise collide
+    // with) the free tier's separate 3-lifetime-analysis quota gate, so
+    // that gate's counter is cleared before each one instead of going
+    // through gotoAnalysisForm (whose "Araç satın alacağım" click is
+    // exactly what the gate checks).
+    await page.goto("/analiz");
+    await page.evaluate(() => window.localStorage.removeItem("eksperiq:listing-quota"));
+    await page.getByRole("button", { name: "Araç satın alacağım" }).click();
     await fillRequiredForm(page);
     await page.getByLabel("İstenen fiyat").fill(price);
     await page.getByRole("button", { name: "Analiz oluştur" }).click();

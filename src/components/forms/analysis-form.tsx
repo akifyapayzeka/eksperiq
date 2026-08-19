@@ -6,6 +6,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Camera, ClipboardCheck, FileText, ShieldCheck, Wrench } from "lucide-react";
 import { saveAnalysis } from "@/lib/storage/analysis-storage";
+import { recordListingAnalysisUsed } from "@/lib/pro/listing-quota";
 import { vehicleSchema, type VehicleFormData, type VehicleFormInput } from "@/lib/schemas/vehicle";
 import { createAnalysis } from "@/lib/services/analysis-service";
 import { appConfig } from "@/lib/constants/app";
@@ -301,6 +302,7 @@ export function AnalysisForm() {
   function onSubmit(values: VehicleFormData) {
     const parsed = vehicleSchema.parse(values);
     saveAnalysis(createAnalysis(parsed));
+    recordListingAnalysisUsed();
     router.push("/sonuc");
   }
 

@@ -6,11 +6,34 @@ import { ArrowUpRight, Camera, ScanSearch, ShoppingCart } from "lucide-react";
 import { AnalysisForm } from "@/components/forms/analysis-form";
 import { AppShell } from "@/components/layout/app-shell";
 import { HeroCard } from "@/components/cards/hero-card";
+import { PaywallPlansScreen } from "@/components/paywall/paywall-plans";
+import { resolveSubscriptionTier } from "@/lib/pro/tier";
+import { hasListingAnalysisQuotaRemaining } from "@/lib/pro/listing-quota";
 
-type AnalysisIntent = "choice" | "purchase";
+type AnalysisIntent = "choice" | "purchase" | "quota-exceeded";
 
 export default function AnalysisPage() {
   const [intent, setIntent] = useState<AnalysisIntent>("choice");
+
+  async function startPurchaseFlow() {
+    const tier = await resolveSubscriptionTier();
+    setIntent(hasListingAnalysisQuotaRemaining(tier) ? "purchase" : "quota-exceeded");
+  }
+
+  if (intent === "quota-exceeded") {
+    return (
+      <AppShell>
+        <div className="flex justify-center pt-6">
+          <PaywallPlansScreen
+            headline="Ücretsiz ilan analizi hakkınız bitti"
+            description="İlan linkiyle analize devam etmek için Pro veya Pro+'a geçin. Aracınızın bakım ve vergi takibini, fotoğraf hasar kontrolünü ücretsiz kullanmaya devam edebilirsiniz."
+            dismissLabel="Geri dön"
+            onDismiss={() => setIntent("choice")}
+          />
+        </div>
+      </AppShell>
+    );
+  }
 
   if (intent === "choice") {
     return (
@@ -26,7 +49,7 @@ export default function AnalysisPage() {
         <div className="mt-5 grid gap-4">
           <button
             type="button"
-            onClick={() => setIntent("purchase")}
+            onClick={() => void startPurchaseFlow()}
             className="flex items-start gap-4 rounded-theme border border-border bg-card p-5 text-left shadow-sm transition hover:border-accent"
           >
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">
