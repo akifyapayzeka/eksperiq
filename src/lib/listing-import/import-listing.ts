@@ -123,6 +123,39 @@ export async function importListingFromUrl(
   }
 }
 
+/**
+ * The Capacitor JS runtime's own addListener() plumbing has a real bug: if
+ * the underlying native call it wraps ever rejects instead of resolving,
+ * the promise it returns just never settles at all — no resolve, no
+ * reject, forever (traced to @capacitor/core's addListenerNative, which
+ * only attaches a `.then()` handler to the native call and drops any
+ * rejection on the floor). That silent hang is what production traces
+ * showed: "js-before-add-listener" fires and nothing — not even the
+ * client-side 65s timeout below, since that races the *whole* native
+ * import, and this hang happens before fetchListingPage() is even
+ * attempted. Racing addListener() itself against a short timeout means a
+ * broken/slow listener registration can never block the actual fetch —
+ * live progress events are a nice-to-have, not the point of this call.
+ */
+const ADD_LISTENER_TIMEOUT_MS = 5_000;
+
+async function addProgressListener(
+  onStage: (stage: ImportStage) => void,
+): Promise<{ remove: () => Promise<void> } | null> {
+  try {
+    return await Promise.race([
+      EksperIQListingFetchPlugin.addListener("progress", (event: { stage?: ImportStage }) => {
+        if (event.stage) onStage(event.stage);
+      }),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), ADD_LISTENER_TIMEOUT_MS)),
+    ]);
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    console.error("[listing-import] addListener failed, continuing without live progress:", detail);
+    return null;
+  }
+}
+
 async function runNativeImport(
   detected: Extract<ListingSourceCheck, { ok: true }>,
   onStage: (stage: ImportStage) => void,
@@ -130,12 +163,10 @@ async function runNativeImport(
   // The Swift plugin emits "progress" events as it moves through the
   // single native call below (opening-page -> normalizing -> done), so the
   // UI's progress indicator reflects what's actually happening natively
-  // instead of guessing.
+  // instead of guessing — when it's available (see addProgressListener).
   trace("js-before-add-listener");
-  const listener = await EksperIQListingFetchPlugin.addListener("progress", (event: { stage?: ImportStage }) => {
-    if (event.stage) onStage(event.stage);
-  });
-  trace("js-after-add-listener");
+  const listener = await addProgressListener(onStage);
+  trace(listener ? "js-after-add-listener" : "js-add-listener-timed-out");
 
   let pageData: ExtractedPageData;
   let importHttpStatus: number;
@@ -157,7 +188,7 @@ async function runNativeImport(
     trace("js-after-fetch-error", detail.slice(0, 300));
     return { ok: false, reason: "fetch-failed", detail };
   } finally {
-    await listener.remove();
+    await listener?.remove();
   }
 
   if (!pageData.bodyText || pageData.bodyText.trim().length < 80) {

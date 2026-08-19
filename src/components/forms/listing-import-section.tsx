@@ -93,21 +93,36 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
       stageStartedAt: new Date().toISOString(),
     });
 
-    const outcome = await importListingFromUrl(currentUrl, (nextStage) =>
-      setImportSession({ stage: nextStage, stageStartedAt: new Date().toISOString() }),
-    );
+    // Whatever importListingFromUrl does internally, this call must always
+    // end in a terminal UI state — an uncaught rejection here (from the
+    // native bridge or anything else) previously left the progress bar
+    // frozen forever with no error shown, since nothing was listening for
+    // the throw. That was the actual production hang, not a slow network.
+    try {
+      const outcome = await importListingFromUrl(currentUrl, (nextStage) =>
+        setImportSession({ stage: nextStage, stageStartedAt: new Date().toISOString() }),
+      );
 
-    if (!outcome.ok) {
+      if (!outcome.ok) {
+        setImportSession({
+          status: "error",
+          errorMessage: errorMessages[outcome.reason] ?? errorMessages["ai-failed"],
+          errorDetail: "detail" in outcome ? (outcome.detail ?? "") : "",
+          stage: null,
+        });
+        return;
+      }
+
+      setImportSession({ status: "success", result: outcome.result, stage: null });
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
       setImportSession({
         status: "error",
-        errorMessage: errorMessages[outcome.reason] ?? errorMessages["ai-failed"],
-        errorDetail: "detail" in outcome ? (outcome.detail ?? "") : "",
+        errorMessage: errorMessages["ai-failed"],
+        errorDetail: detail,
         stage: null,
       });
-      return;
     }
-
-    setImportSession({ status: "success", result: outcome.result, stage: null });
   }
 
   function handleClear() {

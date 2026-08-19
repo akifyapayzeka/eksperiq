@@ -17,6 +17,7 @@ const ALLOWED_STEPS = new Set([
   "js-native-confirmed",
   "js-before-add-listener",
   "js-after-add-listener",
+  "js-add-listener-timed-out",
   "js-before-fetch",
   "js-after-fetch-ok",
   "js-after-fetch-error",

@@ -101,6 +101,42 @@ describe("importListingFromUrl", () => {
     expect(outcome.ok).toBe(false);
   });
 
+  it("still attempts fetchListingPage even when addListener() never settles", async () => {
+    // The actual production root cause: @capacitor/core's addListenerNative
+    // has a real bug where a rejected native addListener() call resolves to
+    // a promise that never settles at all (see import-listing.ts's
+    // addProgressListener comment). If fetchListingPage() only ran after
+    // awaiting addListener() directly, the real network call would never
+    // even be attempted — exactly what production traces showed. Racing
+    // addListener() against its own short timeout means fetchListingPage()
+    // must still fire well before the 65s outer deadline.
+    addListener.mockReturnValue(new Promise(() => {}));
+    fetchListingPage.mockResolvedValue({
+      pageDataJson: JSON.stringify({
+        title: "t",
+        ogTitle: "",
+        ogDescription: "",
+        bodyText: "x".repeat(100),
+        jsonLd: [],
+        images: [],
+        finalUrl: SUPPORTED_URL,
+      }),
+      importHttpStatus: 200,
+      importResponseJson: JSON.stringify({
+        result: { title: "t", fields: {}, lowConfidenceFields: [], missingFields: [], warnings: [] },
+      }),
+    });
+
+    const { importListingFromUrl } = await import("@/lib/listing-import/import-listing");
+    const outcomePromise = importListingFromUrl(SUPPORTED_URL);
+
+    await vi.advanceTimersByTimeAsync(5_000);
+    const outcome = await outcomePromise;
+
+    expect(fetchListingPage).toHaveBeenCalled();
+    expect(outcome.ok).toBe(true);
+  });
+
   it("does not time out for an import that finishes well within the limit", async () => {
     const remove = vi.fn().mockResolvedValue(undefined);
     addListener.mockResolvedValue({ remove });
