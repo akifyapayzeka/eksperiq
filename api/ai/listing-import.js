@@ -258,7 +258,12 @@ async function requestOpenRouterListingImport(input) {
     messages: buildMessages(input),
     responseFormat: listingImportResponseFormat,
     temperature: 0.1,
-    maxTokens: 1600,
+    // Was 1600 — a real ilan's full field set (title + ~17 fields +
+    // lowConfidenceFields/missingFields/warnings arrays + sellerDescription)
+    // can run longer than that, and a truncated response is invalid JSON,
+    // which extractJson() below can only ever report as a bare "couldn't
+    // parse" — not distinguishable from the model genuinely misbehaving.
+    maxTokens: 3200,
     refererUrl: productionUrl,
     appName,
   });
@@ -267,7 +272,13 @@ async function requestOpenRouterListingImport(input) {
   const text = extractText(result.payload);
   if (!text) return { error: "AI yanıtı okunamadı." };
   const json = extractJson(text);
-  if (!json || !isRecord(json.fields)) return { error: "İlan bilgisi işlenemedi." };
+  if (!json || !isRecord(json.fields)) {
+    console.error(
+      "[listing-import] AI response did not parse to the expected shape. Raw text (first 800 chars):",
+      text.slice(0, 800),
+    );
+    return { error: "İlan bilgisi işlenemedi." };
+  }
 
   const fields = json.fields;
   if (typeof fields.sellerDescription === "string") {
