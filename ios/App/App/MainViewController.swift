@@ -10,4 +10,17 @@ class MainViewController: CAPBridgeViewController {
         super.viewDidLoad()
         webView?.allowsBackForwardNavigationGestures = true
     }
+
+    // `cap sync` only auto-discovers plugins that ship as separate npm
+    // packages (it scans node_modules, not this app's own Plugins/
+    // folder — see @capacitor/cli's findPluginClasses). A plugin defined
+    // directly in the app target, like EksperIQListingFetchPlugin, is
+    // compiled in but never added to capacitor.config.json's
+    // packageClassList, so the JS bridge reports "plugin is not
+    // implemented" even though the native code is right there. Register
+    // it manually here, which is Capacitor's documented mechanism for
+    // exactly this case.
+    override func capacitorDidLoad() {
+        bridge?.registerPluginType(EksperIQListingFetchPlugin.self)
+    }
 }

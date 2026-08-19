@@ -25,7 +25,10 @@ export default function PrivacyPage() {
         (marka, model, yıl, km, fiyat, açıklama gibi metin alanları) içeren kısa bir özet çıkarılır ve bu özet, form
         alanlarını doldurmak üzere yalnızca o an OpenRouter üzerinden geçici olarak işlenir; sunucuda kalıcı olarak
         saklanmaz. Fotoğraflar indirilmez veya işlenmez, yalnızca ilanın orijinal sayfasına aittir. Bu özellik yalnızca
-        siz bir bağlantı yapıştırıp &ldquo;İlanı getir&rdquo;e bastığınızda çalışır.
+        siz bir bağlantı yapıştırıp &ldquo;İlanı analiz et&rdquo;e bastığınızda çalışır. İşlem sürerken uygulamayı
+        arka plana alırsanız (ana ekrana dönme/kilitleme) analiz kısa bir süre daha devam edebilir ve tamamlandığında
+        cihazınıza yerel bir bildirim gönderilir — bu bildirim için izin isteği yalnızca bu özelliği ilk kullandığınızda
+        gösterilir ve tamamen isteğe bağlıdır, reddederseniz özellik yine de çalışmaya devam eder.
       </p>
       <p>
         <strong>AI karar destek notu.</strong> Sonuç ekranındaki isteğe bağlı bu özelliği açarsanız; aracınızın

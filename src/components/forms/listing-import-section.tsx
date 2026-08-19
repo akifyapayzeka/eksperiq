@@ -18,12 +18,11 @@ const isListingImportEnabled = process.env.NEXT_PUBLIC_LISTING_IMPORT_ENABLED ==
 const stageLabels: Record<ImportStage, string> = {
   "checking-url": "Bağlantı kontrol ediliyor",
   "opening-page": "İlan sayfası açılıyor",
-  extracting: "Araç bilgileri çıkarılıyor",
-  normalizing: "Bilgiler düzenleniyor",
-  done: "İlan bilgileri hazır",
+  normalizing: "Araç bilgileri analiz ediliyor",
+  done: "İlan analizi tamamlandı",
 };
 
-const stageOrder: ImportStage[] = ["checking-url", "opening-page", "extracting", "normalizing", "done"];
+const stageOrder: ImportStage[] = ["checking-url", "opening-page", "normalizing", "done"];
 
 const errorMessages: Record<string, string> = {
   "invalid-url":
@@ -99,6 +98,7 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
   }
 
   const stageIndex = stage ? stageOrder.indexOf(stage) : -1;
+  const progressPercent = stageIndex >= 0 ? Math.round(((stageIndex + 1) / stageOrder.length) * 100) : 0;
 
   return (
     <section className="rounded-theme border border-accent/20 bg-card p-4 shadow-sm" aria-labelledby="listing-import-title">
@@ -173,15 +173,21 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
         className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-accent px-5 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
       >
         {status === "loading" ? <Spinner /> : <LinkIcon aria-hidden="true" className="h-4 w-4" />}
-        {status === "loading" && stage ? stageLabels[stage] : "İlanı getir"}
+        {status === "loading" && stage ? `${stageLabels[stage]} (%${progressPercent})` : "İlanı analiz et"}
       </button>
 
       {status === "loading" && stageIndex >= 0 ? (
-        <div className="mt-3 h-1.5 rounded-full bg-muted" aria-hidden="true">
-          <div
-            className="h-1.5 rounded-full bg-accent transition-[width] duration-300"
-            style={{ width: `${((stageIndex + 1) / stageOrder.length) * 100}%` }}
-          />
+        <div className="mt-3">
+          <div className="h-1.5 rounded-full bg-muted" aria-hidden="true">
+            <div
+              className="h-1.5 rounded-full bg-accent transition-[width] duration-300"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Bu işlem sayfayı açıp araç bilgilerini analiz ettiği için biraz sürebilir. Uygulamayı kapatmadan ana
+            ekrana dönebilirsiniz — bittiğinde bildirim gönderilir.
+          </p>
         </div>
       ) : null}
 

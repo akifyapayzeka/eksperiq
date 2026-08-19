@@ -1,10 +1,18 @@
 "use client";
 
-import { registerPlugin } from "@capacitor/core";
+import { registerPlugin, type Plugin } from "@capacitor/core";
 
-export interface EksperIQListingFetchPluginInterface {
-  /** Loads url in an off-screen WKWebView on-device and returns a JSON string of extracted page data. */
-  fetchListingPage(options: { url: string }): Promise<{ pageDataJson: string }>;
+export interface EksperIQListingFetchPluginInterface extends Plugin {
+  /**
+   * Loads url in an off-screen WKWebView on-device, extracts page text, and
+   * (natively, so it survives brief backgrounding) posts it to
+   * /api/ai/listing-import to normalize into form fields.
+   */
+  fetchListingPage(options: { url: string; source: string; installId: string | null }): Promise<{
+    pageDataJson: string;
+    importHttpStatus: number;
+    importResponseJson: string;
+  }>;
 }
 
 /** Bridges to ios/App/App/Plugins/EksperIQListingFetchPlugin.swift. Native-only — see importListing(). */
