@@ -237,9 +237,17 @@ private struct ExtractedPageData {
 /// evaluation once the page has settled.
 @MainActor
 private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
-    private static let mobileSafariUserAgent =
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 " +
-        "(KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1"
+    // Built from the device's real OS version rather than a hardcoded one —
+    // a fixed old version string (e.g. claiming iOS 17.5 on a device that's
+    // actually running a much newer OS) is itself an inconsistency that
+    // fingerprinting can flag, since it doesn't match the JS engine's real
+    // capabilities. Reflecting the true version is more authentic, not less.
+    private static var mobileSafariUserAgent: String {
+        let version = UIDevice.current.systemVersion
+        let underscored = version.replacingOccurrences(of: ".", with: "_")
+        return "Mozilla/5.0 (iPhone; CPU iPhone OS \(underscored) like Mac OS X) AppleWebKit/605.1.15 " +
+            "(KHTML, like Gecko) Version/\(version) Mobile/15E148 Safari/604.1"
+    }
     private static let hardTimeoutSeconds: TimeInterval = 35
     private static let settleDelaySeconds: TimeInterval = 2.0
 
