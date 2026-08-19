@@ -241,6 +241,7 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
     private var webView: WKWebView?
     private var didResume = false
     private var timeoutWorkItem: DispatchWorkItem?
+    private var navigationGeneration = 0
 
     static func fetch(url: URL) async throws -> ExtractedPageData {
         try await ListingPageFetcher().run(url: url)
@@ -266,11 +267,22 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        // Listing pages keep populating content client-side after the base
-        // document finishes loading — give it a moment before reading the
-        // DOM, the same way a person would glance at the page for a beat.
+        // A short-link (e.g. shbd.io) can bounce through an interstitial
+        // page — a client-side JS redirect (not an HTTP 30x, which
+        // WKWebView would already resolve transparently before this ever
+        // fires) or a bot/security-check screen — before landing on the
+        // real listing. Each such hop fires its own didFinish. Extracting
+        // unconditionally on the *first* one was a race: it could read the
+        // interstitial's content ("güvenlik doğrulama sayfası") instead of
+        // ever reaching the listing. Debounce on navigation generation
+        // instead — if another didFinish arrives before this one's settle
+        // delay elapses, this stale extraction is skipped and only the
+        // latest navigation ever gets read.
+        navigationGeneration += 1
+        let thisGeneration = navigationGeneration
         DispatchQueue.main.asyncAfter(deadline: .now() + Self.settleDelaySeconds) { [weak self] in
-            self?.extract()
+            guard let self, self.navigationGeneration == thisGeneration else { return }
+            self.extract()
         }
     }
 
