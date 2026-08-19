@@ -34,4 +34,23 @@ describe("computeDisplayPercent", () => {
   it("falls back to the stage floor if stageStartedAt is missing", () => {
     expect(computeDisplayPercent("opening-page", null, Date.now())).toBe(8);
   });
+
+  it("continues from the previous stage's shown percent instead of jumping to the new stage's floor", () => {
+    // Reported symptom: opening-page finishes quickly (easing had only
+    // reached ~25%) and normalizing begins — its configured floor is 70,
+    // which would otherwise show as a jarring jump from 25% straight to
+    // 70%. Passing the last-shown percent keeps it continuous.
+    const startedAt = new Date().toISOString();
+    const atStart = computeDisplayPercent("normalizing", startedAt, new Date(startedAt).getTime(), 25);
+    expect(atStart).toBe(25);
+    expect(atStart).toBeLessThan(70);
+  });
+
+  it("still eases toward the new stage's ceiling when continuing from a lower percent", () => {
+    const start = Date.now();
+    const startedAt = new Date(start).toISOString();
+    const at3s = computeDisplayPercent("normalizing", startedAt, start + 3_000, 25);
+    expect(at3s).toBeGreaterThan(25);
+    expect(at3s).toBeLessThan(95);
+  });
 });

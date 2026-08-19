@@ -156,7 +156,40 @@ async function addProgressListener(
   }
 }
 
+/**
+ * sahibinden.com sits behind Cloudflare Bot Management, which sometimes
+ * serves its own "güvenlik doğrulaması" error page instead of the real
+ * listing for a WKWebView request that looks automated — confirmed by
+ * fetching the same URL directly and seeing a Cloudflare-fronted 403 with a
+ * `__cf_bm` cookie. This isn't something to work around with stealth or
+ * evasion (deliberately out of scope — see ListingPageFetcher's own
+ * comment), but it's also not consistent: the exact same URL has succeeded
+ * on one attempt and hit this on another, which is ordinary bot-scoring
+ * variance, not a permanent block. A single transparent retry costs one
+ * extra page-load + AI call on the (uncommon) blocked case and meaningfully
+ * raises the odds of a real result without pretending to be anything other
+ * than a normal repeat request.
+ */
+const SECURITY_PAGE_PATTERN = /güvenlik doğrulam|cloudflare|captcha|robot|bot koruma|erişim engellendi/i;
+
+function looksLikeBlockedPage(outcome: ListingImportOutcome): boolean {
+  if (outcome.ok) {
+    return (outcome.result.warnings ?? []).some((warning) => SECURITY_PAGE_PATTERN.test(warning));
+  }
+  return outcome.reason === "blocked";
+}
+
 async function runNativeImport(
+  detected: Extract<ListingSourceCheck, { ok: true }>,
+  onStage: (stage: ImportStage) => void,
+): Promise<ListingImportOutcome> {
+  const firstAttempt = await attemptNativeImport(detected, onStage);
+  if (!looksLikeBlockedPage(firstAttempt)) return firstAttempt;
+  trace("js-retry-after-blocked-page");
+  return attemptNativeImport(detected, onStage);
+}
+
+async function attemptNativeImport(
   detected: Extract<ListingSourceCheck, { ok: true }>,
   onStage: (stage: ImportStage) => void,
 ): Promise<ListingImportOutcome> {

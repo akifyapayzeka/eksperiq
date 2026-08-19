@@ -30,6 +30,7 @@ const ALLOWED_STEPS = new Set([
   "swift-error",
   "js-payload-parse-error",
   "js-payload-missing-result",
+  "js-retry-after-blocked-page",
 ]);
 
 function sendJson(response, statusCode, body) {

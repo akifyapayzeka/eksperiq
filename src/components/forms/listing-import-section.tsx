@@ -48,6 +48,16 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
     return () => window.clearInterval(interval);
   }, [status]);
 
+  // Tracks the highest percent already shown so computeDisplayPercent can
+  // continue easing from here on a stage transition instead of snapping to
+  // the new stage's own (often much higher) configured floor — see that
+  // function's own comment. Adjusted during render (React's documented
+  // pattern for this — see "Adjusting state when a prop changes"), not in
+  // an effect: both updates below are conditional, so they settle within
+  // the same render pass instead of causing an extra visible commit.
+  const [maxPercentShown, setMaxPercentShown] = useState(0);
+  if (status !== "loading" && maxPercentShown !== 0) setMaxPercentShown(0);
+
   // Re-applies the last successful import's fields whenever this section (re)mounts —
   // covers the case where the import finished natively while the user was on another
   // tab, so the freshly mounted form still picks up the result once they come back.
@@ -128,7 +138,8 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
     setImportSession({ url: "", status: "idle", result: null, errorMessage: "", errorDetail: "", stage: null });
   }
 
-  const progressPercent = computeDisplayPercent(stage, stageStartedAt, now);
+  const progressPercent = computeDisplayPercent(stage, stageStartedAt, now, maxPercentShown);
+  if (progressPercent > maxPercentShown) setMaxPercentShown(progressPercent);
 
   return (
     <section className="rounded-theme border border-accent/20 bg-card p-4 shadow-sm" aria-labelledby="listing-import-title">

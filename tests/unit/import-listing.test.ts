@@ -101,6 +101,61 @@ describe("importListingFromUrl", () => {
     expect(outcome.ok).toBe(false);
   });
 
+  it("retries once when the first attempt reads a Cloudflare/security page, and returns the real result", async () => {
+    function fetchResult(warnings: string[], bodyText = "x".repeat(100)) {
+      return {
+        pageDataJson: JSON.stringify({
+          title: "t",
+          ogTitle: "",
+          ogDescription: "",
+          bodyText,
+          jsonLd: [],
+          images: [],
+          finalUrl: SUPPORTED_URL,
+        }),
+        importHttpStatus: 200,
+        importResponseJson: JSON.stringify({
+          result: { title: "t", fields: {}, lowConfidenceFields: [], missingFields: [], warnings },
+        }),
+      };
+    }
+
+    addListener.mockResolvedValue({ remove: vi.fn().mockResolvedValue(undefined) });
+    fetchListingPage
+      .mockResolvedValueOnce(fetchResult(["Sayfa bir araç ilanı değil, güvenlik doğrulaması (Cloudflare) sayfasıdır."]))
+      .mockResolvedValueOnce(fetchResult([]));
+
+    const { importListingFromUrl } = await import("@/lib/listing-import/import-listing");
+    const outcome = await importListingFromUrl(SUPPORTED_URL);
+
+    expect(fetchListingPage).toHaveBeenCalledTimes(2);
+    expect(outcome.ok).toBe(true);
+    if (outcome.ok) expect(outcome.result.warnings).toEqual([]);
+  });
+
+  it("retries once on a too-short (likely blocked) page, then gives up if the retry is blocked too", async () => {
+    addListener.mockResolvedValue({ remove: vi.fn().mockResolvedValue(undefined) });
+    fetchListingPage.mockResolvedValue({
+      pageDataJson: JSON.stringify({
+        title: "",
+        ogTitle: "",
+        ogDescription: "",
+        bodyText: "short",
+        jsonLd: [],
+        images: [],
+        finalUrl: SUPPORTED_URL,
+      }),
+      importHttpStatus: 200,
+      importResponseJson: "",
+    });
+
+    const { importListingFromUrl } = await import("@/lib/listing-import/import-listing");
+    const outcome = await importListingFromUrl(SUPPORTED_URL);
+
+    expect(fetchListingPage).toHaveBeenCalledTimes(2);
+    expect(outcome).toEqual({ ok: false, reason: "blocked" });
+  });
+
   it("still attempts fetchListingPage even when addListener() never settles", async () => {
     // The actual production root cause: @capacitor/core's addListenerNative
     // has a real bug where a rejected native addListener() call resolves to
