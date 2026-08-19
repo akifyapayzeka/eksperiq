@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, UserPlus } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
@@ -13,10 +13,22 @@ import { useAuth } from "@/lib/auth/auth-context";
 
 type AuthMode = "signup" | "signin";
 
+function ConfirmedBanner() {
+  const searchParams = useSearchParams();
+  if (searchParams.get("confirmed") !== "1") return null;
+  return (
+    <div className="mb-4 rounded-theme border border-success/40 bg-success/10 p-4 text-sm font-medium text-success">
+      E-posta adresiniz onaylandı. Şimdi giriş yapabilirsiniz.
+    </div>
+  );
+}
+
 export default function GirisPage() {
   const router = useRouter();
   const { signUp, signIn, isConfigured } = useAuth();
   const [mode, setMode] = useState<AuthMode>("signin");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +39,9 @@ export default function GirisPage() {
     setError(null);
     setIsSubmitting(true);
     const result =
-      mode === "signup" ? await signUp(email.trim(), password) : await signIn(email.trim(), password);
+      mode === "signup"
+        ? await signUp(email.trim(), password, firstName.trim(), lastName.trim())
+        : await signIn(email.trim(), password);
     setIsSubmitting(false);
     if (!result.ok) {
       setError(result.message);
@@ -50,6 +64,10 @@ export default function GirisPage() {
   return (
     <AppShell>
       <PageHeader eyebrow="Giriş yap veya hesap oluştur" title="Hesabınız" />
+
+      <Suspense fallback={null}>
+        <ConfirmedBanner />
+      </Suspense>
 
       <div className="rounded-theme border border-border bg-card p-5 shadow-sm">
         <div className="mb-4 flex justify-center gap-1 rounded-full border border-border bg-muted p-1">
@@ -75,6 +93,28 @@ export default function GirisPage() {
           </button>
         </div>
         <form onSubmit={handleSubmit} className="grid gap-4">
+          {mode === "signup" ? (
+            <div className="grid grid-cols-2 gap-3">
+              <Field
+                id="giris-first-name"
+                label="Ad"
+                autoComplete="given-name"
+                required
+                value={firstName}
+                onChange={(event) => setFirstName(event.target.value)}
+                placeholder="Adınız"
+              />
+              <Field
+                id="giris-last-name"
+                label="Soyad"
+                autoComplete="family-name"
+                required
+                value={lastName}
+                onChange={(event) => setLastName(event.target.value)}
+                placeholder="Soyadınız"
+              />
+            </div>
+          ) : null}
           <Field
             id="giris-email"
             label="E-posta"
@@ -98,7 +138,15 @@ export default function GirisPage() {
             placeholder="En az 6 karakter"
           />
           {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
-          <PrimaryButton type="submit" disabled={isSubmitting || !email.trim() || password.length < 6}>
+          <PrimaryButton
+            type="submit"
+            disabled={
+              isSubmitting ||
+              !email.trim() ||
+              password.length < 6 ||
+              (mode === "signup" && (!firstName.trim() || !lastName.trim()))
+            }
+          >
             {isSubmitting ? (
               <Spinner />
             ) : mode === "signup" ? (

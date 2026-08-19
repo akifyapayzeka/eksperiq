@@ -25,8 +25,8 @@ export function PaywallPlansScreen({
 }: {
   headline: string;
   description: string;
-  dismissLabel: string;
-  onDismiss: () => void;
+  dismissLabel?: string;
+  onDismiss?: () => void;
 }) {
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const [purchaseMessage, setPurchaseMessage] = useState<string | null>(null);
@@ -47,7 +47,7 @@ export function PaywallPlansScreen({
         return;
       }
       if (result.state === "pro" || result.state === "gracePeriod") {
-        onDismiss();
+        onDismiss?.();
         return;
       }
       if (result.state === "unknown") {
@@ -156,13 +156,15 @@ export function PaywallPlansScreen({
         Satın almaları geri yükle
       </button>
 
-      <button
-        type="button"
-        onClick={onDismiss}
-        className="mt-2 w-full text-center text-sm font-semibold text-muted-foreground underline-offset-4 hover:underline"
-      >
-        {dismissLabel}
-      </button>
+      {onDismiss ? (
+        <button
+          type="button"
+          onClick={onDismiss}
+          className="mt-2 w-full text-center text-sm font-semibold text-muted-foreground underline-offset-4 hover:underline"
+        >
+          {dismissLabel}
+        </button>
+      ) : null}
     </div>
   );
 }

@@ -30,6 +30,8 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
   const [authSkipped, setAuthSkipped] = useState(false);
   const [plansDismissed, setPlansDismissed] = useState(false);
   const [mode, setMode] = useState<AuthMode>("signup");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -57,7 +59,10 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
       return;
     }
     setIsSubmitting(true);
-    const result = mode === "signup" ? await signUp(email.trim(), password) : await signIn(email.trim(), password);
+    const result =
+      mode === "signup"
+        ? await signUp(email.trim(), password, firstName.trim(), lastName.trim())
+        : await signIn(email.trim(), password);
     setIsSubmitting(false);
     if (!result.ok) {
       setError(result.message);
@@ -126,6 +131,28 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
             </button>
           </div>
           <form onSubmit={handleSubmit} className="grid gap-4">
+            {mode === "signup" ? (
+              <div className="grid grid-cols-2 gap-3">
+                <Field
+                  id="gate-first-name"
+                  label="Ad"
+                  autoComplete="given-name"
+                  required
+                  value={firstName}
+                  onChange={(event) => setFirstName(event.target.value)}
+                  placeholder="Adınız"
+                />
+                <Field
+                  id="gate-last-name"
+                  label="Soyad"
+                  autoComplete="family-name"
+                  required
+                  value={lastName}
+                  onChange={(event) => setLastName(event.target.value)}
+                  placeholder="Soyadınız"
+                />
+              </div>
+            ) : null}
             <Field
               id="gate-email"
               label="E-posta"
@@ -169,7 +196,15 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
               </span>
             </label>
             {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
-            <PrimaryButton type="submit" disabled={isSubmitting || !email.trim() || password.length < 6}>
+            <PrimaryButton
+              type="submit"
+              disabled={
+                isSubmitting ||
+                !email.trim() ||
+                password.length < 6 ||
+                (mode === "signup" && (!firstName.trim() || !lastName.trim()))
+              }
+            >
               {isSubmitting ? (
                 <Spinner />
               ) : mode === "signup" ? (

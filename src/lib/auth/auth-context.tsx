@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { appConfig } from "@/lib/constants/app";
 
 export type AuthResult = { ok: true } | { ok: false; message: string };
 
@@ -13,7 +14,7 @@ export type AuthState = {
   session: Session | null;
   /** False only when NEXT_PUBLIC_SUPABASE_URL/ANON_KEY aren't configured (e.g. local dev without .env.local). */
   isConfigured: boolean;
-  signUp: (email: string, password: string) => Promise<AuthResult>;
+  signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<AuthResult>;
   signIn: (email: string, password: string) => Promise<AuthResult>;
   signOut: () => Promise<void>;
 };
@@ -66,9 +67,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user: session?.user ?? null,
       session,
       isConfigured: Boolean(supabase),
-      async signUp(email: string, password: string) {
+      async signUp(email: string, password: string, firstName: string, lastName: string) {
         if (!supabase) return { ok: false, message: "Hesap sistemi şu anda yapılandırılmamış." };
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { first_name: firstName.trim(), last_name: lastName.trim() },
+            emailRedirectTo: `${appConfig.productionUrl}/giris?confirmed=1`,
+          },
+        });
         if (error) return { ok: false, message: toTurkishError(error.message) };
         return { ok: true };
       },

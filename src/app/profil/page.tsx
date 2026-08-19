@@ -4,6 +4,8 @@ import { appConfig } from "@/lib/constants/app";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { AccountSection } from "@/components/profile/account-section";
+import { ProfileWelcomeBanner } from "@/components/profile/welcome-banner";
+import { ProfilePlansPromoSection } from "@/components/profile/plans-promo-section";
 import { DataManagementSection } from "@/components/profile/data-management-section";
 import { NotificationPreferenceSection } from "@/components/profile/notification-preference-section";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -20,9 +22,12 @@ const supportLinks = [
 export default function ProfilePage() {
   return (
     <AppShell>
+      <ProfileWelcomeBanner />
       <PageHeader eyebrow="Hesap ve Ayarlar" title="Profil ve Ayarlar" />
 
       <AccountSection />
+
+      <ProfilePlansPromoSection />
 
       <section className="mt-4 rounded-theme border border-border bg-card p-5 shadow-sm">
         <div className="flex items-center justify-between gap-4">
