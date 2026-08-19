@@ -7,7 +7,7 @@
   ],
   "functions": {
     "api/ai/*.js": {
-      "maxDuration": 30
+      "maxDuration": 60
     },
     "api/places/*.js": {
       "maxDuration": 20

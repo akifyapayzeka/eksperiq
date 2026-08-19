@@ -180,7 +180,13 @@ private enum ListingImportRequester {
             return Outcome(succeeded: false, httpStatus: 0, responseJson: "")
         }
 
-        var request = URLRequest(url: endpoint, timeoutInterval: 20)
+        // Was 20s — Vercel logs show the free-tier AI model genuinely taking
+        // 20-30+ seconds to respond on some requests, so this was giving up
+        // (returning an empty responseJson, which the JS side then fails to
+        // parse as "Unexpected EOF") before the server had a real chance to
+        // finish. Raised to match the server's own maxDuration (see
+        // vercel.json's api/ai/*.js) with a little headroom under it.
+        var request = URLRequest(url: endpoint, timeoutInterval: 55)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         if let installId, !installId.isEmpty {
