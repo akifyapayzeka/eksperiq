@@ -11,6 +11,7 @@ import { detectListingSource } from "@/lib/listing-import/url";
 import { importListingFromUrl, type ImportStage } from "@/lib/listing-import/import-listing";
 import { applyImportedFieldsToForm } from "@/lib/listing-import/apply-to-form";
 import { getImportSession, setImportSession, useImportSession } from "@/lib/listing-import/import-session-store";
+import { computeDisplayPercent } from "@/lib/listing-import/progress";
 import { acceptAiConsent, hasAcceptedAiConsent } from "@/lib/consent/ai-consent";
 
 const isListingImportEnabled = process.env.NEXT_PUBLIC_LISTING_IMPORT_ENABLED === "true";
@@ -21,8 +22,6 @@ const stageLabels: Record<ImportStage, string> = {
   normalizing: "Araç bilgileri analiz ediliyor",
   done: "İlan analizi tamamlandı",
 };
-
-const stageOrder: ImportStage[] = ["checking-url", "opening-page", "normalizing", "done"];
 
 const errorMessages: Record<string, string> = {
   "invalid-url":
@@ -35,10 +34,20 @@ const errorMessages: Record<string, string> = {
 };
 
 export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<VehicleFormInput> }) {
-  const { url, status, stage, errorMessage, errorDetail, result } = useImportSession();
+  const { url, status, stage, stageStartedAt, errorMessage, errorDetail, result } = useImportSession();
   const [consent, setConsent] = useState(() => hasAcceptedAiConsent());
   const [showConsentPrompt] = useState(() => !hasAcceptedAiConsent());
   const appliedResultRef = useRef<typeof result>(null);
+
+  // Ticks while loading so the eased percentage below keeps creeping up
+  // between real stage-change events, instead of sitting frozen at a fixed
+  // per-stage value for however long that stage takes.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (status !== "loading") return;
+    const interval = window.setInterval(() => setNow(Date.now()), 400);
+    return () => window.clearInterval(interval);
+  }, [status]);
 
   // Re-applies the last successful import's fields whenever this section (re)mounts —
   // covers the case where the import finished natively while the user was on another
@@ -75,9 +84,18 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
       return;
     }
 
-    setImportSession({ status: "loading", errorMessage: "", errorDetail: "", result: null, stage: "checking-url" });
+    setImportSession({
+      status: "loading",
+      errorMessage: "",
+      errorDetail: "",
+      result: null,
+      stage: "checking-url",
+      stageStartedAt: new Date().toISOString(),
+    });
 
-    const outcome = await importListingFromUrl(currentUrl, (nextStage) => setImportSession({ stage: nextStage }));
+    const outcome = await importListingFromUrl(currentUrl, (nextStage) =>
+      setImportSession({ stage: nextStage, stageStartedAt: new Date().toISOString() }),
+    );
 
     if (!outcome.ok) {
       setImportSession({
@@ -96,8 +114,7 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
     setImportSession({ url: "", status: "idle", result: null, errorMessage: "", errorDetail: "", stage: null });
   }
 
-  const stageIndex = stage ? stageOrder.indexOf(stage) : -1;
-  const progressPercent = stageIndex >= 0 ? Math.round(((stageIndex + 1) / stageOrder.length) * 100) : 0;
+  const progressPercent = computeDisplayPercent(stage, stageStartedAt, now);
 
   return (
     <section className="rounded-theme border border-accent/20 bg-card p-4 shadow-sm" aria-labelledby="listing-import-title">
@@ -175,7 +192,7 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
         {status === "loading" && stage ? `${stageLabels[stage]} (%${progressPercent})` : "İlanı analiz et"}
       </button>
 
-      {status === "loading" && stageIndex >= 0 ? (
+      {status === "loading" && stage ? (
         <div className="mt-3">
           <div className="h-1.5 rounded-full bg-muted" aria-hidden="true">
             <div
@@ -184,8 +201,9 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
             />
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            Bu işlem sayfayı açıp araç bilgilerini analiz ettiği için biraz sürebilir. Uygulamayı kapatmadan ana
-            ekrana dönebilirsiniz — bittiğinde bildirim gönderilir.
+            Bu işlem sayfayı açıp araç bilgilerini analiz ettiği için genelde 10-30 saniye sürer, bağlantı yavaşsa 1
+            dakikaya kadar çıkabilir. Uygulamayı kapatmadan ana ekrana dönebilirsiniz — bittiğinde bildirim
+            gönderilir.
           </p>
         </div>
       ) : null}

@@ -10,6 +10,8 @@ export type ImportSession = {
   url: string;
   status: ImportSessionStatus;
   stage: ImportStage | null;
+  /** When `stage` last changed — drives the smooth simulated progress percentage (see progress.ts). */
+  stageStartedAt: string | null;
   errorMessage: string;
   errorDetail: string;
   result: ListingImportResult | null;
@@ -19,6 +21,7 @@ const initialSession: ImportSession = {
   url: "",
   status: "idle",
   stage: null,
+  stageStartedAt: null,
   errorMessage: "",
   errorDetail: "",
   result: null,
