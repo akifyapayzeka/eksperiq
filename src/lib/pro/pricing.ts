@@ -15,7 +15,10 @@ export interface EksperIqPlanPricing {
 }
 
 const PRO_COST_MULTIPLE = 5;
-const PRO_PLUS_COST_MULTIPLE = 8;
+// Aynı kar marjı Pro ile Pro+ arasında tutarlı olsun diye Pro ile aynı çarpan
+// kullanılıyor — Pro+ zaten kendi (daha yüksek) işletme maliyeti üzerinden
+// hesaplandığı için fiyatı otomatik olarak daha yüksek çıkıyor.
+const PRO_PLUS_COST_MULTIPLE = PRO_COST_MULTIPLE;
 // Yillik plan aylik fiyatin 12 kati yerine 10 kati: ~%17 indirim (2 ay bedava mantigi).
 const YEARLY_MONTHS_EQUIVALENT = 10;
 
