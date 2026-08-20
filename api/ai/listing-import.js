@@ -159,6 +159,23 @@ function extractJson(text) {
   }
 }
 
+// Some models (especially free-tier ones) occasionally ignore the nested
+// `fields: {...}` wrapper the schema asks for and return the field keys
+// flattened at the top level instead — most often seen on a degenerate
+// input (e.g. a Cloudflare block page with nothing real to extract), where
+// the model still faithfully reports its findings in `warnings` but gets
+// the envelope shape wrong. That's a real, useful response (a correctly
+// detected blocked page) being thrown away as unparseable. Detect the flat
+// shape and re-nest it instead of failing.
+function normalizeFieldsShape(json) {
+  if (isRecord(json.fields)) return json;
+  const hasAnyFieldKey = FIELD_NAMES.some((name) => Object.prototype.hasOwnProperty.call(json, name));
+  if (!hasAnyFieldKey) return json;
+  const fields = {};
+  for (const name of FIELD_NAMES) fields[name] = name in json ? json[name] : null;
+  return { ...json, fields };
+}
+
 function enumProp(options) {
   return { type: ["string", "null"], enum: [...options, null] };
 }
@@ -276,7 +293,8 @@ async function requestOpenRouterListingImport(input) {
 
   const text = extractText(result.payload);
   if (!text) return { error: "AI yanıtı okunamadı." };
-  const json = extractJson(text);
+  const parsed = extractJson(text);
+  const json = parsed ? normalizeFieldsShape(parsed) : null;
   if (!json || !isRecord(json.fields)) {
     console.error(
       "[listing-import] AI response did not parse to the expected shape. Raw text (first 800 chars):",
