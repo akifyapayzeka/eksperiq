@@ -386,7 +386,7 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
         NSError(domain: "EksperIQListingFetch", code: 1, userInfo: [NSLocalizedDescriptionKey: message])
     }
 
-    private static let extractionScript = """
+    private static let extractionScript = #"""
     (function() {
       function attr(selector, name) {
         var el = document.querySelector(selector);
@@ -405,7 +405,7 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
         });
       }
       function backgroundUrl(value) {
-        var match = String(value || '').match(/url\\(["']?([^"')]+)["']?\\)/i);
+        var match = String(value || '').match(/url\(["']?([^"')]+)["']?\)/i);
         return match ? absolutize(match[1]) : '';
       }
       var imageCandidates = [];
@@ -423,9 +423,9 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
       });
       var uniqueImages = Array.from(new Set(imageCandidates))
         .filter(function(src) {
-          return /^https?:\\/\\//i.test(src) &&
+          return /^https?:\/\//i.test(src) &&
             !/sprite|icon|logo|favicon|avatar|blank|placeholder/i.test(src) &&
-            /\\.(jpe?g|png|webp)(\\?|$)|image|photo|classified|sahibinden|arabam/i.test(src);
+            /\.(jpe?g|png|webp)(\?|$)|image|photo|classified|sahibinden|arabam/i.test(src);
         })
         .slice(0, 30);
       return JSON.stringify({
@@ -438,5 +438,5 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
         finalUrl: window.location.href
       });
     })();
-    """
+    """#
 }
