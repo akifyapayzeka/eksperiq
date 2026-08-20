@@ -468,4 +468,349 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
       },
     ],
   },
+  {
+    brand: "Renault",
+    model: "Symbol",
+    generation: "Thalia/Symbol/Clio Symbol",
+    yearFrom: 2000,
+    yearTo: 2019,
+    generalNote:
+      "Türkiye ikinci elde 1.4/1.6 atmosferik benzinli ve 1.5 dCi dizel versiyonları yaygındır; mekanik basit olsa da yaş, ticari/taksi geçmişi ve elektrik aksamı önemlidir.",
+    engines: [
+      {
+        engineLabel: "1.4 8V / 16V",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2000,
+        yearTo: 2012,
+        issues: [
+          {
+            id: "symbol-14-bobin-uch",
+            severity: "medium",
+            title: "Bobin, rölanti motoru ve UCH elektrik arızaları",
+            detail:
+              "Symbol 1.4'te ateşleme bobini, rölanti dalgalanması, UCH/merkezi kilit-cam elektrik sorunları ve LPG'li araçlarda subap/ayar kontrol edilmelidir.",
+            typicalOnset: "Yaş ve LPG kullanımına bağlı",
+            costLevel: "Orta",
+            sourceNote: "Renault Symbol/Clio sahip forumları ve bağımsız servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 dCi K9K",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2002,
+        yearTo: 2019,
+        issues: [
+          {
+            id: "symbol-k9k-injector-bearing",
+            severity: "medium",
+            title: "K9K enjektör/EGR ve yağ bakımına bağlı yatak riski",
+            detail:
+              "1.5 dCi Symbol'de enjektör düzeltme değerleri, EGR kurumlanması, turbo hortumu ve gecikmiş yağ bakımına bağlı yatak sesi kontrol edilmeli.",
+            typicalOnset: "150.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "Renault K9K motor ailesi teknik kaynakları ve Symbol kullanıcı forumlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Renault",
+    model: "Broadway",
+    yearFrom: 2000,
+    yearTo: 2001,
+    generalNote:
+      "2000 sonrası katalogda çok sınırlı kalan eski nesil modeldir; kronik riskler modern motor varyantından çok yaş, pas, LPG ve elektrik-karbüratör/enjeksiyon bakımıyla ilgilidir.",
+    engines: [
+      {
+        engineLabel: "1.4 benzin",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2000,
+        yearTo: 2001,
+        issues: [
+          {
+            id: "broadway-14-age-rust-lpg",
+            severity: "medium",
+            title: "Yaş kaynaklı pas, LPG ayarı ve elektrik tesisatı",
+            detail:
+              "Broadway'de taban/şase pası, LPG montaj kalitesi, soğutma sistemi, karbüratör/enjeksiyon ayarı ve elektrik tesisatı alımda temel kontrol konusudur.",
+            typicalOnset: "Yaşa bağlı",
+            costLevel: "Orta",
+            sourceNote:
+              "Eski Renault kullanıcı forumları ve klasik/yaşlı araç alım rehberlerinde tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Renault",
+    model: "Captur",
+    yearFrom: 2013,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "0.9 TCe H4Bt",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2013,
+        yearTo: 2019,
+        issues: [
+          {
+            id: "captur-09tce-chain-turbo",
+            severity: "medium",
+            title: "Turbo, zincir sesi ve bobin/tekleme kontrolü",
+            detail:
+              "0.9 TCe küçük turbo motorda yağ bakımı, turbo sesi, zincir/soğuk çalışma sesi ve bobin-buji teklemesi kontrol edilmelidir.",
+            typicalOnset: "90.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "Renault TCe kullanıcı forumları ve bağımsız servis kayıtlarında tekrar eden bakım hassasiyetleri.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.2 TCe H5Ft",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2013,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "captur-12tce-oil-chain-edc",
+            severity: "high",
+            title: "1.2 TCe yağ tüketimi/zincir ve EDC kavrama kontrolü",
+            detail:
+              "H5Ft 1.2 TCe ailesinde yağ tüketimi, zincir uzaması, turbo ve EDC şanzıman kavrama davranışı alımda kritik kontrol edilmelidir.",
+            typicalOnset: "60.000-120.000 km",
+            costLevel: "Yüksek",
+            sourceNote:
+              "Renault/Nissan H5Ft 1.2 TCe için bağımsız motor kaynakları ve kullanıcı forumlarında tekrar eden iyi belgelenmiş risk.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 dCi K9K",
+        fuelType: "Dizel",
+        transmission: "Yarı otomatik",
+        yearFrom: 2013,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "captur-k9k-edc-dpf",
+            severity: "medium",
+            title: "K9K EGR/DPF/enjektör ve EDC şanzıman kontrolü",
+            detail:
+              "1.5 dCi Captur'da EGR/DPF, enjektör düzeltme değerleri ve EDC şanzımanda kavrama/titreme kontrol edilmelidir.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Renault K9K ve EDC kullanıcı kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.3 TCe",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2019,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "captur-13tce-edc",
+            severity: "medium",
+            title: "EDC kavrama davranışı ve turbo/soğutma kontrolü",
+            detail:
+              "1.3 TCe daha sağlam kabul edilir; ancak EDC kavrama davranışı, turbo sesi, soğutma kaçakları ve yazılım güncellemeleri kontrol edilmelidir.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "Renault 1.3 TCe/EDC kullanıcı deneyimleri ve bağımsız servis kayıtlarında tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Renault",
+    model: "Kadjar",
+    yearFrom: 2015,
+    yearTo: 2022,
+    engines: [
+      {
+        engineLabel: "1.2 TCe H5Ft",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2015,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "kadjar-12tce-oil-chain",
+            severity: "high",
+            title: "1.2 TCe yağ tüketimi ve zincir riski",
+            detail:
+              "Kadjar 1.2 TCe'de H5Ft ailesinin yağ tüketimi, zincir uzaması ve turbo riski kontrol edilmeli; yağ eksiltme geçmişi varsa motor hasarı riski büyür.",
+            typicalOnset: "60.000-120.000 km",
+            costLevel: "Yüksek",
+            sourceNote: "H5Ft 1.2 TCe motor ailesi için tekrar eden bağımsız motor ve kullanıcı kayıtları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 dCi K9K",
+        fuelType: "Dizel",
+        transmission: "Yarı otomatik",
+        yearFrom: 2015,
+        yearTo: 2022,
+        issues: [
+          {
+            id: "kadjar-k9k-edc-dpf",
+            severity: "medium",
+            title: "EGR/DPF, enjektör ve EDC kontrolü",
+            detail:
+              "Kadjar 1.5 dCi'de EGR/DPF doluluğu, enjektör değerleri, turbo hortumu ve EDC şanzıman kavrama davranışı kontrol edilmelidir.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Renault K9K ve EDC kullanıcı/servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.6 dCi R9M",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2015,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "kadjar-r9m-egr-dpf-chain",
+            severity: "medium",
+            title: "R9M EGR/DPF ve zincir sesi kontrolü",
+            detail:
+              "1.6 dCi R9M genel olarak güçlü kabul edilir; EGR/DPF, turbo, zincir sesi ve düzenli yağ bakım kaydı kontrol edilmelidir.",
+            typicalOnset: "140.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "Renault/Nissan R9M motor ailesi kullanıcı forumları ve servis kayıtlarında tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Renault",
+    model: "Talisman",
+    yearFrom: 2015,
+    yearTo: 2022,
+    engines: [
+      {
+        engineLabel: "1.5 dCi EDC",
+        fuelType: "Dizel",
+        transmission: "Yarı otomatik",
+        yearFrom: 2015,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "talisman-k9k-edc-dpf",
+            severity: "medium",
+            title: "K9K dizel yan sistemleri ve EDC kavrama kontrolü",
+            detail:
+              "Talisman 1.5 dCi EDC'de EGR/DPF, enjektör, turbo hortumu ve EDC kavrama titremesi/geçişleri kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Renault K9K/EDC kullanıcı kayıtları ve Talisman forumlarında tekrar eden kontrol kalemi.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.6 dCi R9M",
+        fuelType: "Dizel",
+        transmission: "Yarı otomatik",
+        yearFrom: 2015,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "talisman-r9m-edc-adblue",
+            severity: "medium",
+            title: "R9M EGR/DPF, EDC ve yüksek donanım elektronik kontrolü",
+            detail:
+              "1.6 dCi Talisman'da EGR/DPF, turbo, EDC şanzıman, elektronik konfor donanımları ve varsa 4Control arka aks sistemi kontrol edilmelidir.",
+            typicalOnset: "130.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Renault R9M/EDC servis kayıtları ve Talisman kullanıcı forumlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.3 TCe EDC",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2019,
+        yearTo: 2022,
+        issues: [
+          {
+            id: "talisman-13tce-edc",
+            severity: "medium",
+            title: "EDC kavrama/yazılım ve turbo-soğutma kontrolü",
+            detail:
+              "1.3 TCe EDC'de kavrama davranışı, yazılım güncellemeleri, turbo sesi ve soğutma kaçakları kontrol edilmelidir.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Renault 1.3 TCe/EDC kullanıcı deneyimleri ve bağımsız servis kayıtları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Renault",
+    model: "Taliant",
+    yearFrom: 2021,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.0 SCe",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2021,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "taliant-10sce-coil",
+            severity: "low",
+            title: "Ateşleme bobini/buji ve LPG uygulanmışsa subap kontrolü",
+            detail:
+              "1.0 SCe basit atmosferik yapıdadır; bobin/buji teklemesi, LPG montaj kalitesi ve subap sesi kontrol edilmelidir.",
+            typicalOnset: "80.000 km sonrası",
+            costLevel: "Düşük",
+            sourceNote: "Renault/Dacia SCe motor ailesi kullanıcı deneyimleri ve servis kayıtları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.0 TCe X-Tronic",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2021,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "taliant-10tce-cvt",
+            severity: "medium",
+            title: "CVT/X-Tronic davranışı ve turbo/yağ bakım kontrolü",
+            detail:
+              "1.0 TCe X-Tronic'te CVT kalkış/ses davranışı, turbo sesi, yağ bakımı ve yazılım güncellemeleri kontrol edilmelidir.",
+            typicalOnset: "Garanti devri ve 80.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "Renault TCe/X-Tronic kullanıcı kayıtları ve CVT alım rehberlerinde tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+    ],
+  },
 ];

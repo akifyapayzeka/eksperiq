@@ -286,6 +286,25 @@ describe("findChronicIssues", () => {
     expect(fordModels.filter((model) => !coveredFordModels.has(model))).toEqual([]);
   });
 
+  it("covers every Renault model listed in the analysis form catalog", () => {
+    const renaultModels = [
+      "Broadway",
+      "Captur",
+      "Clio",
+      "Fluence",
+      "Kadjar",
+      "Megane",
+      "Symbol",
+      "Taliant",
+      "Talisman",
+    ];
+    const coveredRenaultModels = new Set(
+      CHRONIC_ISSUES_DB.filter((entry) => entry.brand === "Renault").map((entry) => entry.model),
+    );
+
+    expect(renaultModels.filter((model) => !coveredRenaultModels.has(model))).toEqual([]);
+  });
+
   it("matches newly added premium brand engine-specific issues", () => {
     const bmw = findChronicIssues({
       brand: "BMW",
