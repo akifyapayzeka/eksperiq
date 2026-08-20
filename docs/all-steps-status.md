@@ -55,7 +55,10 @@ npm run launch:audit
 - [x] Supabase client/server boundary ve env kontrolü hazır: `npm run supabase:env-check`.
 - [x] Apple + Supabase GitHub secret durumunu raporlayan dış hazırlık kontrolü hazır: `npm run external:check`.
 - [x] Secret, eski marka ve istenmeyen env taraması yapılıyor.
-- [x] Format, lint, typecheck, unit, e2e, build, native build, App Store package, Hostinger package/check, deploy check ve staging check kapıları geçiyor.
+- [x] App Store/Google Play ve kamu şikayetlerinden çıkarılan ürün dersleri `npm run market-review:check` ile release kapısına bağlı.
+- [x] Pro/paywall StoreKit satın alma flag'i, ürün ve sandbox doğrulama flag'leri olmadan açılamıyor: `npm run storekit:gate-check`.
+- [x] 40 marka kronik sorun verisi marka/model/motor/yıl kapsamı `npm run chronic-issues:coverage` ile ölçülüyor.
+- [x] Format, lint, typecheck, unit, market-review, StoreKit gate, chronic coverage, e2e, build, native build, App Store package, Hostinger package/check, deploy check ve staging check kapıları geçiyor.
 
 ## Dış Bağımlılıkta Bekleyen Adımlar
 

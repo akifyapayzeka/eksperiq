@@ -29,6 +29,16 @@ if (!content.includes("npm run launch:audit")) {
   fail("launch audit komutu dokumanda yok.");
 }
 
+for (const requiredLocalGate of [
+  "npm run market-review:check",
+  "npm run storekit:gate-check",
+  "npm run chronic-issues:coverage",
+]) {
+  if (!content.includes(requiredLocalGate)) {
+    fail(`yerel tamamlanan kapilar bolumunde eksik komut: ${requiredLocalGate}`);
+  }
+}
+
 if (!process.exitCode) {
   console.log(`Launch audit gecti. Dis bagimlilikta bekleyen madde: ${unchecked.length}`);
   for (const item of unchecked) {
