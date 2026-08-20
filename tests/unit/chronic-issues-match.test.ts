@@ -409,6 +409,28 @@ describe("findChronicIssues", () => {
     expect(audiModels.filter((model) => !coveredAudiModels.has(model))).toEqual([]);
   });
 
+  it("covers every Mercedes-Benz model listed in the analysis form catalog", () => {
+    const mercedesModels = [
+      "A Serisi",
+      "B Serisi",
+      "C Serisi",
+      "CLA",
+      "CLS",
+      "E Serisi",
+      "GLA",
+      "GLB",
+      "GLC",
+      "GLE",
+      "S Serisi",
+      "Vito",
+    ];
+    const coveredMercedesModels = new Set(
+      CHRONIC_ISSUES_DB.filter((entry) => entry.brand === "Mercedes-Benz").map((entry) => entry.model),
+    );
+
+    expect(mercedesModels.filter((model) => !coveredMercedesModels.has(model))).toEqual([]);
+  });
+
   it("matches newly added premium brand engine-specific issues", () => {
     const bmw = findChronicIssues({
       brand: "BMW",

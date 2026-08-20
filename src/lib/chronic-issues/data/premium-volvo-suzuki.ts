@@ -813,6 +813,438 @@ export const PREMIUM_VOLVO_SUZUKI_ENTRIES: ModelEntry[] = [
     ],
   },
   {
+    brand: "Mercedes-Benz",
+    model: "A Serisi",
+    yearFrom: 2000,
+    yearTo: 2026,
+    generalNote:
+      "A Serisi'nde W168/W169 eski kompakt yapı ile W176/W177 MFA platformu ayrılmalıdır; AMG/Style/Progressive paketler çoğunlukla donanım farkıdır.",
+    engines: [
+      {
+        engineLabel: "M266/M270/M282 benzin",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2004,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "mercedes-a-petrol-chain-dct",
+            severity: "medium",
+            title: "Benzinli motor zincir/termostat ve 7G-DCT kontrolü",
+            detail:
+              "A180/A200 benzinli araçlarda M270/M282 döneminde soğuk start zincir sesi, termostat/su pompası, bobin ve 7G-DCT kavrama/mekatronik davranışı kontrol edilmeli.",
+            typicalOnset: "90.000-140.000 km",
+            costLevel: "Orta",
+            sourceNote:
+              "Mercedes M270/M274/M282 ve 7G-DCT kullanıcı/servis kayıtlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "OM607/OM651/OM654 dizel",
+        fuelType: "Dizel",
+        transmission: "Yarı otomatik",
+        yearFrom: 2012,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "mercedes-a-diesel-egr-dpf-dct",
+            severity: "medium",
+            title: "Dizel EGR/DPF/AdBlue ve çift kavrama kontrolü",
+            detail:
+              "A180d/A200d dizellerde kısa mesafe kullanımına bağlı EGR/DPF/AdBlue, enjektör düzeltmeleri ve 7G-DCT kalkış titremesi kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Mercedes kompakt dizel ve 7G-DCT servis kayıtlarında tekrar eden emisyon/şanzıman bulguları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Mercedes-Benz",
+    model: "B Serisi",
+    yearFrom: 2005,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "Benzin/dizel kompakt platform",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2005,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "mercedes-b-cvt-dct-egr",
+            severity: "medium",
+            title: "Eski CVT, yeni 7G-DCT ve dizel emisyon sistemi kontrolü",
+            detail:
+              "W245 B Serisi'nde Autotronic CVT sarsıntı/kaydırma, W246/W247'de 7G-DCT kavrama; dizellerde EGR/DPF ve benzinlilerde termostat/soğutma kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "Mercedes B Serisi kullanıcı kayıtları ve kompakt platform servis notlarında tekrar eden şanzıman/emisyon bulguları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Mercedes-Benz",
+    model: "CLA",
+    yearFrom: 2013,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "M270/M282 benzin",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2013,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "mercedes-cla-m270-dct",
+            severity: "medium",
+            title: "M270/M282 zincir/termostat ve 7G-DCT mekatronik kontrolü",
+            detail:
+              "CLA 180/200 benzinli araçlarda soğuk start zincir sesi, termostat/su pompası, bobin ve 7G-DCT düşük hız titreme/vuruntu kontrol edilmeli.",
+            typicalOnset: "90.000-140.000 km",
+            costLevel: "Orta",
+            sourceNote: "Mercedes CLA/GLA/A Serisi M270-M282 ve 7G-DCT servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "OM651/OM654 dizel",
+        fuelType: "Dizel",
+        transmission: "Yarı otomatik",
+        yearFrom: 2013,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "mercedes-cla-diesel-egr-dpf",
+            severity: "medium",
+            title: "Dizel EGR/DPF/AdBlue ve enjektör kontrolü",
+            detail:
+              "CLA dizellerde EGR/DPF/AdBlue, enjektör düzeltme değerleri, turbo aktüatör ve çift kavrama bakım geçmişi kontrol edilmeli.",
+            typicalOnset: "110.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Mercedes kompakt dizel kullanıcı/servis kaynaklarında tekrar eden emisyon sistemi riskleri.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Mercedes-Benz",
+    model: "CLS",
+    yearFrom: 2004,
+    yearTo: 2023,
+    engines: [
+      {
+        engineLabel: "OM642/OM651 dizel",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2004,
+        yearTo: 2023,
+        issues: [
+          {
+            id: "mercedes-cls-diesel-oil-egr-air",
+            severity: "high",
+            title: "Dizel emisyon/yağ kaçakları ve Airmatic kontrolü",
+            detail:
+              "CLS dizellerde OM642 yağ soğutucu kaçakları, swirl flap, EGR/DPF, 7G/9G şanzıman bakımı ve Airmatic/elektronik donanım kontrol edilmeli.",
+            typicalOnset: "140.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Mercedes OM642/OM651 ve CLS/E Serisi platform servis kayıtlarında tekrar eden pahalı riskler.",
+          },
+        ],
+      },
+      {
+        engineLabel: "M272/M276/M278 benzin",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2004,
+        yearTo: 2023,
+        issues: [
+          {
+            id: "mercedes-cls-petrol-balance-cooling",
+            severity: "high",
+            title: "Benzinli V6/V8 zincir, yağ ve soğutma sistemi masrafı",
+            detail:
+              "Benzinli CLS'te erken M272 balans dişlisi/zincir, M276 zincir/termostat, M278 yağ kaçakları ve soğutma sistemi kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Mercedes V6/V8 motor servis kayıtları ve CLS kullanıcı deneyimlerinde tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Mercedes-Benz",
+    model: "GLA",
+    yearFrom: 2014,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "M270/M282 benzin",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2014,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "mercedes-gla-petrol-dct",
+            severity: "medium",
+            title: "Soğutma, zincir sesi ve 7G-DCT kontrolü",
+            detail:
+              "GLA benzinlilerde termostat/su pompası, soğuk start zincir sesi, bobin ve 7G-DCT kalkış titremesi/vuruntu kontrol edilmeli.",
+            typicalOnset: "90.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Mercedes GLA/A/CLA kompakt platform servis kayıtlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "OM651/OM654 dizel",
+        fuelType: "Dizel",
+        transmission: "Yarı otomatik",
+        yearFrom: 2014,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "mercedes-gla-diesel-egr-dpf",
+            severity: "medium",
+            title: "EGR/DPF/AdBlue ve çift kavrama mekatronik riski",
+            detail:
+              "GLA dizellerde şehir içi kullanım EGR/DPF/AdBlue masrafını artırır; 7G-DCT mekatronik/kavrama ve 4MATIC aktarma bakım kaydı kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "Mercedes GLA bilinen sorun derlemeleri ve kompakt dizel servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Mercedes-Benz",
+    model: "GLB",
+    yearFrom: 2019,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "M282/OM654 kompakt platform",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2019,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "mercedes-glb-dct-mbux",
+            severity: "medium",
+            title: "7G/8G-DCT, MBUX ve emisyon/soğutma kontrolü",
+            detail:
+              "GLB'de çift kavrama şanzıman geçişleri, MBUX/elektronik donanım, benzinlide soğutma; dizelde EGR/DPF/AdBlue kontrol edilmeli.",
+            typicalOnset: "80.000 km sonrası veya garanti dışı dönemde",
+            costLevel: "Orta",
+            sourceNote:
+              "Mercedes GLB/A-CLA-GLA kompakt platform kullanıcı kayıtlarında tekrar eden DCT ve elektronik kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Mercedes-Benz",
+    model: "GLC",
+    yearFrom: 2015,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "OM651/OM654 dizel",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2015,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "mercedes-glc-diesel-egr-adblue",
+            severity: "medium",
+            title: "OM651/OM654 EGR/DPF/AdBlue ve 9G-Tronic kontrolü",
+            detail:
+              "GLC 220d/250d/300d araçlarda EGR/DPF/AdBlue, NOx sensörleri, 9G-Tronic bakım geçmişi ve 4MATIC aktarma kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote:
+              "GLC 220d X253 güvenilirlik raporları ve Mercedes dizel servis kayıtlarında tekrar eden emisyon sistemi bulguları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "M274/M264 benzin",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2015,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "mercedes-glc-petrol-chain-cooling",
+            severity: "medium",
+            title: "M274/M264 zincir, termostat ve turbo kontrolü",
+            detail:
+              "Benzinli GLC'de M274 zincir/gerdirici sesi, termostat/su pompası, turbo ve 9G-Tronic geçişleri kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Mercedes M274/M264 motor ve GLC kullanıcı/servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Mercedes-Benz",
+    model: "GLE",
+    yearFrom: 2015,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "OM642/OM656/OM654 dizel",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2015,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "mercedes-gle-diesel-air-adblue",
+            severity: "high",
+            title: "Dizel emisyon, Airmatic ve 4MATIC aktarma masrafı",
+            detail:
+              "GLE dizellerde EGR/DPF/AdBlue/NOx, turbo, 9G-Tronic bakım geçmişi, 4MATIC aktarma ve Airmatic/havalı süspansiyon kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası veya yaşa bağlı",
+            costLevel: "Yüksek",
+            sourceNote:
+              "Mercedes GLE/ML dizel ve Airmatic servis kayıtlarında tekrar eden yüksek maliyetli kontrol başlıkları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "M276/M256 benzin",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2015,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "mercedes-gle-petrol-mhev-air",
+            severity: "high",
+            title: "Benzinli V6/I6 soğutma, 48V ve havalı süspansiyon riski",
+            detail:
+              "GLE benzinlilerde termostat/su pompası, turbo/kompresör, 48V mild hybrid donanımı ve Airmatic/aktif süspansiyon kontrol edilmeli.",
+            typicalOnset: "90.000 km sonrası veya garanti dışı dönemde",
+            costLevel: "Yüksek",
+            sourceNote: "Mercedes M276/M256 ve GLE kullanıcı/servis kayıtlarında tekrar eden pahalı riskler.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Mercedes-Benz",
+    model: "S Serisi",
+    yearFrom: 2000,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "S350/S400/S500 dizel-benzin",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2000,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "mercedes-s-air-abc-electronics",
+            severity: "high",
+            title: "Airmatic/ABC, elektronik donanım ve büyük motor masrafı",
+            detail:
+              "S Serisi'nde motor varyantından bağımsız Airmatic/ABC, konfor elektroniği, kapı/koltuk modülleri, 7G/9G bakım geçmişi ve dizelde EGR/DPF/AdBlue kritik kontrol kalemidir.",
+            typicalOnset: "100.000 km sonrası veya yaşa bağlı",
+            costLevel: "Yüksek",
+            sourceNote:
+              "Mercedes S Serisi alım rehberleri ve premium servis kayıtlarında tekrar eden yüksek maliyetli riskler.",
+          },
+        ],
+      },
+      {
+        engineLabel: "V8/V12 benzin",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2000,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "mercedes-s-v8-v12-oil-cooling",
+            severity: "high",
+            title: "V8/V12 yağ kaçakları, soğutma ve zincir/balans riski",
+            detail:
+              "V8/V12 S Serisi'nde yağ kaçakları, soğutma sistemi, M272/M273 balans dişlisi dönemi, turbo/ısı yönetimi ve havalı süspansiyon çok yüksek maliyetlidir.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Mercedes V8/V12 motor ve S Serisi kullanıcı/servis kayıtlarında tekrar eden pahalı riskler.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Mercedes-Benz",
+    model: "Vito",
+    yearFrom: 2000,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "OM646/OM651/OM654 dizel",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2003,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "mercedes-vito-injector-dpf-rust",
+            severity: "medium",
+            title: "Enjektör keçesi, EGR/DPF, pas ve yürüyen kontrolü",
+            detail:
+              "Vito'da enjektör keçesi kaçakları, EGR/DPF, zincir sesi, turbo, şasi/pas, ön takım ve ticari kullanım kaynaklı iç-dış yıpranma dikkatle kontrol edilmeli.",
+            typicalOnset: "150.000 km sonrası veya ağır kullanımda daha erken",
+            costLevel: "Orta",
+            sourceNote:
+              "Mercedes Vito alım rehberleri ve ticari araç servis kayıtlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "7G-Tronic otomatik",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2014,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "mercedes-vito-7g-commercial-wear",
+            severity: "medium",
+            title: "Otomatik şanzıman, ağır kullanım ve bakım geçmişi",
+            detail:
+              "Otomatik Vito'da 7G-Tronic geçişleri, tork konvertörü, yağ bakım kaydı, yüksek yük/servis geçmişi ve diferansiyel sesi kontrol edilmeli.",
+            typicalOnset: "180.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Mercedes ticari otomatik şanzıman ve Vito kullanıcı/servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
     brand: "Volvo",
     model: "V40",
     generation: "P1/V40 (2012-2019)",
