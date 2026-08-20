@@ -41,6 +41,7 @@
     "privacy:check": "node scripts/check-sensitive-data.mjs",
     "claims:check": "node scripts/check-safe-claims.mjs",
     "market-review:check": "node scripts/check-market-review-lessons.mjs",
+    "storekit:gate-check": "node scripts/check-storekit-release-gate.mjs",
     "chronic-issues:coverage": "node scripts/report-chronic-issues-coverage.mjs",
     "feedback:outputs-check": "node scripts/check-feedback-output-safety.mjs",
     "feedback:runbook-check": "node scripts/check-feedback-runbook.mjs",

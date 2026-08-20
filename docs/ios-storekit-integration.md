@@ -44,6 +44,9 @@ edildiği ve ne edilmediği her madde için açıkça belirtiliyor.
 - Satın alma CTA'ları `NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED=true` olmadan StoreKit çağrısı başlatmaz.
 - Bu env yalnızca App Store Connect abonelik ürünleri oluşturulduktan, TestFlight/sandbox cihazda satın alma ve
   restore akışı doğrulandıktan sonra açılmalı.
+- `npm run storekit:gate-check`, `NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED=true` açılırsa aynı ortamda
+  `STOREKIT_APP_STORE_PRODUCTS_VERIFIED=true` ve `STOREKIT_SANDBOX_PURCHASE_VERIFIED=true` bekler; aksi halde release
+  preflight durur.
 - Env kapalıyken kullanıcıya Pro'nun App Store onayı beklediği gösterilir; fake satın alma, fake Pro veya boşa düşen
   buton yoktur.
 
@@ -115,7 +118,8 @@ Xcode/Swift toolchain'i yok, syntax hataları veya Capacitor API uyumsuzlukları
 1. App Store Connect'te `com.eksperiq.app.pro.monthly` product ID'siyle abonelik ürünü oluştur.
 2. Xcode'da projeyi aç, olası derleme hatalarını düzelt, StoreKit Testing/Sandbox ortamında çalıştır.
 3. Satın alma, restore ve `currentEntitlements` dinleyicisini gerçek bir cihazda sandbox Apple ID'siyle doğrula.
-4. Bu üç adım geçmeden `NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED=true` açma.
+4. Bu üç adım geçmeden `STOREKIT_APP_STORE_PRODUCTS_VERIFIED=true`, `STOREKIT_SANDBOX_PURCHASE_VERIFIED=true` ve
+   `NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED=true` açma.
 
 **Not — `.github/workflows/ios-xcode-build-check.yml`**: Apple Developer hesabı beklemeden madde 2'nin "derleme
 hatası var mı" kısmı artık GitHub'ın macOS runner'ında doğrulanabilir — bu workflow (yalnızca manuel tetiklenir,

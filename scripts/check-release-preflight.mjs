@@ -7,6 +7,7 @@ const steps = [
   { label: "Sensitive data", script: "privacy:check" },
   { label: "Safe claims", script: "claims:check" },
   { label: "Market review lessons", script: "market-review:check" },
+  { label: "StoreKit release gate", script: "storekit:gate-check" },
   { label: "Chronic issues coverage", script: "chronic-issues:coverage" },
   { label: "Feedback output safety", script: "feedback:outputs-check" },
   { label: "Feedback runbook", script: "feedback:runbook-check" },
