@@ -16,7 +16,7 @@ const requiredLessons = [
   "teklif/fiyat farkinin aciklanmamasi",
   "kronik sorun",
   "usta sorusu",
-  "kesin alim",
+  "net satin alma tavsiyesi",
   "hasarsizlik",
   "ekspertiz garantisi",
   "Bilinmiyor",
@@ -25,7 +25,7 @@ const requiredLessons = [
 ];
 
 const requiredCheckedGates = [
-  "Rapor dili kesin alim",
+  "Rapor dili net satin alma tavsiyesi",
   "Sonuc ekraninda kronik sorunlar",
   "Ilan linkinden gelen eksik bilgi",
   "Ilan fotograf filtreleme",

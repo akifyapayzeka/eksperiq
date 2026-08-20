@@ -11,7 +11,7 @@ Kaynak ozeti:
 
 ## Release Kapilari
 
-- [x] Rapor dili kesin alim, hasarsizlik, arizasizlik veya ekspertiz garantisi vermez.
+- [x] Rapor dili net satin alma tavsiyesi, hasarsizlik, arizasizlik veya ekspertiz garantisi vermez.
 - [x] Sonuc ekraninda kronik sorunlar risk skorundan ayri, model/motor/yil bilgisi olarak gosterilir.
 - [x] Ilan linkinden gelen eksik bilgi analiz akisini patlatmaz; eksikler raporda sorulacak/teyit edilecek bilgiye doner.
 - [x] Ilan fotograf filtreleme logolari, ikonlari, reklam/placeholder gorselleri ayiklar.
