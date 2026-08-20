@@ -339,6 +339,17 @@ describe("findChronicIssues", () => {
     expect(peugeotModels.filter((model) => !coveredPeugeotModels.has(model))).toEqual([]);
   });
 
+  it("covers every Citroen model listed in the analysis form catalog", () => {
+    const citroenModels = ["Berlingo", "C-Elysee", "C3", "C4", "C4 Cactus", "C5", "C5 Aircross", "Jumpy"];
+    const coveredCitroenModels = new Set(
+      CHRONIC_ISSUES_DB.filter((entry) => entry.brand === "Citroen").map((entry) =>
+        entry.model.normalize("NFD").replace(/\p{Diacritic}/gu, ""),
+      ),
+    );
+
+    expect(citroenModels.filter((model) => !coveredCitroenModels.has(model))).toEqual([]);
+  });
+
   it("matches newly added premium brand engine-specific issues", () => {
     const bmw = findChronicIssues({
       brand: "BMW",

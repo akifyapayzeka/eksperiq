@@ -527,4 +527,348 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
       },
     ],
   },
+  {
+    brand: "Citroen",
+    model: "C3",
+    yearFrom: 2002,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.2 PureTech",
+        fuelType: "Benzin",
+        yearFrom: 2016,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "citroen-c3-12puretech-wetbelt",
+            severity: "high",
+            title: "1.2 PureTech ıslak triger kayışı ve yağ tüketimi",
+            detail:
+              "Yağ içinde çalışan kayış parçalanıp yağ süzgecini tıkayabilir; yağ tüketimi ve fren vakum riski servis kampanya geçmişiyle kontrol edilmelidir.",
+            typicalOnset: "60.000-120.000 km",
+            costLevel: "Yüksek",
+            sourceNote:
+              "PSA 1.2 PureTech teknik kampanyaları ve Citroen/Peugeot kullanıcı kayıtlarında tekrar eden risk.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.4 / 1.6 HDi",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2002,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "citroen-c3-hdi-turbo-egr",
+            severity: "medium",
+            title: "Turbo yağ besleme, EGR/DPF ve enjektör contası",
+            detail:
+              "HDi C3'lerde turbo yağ besleme hattı, EGR/DPF, enjektör conta kaçağı ve kısa mesafe dizel kullanımı kontrol edilmelidir.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "PSA HDi motor ailesi servis kaynakları ve C3 kullanıcı forumlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Citroen",
+    model: "C4",
+    yearFrom: 2004,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.6 THP",
+        fuelType: "Benzin",
+        yearFrom: 2009,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "citroen-c4-16thp-chain-carbon",
+            severity: "high",
+            title: "THP zincir, yüksek basınç pompası ve karbon birikimi",
+            detail:
+              "BMW-PSA THP motorda zincir gergisi, HPFP, turbo wastegate ve direkt enjeksiyon karbon birikimi pahalı risk oluşturabilir.",
+            typicalOnset: "60.000-120.000 km",
+            costLevel: "Yüksek",
+            sourceNote:
+              "Prince/THP motor teknik kaynakları ve PSA kullanıcı forumlarında tekrar eden iyi belgelenmiş risk.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.6 HDi / BlueHDi",
+        fuelType: "Dizel",
+        yearFrom: 2004,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "citroen-c4-16hdi-egr-dpf",
+            severity: "medium",
+            title: "EGR/DPF, turbo yağ besleme ve enjektör contası",
+            detail:
+              "C4 HDi'da EGR/DPF, turbo yağ besleme hattı, enjektör conta kaçakları ve EGS/ETG robotize şanzıman davranışı kontrol edilmelidir.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "PSA 1.6 HDi ve C4 kullanıcı kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.2 PureTech",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2020,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "citroen-c4-12puretech-wetbelt",
+            severity: "high",
+            title: "PureTech wet belt ve EAT8 geçiş kontrolü",
+            detail:
+              "Yeni C4 1.2 PureTech'te ıslak kayış, yağ tüketimi, turbo ve EAT8 otomatik şanzıman geçişleri kontrol edilmelidir.",
+            typicalOnset: "60.000-120.000 km",
+            costLevel: "Yüksek",
+            sourceNote: "PSA 1.2 PureTech teknik kaynakları ve kullanıcı kayıtlarında tekrar eden risk.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Citroen",
+    model: "C4 Cactus",
+    yearFrom: 2014,
+    yearTo: 2020,
+    engines: [
+      {
+        engineLabel: "1.2 PureTech",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2014,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "citroen-c4cactus-12puretech-etg",
+            severity: "high",
+            title: "PureTech wet belt ve ETG/EAT şanzıman davranışı",
+            detail:
+              "C4 Cactus 1.2 PureTech'te ıslak kayış/yağ tüketimi; ETG robotize veya EAT otomatik şanzımanda geçiş davranışı kontrol edilmeli.",
+            typicalOnset: "60.000-120.000 km",
+            costLevel: "Yüksek",
+            sourceNote: "PSA PureTech ve ETG/EAT kullanıcı kayıtlarında tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.6 BlueHDi",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2014,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "citroen-c4cactus-bluehdi-adblue",
+            severity: "medium",
+            title: "AdBlue/NOx, DPF/EGR ve ETG şanzıman kontrolü",
+            detail:
+              "BlueHDi Cactus'te AdBlue deposu/pompası, NOx sensörü, DPF/EGR ve ETG robotize şanzıman kalkış/geçiş davranışı kontrol edilmelidir.",
+            typicalOnset: "90.000-150.000 km",
+            costLevel: "Orta",
+            sourceNote: "PSA BlueHDi ve C4 Cactus kullanıcı forumlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Citroen",
+    model: "C5",
+    yearFrom: 2001,
+    yearTo: 2017,
+    engines: [
+      {
+        engineLabel: "1.6 / 2.0 HDi",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2001,
+        yearTo: 2017,
+        issues: [
+          {
+            id: "citroen-c5-hdi-hydractive",
+            severity: "medium",
+            title: "HDi dizel yan sistemleri ve hidropnömatik süspansiyon",
+            detail:
+              "C5'te EGR/DPF, turbo, enjektör ve Hydractive/hidropnömatik süspansiyon pompa-küre-kaçak kontrolü pahalı masrafı belirler.",
+            typicalOnset: "140.000 km sonrası veya yaşa bağlı",
+            costLevel: "Yüksek",
+            sourceNote:
+              "Citroen C5/HDi kullanıcı forumları ve hidropnömatik servis kaynaklarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.6 THP",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2009,
+        yearTo: 2017,
+        issues: [
+          {
+            id: "citroen-c5-thp-chain-hpfp",
+            severity: "high",
+            title: "THP zincir, HPFP ve turbo kontrolü",
+            detail:
+              "1.6 THP C5'te zincir/gergi, yüksek basınç pompası, turbo ve karbon birikimi kontrol edilmeli; otomatik şanzıman geçişleri de izlenmelidir.",
+            typicalOnset: "60.000-120.000 km",
+            costLevel: "Yüksek",
+            sourceNote: "PSA/BMW THP motor ailesi teknik kaynakları ve kullanıcı kayıtlarında tekrar eden risk.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Citroen",
+    model: "C5 Aircross",
+    yearFrom: 2018,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.2 PureTech",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2018,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "citroen-c5aircross-12puretech-wetbelt",
+            severity: "high",
+            title: "1.2 PureTech wet belt ve turbo kontrolü",
+            detail:
+              "C5 Aircross 1.2 PureTech'te ıslak kayış, yağ tüketimi, turbo ve servis kampanya geçmişi kontrol edilmelidir.",
+            typicalOnset: "60.000-120.000 km",
+            costLevel: "Yüksek",
+            sourceNote: "PSA 1.2 PureTech teknik kayıtları ve C5 Aircross kullanıcı deneyimleri.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 BlueHDi",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2018,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "citroen-c5aircross-15bluehdi-adblue",
+            severity: "medium",
+            title: "AdBlue/NOx ve eksantrik zinciri kontrolü",
+            detail:
+              "1.5 BlueHDi C5 Aircross'ta AdBlue deposu/pompası, NOx sensörü, DPF/EGR ve eksantrik zinciri riski kontrol edilmeli.",
+            typicalOnset: "80.000-150.000 km",
+            costLevel: "Orta",
+            sourceNote: "PSA 1.5 BlueHDi teknik kaynakları ve kullanıcı kayıtlarında tekrar eden bulgu.",
+          },
+        ],
+      },
+      {
+        engineLabel: "Plug-in Hybrid",
+        fuelType: "Hibrit",
+        transmission: "Otomatik",
+        yearFrom: 2020,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "citroen-c5aircross-phev-battery",
+            severity: "medium",
+            title: "PHEV batarya, şarj ve garanti devri kontrolü",
+            detail:
+              "Plug-in hibritte batarya sağlık raporu, şarj portu, inverter/soğutma, garanti devri ve yazılım güncellemeleri kontrol edilmelidir.",
+            typicalOnset: "Garanti devri öncesi",
+            costLevel: "Orta",
+            sourceNote: "PHEV alım rehberleri ve PSA hibrit kullanıcı deneyimlerinde tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Citroen",
+    model: "Berlingo",
+    yearFrom: 2000,
+    yearTo: 2026,
+    generalNote:
+      "Ticari/aile kullanımı karışık olduğu için yük geçmişi, kilometre doğruluğu, arka aks ve dizel emisyon sistemi önemlidir.",
+    engines: [
+      {
+        engineLabel: "1.6 HDi / BlueHDi",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2005,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "citroen-berlingo-16hdi-rearaxle",
+            severity: "medium",
+            title: "1.6 HDi turbo/EGR ve arka torsiyon/aks kontrolü",
+            detail:
+              "Berlingo 1.6 HDi'da turbo yağ besleme, EGR/DPF, enjektör contası, ticari kullanım ve arka torsiyon/aks boşluğu kontrol edilmelidir.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "PSA 1.6 HDi ve Berlingo/Partner kullanıcı servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 BlueHDi",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2018,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "citroen-berlingo-15bluehdi-adblue",
+            severity: "medium",
+            title: "AdBlue/NOx, DPF/EGR ve ticari kullanım yıpranması",
+            detail:
+              "Yeni Berlingo 1.5 BlueHDi'da AdBlue/NOx, DPF/EGR, eksantrik zinciri riski ve ticari kullanım kaynaklı debriyaj/alt takım kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "PSA 1.5 BlueHDi ve Berlingo kullanıcı kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Citroen",
+    model: "Jumpy",
+    yearFrom: 2000,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.6 / 2.0 HDi-BlueHDi",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2000,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "citroen-jumpy-hdi-commercial",
+            severity: "medium",
+            title: "Turbo, DPF/EGR, AdBlue ve ticari kullanım aktarma kontrolü",
+            detail:
+              "Jumpy'de motor hacminden bağımsız olarak turbo, EGR/DPF, AdBlue, debriyaj/volan, şanzıman ve yük/servis geçmişi kontrol edilmelidir.",
+            typicalOnset: "Ticari kullanıma bağlı",
+            costLevel: "Yüksek",
+            sourceNote:
+              "PSA ticari HDi/BlueHDi servis kayıtları ve Jumpy kullanıcı forumlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
 ];
