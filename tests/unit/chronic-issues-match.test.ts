@@ -431,6 +431,43 @@ describe("findChronicIssues", () => {
     expect(mercedesModels.filter((model) => !coveredMercedesModels.has(model))).toEqual([]);
   });
 
+  it("matches representative form-catalog completion entries", () => {
+    const seat = findChronicIssues({
+      brand: "Seat",
+      model: "Arona",
+      year: 2020,
+      fuelType: "Benzin",
+      transmission: "Yarı otomatik",
+      engineSize: "1.0",
+      trim: "Style",
+      sellerDescription: "1.0 TSI DSG",
+    });
+    const tesla = findChronicIssues({
+      brand: "Tesla",
+      model: "Model 3",
+      year: 2023,
+      fuelType: "Elektrik",
+      transmission: "Otomatik",
+      engineSize: "",
+      trim: "Long Range",
+      sellerDescription: "Elektrikli, hızlı şarj kullanılmış.",
+    });
+    const volvo = findChronicIssues({
+      brand: "Volvo",
+      model: "XC90",
+      year: 2021,
+      fuelType: "Hibrit",
+      transmission: "Otomatik",
+      engineSize: "",
+      trim: "T8 Inscription",
+      sellerDescription: "T8 plug-in hybrid.",
+    });
+
+    expect(seat.issues.some((issue) => issue.id === "seat-arona-tsi-dsg")).toBe(true);
+    expect(tesla.issues.some((issue) => issue.id === "tesla-model-3-ev-battery-software")).toBe(true);
+    expect(volvo.issues.some((issue) => issue.id === "volvo-xc90-petrol-hybrid-electronics")).toBe(true);
+  });
+
   it("matches newly added premium brand engine-specific issues", () => {
     const bmw = findChronicIssues({
       brand: "BMW",

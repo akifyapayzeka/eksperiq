@@ -1,0 +1,1073 @@
+import type { EngineVariant, ModelEntry } from "../types";
+
+type Profile =
+  | "alfa-small"
+  | "alfa-premium"
+  | "byd-ev"
+  | "chery-suv"
+  | "chevrolet"
+  | "cupra-vag"
+  | "ds-psa"
+  | "ev"
+  | "honda"
+  | "japanese"
+  | "jeep"
+  | "kia"
+  | "lada"
+  | "land-rover"
+  | "lexus-hybrid"
+  | "mg"
+  | "mini"
+  | "mitsubishi"
+  | "nissan"
+  | "pickup"
+  | "porsche"
+  | "skoda-vag"
+  | "ssangyong"
+  | "subaru"
+  | "suzuki"
+  | "vag-seat"
+  | "volvo";
+
+type Spec = {
+  brand: string;
+  model: string;
+  yearFrom: number;
+  yearTo: number;
+  profile: Profile;
+  generation?: string;
+};
+
+function slug(value: string): string {
+  return value
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function issueId(spec: Spec, suffix: string): string {
+  return `${slug(spec.brand)}-${slug(spec.model)}-${suffix}`;
+}
+
+function profileEngines(spec: Spec): EngineVariant[] {
+  const common = `${spec.brand} ${spec.model} ikinci el alım rehberleri, bağımsız servis kayıtları ve aynı motor/platform ailesi kullanıcı deneyimlerinde tekrar eden kontrol başlığı.`;
+
+  switch (spec.profile) {
+    case "alfa-small":
+      return [
+        {
+          engineLabel: "1.4 MultiAir / T-Jet",
+          fuelType: "Benzin",
+          transmission: "Manuel",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "multiair-tjet"),
+              severity: "medium",
+              title: "MultiAir/ turbo yağ bakımı ve elektronik kontrolü",
+              detail:
+                "1.4 MultiAir/T-Jet motorlarda yağ kalitesi, turbo hortumları, bobinler ve yaşa bağlı elektrik aksamı kontrol edilmeli; bakım gecikmesi MultiAir modülü ve turbo masrafını büyütür.",
+              typicalOnset: "90.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "1.3/1.6 JTDm",
+          fuelType: "Dizel",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "jtdm-egr-dpf"),
+              severity: "medium",
+              title: "JTDm EGR/DPF ve turbo hortumu kontrolü",
+              detail:
+                "JTDm dizellerde EGR, DPF doluluk, turbo hortumu kaçakları, debriyaj-volan ve kısa mesafe kullanım geçmişi kontrol edilmelidir.",
+              typicalOnset: "120.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "alfa-premium":
+      return [
+        {
+          engineLabel: "2.0 Turbo benzin",
+          fuelType: "Benzin",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "20-turbo-q4"),
+              severity: "medium",
+              title: "2.0 turbo, ZF otomatik ve Q4 aktarma kontrolü",
+              detail:
+                "2.0 turbo Alfa modellerinde yağ kaçakları, turbo/soğutma sistemi, ZF otomatik bakım geçmişi ve Q4 varsa aktarma organları kontrol edilmelidir.",
+              typicalOnset: "100.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "2.2 JTDm",
+          fuelType: "Dizel",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "22-jtdm-emission"),
+              severity: "medium",
+              title: "2.2 JTDm EGR/DPF/AdBlue ve ZF bakım kontrolü",
+              detail:
+                "2.2 JTDm motorlarda EGR/DPF/AdBlue, turbo, yağ kaçakları ve ZF otomatik yağ bakım geçmişi alım öncesi kontrol edilmelidir.",
+              typicalOnset: "120.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "byd-ev":
+      return [
+        {
+          engineLabel: "Elektrikli / Blade Battery",
+          fuelType: "Elektrik",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "battery-software"),
+              severity: "medium",
+              title: "Batarya sağlığı, şarj geçmişi ve yazılım/garanti devri",
+              detail:
+                "BYD modellerinde uzun dönem saha verisi yeni oluştuğu için batarya sağlık raporu, hızlı şarj geçmişi, servis yazılım güncellemeleri, garanti devri ve ADAS kalibrasyonu kontrol edilmelidir.",
+              typicalOnset: "İkinci el devir öncesi",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "DM-i plug-in hibrit",
+          fuelType: "Hibrit",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "dmi-hybrid"),
+              severity: "medium",
+              title: "Hibrit batarya, yakıtlı motor bakım kaydı ve şarj düzeni",
+              detail:
+                "DM-i hibritlerde batarya sağlık raporu, şarj alışkanlığı, benzinli motor bakım geçmişi ve garanti kapsamı birlikte kontrol edilmelidir.",
+              typicalOnset: "Garanti devri ve yüksek km öncesi",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "chery-suv":
+      return [
+        {
+          engineLabel: "1.5/1.6 TGDI",
+          fuelType: "Benzin",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "tgdi-dct-electronics"),
+              severity: "medium",
+              title: "TGDI motor, DCT/otomatik ve ADAS yazılım kontrolü",
+              detail:
+                "Chery SUV'lerde turbo benzinli motor, çift kavrama/otomatik geçişleri, multimedya-ADAS yazılımı, servis kampanyaları ve garanti devri kontrol edilmelidir.",
+              typicalOnset: "Garanti dönemi ve ikinci el devir öncesi",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "chevrolet":
+      return [
+        {
+          engineLabel: "1.2/1.4/1.6 Ecotec benzin",
+          fuelType: "Benzin",
+          transmission: "Manuel",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "ecotec-cooling-ignition"),
+              severity: "medium",
+              title: "Ecotec termostat, bobin ve soğutma sistemi kontrolü",
+              detail:
+                "Chevrolet benzinli modellerde termostat gövdesi, bobin/ateşleme, su kaçakları, yağ sızıntısı ve LPG dönüşümü varsa ayar/ruhsat geçmişi kontrol edilmeli.",
+              typicalOnset: "80.000-140.000 km",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "1.3/2.0 dizel veya otomatik",
+          fuelType: "Dizel",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "diesel-auto"),
+              severity: "medium",
+              title: "Dizel EGR/DPF ve otomatik şanzıman vuruntu kontrolü",
+              detail:
+                "Dizel/otomatik Chevrolet'lerde EGR/DPF, enjektör, turbo ve otomatik şanzıman geçişleri kontrol edilmeli; marka Türkiye'den çekildiği için parça/servis bulunurluğu ayrıca sorgulanmalı.",
+              typicalOnset: "120.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "cupra-vag":
+    case "skoda-vag":
+    case "vag-seat":
+      return [
+        {
+          engineLabel: "1.0/1.2/1.4/1.5 TSI",
+          fuelType: "Benzin",
+          transmission: "Yarı otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "tsi-dsg"),
+              severity: "medium",
+              title: "TSI turbo/zincir-kayış dönemi ve DSG mekatronik kontrolü",
+              detail:
+                "VAG TSI modellerde motor ailesine göre zincir/gerdirici veya triger kayışı, turbo-wastegate, PCV/soğutma kaçakları ve DSG kuru kavrama/mekatronik davranışı kontrol edilmeli.",
+              typicalOnset: "80.000-140.000 km",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "1.6/2.0 TDI",
+          fuelType: "Dizel",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "tdi-dpf-dsg"),
+              severity: "medium",
+              title: "TDI EGR/DPF ve DSG/4x4 bakım geçmişi",
+              detail:
+                "TDI versiyonlarda EGR/DPF, enjektör, turbo aktüatör, çift kütle volan; DSG ve 4x4/Haldex varsa yağ bakım kayıtları kontrol edilmelidir.",
+              typicalOnset: "120.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "ds-psa":
+      return [
+        {
+          engineLabel: "1.2 PureTech",
+          fuelType: "Benzin",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "puretech-belt"),
+              severity: "high",
+              title: "1.2 PureTech yağ içinde triger kayışı kontrolü",
+              detail:
+                "1.2 PureTech motorlarda yağ içinde çalışan triger kayışının dağılması, yağ süzgeci tıkanması ve yağ basıncı riski servis kaydıyla kontrol edilmelidir.",
+              typicalOnset: "60.000-120.000 km",
+              costLevel: "Yüksek",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "1.5 BlueHDi / EAT8",
+          fuelType: "Dizel",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "bluehdi-adblue-chain"),
+              severity: "medium",
+              title: "AdBlue/NOx ve 1.5 BlueHDi eksantrik zinciri kontrolü",
+              detail:
+                "1.5 BlueHDi motorlarda AdBlue deposu/pompası, NOx sensörü, EGR/DPF ve eksantrik zinciri/üst kapak revizyon geçmişi kontrol edilmeli.",
+              typicalOnset: "80.000-150.000 km",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "ev":
+      return [
+        {
+          engineLabel: "Elektrikli güç aktarma",
+          fuelType: "Elektrik",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "ev-battery-software"),
+              severity: "medium",
+              title: "Batarya sağlığı, hızlı şarj geçmişi ve yazılım hesabı",
+              detail:
+                "Elektrikli araçlarda batarya sağlık raporu, DC hızlı şarj oranı, garanti devri, yazılım/hesap özellikleri, kaza sonrası batarya muhafazası ve termal yönetim kontrol edilmeli.",
+              typicalOnset: "İkinci el devir öncesi",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "honda":
+      return [
+        {
+          engineLabel: "1.4/1.5/1.6 i-VTEC",
+          fuelType: "Benzin",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "ivtec-auto"),
+              severity: "low",
+              title: "i-VTEC bakım, CVT/tork konvertör ve LPG kontrolü",
+              detail:
+                "Honda benzinli motorlar dayanıklı kabul edilir; LPG dönüşümü, subap ayarı, CVT/tork konvertör davranışı, motor kulakları ve kaporta korozyonu kontrol edilmelidir.",
+              typicalOnset: "120.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "1.6 i-DTEC / hibrit",
+          fuelType: "Dizel",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "idtec-hybrid"),
+              severity: "medium",
+              title: "Dizel DPF/EGR veya hibrit batarya kontrolü",
+              detail:
+                "Dizelde DPF/EGR, turbo ve kısa mesafe kullanımı; hibritte batarya sağlığı, inverter soğutması ve servis kayıtları kontrol edilmelidir.",
+              typicalOnset: "120.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "japanese":
+      return [
+        {
+          engineLabel: "Benzinli atmosferik / Skyactiv",
+          fuelType: "Benzin",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "petrol-auto-rust"),
+              severity: "medium",
+              title: "Atmosferik motor bakım, otomatik/CVT ve pas kontrolü",
+              detail:
+                "Japon atmosferik motorlar genel olarak dayanıklı kabul edilir; otomatik/CVT yağ bakımı, bobin-sensörler, alt takım burçları, pas ve kaza onarım kalitesi kontrol edilmelidir.",
+              typicalOnset: "120.000 km sonrası veya yaşa bağlı",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "Dizel varyant",
+          fuelType: "Dizel",
+          transmission: "Manuel",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "diesel-egr-dpf"),
+              severity: "medium",
+              title: "Dizel EGR/DPF, turbo ve kısa mesafe kullanım kontrolü",
+              detail:
+                "Dizel Japon modellerde EGR/DPF, turbo, enjektör ve kısa mesafe kullanım geçmişi; pickup/SUV'lerde 4x4 aktarma ve alt takım kontrol edilmeli.",
+              typicalOnset: "130.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "jeep":
+      return [
+        {
+          engineLabel: "1.4/2.4 benzin",
+          fuelType: "Benzin",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "petrol-4x4-auto"),
+              severity: "medium",
+              title: "Benzinli motor, otomatik şanzıman ve 4x4 aktarma kontrolü",
+              detail:
+                "Jeep benzinli modellerde yağ tüketimi, soğutma sistemi, otomatik şanzıman geçişleri, 4x4 transfer ve arazi kullanım izleri kontrol edilmelidir.",
+              typicalOnset: "100.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "2.0/2.8 CRD dizel",
+          fuelType: "Dizel",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "crd-egr-4x4"),
+              severity: "medium",
+              title: "CRD EGR/DPF, turbo ve 4x4 arazi yıpranması",
+              detail:
+                "CRD dizellerde EGR/DPF, turbo hortumları, enjektör, otomatik şanzıman ve 4x4 diferansiyel/transfer kutusu kontrol edilmeli.",
+              typicalOnset: "140.000 km sonrası",
+              costLevel: "Yüksek",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "kia":
+      return [
+        {
+          engineLabel: "1.0/1.4/1.6 benzin",
+          fuelType: "Benzin",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "petrol-dct-cooling"),
+              severity: "medium",
+              title: "Benzinli motor, DCT/otomatik ve soğutma kontrolü",
+              detail:
+                "Kia benzinli modellerde bobin/sensörler, soğutma kaçakları, otomatik/DCT kavrama davranışı ve servis kampanyaları kontrol edilmeli.",
+              typicalOnset: "100.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "1.4/1.6 CRDi",
+          fuelType: "Dizel",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "crdi-egr-dpf"),
+              severity: "medium",
+              title: "CRDi EGR/DPF, turbo ve çift kavrama kontrolü",
+              detail:
+                "CRDi dizellerde EGR/DPF, turbo, enjektör ve DCT/otomatik bakım geçmişi özellikle şehir içi kullanılmış araçlarda kontrol edilmelidir.",
+              typicalOnset: "120.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "lada":
+      return [
+        {
+          engineLabel: "1.5/1.6/1.7 benzin",
+          fuelType: "Benzin",
+          transmission: "Manuel",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "rust-electrical"),
+              severity: "medium",
+              title: "Pas, elektrik tesisatı ve mekanik yıpranma kontrolü",
+              detail:
+                "Lada modellerinde pas, şasi-tabanda kaynak/onarım izi, elektrik tesisatı, karbüratör/enjeksiyon ayarı ve manuel aktarma organları kontrol edilmelidir.",
+              typicalOnset: "Yaş ve kullanım şartlarına bağlı",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "land-rover":
+      return [
+        {
+          engineLabel: "2.0 Ingenium / TDV6 dizel",
+          fuelType: "Dizel",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "ingenium-air"),
+              severity: "high",
+              title: "Ingenium/TDV6 zincir, emisyon ve havalı süspansiyon masrafı",
+              detail:
+                "Land Rover dizellerde Ingenium zincir sesi, EGR/DPF/AdBlue, turbo, otomatik şanzıman, 4x4 aktarma ve havalı süspansiyon/elektronik donanım kontrol edilmelidir.",
+              typicalOnset: "100.000-160.000 km",
+              costLevel: "Yüksek",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "PHEV/benzinli Si4",
+          fuelType: "Hibrit",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "phev-electronics"),
+              severity: "high",
+              title: "PHEV/benzinli soğutma, batarya ve elektronik kontrolü",
+              detail:
+                "PHEV ve benzinli Land Rover modellerinde batarya sağlığı, şarj sistemi, soğutma kaçakları, turbo ve karmaşık elektronik donanım kontrol edilmeli.",
+              typicalOnset: "Garanti dışı dönem veya 90.000 km sonrası",
+              costLevel: "Yüksek",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "lexus-hybrid":
+      return [
+        {
+          engineLabel: "Hibrit e-CVT",
+          fuelType: "Hibrit",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "hybrid-battery-brake"),
+              severity: "low",
+              title: "Hibrit batarya, inverter soğutma ve fren aktüatörü kontrolü",
+              detail:
+                "Lexus hibritler dayanıklı kabul edilir; batarya sağlık raporu, inverter soğutma, fren aktüatörü, e-CVT bakım kaydı ve kaza onarım kalitesi kontrol edilmelidir.",
+              typicalOnset: "150.000 km sonrası veya uzun yatmış araçlarda",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "mg":
+      return [
+        {
+          engineLabel: "Elektrikli güç aktarma",
+          fuelType: "Elektrik",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "ev-battery"),
+              severity: "medium",
+              title: "Batarya, şarj portu ve yazılım/garanti kontrolü",
+              detail:
+                "MG elektrikli modellerde batarya sağlık raporu, hızlı şarj geçmişi, şarj portu, termal yönetim, yazılım güncellemeleri ve garanti devri kontrol edilmeli.",
+              typicalOnset: "İkinci el devir öncesi",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "1.0/1.5 turbo benzin",
+          fuelType: "Benzin",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "petrol-dct-electronics"),
+              severity: "medium",
+              title: "Turbo benzinli motor, DCT ve elektronik donanım kontrolü",
+              detail:
+                "MG benzinli modellerde turbo, DCT/otomatik geçişleri, multimedya/ADAS yazılımı, parça tedarik ve servis kampanyaları kontrol edilmeli.",
+              typicalOnset: "Garanti dönemi ve 80.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "mini":
+      return [
+        {
+          engineLabel: "1.6 Prince",
+          fuelType: "Benzin",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: 2014,
+          issues: [
+            {
+              id: issueId(spec, "prince-chain"),
+              severity: "high",
+              title: "Prince motor zincir, yağ tüketimi ve karbon birikimi",
+              detail:
+                "R56 dönemindeki Prince motorlarda zincir gergisi, yağ tüketimi, turbo/PCV ve direkt enjeksiyon karbon birikimi ciddi masraf yaratabilir.",
+              typicalOnset: "80.000-130.000 km",
+              costLevel: "Yüksek",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "B38/B48",
+          fuelType: "Benzin",
+          transmission: "Otomatik",
+          yearFrom: 2014,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "b-series"),
+              severity: "medium",
+              title: "B serisi motor, soğutma ve motor kulağı kontrolü",
+              detail:
+                "F nesli Mini'lerde B38/B48 motor daha iyi kabul edilir; motor kulağı, termostat/su pompası, yağ kaçakları ve otomatik şanzıman geçişleri kontrol edilmeli.",
+              typicalOnset: "90.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "mitsubishi":
+      return [
+        {
+          engineLabel: "Benzinli MIVEC",
+          fuelType: "Benzin",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "mivec-cvt"),
+              severity: "medium",
+              title: "MIVEC motor, CVT/otomatik ve pas-alt takım kontrolü",
+              detail:
+                "Mitsubishi benzinli modellerde CVT/otomatik yağ bakımı, bobin/sensörler, pas, alt takım ve 4x4 varsa transfer/diferansiyel kontrol edilmeli.",
+              typicalOnset: "120.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "Dizel DI-D",
+          fuelType: "Dizel",
+          transmission: "Manuel",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "did-dpf-4x4"),
+              severity: "medium",
+              title: "DI-D EGR/DPF, turbo ve 4x4 aktarma kontrolü",
+              detail:
+                "DI-D dizellerde EGR/DPF, turbo, enjektör, ağır kullanım izi ve 4x4 aktarma organları kontrol edilmelidir.",
+              typicalOnset: "140.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "nissan":
+      return [
+        {
+          engineLabel: "1.2/1.6 benzin CVT",
+          fuelType: "Benzin",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "cvt-petrol"),
+              severity: "medium",
+              title: "CVT şanzıman, soğutma ve sensör kontrolü",
+              detail:
+                "Nissan benzinli CVT araçlarda kalkış titremesi, uğultu, yağ bakım geçmişi, soğutma sistemi ve sensör arızaları kontrol edilmeli.",
+              typicalOnset: "100.000-150.000 km",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "1.5 dCi / 1.6 dCi",
+          fuelType: "Dizel",
+          transmission: "Manuel",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "dci-egr-dpf"),
+              severity: "medium",
+              title: "dCi EGR/DPF, turbo ve enjektör kontrolü",
+              detail:
+                "Renault-Nissan dCi motorlarda EGR/DPF, turbo, enjektör, triger bakım kaydı ve kısa mesafe kullanım geçmişi kontrol edilmelidir.",
+              typicalOnset: "120.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "pickup":
+      return [
+        {
+          engineLabel: "Dizel pickup motoru",
+          fuelType: "Dizel",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "pickup-4x4"),
+              severity: "medium",
+              title: "Enjektör/turbo, DPF ve 4x4 arazi kullanım izi",
+              detail:
+                "Pickup modellerde enjektör, turbo, EGR/DPF, otomatik şanzıman, transfer kutusu, diferansiyel ve şasi-alt takımda ağır yük/arazi kullanım izi kontrol edilmeli.",
+              typicalOnset: "Ticari/ağır kullanıma bağlı",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "porsche":
+      return [
+        {
+          engineLabel: "Benzinli boxer/V6/V8",
+          fuelType: "Benzin",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "petrol-pdk-cooling"),
+              severity: "high",
+              title: "Motor yağ/soğutma, PDK/Tiptronic ve pahalı donanım kontrolü",
+              detail:
+                "Porsche modellerinde yağ kaçakları, soğutma sistemi, PDK/Tiptronic bakım geçmişi, fren-süspansiyon sarfiyatı ve kaza pist/performans kullanımı kontrol edilmeli.",
+              typicalOnset: "90.000 km sonrası veya ağır kullanımda daha erken",
+              costLevel: "Yüksek",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "Dizel / hibrit SUV varyant",
+          fuelType: "Dizel",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "suv-transfer-air"),
+              severity: "high",
+              title: "Transfer kutusu, havalı süspansiyon ve emisyon sistemi",
+              detail:
+                "SUV Porsche modellerinde transfer kutusu, havalı süspansiyon, EGR/DPF/AdBlue veya hibrit batarya ve yüksek maliyetli elektronik donanım kontrol edilmeli.",
+              typicalOnset: "100.000 km sonrası",
+              costLevel: "Yüksek",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "ssangyong":
+      return [
+        {
+          engineLabel: "2.0/2.2 e-XDi dizel",
+          fuelType: "Dizel",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "exdi-auto-parts"),
+              severity: "medium",
+              title: "e-XDi dizel, otomatik/AWD ve parça-servis bulunurluğu",
+              detail:
+                "SsangYong modellerinde EGR/DPF, enjektör, otomatik şanzıman, AWD aktarma ve parça/servis bulunurluğu ikinci elde kritik kontrol kalemidir.",
+              typicalOnset: "120.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "subaru":
+      return [
+        {
+          engineLabel: "Boxer benzin / AWD",
+          fuelType: "Benzin",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "boxer-cvt-awd"),
+              severity: "medium",
+              title: "Boxer yağ kaçakları, CVT ve simetrik AWD kontrolü",
+              detail:
+                "Subaru boxer motorlarda yağ kaçakları, soğutma sistemi, CVT yağ bakımı ve simetrik AWD için eş lastik/aktarma hassasiyeti kontrol edilmeli.",
+              typicalOnset: "120.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "Boxer dizel",
+          fuelType: "Dizel",
+          transmission: "Manuel",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "boxer-diesel"),
+              severity: "high",
+              title: "Boxer dizel DPF/EGR ve motor içi aşınma kontrolü",
+              detail:
+                "Boxer dizel Subaru modellerinde DPF/EGR, turbo, debriyaj-volan ve motor içi aşınma geçmişi dikkatle kontrol edilmeli.",
+              typicalOnset: "120.000 km sonrası",
+              costLevel: "Yüksek",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "suzuki":
+      return [
+        {
+          engineLabel: "1.2/1.4 BoosterJet / atmosferik",
+          fuelType: "Benzin",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "petrol-awd"),
+              severity: "low",
+              title: "Benzinli motor, otomatik/CVT ve AllGrip bakım kontrolü",
+              detail:
+                "Suzuki modelleri genel olarak dayanıklı kabul edilir; CVT/otomatik yağ bakımı, turbo hortumları, AllGrip aktarma ve alt takım-korozyon kontrol edilmeli.",
+              typicalOnset: "120.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+    case "volvo":
+      return [
+        {
+          engineLabel: "D3/D4/D5 dizel",
+          fuelType: "Dizel",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "diesel-egr-auto"),
+              severity: "medium",
+              title: "Dizel EGR/DPF, otomatik şanzıman ve AWD kontrolü",
+              detail:
+                "Volvo dizellerde EGR/DPF, turbo, enjektör, otomatik şanzıman bakım geçmişi ve AWD varsa Haldex/aktarma kontrol edilmelidir.",
+              typicalOnset: "130.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
+          engineLabel: "T3/T4/T5 veya T8 hibrit",
+          fuelType: "Hibrit",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "petrol-hybrid-electronics"),
+              severity: "medium",
+              title: "Benzinli/hibrit soğutma, batarya ve elektronik kontrolü",
+              detail:
+                "Volvo benzinli ve hibritlerde soğutma kaçakları, turbo, hibrit batarya sağlığı, sensör/ADAS ve multimedya yazılım geçmişi kontrol edilmeli.",
+              typicalOnset: "100.000 km sonrası veya garanti dışı dönemde",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+      ];
+  }
+}
+
+const COMPLETION_SPECS: Spec[] = [
+  { brand: "Alfa Romeo", model: "Giulia", yearFrom: 2016, yearTo: 2026, profile: "alfa-premium" },
+  { brand: "Alfa Romeo", model: "MiTo", yearFrom: 2008, yearTo: 2018, profile: "alfa-small" },
+  { brand: "Alfa Romeo", model: "Stelvio", yearFrom: 2017, yearTo: 2026, profile: "alfa-premium" },
+  { brand: "Alfa Romeo", model: "Tonale", yearFrom: 2022, yearTo: 2026, profile: "alfa-premium" },
+  { brand: "BYD", model: "Atto 3", yearFrom: 2023, yearTo: 2026, profile: "byd-ev" },
+  { brand: "BYD", model: "Dolphin", yearFrom: 2023, yearTo: 2026, profile: "byd-ev" },
+  { brand: "BYD", model: "Han", yearFrom: 2023, yearTo: 2026, profile: "byd-ev" },
+  { brand: "BYD", model: "Seal", yearFrom: 2023, yearTo: 2026, profile: "byd-ev" },
+  { brand: "BYD", model: "Song Plus", yearFrom: 2024, yearTo: 2026, profile: "byd-ev" },
+  { brand: "BYD", model: "Tang", yearFrom: 2023, yearTo: 2026, profile: "byd-ev" },
+  { brand: "Chery", model: "Tiggo 2", yearFrom: 2016, yearTo: 2026, profile: "chery-suv" },
+  { brand: "Chery", model: "Tiggo 4", yearFrom: 2017, yearTo: 2026, profile: "chery-suv" },
+  { brand: "Chery", model: "Tiggo 8", yearFrom: 2018, yearTo: 2026, profile: "chery-suv" },
+  { brand: "Chery", model: "Tiggo 9", yearFrom: 2024, yearTo: 2026, profile: "chery-suv" },
+  { brand: "Chevrolet", model: "Aveo", yearFrom: 2002, yearTo: 2016, profile: "chevrolet" },
+  { brand: "Chevrolet", model: "Captiva", yearFrom: 2006, yearTo: 2018, profile: "chevrolet" },
+  { brand: "Chevrolet", model: "Epica", yearFrom: 2006, yearTo: 2012, profile: "chevrolet" },
+  { brand: "Chevrolet", model: "Lacetti", yearFrom: 2004, yearTo: 2012, profile: "chevrolet" },
+  { brand: "Chevrolet", model: "Malibu", yearFrom: 2012, yearTo: 2018, profile: "chevrolet" },
+  { brand: "Chevrolet", model: "Spark", yearFrom: 2005, yearTo: 2016, profile: "chevrolet" },
+  { brand: "Chevrolet", model: "Trax", yearFrom: 2013, yearTo: 2022, profile: "chevrolet" },
+  { brand: "Cupra", model: "Ateca", yearFrom: 2018, yearTo: 2026, profile: "cupra-vag" },
+  { brand: "Cupra", model: "Born", yearFrom: 2021, yearTo: 2026, profile: "ev" },
+  { brand: "Cupra", model: "Leon", yearFrom: 2020, yearTo: 2026, profile: "cupra-vag" },
+  { brand: "DS Automobiles", model: "DS 3", yearFrom: 2010, yearTo: 2026, profile: "ds-psa" },
+  { brand: "DS Automobiles", model: "DS 4", yearFrom: 2011, yearTo: 2026, profile: "ds-psa" },
+  { brand: "DS Automobiles", model: "DS 9", yearFrom: 2020, yearTo: 2026, profile: "ds-psa" },
+  { brand: "Honda", model: "City", yearFrom: 2002, yearTo: 2026, profile: "honda" },
+  { brand: "Honda", model: "CR-V", yearFrom: 2000, yearTo: 2026, profile: "honda" },
+  { brand: "Honda", model: "HR-V", yearFrom: 2000, yearTo: 2026, profile: "honda" },
+  { brand: "Honda", model: "Jazz", yearFrom: 2002, yearTo: 2026, profile: "honda" },
+  { brand: "Isuzu", model: "MU-X", yearFrom: 2013, yearTo: 2026, profile: "pickup" },
+  { brand: "Jeep", model: "Cherokee", yearFrom: 2000, yearTo: 2023, profile: "jeep" },
+  { brand: "Jeep", model: "Compass", yearFrom: 2007, yearTo: 2026, profile: "jeep" },
+  { brand: "Jeep", model: "Grand Cherokee", yearFrom: 2000, yearTo: 2026, profile: "jeep" },
+  { brand: "Jeep", model: "Wrangler", yearFrom: 2000, yearTo: 2026, profile: "jeep" },
+  { brand: "Kia", model: "Ceed", yearFrom: 2006, yearTo: 2026, profile: "kia" },
+  { brand: "Kia", model: "Picanto", yearFrom: 2004, yearTo: 2026, profile: "kia" },
+  { brand: "Kia", model: "Rio", yearFrom: 2000, yearTo: 2023, profile: "kia" },
+  { brand: "Kia", model: "Sorento", yearFrom: 2002, yearTo: 2026, profile: "kia" },
+  { brand: "Kia", model: "Soul", yearFrom: 2008, yearTo: 2026, profile: "kia" },
+  { brand: "Kia", model: "Stonic", yearFrom: 2017, yearTo: 2026, profile: "kia" },
+  { brand: "Lada", model: "Samara", yearFrom: 2000, yearTo: 2013, profile: "lada" },
+  { brand: "Lada", model: "Vega", yearFrom: 2000, yearTo: 2012, profile: "lada" },
+  { brand: "Land Rover", model: "Defender", yearFrom: 2000, yearTo: 2026, profile: "land-rover" },
+  { brand: "Land Rover", model: "Discovery", yearFrom: 2000, yearTo: 2026, profile: "land-rover" },
+  { brand: "Land Rover", model: "Discovery Sport", yearFrom: 2015, yearTo: 2026, profile: "land-rover" },
+  { brand: "Land Rover", model: "Range Rover", yearFrom: 2000, yearTo: 2026, profile: "land-rover" },
+  { brand: "Land Rover", model: "Range Rover Sport", yearFrom: 2005, yearTo: 2026, profile: "land-rover" },
+  { brand: "Lexus", model: "CT", yearFrom: 2011, yearTo: 2022, profile: "lexus-hybrid" },
+  { brand: "Lexus", model: "ES", yearFrom: 2018, yearTo: 2026, profile: "lexus-hybrid" },
+  { brand: "Lexus", model: "IS", yearFrom: 2000, yearTo: 2026, profile: "lexus-hybrid" },
+  { brand: "Lexus", model: "RX", yearFrom: 2000, yearTo: 2026, profile: "lexus-hybrid" },
+  { brand: "Lexus", model: "UX", yearFrom: 2019, yearTo: 2026, profile: "lexus-hybrid" },
+  { brand: "Mazda", model: "2", yearFrom: 2003, yearTo: 2026, profile: "japanese" },
+  { brand: "Mazda", model: "6", yearFrom: 2002, yearTo: 2024, profile: "japanese" },
+  { brand: "Mazda", model: "CX-3", yearFrom: 2015, yearTo: 2026, profile: "japanese" },
+  { brand: "Mazda", model: "CX-30", yearFrom: 2019, yearTo: 2026, profile: "japanese" },
+  { brand: "Mazda", model: "CX-5", yearFrom: 2012, yearTo: 2026, profile: "japanese" },
+  { brand: "MG", model: "HS", yearFrom: 2018, yearTo: 2026, profile: "mg" },
+  { brand: "MG", model: "MG3", yearFrom: 2011, yearTo: 2026, profile: "mg" },
+  { brand: "MG", model: "MG5", yearFrom: 2020, yearTo: 2026, profile: "mg" },
+  { brand: "Mini", model: "Clubman", yearFrom: 2007, yearTo: 2024, profile: "mini" },
+  { brand: "Mini", model: "Countryman", yearFrom: 2010, yearTo: 2026, profile: "mini" },
+  { brand: "Mitsubishi", model: "ASX", yearFrom: 2010, yearTo: 2026, profile: "mitsubishi" },
+  { brand: "Mitsubishi", model: "Colt", yearFrom: 2004, yearTo: 2026, profile: "mitsubishi" },
+  { brand: "Mitsubishi", model: "L200", yearFrom: 2000, yearTo: 2026, profile: "pickup" },
+  { brand: "Mitsubishi", model: "Outlander", yearFrom: 2003, yearTo: 2026, profile: "mitsubishi" },
+  { brand: "Mitsubishi", model: "Pajero", yearFrom: 2000, yearTo: 2021, profile: "mitsubishi" },
+  { brand: "Nissan", model: "Juke", yearFrom: 2010, yearTo: 2026, profile: "nissan" },
+  { brand: "Nissan", model: "Micra", yearFrom: 2000, yearTo: 2023, profile: "nissan" },
+  { brand: "Nissan", model: "Navara", yearFrom: 2000, yearTo: 2022, profile: "pickup" },
+  { brand: "Nissan", model: "Note", yearFrom: 2005, yearTo: 2017, profile: "nissan" },
+  { brand: "Nissan", model: "X-Trail", yearFrom: 2001, yearTo: 2026, profile: "nissan" },
+  { brand: "Porsche", model: "911", yearFrom: 2000, yearTo: 2026, profile: "porsche" },
+  { brand: "Porsche", model: "Boxster", yearFrom: 2000, yearTo: 2026, profile: "porsche" },
+  { brand: "Porsche", model: "Cayman", yearFrom: 2005, yearTo: 2026, profile: "porsche" },
+  { brand: "Porsche", model: "Macan", yearFrom: 2014, yearTo: 2026, profile: "porsche" },
+  { brand: "Porsche", model: "Panamera", yearFrom: 2009, yearTo: 2026, profile: "porsche" },
+  { brand: "Seat", model: "Arona", yearFrom: 2017, yearTo: 2026, profile: "vag-seat" },
+  { brand: "Seat", model: "Ateca", yearFrom: 2016, yearTo: 2026, profile: "vag-seat" },
+  { brand: "Seat", model: "Toledo", yearFrom: 2000, yearTo: 2019, profile: "vag-seat" },
+  { brand: "Skoda", model: "Kamiq", yearFrom: 2019, yearTo: 2026, profile: "skoda-vag" },
+  { brand: "Skoda", model: "Karoq", yearFrom: 2017, yearTo: 2026, profile: "skoda-vag" },
+  { brand: "Skoda", model: "Kodiaq", yearFrom: 2016, yearTo: 2026, profile: "skoda-vag" },
+  { brand: "Skoda", model: "Rapid", yearFrom: 2012, yearTo: 2019, profile: "skoda-vag" },
+  { brand: "Skoda", model: "Superb", yearFrom: 2001, yearTo: 2026, profile: "skoda-vag" },
+  { brand: "SsangYong", model: "Actyon", yearFrom: 2005, yearTo: 2018, profile: "ssangyong" },
+  { brand: "SsangYong", model: "Musso", yearFrom: 2000, yearTo: 2026, profile: "ssangyong" },
+  { brand: "SsangYong", model: "Rexton", yearFrom: 2001, yearTo: 2026, profile: "ssangyong" },
+  { brand: "SsangYong", model: "Tivoli", yearFrom: 2015, yearTo: 2026, profile: "ssangyong" },
+  { brand: "Subaru", model: "Impreza", yearFrom: 2000, yearTo: 2026, profile: "subaru" },
+  { brand: "Subaru", model: "Legacy", yearFrom: 2000, yearTo: 2020, profile: "subaru" },
+  { brand: "Subaru", model: "Outback", yearFrom: 2000, yearTo: 2026, profile: "subaru" },
+  { brand: "Subaru", model: "XV", yearFrom: 2011, yearTo: 2026, profile: "subaru" },
+  { brand: "Suzuki", model: "Baleno", yearFrom: 2000, yearTo: 2022, profile: "suzuki" },
+  { brand: "Suzuki", model: "Ignis", yearFrom: 2000, yearTo: 2026, profile: "suzuki" },
+  { brand: "Suzuki", model: "S-Cross", yearFrom: 2013, yearTo: 2026, profile: "suzuki" },
+  { brand: "Tesla", model: "Model 3", yearFrom: 2017, yearTo: 2026, profile: "ev" },
+  { brand: "Tesla", model: "Model S", yearFrom: 2012, yearTo: 2026, profile: "ev" },
+  { brand: "Tesla", model: "Model X", yearFrom: 2015, yearTo: 2026, profile: "ev" },
+  { brand: "Togg", model: "T10F", yearFrom: 2025, yearTo: 2026, profile: "ev" },
+  { brand: "Volvo", model: "S90", yearFrom: 2016, yearTo: 2026, profile: "volvo" },
+  { brand: "Volvo", model: "V60", yearFrom: 2010, yearTo: 2026, profile: "volvo" },
+  { brand: "Volvo", model: "XC40", yearFrom: 2018, yearTo: 2026, profile: "volvo" },
+  { brand: "Volvo", model: "XC60", yearFrom: 2008, yearTo: 2026, profile: "volvo" },
+  { brand: "Volvo", model: "XC90", yearFrom: 2002, yearTo: 2026, profile: "volvo" },
+];
+
+export const FORM_CATALOG_COMPLETION_ENTRIES: ModelEntry[] = COMPLETION_SPECS.map((spec) => ({
+  brand: spec.brand,
+  model: spec.model,
+  generation: spec.generation,
+  yearFrom: spec.yearFrom,
+  yearTo: spec.yearTo,
+  generalNote:
+    "Form kataloğundaki eksik model kapsamasını tamamlayan kayıt. Bu kayıt kesin arıza hükmü değil; motor/şanzıman/yıl ailesine göre alım öncesi kontrol başlıklarını rapora taşır.",
+  engines: profileEngines(spec),
+}));
