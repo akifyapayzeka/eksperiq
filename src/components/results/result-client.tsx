@@ -14,6 +14,7 @@ import {
   GitCompareArrows,
   RotateCcw,
   Share2,
+  ShieldQuestion,
   Sparkles,
   ThumbsDown,
   ThumbsUp,
@@ -163,6 +164,24 @@ Satıcıya ilk sorular:
 ${questions}
 
 Not: Bu özet kesin ekspertiz sonucu değildir.`;
+}
+
+function reportCorrectionMailto(result: AnalysisResult): string {
+  const subject = `${appConfig.name} - Rapor duzeltme notu`;
+  const body = `Rapor icin duzeltme / eksik bilgi notu
+
+Arac: ${result.input.year} ${result.input.brand} ${result.input.model}
+Ilan: ${result.input.listingUrl ?? ""}
+Bilgi durumu: ${result.completeness.completed}/${result.completeness.total}
+Eksik alanlar: ${result.completeness.missing.join(", ") || "Yok"}
+
+Eksik veya hatali gordugum yer:
+
+Bekledigim satıcı sorusu / kontrol:
+
+Kisisel veri eklemedim: Evet`;
+
+  return `mailto:${appConfig.feedbackEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 export function ResultClient() {
@@ -562,6 +581,84 @@ export function ResultClient() {
               </p>
             </div>
           </div>
+          <div className="grid gap-3 border-t border-border bg-card p-4 md:grid-cols-3">
+            <div className="rounded-theme border border-border bg-muted p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
+                <ShieldQuestion aria-hidden="true" className="h-4 w-4 text-accent" />
+                Veri kaynağı
+              </div>
+              <p className="mt-2 text-lg font-semibold leading-snug text-foreground">
+                {result.input.listingUrl ? "İlan linkinden oluşturuldu" : "Manuel bilgilerle oluşturuldu"}
+              </p>
+              <p className="mt-2 break-words text-sm leading-6 text-muted-foreground">
+                {result.input.listingUrl
+                  ? "Rapordaki araç bilgileri ilan sayfasından alınan metin ve görsellerle hazırlanır; satıcı iddiaları belge yerine geçmez."
+                  : "Rapordaki araç bilgileri kullanıcının girdiği alanlara göre hazırlanır."}
+              </p>
+            </div>
+            <div className="rounded-theme border border-border bg-muted p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
+                <CheckCircle2 aria-hidden="true" className="h-4 w-4 text-accent" />
+                Veri durumu
+              </div>
+              <p className="mt-2 text-lg font-semibold leading-snug text-foreground">
+                {result.completeness.completed} / {result.completeness.total} alan dolu
+              </p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                {result.completeness.missing.length
+                  ? `Eksik kalanlar: ${result.completeness.missing.slice(0, 5).join(", ")}${
+                      result.completeness.missing.length > 5 ? "..." : ""
+                    }`
+                  : "Çekirdek alanlar rapor için yeterli görünüyor."}
+              </p>
+            </div>
+            <div className="rounded-theme border border-accent/20 bg-accent/10 p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
+                <BadgeCheck aria-hidden="true" className="h-4 w-4 text-accent" />
+                Düzeltme hattı
+              </div>
+              <p className="mt-2 text-lg font-semibold leading-snug text-foreground">Hatalı veya eksikse bildir</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                EksperIQ yanlış yakaladığı alanları kullanıcı notlarıyla ayırıp kural setine geri besler.
+              </p>
+              <a
+                href={reportCorrectionMailto(result)}
+                className="mt-3 inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-accent px-4 text-sm font-semibold text-accent"
+              >
+                Rapor düzeltmesi gönder
+                <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+          {result.listingImages?.length ? (
+            <div className="border-t border-border bg-card p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-base font-semibold text-foreground">İlandan alınan araç fotoğrafları</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Yalnızca araç fotoğrafı gibi görünen görseller rapora taşınır; ikon ve site görselleri elenir.
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full bg-muted px-3 py-1 text-sm font-semibold text-foreground/80">
+                  {result.listingImages.length}
+                </span>
+              </div>
+              <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
+                {result.listingImages.slice(0, 12).map((imageUrl) => (
+                  <a
+                    key={imageUrl}
+                    href={imageUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block aspect-square overflow-hidden rounded-theme-sm border border-border bg-muted"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element -- External listing CDNs are not known at build time. */}
+                    <img src={imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : null}
           <div className="no-print grid gap-3 border-t border-border bg-card p-4 sm:grid-cols-2 xl:grid-cols-4">
             <button
               type="button"

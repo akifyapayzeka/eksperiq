@@ -25,10 +25,12 @@ const stageLabels: Record<ImportStage, string> = {
 const errorMessages: Record<string, string> = {
   "invalid-url": "Bu bağlantı desteklenmiyor. Desteklenen ilan sitelerinden birinin bağlantısını yapıştırın.",
   "unsupported-platform": "İlan linkiyle otomatik doldurma yalnızca mobil uygulamada kullanılabilir.",
-  "fetch-failed": "İlan sayfası açılamadı. Bağlantıyı kontrol edip tekrar deneyin.",
+  "fetch-failed":
+    "İlan sayfası açılamadı. Bağlantı kaldırılmış, geçici olarak engellenmiş veya ağ zayıf olabilir; tekrar deneyin.",
   blocked:
-    "Bu ilan otomatik olarak alınamadı. Ekran görüntüsü, ekspertiz raporu veya manuel girişle devam edebilirsiniz.",
-  "ai-failed": "İlan bilgileri işlenemedi. Birazdan tekrar deneyin veya manuel doldurun.",
+    "Bu ilan sayfası güvenlik doğrulaması veya site engeli nedeniyle otomatik alınamadı. Aynı linki birazdan tekrar deneyin; devam ederse manuel analiz kullanın.",
+  "ai-failed":
+    "İlan metni alındı ama araç bilgisine çevrilemedi. Birazdan tekrar deneyin; aynı hata sürerse manuel analizle rapor oluşturabilirsiniz.",
   "rate-limited": "Çok fazla içe aktarma denemesi yapıldı. Birazdan tekrar deneyin.",
 };
 
@@ -165,7 +167,7 @@ export function ListingImportSection({
         </h2>
       </div>
       <p className="mt-1 text-sm leading-6 text-muted-foreground">
-        Bir araç ilanının bağlantısını yapıştırın; EksperIQ bilgileri ve fotoğrafları çekip rapora hazırlar.
+        Bir araç ilanının bağlantısını yapıştırın; EksperIQ bilgileri ve fotoğrafları çekip tek seferde rapor oluşturur.
       </p>
 
       {showConsentPrompt ? (
