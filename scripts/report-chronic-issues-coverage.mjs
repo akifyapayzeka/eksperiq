@@ -9,7 +9,11 @@ const dataSource = readdirSync(dataDir)
   .join("\n");
 
 function normalize(value) {
-  return value.trim().toLocaleLowerCase("tr-TR");
+  return value
+    .trim()
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "");
 }
 
 function quotedValues(value) {

@@ -110,6 +110,22 @@ describe("findChronicIssues", () => {
     expect(issues).toEqual([]);
   });
 
+  it("matches model names even when form and database accents differ", () => {
+    const { entry, issues } = findChronicIssues({
+      brand: "Citroen",
+      model: "C-Elysée",
+      year: 2018,
+      fuelType: "Dizel",
+      transmission: "Manuel",
+      engineSize: "1.6",
+      trim: "",
+      sellerDescription: "1.6 HDi manuel C-Elysee",
+    });
+
+    expect(entry?.model).toBe("C-Elysee");
+    expect(issues.length).toBeGreaterThan(0);
+  });
+
   it("never has two entries for the same brand+model (findChronicIssues only matches the first)", () => {
     const seen = new Set<string>();
     const duplicates: string[] = [];
@@ -312,6 +328,15 @@ describe("findChronicIssues", () => {
     );
 
     expect(opelModels.filter((model) => !coveredOpelModels.has(model))).toEqual([]);
+  });
+
+  it("covers every Peugeot model listed in the analysis form catalog", () => {
+    const peugeotModels = ["2008", "208", "3008", "301", "306", "307", "308", "407", "508"];
+    const coveredPeugeotModels = new Set(
+      CHRONIC_ISSUES_DB.filter((entry) => entry.brand === "Peugeot").map((entry) => entry.model),
+    );
+
+    expect(peugeotModels.filter((model) => !coveredPeugeotModels.has(model))).toEqual([]);
   });
 
   it("matches newly added premium brand engine-specific issues", () => {

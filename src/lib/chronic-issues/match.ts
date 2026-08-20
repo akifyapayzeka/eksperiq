@@ -9,7 +9,11 @@ export type MatchedIssue = ChronicIssue & {
 };
 
 function normalize(value: string | undefined | null): string {
-  return (value ?? "").trim().toLocaleLowerCase("tr-TR");
+  return (value ?? "")
+    .trim()
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "");
 }
 
 function parseDisplacement(text: string): number | null {

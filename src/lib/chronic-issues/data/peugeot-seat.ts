@@ -457,4 +457,403 @@ export const PEUGEOT_SEAT_ENTRIES: ModelEntry[] = [
       },
     ],
   },
+  {
+    brand: "Peugeot",
+    model: "208",
+    yearFrom: 2012,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.2 PureTech",
+        fuelType: "Benzin",
+        yearFrom: 2012,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "peugeot-208-12puretech-wetbelt",
+            severity: "high",
+            title: "1.2 PureTech ıslak triger kayışı ve yağ tüketimi",
+            detail:
+              "Yağ içinde çalışan triger kayışı parçalanıp yağ süzgecini tıkayabilir; yağ tüketimi, fren vakum sorunu ve motor hasarı riski yaratabilir. Kayış tipi ve servis kampanya geçmişi kontrol edilmeli.",
+            typicalOnset: "60.000-120.000 km",
+            costLevel: "Yüksek",
+            sourceNote:
+              "PSA 1.2 PureTech teknik servis kampanyaları ve kullanıcı şikayetlerinde tekrar eden iyi belgelenmiş risk.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 BlueHDi",
+        fuelType: "Dizel",
+        yearFrom: 2018,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "peugeot-208-15bluehdi-adblue-chain",
+            severity: "medium",
+            title: "AdBlue/NOx ve 1.5 BlueHDi eksantrik zinciri kontrolü",
+            detail:
+              "AdBlue deposu/pompası, NOx sensörü, DPF/EGR ve 1.5 BlueHDi üst kapak/eksantrik zinciri riski servis kaydıyla kontrol edilmelidir.",
+            typicalOnset: "80.000-150.000 km",
+            costLevel: "Orta",
+            sourceNote: "PSA 1.5 BlueHDi teknik kaynakları ve kullanıcı kayıtlarında tekrar eden bulgu.",
+          },
+        ],
+      },
+      {
+        engineLabel: "Elektrikli e-208",
+        fuelType: "Elektrik",
+        transmission: "Otomatik",
+        yearFrom: 2019,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "peugeot-e208-battery-charging",
+            severity: "medium",
+            title: "Batarya sağlığı, şarj portu ve garanti devri kontrolü",
+            detail:
+              "e-208 alımında batarya sağlık raporu, hızlı şarj geçmişi, şarj portu, termal yönetim ve garanti/servis yazılım güncellemeleri kontrol edilmelidir.",
+            typicalOnset: "Garanti devri öncesi",
+            costLevel: "Orta",
+            sourceNote: "EV alım rehberleri ve e-208 kullanıcı deneyimlerinde tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Peugeot",
+    model: "2008",
+    yearFrom: 2013,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.2 PureTech",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2013,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "peugeot-2008-12puretech-wetbelt",
+            severity: "high",
+            title: "PureTech wet belt, yağ tüketimi ve EAT8 bakım kontrolü",
+            detail:
+              "1.2 PureTech 2008'de ıslak kayış, yağ tüketimi, turbo ve otomatik EAT6/EAT8 geçişleri kontrol edilmelidir.",
+            typicalOnset: "60.000-120.000 km",
+            costLevel: "Yüksek",
+            sourceNote: "PSA PureTech ve Peugeot 2008 kullanıcı/servis kayıtlarında tekrar eden risk.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 BlueHDi",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2018,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "peugeot-2008-15bluehdi-adblue",
+            severity: "medium",
+            title: "AdBlue/NOx, DPF/EGR ve eksantrik zinciri kontrolü",
+            detail:
+              "1.5 BlueHDi 2008'de AdBlue deposu/pompası, NOx sensörü, DPF/EGR ve eksantrik zinciri riski kontrol edilmelidir.",
+            typicalOnset: "80.000-150.000 km",
+            costLevel: "Orta",
+            sourceNote: "PSA 1.5 BlueHDi ailesi teknik kaynakları ve kullanıcı kayıtlarında tekrar eden bulgu.",
+          },
+        ],
+      },
+      {
+        engineLabel: "Elektrikli e-2008",
+        fuelType: "Elektrik",
+        transmission: "Otomatik",
+        yearFrom: 2020,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "peugeot-e2008-battery-charging",
+            severity: "medium",
+            title: "Batarya, şarj portu ve yazılım güncellemesi kontrolü",
+            detail:
+              "e-2008'de batarya sağlık raporu, DC hızlı şarj geçmişi, şarj portu, ısı pompası/klima ve garanti devri kontrol edilmelidir.",
+            typicalOnset: "Garanti devri öncesi",
+            costLevel: "Orta",
+            sourceNote: "EV alım rehberleri ve Peugeot e-2008 kullanıcı deneyimlerinde tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Peugeot",
+    model: "3008",
+    yearFrom: 2009,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.6 HDi / BlueHDi",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2009,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "peugeot-3008-16hdi-egr-turbo",
+            severity: "medium",
+            title: "EGR/DPF, turbo yağ besleme ve robotize/otomatik şanzıman kontrolü",
+            detail:
+              "1.6 HDi/BlueHDi 3008'de EGR/DPF, turbo yağ besleme hattı, enjektör contası ve eski robotize/otomatik şanzıman davranışı kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "PSA 1.6 HDi teknik kaynakları ve 3008 kullanıcı forumlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.2 PureTech",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2017,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "peugeot-3008-12puretech-wetbelt",
+            severity: "high",
+            title: "PureTech wet belt, yağ tüketimi ve turbo kontrolü",
+            detail:
+              "3008 1.2 PureTech'te ıslak triger kayışı, yağ tüketimi, turbo ve servis kampanya geçmişi kontrol edilmelidir.",
+            typicalOnset: "60.000-120.000 km",
+            costLevel: "Yüksek",
+            sourceNote: "PSA 1.2 PureTech ailesi için tekrar eden teknik ve kullanıcı kayıtları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 BlueHDi",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2018,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "peugeot-3008-15bluehdi-adblue-chain",
+            severity: "medium",
+            title: "AdBlue/NOx ve 1.5 BlueHDi eksantrik zinciri kontrolü",
+            detail:
+              "AdBlue/NOx, DPF/EGR ve 1.5 BlueHDi üst kapak/eksantrik zinciri riski 3008'de sık kontrol edilen kalemdir.",
+            typicalOnset: "80.000-150.000 km",
+            costLevel: "Orta",
+            sourceNote: "PSA 1.5 BlueHDi teknik kaynakları ve kullanıcı şikayetlerinde tekrar eden bulgu.",
+          },
+        ],
+      },
+      {
+        engineLabel: "Plug-in Hybrid",
+        fuelType: "Hibrit",
+        transmission: "Otomatik",
+        yearFrom: 2020,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "peugeot-3008-phev-battery-awd",
+            severity: "medium",
+            title: "PHEV batarya/şarj ve elektrikli arka aks kontrolü",
+            detail:
+              "3008 PHEV'de batarya sağlığı, şarj portu, garanti devri, inverter/soğutma ve AWD versiyonda arka elektrik motoru kontrol edilmeli.",
+            typicalOnset: "Garanti devri öncesi",
+            costLevel: "Orta",
+            sourceNote: "PHEV alım rehberleri ve PSA hibrit kullanıcı deneyimlerinde tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Peugeot",
+    model: "306",
+    yearFrom: 2000,
+    yearTo: 2002,
+    engines: [
+      {
+        engineLabel: "1.6 / 1.8 benzin",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2000,
+        yearTo: 2002,
+        issues: [
+          {
+            id: "peugeot-306-pas-al4",
+            severity: "medium",
+            title: "Yaş kaynaklı elektrik/pas, arka torsiyon ve AL4 kontrolü",
+            detail:
+              "306'da arka torsiyon burçları, pas, elektrik tesisatı, soğutma sistemi ve otomatik AL4 varsa vuruntu/geçiş kontrol edilmelidir.",
+            typicalOnset: "Yaşa bağlı",
+            costLevel: "Orta",
+            sourceNote: "Peugeot 306 kullanıcı forumları ve yaşlı PSA araç alım rehberlerinde tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Peugeot",
+    model: "307",
+    yearFrom: 2001,
+    yearTo: 2009,
+    engines: [
+      {
+        engineLabel: "1.6 16V",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2001,
+        yearTo: 2009,
+        issues: [
+          {
+            id: "peugeot-307-16-al4-bsi",
+            severity: "medium",
+            title: "AL4 otomatik, BSI elektrik ve bobin kontrolü",
+            detail:
+              "307 1.6 benzinlide AL4 otomatik vuruntu/solenoid, BSI elektrik sorunları, bobin tekleme ve soğutma sistemi kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Peugeot 307/AL4 kullanıcı forumları ve PSA servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.6 HDi",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2004,
+        yearTo: 2009,
+        issues: [
+          {
+            id: "peugeot-307-16hdi-turbo-egr",
+            severity: "medium",
+            title: "Turbo yağ besleme, EGR/DPF ve enjektör contası",
+            detail:
+              "1.6 HDi 307'de turbo yağ besleme hattı, enjektör conta kaçakları, EGR/DPF ve çift kütleli volan kontrol edilmelidir.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "PSA/Ford 1.6 HDi teknik kaynakları ve 307 kullanıcı kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Peugeot",
+    model: "407",
+    yearFrom: 2004,
+    yearTo: 2011,
+    engines: [
+      {
+        engineLabel: "1.6 HDi",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2004,
+        yearTo: 2011,
+        issues: [
+          {
+            id: "peugeot-407-16hdi-turbo-dpf",
+            severity: "medium",
+            title: "Turbo yağ besleme, DPF/EGR ve ön takım kontrolü",
+            detail:
+              "407 1.6 HDi'de turbo yağ besleme, DPF/EGR, enjektör contası ve ağır gövde nedeniyle ön takım/burçlar kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "PSA 1.6 HDi teknik kaynakları ve Peugeot 407 kullanıcı forumlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "2.0 HDi / 2.0 benzin",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2004,
+        yearTo: 2011,
+        issues: [
+          {
+            id: "peugeot-407-20hdi-auto",
+            severity: "medium",
+            title: "EGR/DPF, turbo ve otomatik şanzıman kontrolü",
+            detail:
+              "2.0 HDi 407'de EGR/DPF, turbo, volan ve otomatik şanzıman geçişleri; benzinli otomatiklerde AL4/AM6 davranışı kontrol edilmelidir.",
+            typicalOnset: "140.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote:
+              "407 kullanıcı forumları ve PSA dizel/otomatik servis kayıtlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Peugeot",
+    model: "508",
+    yearFrom: 2011,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.6 HDi / BlueHDi",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2011,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "peugeot-508-16hdi-egs-egr",
+            severity: "medium",
+            title: "EGR/DPF, turbo ve EGS/otomatik şanzıman kontrolü",
+            detail:
+              "508 1.6 dizelde EGR/DPF, turbo yağ besleme, enjektör contası ve EGS/otomatik şanzıman geçiş davranışı kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "PSA 1.6 HDi ve Peugeot 508 kullanıcı forumlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 BlueHDi",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2018,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "peugeot-508-15bluehdi-adblue-chain",
+            severity: "medium",
+            title: "AdBlue/NOx, DPF/EGR ve eksantrik zinciri kontrolü",
+            detail:
+              "Yeni 508 1.5 BlueHDi'de AdBlue deposu/pompası, NOx sensörü, DPF/EGR ve üst kapak/eksantrik zinciri riski kontrol edilmelidir.",
+            typicalOnset: "80.000-150.000 km",
+            costLevel: "Orta",
+            sourceNote: "PSA 1.5 BlueHDi teknik kaynakları ve kullanıcı kayıtlarında tekrar eden bulgu.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.6 PureTech / Plug-in Hybrid",
+        fuelType: "Hibrit",
+        transmission: "Otomatik",
+        yearFrom: 2018,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "peugeot-508-puretech-phev",
+            severity: "medium",
+            title: "PureTech turbo, PHEV batarya ve elektronik donanım kontrolü",
+            detail:
+              "1.6 PureTech/PHEV 508'de turbo/soğutma, batarya sağlığı, şarj portu, elektronik konfor donanımları ve garanti devri kontrol edilmelidir.",
+            typicalOnset: "Garanti devri ve 100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "PSA PureTech/PHEV kullanıcı deneyimleri ve 508 alım rehberlerinde tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
 ];
