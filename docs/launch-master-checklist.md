@@ -85,7 +85,7 @@ Tüm adımların denetlenebilir durum listesi: `docs/all-steps-status.md`
 - [ ] Xcode signing team ve Bundle ID ayarlanacak.
 - [ ] Gerçek iPhone üzerinde TestFlight QA checklist işaretlenecek.
 - [ ] App Store Connect metadata, privacy ve screenshot alanları girilecek.
-- [ ] App Store Connect abonelik ürünleri oluşturulup TestFlight/sandbox satın alma ve restore akışı doğrulanacak; bu geçmeden `NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED=true` açılmayacak.
+- [ ] App Store Connect abonelik ürünleri oluşturulup TestFlight/sandbox satın alma ve restore akışı doğrulanacak; ardından GitHub repository secrets içinde `NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED=true`, `STOREKIT_APP_STORE_PRODUCTS_VERIFIED=true`, `STOREKIT_SANDBOX_PURCHASE_VERIFIED=true` açılarak abonelikli Build derlenecek.
 - [ ] App Review gönderimi yapılacak.
 
 ## 7. Dış Bağımlılık Sınırı

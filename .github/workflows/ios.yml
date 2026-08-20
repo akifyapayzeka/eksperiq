@@ -34,6 +34,9 @@ jobs:
       IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
       IOS_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
       IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+      NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED: ${{ secrets.NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED }}
+      STOREKIT_APP_STORE_PRODUCTS_VERIFIED: ${{ secrets.STOREKIT_APP_STORE_PRODUCTS_VERIFIED }}
+      STOREKIT_SANDBOX_PURCHASE_VERIFIED: ${{ secrets.STOREKIT_SANDBOX_PURCHASE_VERIFIED }}
 
     steps:
       - name: Checkout
@@ -95,6 +98,9 @@ jobs:
 
       - name: Test
         run: $PM_RUN test
+
+      - name: StoreKit release gate
+        run: $PM_RUN storekit:gate-check
 
       - name: Build web app
         run: $PM_RUN build

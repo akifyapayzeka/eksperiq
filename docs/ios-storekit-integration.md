@@ -29,9 +29,13 @@ edildiği ve ne edilmediği her madde için açıkça belirtiliyor.
 - `nativeStoreKitEntitlementProvider`: gerçek native plugin'i çağıran sağlayıcı — **yazıldı ve test edildi, ama
   hiçbir UI bileşeni tarafından henüz kullanılmıyor** (madde 6'daki kural gereği: Swift tarafı Xcode'da derlenip
   gerçek cihazda doğrulanmadan bu, `isPro()`'nun varsayılanı yapılmayacak).
-- `purchasePro()` / `restorePurchases()`: gerçek native plugin çağrıları; web'de `purchasePro()` hata fırlatır,
-  `restorePurchases()` no-op döner.
-- `PRO_MONTHLY_PRODUCT_ID = "com.eksperiq.app.pro.monthly"`: App Store Connect'te henüz oluşturulmamış placeholder.
+- `purchasePlan(productId)` / `restorePurchases()`: gerçek native plugin çağrıları; web'de `purchasePlan()` hata
+  fırlatır, `restorePurchases()` no-op döner.
+- App Store Connect'te oluşturulması gereken ürünler ve uygulamadaki fiyat karşılıkları:
+  - `com.eksperiq.app.pro.monthly`: EksperIQ Pro aylık, 150 TL.
+  - `com.eksperiq.app.pro.yearly`: EksperIQ Pro yıllık, 1.500 TL.
+  - `com.eksperiq.app.proplus.monthly`: EksperIQ Pro+ aylık, 400 TL.
+  - `com.eksperiq.app.proplus.yearly`: EksperIQ Pro+ yıllık, 4.000 TL.
 - `src/lib/pro/native-entitlement-plugin.ts`: Capacitor `registerPlugin<...>("EksperIQEntitlement")` köprüsü —
   web implementasyonu yok, yalnızca `Capacitor.isNativePlatform()` arkasında çağrılmalı.
 - `isPro(provider?)`: varsayılan olarak `unavailableEntitlementProvider` kullanır, `"pro"` veya `"gracePeriod"`
@@ -47,6 +51,10 @@ edildiği ve ne edilmediği her madde için açıkça belirtiliyor.
 - `npm run storekit:gate-check`, `NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED=true` açılırsa aynı ortamda
   `STOREKIT_APP_STORE_PRODUCTS_VERIFIED=true` ve `STOREKIT_SANDBOX_PURCHASE_VERIFIED=true` bekler; aksi halde release
   preflight durur.
+- iOS GitHub Actions workflow'ları bu üç flag'i repository secret'lardan okur. Build 53 veya sonraki TestFlight
+  build'lerinde abonelik butonunu aktif derlemek için repository secrets:
+  `NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED=true`, `STOREKIT_APP_STORE_PRODUCTS_VERIFIED=true`,
+  `STOREKIT_SANDBOX_PURCHASE_VERIFIED=true` olmalıdır.
 - Env kapalıyken kullanıcıya Pro'nun App Store onayı beklediği gösterilir; fake satın alma, fake Pro veya boşa düşen
   buton yoktur.
 
@@ -92,7 +100,8 @@ Developer Program üyeliği + App Store Connect erişimi gerektirir. Sırasıyla
 
 ### 1. App Store Connect (iş/hesap adımı, kod değil)
 
-- Abonelik ürünü (`com.eksperiq.app.pro.monthly` gibi bir product ID) App Store Connect'te oluşturulmadan hiçbir
+- Abonelik ürünleri (`com.eksperiq.app.pro.monthly`, `com.eksperiq.app.pro.yearly`,
+  `com.eksperiq.app.proplus.monthly`, `com.eksperiq.app.proplus.yearly`) App Store Connect'te oluşturulmadan hiçbir
   satın alma test edilemez ve bu ürün satışta gösterilemez (kesin kural: oluşturulmamış ürünü satışta gösterme).
 - App Store Server Notifications V2 için App Store Connect'te bir webhook URL'si ve (opsiyonel) paylaşılan sır
   tanımlanmalı.
@@ -115,7 +124,7 @@ Her iki dosyanın da başında **"hiç derlenmedi/çalıştırılmadı"** uyarı
 Xcode/Swift toolchain'i yok, syntax hataları veya Capacitor API uyumsuzlukları ancak gerçek Xcode'da açılınca ortaya
 çıkabilir:
 
-1. App Store Connect'te `com.eksperiq.app.pro.monthly` product ID'siyle abonelik ürünü oluştur.
+1. App Store Connect'te dört abonelik ürününü yukarıdaki product ID'leriyle oluştur.
 2. Xcode'da projeyi aç, olası derleme hatalarını düzelt, StoreKit Testing/Sandbox ortamında çalıştır.
 3. Satın alma, restore ve `currentEntitlements` dinleyicisini gerçek bir cihazda sandbox Apple ID'siyle doğrula.
 4. Bu üç adım geçmeden `STOREKIT_APP_STORE_PRODUCTS_VERIFIED=true`, `STOREKIT_SANDBOX_PURCHASE_VERIFIED=true` ve

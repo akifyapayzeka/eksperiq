@@ -32,6 +32,9 @@ jobs:
       NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED: "true"
       NEXT_PUBLIC_EXPERTISE_REPORT_AI_ENABLED: "true"
       NEXT_PUBLIC_LISTING_IMPORT_ENABLED: "true"
+      NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED: ${{ secrets.NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED }}
+      STOREKIT_APP_STORE_PRODUCTS_VERIFIED: ${{ secrets.STOREKIT_APP_STORE_PRODUCTS_VERIFIED }}
+      STOREKIT_SANDBOX_PURCHASE_VERIFIED: ${{ secrets.STOREKIT_SANDBOX_PURCHASE_VERIFIED }}
       # Supabase hesap girişi (Pro/Pro+ abonelik) icin — bu iki GitHub Secret
       # tanimli degilse hesap ozelligi sessizce kapali kalir (getSupabaseBrowserClient
       # null doner), build hata vermez ama giris yapilamaz.
@@ -96,6 +99,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: StoreKit release gate
+        run: npm run storekit:gate-check
 
       - name: Build static export
         run: npm run build
