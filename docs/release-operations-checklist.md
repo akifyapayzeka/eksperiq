@@ -8,6 +8,8 @@ Tüm adımların merkezi takip dosyası: `docs/launch-master-checklist.md`
 
 Manuel test rehberi: `docs/how-to-test.md`
 
+Pazar yorumu dersleri: `docs/market-review-lessons-checklist.md`
+
 ## Her yayın öncesi
 
 ```bash
@@ -53,6 +55,7 @@ Kontrol edilecekler:
 - Satış/App Store öncesi yerel ağır kapı `npm run ship:local-check` ile tek komutta geçiyor.
 - Kullanıcı testi ham notları, triage çıktıları ve issue taslakları `dist` altında kalıyor; repoya eklenmiyor.
 - Gerçek kullanıcı feedback akışı `docs/real-user-feedback-runbook.md` ile takip ediliyor.
+- App Store/Google Play ve kamu şikayetlerinden çıkarılan dersler `docs/market-review-lessons-checklist.md` içinde güncel ve release kapılarıyla bağlı.
 - `/`, `/analiz`, `/sonuc`, `/moduller`, `/gizlilik` sayfaları çalışıyor.
 - Analiz formunda şehir, araç detayları ve hasar parçaları uygun yerlerde seçenekli/dokunulabilir çalışıyor.
 - Sonuç sayfasında yasal uyarı, paylaşma/kopyalama/yazdırma, satıcı mesajı ve geri bildirim bağlantısı görünüyor.

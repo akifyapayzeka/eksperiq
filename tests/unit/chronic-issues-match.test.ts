@@ -2,6 +2,62 @@ import { describe, expect, it } from "vitest";
 import { findChronicIssues } from "@/lib/chronic-issues/match";
 import { CHRONIC_ISSUES_DB } from "@/lib/chronic-issues/data";
 
+const MARKET_TARGET_BRANDS = [
+  "Alfa Romeo",
+  "Audi",
+  "BMW",
+  "BYD",
+  "Chery",
+  "Chevrolet",
+  "Citroen",
+  "Cupra",
+  "Dacia",
+  "DS Automobiles",
+  "Fiat",
+  "Ford",
+  "Honda",
+  "Hyundai",
+  "Isuzu",
+  "Jeep",
+  "Kia",
+  "Lada",
+  "Land Rover",
+  "Lexus",
+  "Mazda",
+  "Mercedes-Benz",
+  "MG",
+  "Mini",
+  "Mitsubishi",
+  "Nissan",
+  "Opel",
+  "Peugeot",
+  "Porsche",
+  "Renault",
+  "Seat",
+  "Skoda",
+  "SsangYong",
+  "Subaru",
+  "Suzuki",
+  "Tesla",
+  "Togg",
+  "Toyota",
+  "Volkswagen",
+  "Volvo",
+] as const;
+
+function expandedEngineYears(): number {
+  return CHRONIC_ISSUES_DB.reduce(
+    (total, entry) =>
+      total +
+      entry.engines.reduce((engineTotal, engine) => {
+        const from = Math.max(2000, engine.yearFrom ?? entry.yearFrom);
+        const to = Math.min(2026, engine.yearTo ?? entry.yearTo);
+        return to >= from ? engineTotal + to - from + 1 : engineTotal;
+      }, 0),
+    0,
+  );
+}
+
 describe("findChronicIssues", () => {
   it("matches by engine code mentioned in the seller description over bare displacement", () => {
     const { issues } = findChronicIssues({
@@ -191,6 +247,24 @@ describe("findChronicIssues", () => {
     const covered = new Set(CHRONIC_ISSUES_DB.map((entry) => entry.brand));
 
     expect(additionalBrands.filter((brand) => !covered.has(brand))).toEqual([]);
+  });
+
+  it("covers the full 40-brand market target with model, engine, and 2000+ year spans", () => {
+    const coveredBrands = new Set(CHRONIC_ISSUES_DB.map((entry) => entry.brand));
+    const missingBrands = MARKET_TARGET_BRANDS.filter((brand) => !coveredBrands.has(brand));
+    const entriesWithoutEngine = CHRONIC_ISSUES_DB.filter((entry) => entry.engines.length === 0);
+    const enginesWithoutYearCoverage = CHRONIC_ISSUES_DB.flatMap((entry) =>
+      entry.engines
+        .filter((engine) => Math.min(2026, engine.yearTo ?? entry.yearTo) < Math.max(2000, engine.yearFrom ?? entry.yearFrom))
+        .map((engine) => `${entry.brand} ${entry.model} ${engine.engineLabel}`),
+    );
+
+    expect(coveredBrands.size).toBeGreaterThanOrEqual(40);
+    expect(missingBrands).toEqual([]);
+    expect(CHRONIC_ISSUES_DB.length).toBeGreaterThanOrEqual(268);
+    expect(entriesWithoutEngine).toEqual([]);
+    expect(enginesWithoutYearCoverage).toEqual([]);
+    expect(expandedEngineYears()).toBeGreaterThanOrEqual(3000);
   });
 
   it("matches newly added additional market brand issues", () => {

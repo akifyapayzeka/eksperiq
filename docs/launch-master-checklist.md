@@ -53,6 +53,7 @@ Tüm adımların denetlenebilir durum listesi: `docs/all-steps-status.md`
 - [x] Kural geri bildirimi issue şablonu hazır.
 - [x] Kural backlog dosyası hazır.
 - [x] Kural adayları typed servis dosyasında takip ediliyor.
+- [x] App Store/Google Play ve kamu şikayetlerinden çıkarılan ürün dersleri `docs/market-review-lessons-checklist.md` içinde release kapılarına bağlandı.
 - [ ] Gerçek 5 kullanıcı testi yapılacak.
 - [ ] Tekrarlanan geri bildirimler issue olarak açılacak.
 - [ ] Kanıtı oluşan kural adayları pozitif/negatif unit test ile aktif kurala taşınacak.
@@ -84,6 +85,7 @@ Tüm adımların denetlenebilir durum listesi: `docs/all-steps-status.md`
 - [ ] Xcode signing team ve Bundle ID ayarlanacak.
 - [ ] Gerçek iPhone üzerinde TestFlight QA checklist işaretlenecek.
 - [ ] App Store Connect metadata, privacy ve screenshot alanları girilecek.
+- [ ] App Store Connect abonelik ürünleri oluşturulup TestFlight/sandbox satın alma ve restore akışı doğrulanacak; bu geçmeden `NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED=true` açılmayacak.
 - [ ] App Review gönderimi yapılacak.
 
 ## 7. Dış Bağımlılık Sınırı

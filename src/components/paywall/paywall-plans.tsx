@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, RotateCcw, Sparkles } from "lucide-react";
+import { Check, Clock, RotateCcw, Sparkles } from "lucide-react";
 import { EKSPERIQ_PLAN_PRICING, formatTry, type EksperIqPlanPricing } from "@/lib/pro/pricing";
 import { purchasePlan, restorePurchases } from "@/lib/pro/entitlement";
 import { Spinner } from "@/components/ui/spinner";
@@ -16,6 +16,8 @@ const LISTING_ANALYSIS_MULTIPLIER: Record<EksperIqPlanPricing["id"], string> = {
   pro: "5x",
   proPlus: "10x",
 };
+
+const isStoreKitPurchasesEnabled = process.env.NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED === "true";
 
 export function PaywallPlansScreen({
   headline,
@@ -134,27 +136,45 @@ export function PaywallPlansScreen({
             <button
               type="button"
               onClick={() => handlePlanCta(plan)}
-              disabled={purchasingPlanId !== null}
+              disabled={!isStoreKitPurchasesEnabled || purchasingPlanId !== null}
               className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-accent px-5 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-60"
             >
               {purchasingPlanId === plan.id ? <Spinner /> : null}
-              {purchasingPlanId === plan.id ? "İşleniyor..." : `${plan.name}'a geç`}
+              {!isStoreKitPurchasesEnabled ? (
+                <>
+                  <Clock aria-hidden="true" className="h-4 w-4" />
+                  App Store onayı bekleniyor
+                </>
+              ) : purchasingPlanId === plan.id ? (
+                "İşleniyor..."
+              ) : (
+                `${plan.name}'a geç`
+              )}
             </button>
           </div>
         ))}
       </div>
 
+      {!isStoreKitPurchasesEnabled ? (
+        <p className="mt-3 rounded-theme-sm border border-warning/30 bg-warning/10 px-3 py-2 text-center text-sm font-medium text-foreground">
+          Pro abonelikleri App Store Connect ürünleri ve gerçek cihaz satın alma testi tamamlandıktan sonra açılacak.
+          Ücretsiz akışları kullanmaya devam edebilirsiniz.
+        </p>
+      ) : null}
+
       {purchaseMessage ? <p className="mt-3 text-center text-sm text-foreground">{purchaseMessage}</p> : null}
 
-      <button
-        type="button"
-        onClick={handleRestore}
-        disabled={isRestoring}
-        className="mt-4 flex w-full items-center justify-center gap-1.5 text-sm font-semibold text-muted-foreground underline-offset-4 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {isRestoring ? <Spinner /> : <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />}
-        Satın almaları geri yükle
-      </button>
+      {isStoreKitPurchasesEnabled ? (
+        <button
+          type="button"
+          onClick={handleRestore}
+          disabled={isRestoring}
+          className="mt-4 flex w-full items-center justify-center gap-1.5 text-sm font-semibold text-muted-foreground underline-offset-4 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isRestoring ? <Spinner /> : <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />}
+          Satın almaları geri yükle
+        </button>
+      ) : null}
 
       {onDismiss ? (
         <button

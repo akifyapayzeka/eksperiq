@@ -22,8 +22,10 @@ edildiği ve ne edilmediği her madde için açıkça belirtiliyor.
   hiçbir yerde senkron bir `boolean` bayrağa güvenilmez.
 - `unavailableEntitlementProvider`: gerçek satın alma mekanizması henüz yokken kullanılan varsayılan sağlayıcı;
   her zaman dürüstçe `"free"` döner. **Bu, spesifikasyondaki "feature flag" karşılığıdır** — bu sağlayıcı aktifken
-  hiçbir ekran satın alma/yükseltme aksiyonu göstermemelidir (şu an da göstermiyor: `isPro()` kod tabanında hiçbir UI
-  bileşeni tarafından çağrılmıyor, ve varsayılan parametresi hâlâ `unavailableEntitlementProvider`).
+  hiçbir ekran çalışan satın alma/yükseltme aksiyonu göstermemelidir. Paywall plan kartları görünebilir, ancak
+  `NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED=true` olmadan StoreKit çağrısı başlatmaz ve kullanıcıya App Store onayının
+  beklendiğini söyler. `isPro()` kod tabanında hiçbir UI bileşeni tarafından çağrılmıyor, ve varsayılan parametresi
+  hâlâ `unavailableEntitlementProvider`.
 - `nativeStoreKitEntitlementProvider`: gerçek native plugin'i çağıran sağlayıcı — **yazıldı ve test edildi, ama
   hiçbir UI bileşeni tarafından henüz kullanılmıyor** (madde 6'daki kural gereği: Swift tarafı Xcode'da derlenip
   gerçek cihazda doğrulanmadan bu, `isPro()`'nun varsayılanı yapılmayacak).
@@ -36,6 +38,14 @@ edildiği ve ne edilmediği her madde için açıkça belirtiliyor.
   durumlarını "erişim var" sayar.
 - `tests/unit/pro-entitlement.test.ts`: 11 test — `isPro()`'nun tüm durumları, `nativeStoreKitEntitlementProvider`,
   `purchasePro()`, `restorePurchases()`.
+
+`src/components/paywall/paywall-plans.tsx`:
+
+- Satın alma CTA'ları `NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED=true` olmadan StoreKit çağrısı başlatmaz.
+- Bu env yalnızca App Store Connect abonelik ürünleri oluşturulduktan, TestFlight/sandbox cihazda satın alma ve
+  restore akışı doğrulandıktan sonra açılmalı.
+- Env kapalıyken kullanıcıya Pro'nun App Store onayı beklediği gösterilir; fake satın alma, fake Pro veya boşa düşen
+  buton yoktur.
 
 Bu mimari, gerçek bir StoreKit 2 sağlayıcısı doğrulandığında `isPro(nativeStoreKitEntitlementProvider)` şeklinde
 takılabilecek şekilde tasarlandı — çağıran kodun değişmesi gerekmez.
@@ -105,6 +115,7 @@ Xcode/Swift toolchain'i yok, syntax hataları veya Capacitor API uyumsuzlukları
 1. App Store Connect'te `com.eksperiq.app.pro.monthly` product ID'siyle abonelik ürünü oluştur.
 2. Xcode'da projeyi aç, olası derleme hatalarını düzelt, StoreKit Testing/Sandbox ortamında çalıştır.
 3. Satın alma, restore ve `currentEntitlements` dinleyicisini gerçek bir cihazda sandbox Apple ID'siyle doğrula.
+4. Bu üç adım geçmeden `NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED=true` açma.
 
 **Not — `.github/workflows/ios-xcode-build-check.yml`**: Apple Developer hesabı beklemeden madde 2'nin "derleme
 hatası var mı" kısmı artık GitHub'ın macOS runner'ında doğrulanabilir — bu workflow (yalnızca manuel tetiklenir,
