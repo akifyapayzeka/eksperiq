@@ -822,4 +822,363 @@ export const FORD_OPEL_ENTRIES: ModelEntry[] = [
       },
     ],
   },
+  {
+    brand: "Opel",
+    model: "Vectra",
+    generation: "B/C",
+    yearFrom: 2000,
+    yearTo: 2008,
+    generalNote: "2000 sonrası ikinci elde yaş kaynaklı elektrik, pas, soğutma ve LPG geçmişi motor kadar önemlidir.",
+    engines: [
+      {
+        engineLabel: "1.6 / 1.8 Ecotec",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2000,
+        yearTo: 2008,
+        issues: [
+          {
+            id: "opel-vectra-ecotec-egr-oil",
+            severity: "medium",
+            title: "EGR, yağ kaçakları ve soğutma sistemi kontrolü",
+            detail:
+              "Ecotec Vectra'da EGR, bobin/buji, yağ kaçakları, termostat/su pompası ve LPG'li araçlarda subap/kompresyon kontrol edilmelidir.",
+            typicalOnset: "Yaş ve LPG kullanımına bağlı",
+            costLevel: "Orta",
+            sourceNote: "Opel Vectra/Ecotec kullanıcı forumları ve bağımsız servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "2.0 / 2.2 DTI",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2000,
+        yearTo: 2005,
+        issues: [
+          {
+            id: "opel-vectra-dti-pump-turbo",
+            severity: "medium",
+            title: "Mazot pompası, turbo ve EGR kontrolü",
+            detail:
+              "DTI dizellerde yüksek km'de mazot pompası/elektronik pompa, turbo, EGR ve soğutma sistemi kontrol edilmelidir.",
+            typicalOnset: "180.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Opel DTI kullanıcı forumları ve dizel servis kayıtlarında tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Opel",
+    model: "Zafira",
+    yearFrom: 2000,
+    yearTo: 2019,
+    engines: [
+      {
+        engineLabel: "1.6 / 1.8 Ecotec",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2000,
+        yearTo: 2014,
+        issues: [
+          {
+            id: "opel-zafira-ecotec-lpg-egr",
+            severity: "medium",
+            title: "LPG/subap, EGR ve soğutma sistemi kontrolü",
+            detail:
+              "Zafira benzinlilerde LPG montajı, subap/kompresyon, EGR, bobin ve soğutma sistemi aile aracı kullanımında kontrol edilmelidir.",
+            typicalOnset: "120.000 km sonrası veya LPG'li kullanımda",
+            costLevel: "Orta",
+            sourceNote: "Opel Zafira/Ecotec kullanıcı forumları ve LPG servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.9 CDTI",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2005,
+        yearTo: 2014,
+        issues: [
+          {
+            id: "opel-zafira-19cdti-egr-swirl",
+            severity: "medium",
+            title: "EGR, swirl flap, DPF ve volan kontrolü",
+            detail:
+              "1.9 CDTI Zafira'da EGR, emme manifoldu swirl flap, DPF, turbo ve çift kütleli volan kontrol edilmelidir.",
+            typicalOnset: "130.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Fiat/GM 1.9 CDTI-JTD motor ailesi ve Zafira forumlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.6 CDTI",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2014,
+        yearTo: 2019,
+        issues: [
+          {
+            id: "opel-zafira-16cdti-chain-dpf",
+            severity: "high",
+            title: "1.6 CDTI zincir gergisi ve DPF/EGR kontrolü",
+            detail:
+              "1.6 CDTI'da soğuk çalıştırma zincir sesi/gergi, DPF/EGR ve AdBlue varsa emisyon sistemi kontrol edilmelidir.",
+            typicalOnset: "80.000-150.000 km",
+            costLevel: "Yüksek",
+            sourceNote: "Opel/Vauxhall 1.6 CDTI zincir ve DPF kayıtlarında tekrar eden bulgu.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Opel",
+    model: "Insignia",
+    yearFrom: 2008,
+    yearTo: 2022,
+    engines: [
+      {
+        engineLabel: "1.6 Turbo",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2008,
+        yearTo: 2017,
+        issues: [
+          {
+            id: "opel-insignia-16turbo-cooling",
+            severity: "medium",
+            title: "Turbo, soğutma sistemi ve M32 manuel şanzıman kontrolü",
+            detail:
+              "Insignia 1.6 Turbo'da turbo/soğutma, yağ kaçakları ve M32 manuel şanzımanda rulman uğultusu kontrol edilmelidir.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Opel Insignia forumları ve M32 şanzıman servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.6 CDTI",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2015,
+        yearTo: 2022,
+        issues: [
+          {
+            id: "opel-insignia-16cdti-chain-adblue",
+            severity: "high",
+            title: "1.6 CDTI zincir sesi, DPF/EGR ve AdBlue kontrolü",
+            detail:
+              "Insignia 1.6 CDTI'da zincir/gergi sesi, DPF/EGR, AdBlue/NOx ve otomatik şanzıman bakım geçmişi kontrol edilmelidir.",
+            typicalOnset: "90.000-160.000 km",
+            costLevel: "Yüksek",
+            sourceNote: "Opel 1.6 CDTI teknik kaynakları ve Insignia kullanıcı kayıtlarında tekrar eden bulgu.",
+          },
+        ],
+      },
+      {
+        engineLabel: "2.0 CDTI",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2008,
+        yearTo: 2022,
+        issues: [
+          {
+            id: "opel-insignia-20cdti-egr-dpf-auto",
+            severity: "medium",
+            title: "EGR/DPF, emme klapesi ve otomatik şanzıman kontrolü",
+            detail:
+              "2.0 CDTI Insignia'da EGR/DPF, emme manifoldu/klape, turbo ve otomatik şanzıman geçişleri kontrol edilmelidir.",
+            typicalOnset: "140.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Insignia 2.0 CDTI kullanıcı forumları ve bağımsız servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Opel",
+    model: "Mokka",
+    yearFrom: 2012,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.4 Turbo",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2012,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "opel-mokka-14turbo-pcv-cooling",
+            severity: "medium",
+            title: "PCV/kapak, turbo ve soğutma sistemi kontrolü",
+            detail:
+              "Mokka 1.4 Turbo'da PCV/kapak diyaframı, turbo wastegate, soğutma kaçakları ve otomatik şanzıman geçişleri kontrol edilmelidir.",
+            typicalOnset: "90.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Opel 1.4 Turbo kullanıcı forumları ve Mokka servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.6 CDTI",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2015,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "opel-mokka-16cdti-chain-dpf",
+            severity: "high",
+            title: "1.6 CDTI zincir ve DPF/EGR kontrolü",
+            detail:
+              "Mokka 1.6 CDTI'da zincir sesi/gergi, EGR/DPF, AdBlue varsa emisyon sistemi ve otomatik şanzıman davranışı kontrol edilmelidir.",
+            typicalOnset: "90.000-150.000 km",
+            costLevel: "Yüksek",
+            sourceNote: "Opel 1.6 CDTI motor ailesi ve Mokka kullanıcı kayıtlarında tekrar eden bulgu.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.2 PureTech",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2021,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "opel-mokka-12puretech-wetbelt",
+            severity: "high",
+            title: "PureTech ıslak triger kayışı ve yağ tüketimi kontrolü",
+            detail:
+              "PSA ortak 1.2 PureTech'te yağ içinde çalışan triger kayışı, yağ tüketimi ve turbo/soğutma sistemi kontrol edilmelidir.",
+            typicalOnset: "60.000-120.000 km",
+            costLevel: "Yüksek",
+            sourceNote:
+              "PSA 1.2 PureTech teknik servis kampanyaları ve kullanıcı kayıtlarında tekrar eden iyi bilinen risk.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Opel",
+    model: "Grandland",
+    yearFrom: 2017,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.2 PureTech",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2017,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "opel-grandland-12puretech-wetbelt",
+            severity: "high",
+            title: "1.2 PureTech ıslak kayış, yağ tüketimi ve turbo kontrolü",
+            detail:
+              "Grandland 1.2 PureTech'te wet belt parçalanması/yağ süzgeci, yağ tüketimi, turbo ve servis kampanya geçmişi kontrol edilmelidir.",
+            typicalOnset: "60.000-120.000 km",
+            costLevel: "Yüksek",
+            sourceNote:
+              "PSA 1.2 PureTech ailesi teknik kaynakları ve Opel/Peugeot kullanıcı kayıtlarında tekrar eden risk.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 BlueHDi",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2018,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "opel-grandland-15bluehdi-adblue-chain",
+            severity: "medium",
+            title: "AdBlue/NOx ve 1.5 BlueHDi zincir/eksantrik kontrolü",
+            detail:
+              "Grandland 1.5 dizelde AdBlue deposu/pompası, NOx sensörü, DPF/EGR ve 1.5 BlueHDi üst kapak/eksantrik zinciri riski kontrol edilmelidir.",
+            typicalOnset: "80.000-150.000 km",
+            costLevel: "Orta",
+            sourceNote: "PSA 1.5 BlueHDi teknik kaynakları ve kullanıcı şikayetlerinde tekrar eden bulgu.",
+          },
+        ],
+      },
+      {
+        engineLabel: "Plug-in Hybrid",
+        fuelType: "Hibrit",
+        transmission: "Otomatik",
+        yearFrom: 2020,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "opel-grandland-phev-battery-awd",
+            severity: "medium",
+            title: "Hibrit batarya, şarj sistemi ve AWD modül kontrolü",
+            detail:
+              "Plug-in hibrit Grandland'da batarya sağlığı, şarj portu, garanti devri, inverter/soğutma ve AWD çift motorlu versiyonda arka elektrik motoru kontrol edilmelidir.",
+            typicalOnset: "Garanti devri ve yüksek km öncesi",
+            costLevel: "Orta",
+            sourceNote: "PHEV alım rehberleri ve PSA/Opel hibrit kullanıcı deneyimlerinde tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Opel",
+    model: "Combo",
+    yearFrom: 2001,
+    yearTo: 2026,
+    generalNote:
+      "Ticari kullanım ve PSA/Fiat/GM ortak motor dönemleri nedeniyle gerçek kullanım tipi, yük geçmişi ve bakım aralığı kritik.",
+    engines: [
+      {
+        engineLabel: "1.3 CDTI",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2004,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "opel-combo-13cdti-chain-egr",
+            severity: "medium",
+            title: "1.3 CDTI zincir sesi, EGR/enjektör ve turbo kontrolü",
+            detail:
+              "Fiat Multijet tabanlı 1.3 CDTI'da zincir sesi, EGR kurumlanması, enjektör ve turbo hortumu kontrol edilmelidir.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "Fiat/Opel 1.3 CDTI-Multijet kullanıcı forumları ve ticari servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 BlueHDi",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2018,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "opel-combo-15bluehdi-adblue",
+            severity: "medium",
+            title: "AdBlue/NOx, DPF/EGR ve ticari kullanım yıpranması",
+            detail:
+              "Yeni Combo 1.5 dizelde AdBlue/NOx, DPF/EGR, turbo ve ticari kullanım kaynaklı debriyaj/alt takım kontrol edilmelidir.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "PSA 1.5 BlueHDi ve Opel Combo kullanıcı/servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
 ];

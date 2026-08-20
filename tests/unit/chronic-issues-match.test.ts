@@ -305,6 +305,15 @@ describe("findChronicIssues", () => {
     expect(renaultModels.filter((model) => !coveredRenaultModels.has(model))).toEqual([]);
   });
 
+  it("covers every Opel model listed in the analysis form catalog", () => {
+    const opelModels = ["Astra", "Combo", "Corsa", "Grandland", "Insignia", "Mokka", "Vectra", "Zafira"];
+    const coveredOpelModels = new Set(
+      CHRONIC_ISSUES_DB.filter((entry) => entry.brand === "Opel").map((entry) => entry.model),
+    );
+
+    expect(opelModels.filter((model) => !coveredOpelModels.has(model))).toEqual([]);
+  });
+
   it("matches newly added premium brand engine-specific issues", () => {
     const bmw = findChronicIssues({
       brand: "BMW",
