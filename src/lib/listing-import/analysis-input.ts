@@ -1,4 +1,5 @@
 import { vehicleSchema, type VehicleFormData } from "@/lib/schemas/vehicle";
+import { modelOptionsForBrand } from "@/components/forms/analysis-form-sections";
 import type { ListingImportResult } from "./types";
 
 type ImportedAnalysisInputResult =
@@ -21,6 +22,47 @@ function importedBoolean(value: unknown): boolean {
   return typeof value === "boolean" ? value : false;
 }
 
+function searchText(result: ListingImportResult): string {
+  return [result.title, result.fields.sellerDescription].map((value) => importedString(value) ?? "").join(" ");
+}
+
+function fallbackYear(result: ListingImportResult): number | null {
+  const match = searchText(result).match(/\b(19[8-9]\d|20[0-3]\d)\b/);
+  return match ? Number(match[1]) : null;
+}
+
+function fallbackFuelType(result: ListingImportResult): string | null {
+  const normalized = searchText(result).toLocaleLowerCase("tr-TR");
+  if (/\belektrik/.test(normalized)) return "Elektrik";
+  if (/\bhibrit|\bhybrid/.test(normalized)) return "Hibrit";
+  if (/\bdizel|\bdiesel/.test(normalized)) return "Dizel";
+  if (/\blpg|\botogaz/.test(normalized)) return "LPG";
+  if (/\bbenzin/.test(normalized)) return "Benzin";
+  return null;
+}
+
+function fallbackTransmission(result: ListingImportResult): string | null {
+  const normalized = searchText(result).toLocaleLowerCase("tr-TR");
+  if (/yar[ıi]\s*otomatik|semi\s*automatic/.test(normalized)) return "Yarı otomatik";
+  if (/otomatik|automatic/.test(normalized)) return "Otomatik";
+  if (/manuel|manual/.test(normalized)) return "Manuel";
+  return null;
+}
+
+function fallbackModel(result: ListingImportResult, brand: string | null): string | null {
+  if (!brand) return null;
+  const text = searchText(result);
+  const normalized = text.toLocaleLowerCase("tr-TR");
+  const catalogMatch = modelOptionsForBrand(brand).find((model) =>
+    normalized.includes(model.toLocaleLowerCase("tr-TR")),
+  );
+  if (catalogMatch) return catalogMatch;
+
+  const escapedBrand = brand.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const afterBrand = text.match(new RegExp(`\\b${escapedBrand}\\s+([\\p{L}\\d-]+)`, "iu"));
+  return afterBrand?.[1] ?? null;
+}
+
 function sellerDescriptionFromImport(result: ListingImportResult): string {
   const description = importedString(result.fields.sellerDescription);
   if (description && description.length >= 20) return description;
@@ -34,13 +76,15 @@ export function buildVehicleInputFromListingImport(
   listingUrl: string,
 ): ImportedAnalysisInputResult {
   const fields = result.fields;
+  const brand = importedString(fields.brand);
+  const model = importedString(fields.model) ?? fallbackModel(result, brand);
   const input = {
-    brand: importedString(fields.brand),
-    model: importedString(fields.model),
-    year: importedNumber(fields.year),
+    brand,
+    model,
+    year: importedNumber(fields.year) ?? fallbackYear(result),
     trim: importedString(fields.trim) ?? undefined,
-    fuelType: importedString(fields.fuelType),
-    transmission: importedString(fields.transmission),
+    fuelType: importedString(fields.fuelType) ?? fallbackFuelType(result),
+    transmission: importedString(fields.transmission) ?? fallbackTransmission(result),
     mileage: importedNumber(fields.mileage),
     price: importedNumber(fields.price),
     city: importedString(fields.city),

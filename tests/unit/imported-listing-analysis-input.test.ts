@@ -66,6 +66,7 @@ describe("buildVehicleInputFromListingImport", () => {
   it("reports missing core fields when the listing cannot support a reliable analysis", () => {
     const result = buildVehicleInputFromListingImport(
       baseImportResult({
+        title: "Eksik ilan",
         fields: { ...baseImportResult().fields, brand: null, model: null, price: null },
       }),
       "https://shbd.io/s/example",
@@ -74,5 +75,27 @@ describe("buildVehicleInputFromListingImport", () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.missingFields).toEqual(expect.arrayContaining(["brand", "model", "price"]));
+  });
+
+  it("falls back to title and description for core fields the AI shape omitted", () => {
+    const result = buildVehicleInputFromListingImport(
+      baseImportResult({
+        title: "2005 Fiat Albea Active LPG'li değişensiz klimalı",
+        fields: {
+          ...baseImportResult().fields,
+          model: null,
+          year: null,
+          fuelType: null,
+          sellerDescription: "2005 1.2 8 v ALBEA ACTIVE LPG'Lİ DEĞİŞENSİZ KLİMALI",
+        },
+      }),
+      "https://shbd.io/s/example",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.model).toBe("Albea");
+    expect(result.data.year).toBe(2005);
+    expect(result.data.fuelType).toBe("LPG");
   });
 });

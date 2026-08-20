@@ -409,24 +409,33 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
         return match ? absolutize(match[1]) : '';
       }
       var imageCandidates = [];
+      function addImage(src, width, height, trusted) {
+        imageCandidates.push({ src: absolutize(src || ''), width: width || 0, height: height || 0, trusted: !!trusted });
+      }
       Array.from(document.querySelectorAll('meta[property="og:image"], meta[name="og:image"]'))
-        .forEach(function(meta) { imageCandidates.push(absolutize(meta.getAttribute('content') || '')); });
+        .forEach(function(meta) { addImage(meta.getAttribute('content') || '', 0, 0, true); });
       Array.from(document.images || []).forEach(function(img) {
-        imageCandidates.push(absolutize(img.currentSrc || img.src || ''));
+        var width = img.naturalWidth || img.width || img.clientWidth || 0;
+        var height = img.naturalHeight || img.height || img.clientHeight || 0;
+        addImage(img.currentSrc || img.src || '', width, height, false);
         ['data-src', 'data-original', 'data-lazy', 'data-url', 'data-full', 'data-zoom-image'].forEach(function(name) {
-          imageCandidates.push(absolutize(img.getAttribute(name) || ''));
+          addImage(img.getAttribute(name) || '', width, height, false);
         });
-        imageCandidates = imageCandidates.concat(srcsetUrls(img.getAttribute('srcset') || ''));
+        srcsetUrls(img.getAttribute('srcset') || '').forEach(function(src) { addImage(src, width, height, false); });
       });
-      Array.from(document.querySelectorAll('[style]')).forEach(function(el) {
-        imageCandidates.push(backgroundUrl(el.getAttribute('style') || ''));
-      });
-      var uniqueImages = Array.from(new Set(imageCandidates))
-        .filter(function(src) {
-          return /^https?:\/\//i.test(src) &&
-            !/sprite|icon|logo|favicon|avatar|blank|placeholder/i.test(src) &&
-            /\.(jpe?g|png|webp)(\?|$)|image|photo|classified|sahibinden|arabam/i.test(src);
+      var seenImages = new Set();
+      var uniqueImages = imageCandidates
+        .filter(function(item) {
+          var src = item.src || '';
+          if (seenImages.has(src)) return false;
+          seenImages.add(src);
+          var largeEnough = item.trusted || (item.width >= 180 && item.height >= 120);
+          return largeEnough &&
+            /^https?:\/\//i.test(src) &&
+            !/sprite|icon|logo|favicon|avatar|blank|placeholder|missing|badge|category|attribute/i.test(src) &&
+            /\.(jpe?g|png|webp)(\?|$)|image|photo|sahibinden|arabam/i.test(src);
         })
+        .map(function(item) { return item.src; })
         .slice(0, 30);
       return JSON.stringify({
         title: document.title || '',

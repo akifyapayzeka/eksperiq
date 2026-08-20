@@ -11,6 +11,7 @@ import { getImportSession, setImportSession, useImportSession } from "@/lib/list
 import { prepareListingImportNotifications } from "@/lib/listing-import/notifications";
 import { computeDisplayPercent } from "@/lib/listing-import/progress";
 import { acceptAiConsent, hasAcceptedAiConsent } from "@/lib/consent/ai-consent";
+import type { ListingImportResult } from "@/lib/listing-import/types";
 
 const isListingImportEnabled = process.env.NEXT_PUBLIC_LISTING_IMPORT_ENABLED === "true";
 
@@ -31,7 +32,11 @@ const errorMessages: Record<string, string> = {
   "rate-limited": "Çok fazla içe aktarma denemesi yapıldı. Birazdan tekrar deneyin.",
 };
 
-export function ListingImportSection() {
+export function ListingImportSection({
+  onAnalyzeImported,
+}: {
+  onAnalyzeImported?: (result: ListingImportResult, rawUrl: string) => void;
+}) {
   const { url, status, stage, stageStartedAt, errorMessage, errorDetail, result } = useImportSession();
   const [consent, setConsent] = useState(() => hasAcceptedAiConsent());
   const [showConsentPrompt] = useState(() => !hasAcceptedAiConsent());
@@ -130,6 +135,7 @@ export function ListingImportSection() {
       }
 
       setImportSession({ status: "success", result: outcome.result, stage: null });
+      onAnalyzeImported?.(outcome.result, currentUrl);
     } catch (error) {
       const detail = error instanceof Error ? error.message : String(error);
       setImportSession({
@@ -155,7 +161,7 @@ export function ListingImportSection() {
       <div className="flex items-center gap-2">
         <LinkIcon aria-hidden="true" className="h-5 w-5 text-accent" />
         <h2 id="listing-import-title" className="font-semibold text-foreground">
-          İlan linkiyle analiz hazırla
+          İlan linkiyle analiz et
         </h2>
       </div>
       <p className="mt-1 text-sm leading-6 text-muted-foreground">
@@ -223,7 +229,7 @@ export function ListingImportSection() {
         className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-accent px-5 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
       >
         {status === "loading" ? <Spinner /> : <LinkIcon aria-hidden="true" className="h-4 w-4" />}
-        {status === "loading" && stage ? `${stageLabels[stage]} (%${progressPercent})` : "İlanı hazırla"}
+        {status === "loading" && stage ? `${stageLabels[stage]} (%${progressPercent})` : "İlanı analiz et"}
       </button>
 
       {status === "loading" && stage ? (
@@ -255,7 +261,7 @@ export function ListingImportSection() {
           <p className="text-sm font-semibold text-foreground">
             {result.missingFields.length > 5
               ? "İlanın bazı bilgileri alınamadı. EksperIQ yine de bulunan bilgilerle rapor hazırlamayı deneyecek."
-              : "İlan bilgileri getirildi. Şimdi formu doldurmadan analiz oluşturabilirsiniz."}
+              : "İlan bilgileri getirildi. Analiz raporu oluşturuluyor."}
           </p>
           {result.warnings.length ? (
             <ul className="mt-2 grid gap-1 text-sm text-warning">
