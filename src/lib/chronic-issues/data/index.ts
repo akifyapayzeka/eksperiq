@@ -7,6 +7,7 @@ import { PEUGEOT_SEAT_ENTRIES } from "./peugeot-seat";
 import { SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES } from "./skoda-honda-citroen-nissan-kia";
 import { RENAULT_ENTRIES } from "./renault";
 import { PREMIUM_VOLVO_SUZUKI_ENTRIES } from "./premium-volvo-suzuki";
+import { ADDITIONAL_MARKET_BRAND_ENTRIES } from "./additional-market-brands";
 
 // Populated incrementally, model by model, from grounded research (forum
 // consensus, known engine-family issues, technical service bulletins,
@@ -21,4 +22,5 @@ export const CHRONIC_ISSUES_DB: ModelEntry[] = [
   ...SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES,
   ...RENAULT_ENTRIES,
   ...PREMIUM_VOLVO_SUZUKI_ENTRIES,
+  ...ADDITIONAL_MARKET_BRAND_ENTRIES,
 ];

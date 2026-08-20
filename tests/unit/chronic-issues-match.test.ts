@@ -149,6 +149,71 @@ describe("findChronicIssues", () => {
     expect(priorityBrands.filter((brand) => !covered.has(brand))).toEqual([]);
   });
 
+  it("covers 20 additional market brands with at least one model entry", () => {
+    const additionalBrands = [
+      "Alfa Romeo",
+      "BYD",
+      "Chery",
+      "Chevrolet",
+      "Cupra",
+      "DS Automobiles",
+      "Isuzu",
+      "Jeep",
+      "Lada",
+      "Land Rover",
+      "Lexus",
+      "Mazda",
+      "MG",
+      "Mini",
+      "Mitsubishi",
+      "Porsche",
+      "SsangYong",
+      "Subaru",
+      "Tesla",
+      "Togg",
+    ];
+    const covered = new Set(CHRONIC_ISSUES_DB.map((entry) => entry.brand));
+
+    expect(additionalBrands.filter((brand) => !covered.has(brand))).toEqual([]);
+  });
+
+  it("matches newly added additional market brand issues", () => {
+    const togg = findChronicIssues({
+      brand: "Togg",
+      model: "T10X",
+      year: 2025,
+      fuelType: "Elektrik",
+      transmission: "Otomatik",
+      engineSize: "",
+      trim: "",
+      sellerDescription: "Togg T10X uzun menzil, servis yazilimi guncel.",
+    });
+    const mini = findChronicIssues({
+      brand: "Mini",
+      model: "Cooper",
+      year: 2012,
+      fuelType: "Benzin",
+      transmission: "Manuel",
+      engineSize: "1.6",
+      trim: "Cooper S",
+      sellerDescription: "R56 1.6 turbo Prince motor.",
+    });
+    const landRover = findChronicIssues({
+      brand: "Land Rover",
+      model: "Range Rover Evoque",
+      year: 2018,
+      fuelType: "Dizel",
+      transmission: "Otomatik",
+      engineSize: "2.0",
+      trim: "",
+      sellerDescription: "2.0 Ingenium dizel otomatik.",
+    });
+
+    expect(togg.issues.some((issue) => issue.id === "togg-t10x-software-battery")).toBe(true);
+    expect(mini.issues.some((issue) => issue.id === "mini-r56-prince-chain-carbon")).toBe(true);
+    expect(landRover.issues.some((issue) => issue.id === "landrover-evoque-ingenium-chain-dpf")).toBe(true);
+  });
+
   it("matches newly added premium brand engine-specific issues", () => {
     const bmw = findChronicIssues({
       brand: "BMW",
