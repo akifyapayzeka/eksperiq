@@ -9,7 +9,7 @@ import type { ReactNode } from "react";
 export function AppShell({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
     <main className={`flex-1 bg-background ${className}`}>
-      <div className="mx-auto max-w-5xl px-4 pb-10 sm:px-6 lg:px-8">{children}</div>
+      <div className="mx-auto max-w-5xl px-4 pb-28 sm:px-6 sm:pb-10 lg:px-8">{children}</div>
     </main>
   );
 }

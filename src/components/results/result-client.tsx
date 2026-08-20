@@ -422,7 +422,7 @@ export function ResultClient() {
   if (!isReady) {
     return (
       <main className="flex-1 bg-background">
-        <div className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl px-4 pb-28 pt-12 text-center sm:px-6 sm:pb-12 lg:px-8">
           <h1 className="text-3xl font-semibold text-foreground">Rapor hazırlanıyor</h1>
           <p className="mt-3 leading-7 text-foreground/80">Mevcut tarayıcı oturumundaki analiz kontrol ediliyor.</p>
         </div>
@@ -433,7 +433,7 @@ export function ResultClient() {
   if (!result) {
     return (
       <main className="flex-1 bg-background">
-        <div className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl px-4 pb-28 pt-12 text-center sm:px-6 sm:pb-12 lg:px-8">
           <h1 className="text-3xl font-semibold text-foreground">Analiz bulunamadı</h1>
           <p className="mt-3 leading-7 text-foreground/80">
             Sayfa yenilenmiş olabilir. Sonuç verisi URL içine yazılmaz ve yalnızca mevcut tarayıcı oturumunda tutulur.
@@ -455,7 +455,7 @@ export function ResultClient() {
 
   return (
     <main className="flex-1 bg-background">
-      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto grid max-w-6xl gap-6 px-4 pb-28 pt-6 sm:px-6 sm:pb-6 lg:px-8">
         <div className="print-only mb-2 flex items-center justify-between border-b border-border pb-3">
           <p className="text-lg font-semibold text-foreground">{appConfig.name}</p>
           <p className="text-sm text-muted-foreground">Rapor oluşturma: {formatReportDate(result.generatedAt)}</p>
