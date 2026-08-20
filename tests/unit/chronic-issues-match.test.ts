@@ -243,6 +243,27 @@ describe("findChronicIssues", () => {
     );
   });
 
+  it("covers every Volkswagen model listed in the analysis form catalog", () => {
+    const volkswagenModels = [
+      "Bora",
+      "Caddy",
+      "Golf",
+      "Jetta",
+      "Passat",
+      "Polo",
+      "T-Cross",
+      "T-Roc",
+      "Tiguan",
+      "Touran",
+      "Transporter",
+    ];
+    const coveredVolkswagenModels = new Set(
+      CHRONIC_ISSUES_DB.filter((entry) => entry.brand === "Volkswagen").map((entry) => entry.model),
+    );
+
+    expect(volkswagenModels.filter((model) => !coveredVolkswagenModels.has(model))).toEqual([]);
+  });
+
   it("matches newly added premium brand engine-specific issues", () => {
     const bmw = findChronicIssues({
       brand: "BMW",
