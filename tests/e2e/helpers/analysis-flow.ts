@@ -8,5 +8,9 @@ import type { Page } from "@playwright/test";
  */
 export async function gotoAnalysisForm(page: Page): Promise<void> {
   await page.goto("/analiz");
+  const paywallClose = page.getByRole("button", { name: "Kapat" });
+  if (await paywallClose.isVisible().catch(() => false)) {
+    await paywallClose.click();
+  }
   await page.getByRole("button", { name: "Araç satın alacağım" }).click();
 }
