@@ -8,7 +8,7 @@ import { acceptAiConsent } from "@/lib/consent/ai-consent";
 import { Field } from "@/components/ui/field";
 import { PrimaryButton } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { PaywallPlansScreen } from "@/components/paywall/paywall-plans";
+import { PlanPaywallDialog } from "@/components/paywall/plan-paywall-dialog";
 
 const PLANS_SEEN_KEY_PREFIX = "eksperiq:onboarding-plans-seen:";
 const PLANS_SEEN_ANONYMOUS_KEY = "eksperiq:onboarding-plans-seen:anonymous";
@@ -230,14 +230,16 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
 
   if (step === "plans") {
     return (
-      <Screen>
-        <PaywallPlansScreen
+      <>
+        {children}
+        <PlanPaywallDialog
+          open
           headline="Pro ile daha güçlü analiz"
           description="Ücretsiz 3 ilan linki analizinden sonra Pro ile ayda 20, Pro+ ile sınırsız ilan analizi yapın. Fotoğraf analizi ücretsiz kalır."
           dismissLabel="Şimdilik ücretsiz devam et"
           onDismiss={finishOnboarding}
         />
-      </Screen>
+      </>
     );
   }
 

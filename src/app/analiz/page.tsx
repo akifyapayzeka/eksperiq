@@ -6,33 +6,23 @@ import { ArrowUpRight, Camera, ScanSearch, ShoppingCart } from "lucide-react";
 import { AnalysisForm } from "@/components/forms/analysis-form";
 import { AppShell } from "@/components/layout/app-shell";
 import { HeroCard } from "@/components/cards/hero-card";
-import { PaywallPlansScreen } from "@/components/paywall/paywall-plans";
+import { PlanPaywallDialog } from "@/components/paywall/plan-paywall-dialog";
 import { resolveSubscriptionTier } from "@/lib/pro/tier";
 import { hasListingAnalysisQuotaRemaining } from "@/lib/pro/listing-quota";
 
-type AnalysisIntent = "choice" | "purchase" | "quota-exceeded";
+type AnalysisIntent = "choice" | "purchase";
 
 export default function AnalysisPage() {
   const [intent, setIntent] = useState<AnalysisIntent>("choice");
+  const [quotaDialogOpen, setQuotaDialogOpen] = useState(false);
 
   async function startPurchaseFlow() {
     const tier = await resolveSubscriptionTier();
-    setIntent(hasListingAnalysisQuotaRemaining(tier) ? "purchase" : "quota-exceeded");
-  }
-
-  if (intent === "quota-exceeded") {
-    return (
-      <AppShell>
-        <div className="flex justify-center pt-6">
-          <PaywallPlansScreen
-            headline="Ücretsiz ilan analizi hakkınız bitti"
-            description="İlan linkiyle analize devam etmek için Pro veya Pro+'a geçin. Aracınızın bakım ve vergi takibini, fotoğraf hasar kontrolünü ücretsiz kullanmaya devam edebilirsiniz."
-            dismissLabel="Geri dön"
-            onDismiss={() => setIntent("choice")}
-          />
-        </div>
-      </AppShell>
-    );
+    if (hasListingAnalysisQuotaRemaining(tier)) {
+      setIntent("purchase");
+      return;
+    }
+    setQuotaDialogOpen(true);
   }
 
   if (intent === "choice") {
@@ -77,6 +67,13 @@ export default function AnalysisPage() {
             <ArrowUpRight aria-hidden="true" className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />
           </Link>
         </div>
+        <PlanPaywallDialog
+          open={quotaDialogOpen}
+          headline="Ücretsiz ilan analizi hakkınız bitti"
+          description="İlan linkiyle analize devam etmek için Pro veya Pro+'a geçin. Aracınızın bakım ve vergi takibini, fotoğraf hasar kontrolünü ücretsiz kullanmaya devam edebilirsiniz."
+          dismissLabel="Geri dön"
+          onDismiss={() => setQuotaDialogOpen(false)}
+        />
       </AppShell>
     );
   }
