@@ -67,7 +67,7 @@ Bu klasör App Store Connect için ücretsiz hazırlanabilen teslim varlıkları
 1. Screenshot dosyalarını gerçek iPhone ölçülerine göre incele.
 2. App Store ikonunun 1024x1024 opak PNG çıktısını \`assets/app-store-icon-1024.png\` içinden kullan.
 3. App Store Connect metinlerini \`docs/app-store-submission.md\` içinden kullan.
-4. Review note içinde karar destek sınırını, AI notunun kullanıcı aksiyonuyla çalıştığını ve fotoğraf kontrolünün kesin hasar tespiti olmadığını koru.
+4. Review note içinde ilan linki analizinin kullanıcı aksiyonuyla çalıştığını ve fotoğraf kontrolünün kesin hasar tespiti olmadığını koru.
 5. Gizlilik cevaplarında OpenRouter üzerinden geçici AI işleme ve kullanıcının dosya seçimiyle sınırlı fotoğraf erişimi bilgisini kullan.
 6. TestFlight öncesi \`npm run native:build\` sonucunu yeniden doğrula.
 `,

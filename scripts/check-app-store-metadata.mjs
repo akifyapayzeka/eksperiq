@@ -7,13 +7,13 @@ const requiredSnippets = [
   "karar destek",
   "profesyonel araç ekspertizinin",
   "garanti etmez",
-  "Kullanıcı hesabı: Yok",
+  "Kullanıcı hesabı: Opsiyonel",
   "Reklam takibi: Yok",
   "Üçüncü taraf analytics: Yok",
-  "Konum izni: Yok",
+  "Konum izni",
   "OpenRouter",
   "Fotoğraf erişimi",
-  "AI karar destek",
+  "İlan linki normalizasyonu",
   "Destek URL'si: `https://eksperiq.vercel.app/geri-bildirim`",
 ];
 

@@ -4,7 +4,7 @@ Bu dosya App Store Connect gizlilik formu doldurulurken kullanılacak cevapları
 
 ## Veri Toplama
 
-- Kullanıcı hesabı: Yok. Kullanıcı adı, e-posta, telefon, adres: toplanmaz.
+- Kullanıcı hesabı: Opsiyoneldir; yalnızca Pro/Pro+ abonelik ve giriş için kullanılır. Araç kayıtları ve analizler geliştirici sunucusunda kalıcı hesap kaydı olarak tutulmaz.
 - Konum verisi: Yalnızca kullanıcı "konumuma göre" bir işlem başlatırsa cihazdan anlık alınır; şehir tahmini ve yakındaki ekspertiz, noter veya servisleri bulmak için kullanılır. Kalıcı hesap kaydı olarak saklanmaz, reklam/izleme amacıyla kullanılmaz.
 - Kişiler, mikrofon: Erişim istenmez.
 - Kamera, fotoğraflar: Yalnızca kullanıcı fotoğraf ekleme ekranında kamerayla çekim veya galeriden seçim başlattığı anda, tek bir fotoğraf için erişilir; sürekli veya arka planda erişim yoktur. Fotoğraf, AI'ya gönderilmeden önce cihazda küçültülür/yeniden sıkıştırılır ve EXIF meta verileri (konum, cihaz bilgisi) silinir.
@@ -14,7 +14,7 @@ Bu dosya App Store Connect gizlilik formu doldurulurken kullanılacak cevapları
 - Üçüncü taraf analytics: Yok.
 - Geliştirici sunucusuna kalıcı hesap/analiz kaydı: Yok. (Bildirim özelliğiyle ilgili sınırlı, TTL'li istisna için aşağıya bakın.)
 - İlan sitesi scraping: Yok.
-- Ödeme veya abonelik: İlk sürümde yok; gerçek StoreKit altyapısı hazırlanana kadar "Pro'ya geç" gibi işlevsel olmayan bir satın alma akışı gösterilmez.
+- Ödeme veya abonelik: Pro/Pro+ planları yalnızca ilan linki analiz hakkını genişletmek için kullanılır. Fotoğraf analizi ücretsiz kalır. StoreKit satın alma akışı gerçek App Store ürünleri ve sandbox doğrulaması tamamlanmadan etkinleştirilmez.
 
 ## Cihazda Geçici/Kalıcı Veri
 
@@ -27,9 +27,9 @@ Bakım ve Ödeme Takvimi kayıtları (MTV, sigorta, muayene, bakım gibi başlı
 - **Web/PWA:** Kullanıcı bildirimleri açarsa, son tarihe 30 ve 15 gün kala bildirim gönderebilmek için bu kayıtların bir kopyası ve push aboneliği bilgisi (kullanıcı kimliğiyle ilişkilendirilmeden) sunucu tarafı veritabanı altyapısında (Upstash) tutulur. Bu kopya, cihaz 90 gün boyunca hiç senkronize olmazsa kendiliğinden otomatik silinir (Redis TTL); bildirimler kapatılırsa veya kayıt silinirse ya da kullanıcı "tüm verilerimi sil" derse hemen silinir. Bu veri üçüncü taraflarla paylaşılmaz veya reklam/analitik amacıyla kullanılmaz; yalnızca bildirimi teslim etmek için tarayıcının/işletim sisteminin kendi push servisi aracı olarak kullanılır.
 - **iOS mağaza sürümü:** Bildirimler `@capacitor/local-notifications` ile tamamen cihaz üzerinde planlanır; hiçbir kayıt sunucuya gönderilmez.
 
-## AI Karar Destek ve Fotoğraf Kontrolü
+## AI İlan Normalizasyonu ve Fotoğraf Kontrolü
 
-AI karar destek notu ve fotoğraf kontrolü yalnızca kullanıcının açık aksiyonuyla çalışır. İlan/araç bilgileri veya seçilen (önceden cihazda sıkıştırılıp EXIF'i temizlenmiş) fotoğraf, OpenRouter üzerinden geçici olarak, "bu veriyi model eğitimi için toplama/saklama" talimatıyla işlenir; geliştirici sunucusunda kalıcı hesap kaydı olarak saklanmaz. AI istekleri zaman aşımı ve kontrollü yeniden deneme ile sınırlıdır; AI çıktısındaki kesin/yanıltıcı ifadeler bir çıktı filtresiyle yumuşatılır. AI çıktısı kural tabanlı raporun, profesyonel araç ekspertizinin veya resmi kayıt kontrolünün yerine geçmez.
+İlan linki normalizasyonu ve fotoğraf kontrolü yalnızca kullanıcının açık aksiyonuyla çalışır. İlan metni/fotoğrafları veya seçilen (önceden cihazda sıkıştırılıp EXIF'i temizlenmiş) fotoğraf, OpenRouter üzerinden geçici olarak, "bu veriyi model eğitimi için toplama/saklama" talimatıyla işlenir; geliştirici sunucusunda kalıcı hesap kaydı olarak saklanmaz. AI istekleri zaman aşımı ve kontrollü yeniden deneme ile sınırlıdır; AI çıktısındaki kesin/yanıltıcı ifadeler bir çıktı filtresiyle yumuşatılır. AI çıktısı kural tabanlı raporun, profesyonel araç ekspertizinin veya resmi kayıt kontrolünün yerine geçmez.
 
 App Store gizlilik formunda üçüncü taraf AI işleme (OpenRouter) açıkça belirtilmeli; kamera ve fotoğraf kitaplığı izinleri yalnızca kullanıcı fotoğraf ekleme ekranında bir fotoğraf çekmeyi veya seçmeyi başlattığı anda, o tek fotoğraf için istenir.
 
