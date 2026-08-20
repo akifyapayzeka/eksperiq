@@ -182,6 +182,24 @@ const AIRBAG_STATUSES = ["Açmamış", "Açmış", "Değişmiş", "Bilinmiyor"];
 const LPG_STATUSES = ["Yok", "Var", "Sökülmüş", "Bilinmiyor"];
 const FUEL_TYPES = ["Benzin", "Dizel", "Hibrit", "Elektrik", "LPG"];
 const TRANSMISSIONS = ["Manuel", "Otomatik", "Yarı otomatik"];
+const BATTERY_STATUSES = ["İyi", "Orta", "Zayıf", "Yeni değişmiş", "Bilinmiyor"];
+const TIRE_STATUSES = ["İyi", "Orta", "Kötü", "Yeni", "Mevsimlik değişim gerekli", "Bilinmiyor"];
+const TIMING_BELT_STATUSES = [
+  "Değişmiş, fatura mevcut",
+  "Değişmiş, belge yok",
+  "Zincirli motor olduğu belirtiliyor",
+  "Değişim zamanı yaklaşmış olabilir",
+  "Bilinmiyor",
+  "Belirtilmemiş",
+];
+const TRANSMISSION_MAINTENANCE_STATUSES = [
+  "Bakım yapılmış, fatura mevcut",
+  "Bakım yapılmış, belge yok",
+  "Manuel şanzıman",
+  "Bakım zamanı yaklaşmış olabilir",
+  "Bilinmiyor",
+  "Belirtilmemiş",
+];
 
 const FIELD_NAMES = [
   "brand",
@@ -199,11 +217,25 @@ const FIELD_NAMES = [
   "drivetrain",
   "ownerInfo",
   "tradeStatus",
+  "tramerAmount",
+  "paintedParts",
+  "replacedParts",
+  "localPaintedParts",
   "airbagStatus",
   "lpgStatus",
   "hasHeavyDamage",
   "hasChassisRepair",
+  "hasTotalLossHistory",
+  "hasExpertiseReport",
+  "lpgRegistered",
   "hasSpareKey",
+  "hasMaintenanceInvoices",
+  "lastMaintenanceDate",
+  "timingBeltInfo",
+  "transmissionMaintenanceInfo",
+  "batteryStatus",
+  "tireStatus",
+  "inspectionEndDate",
   "sellerDescription",
 ];
 
@@ -353,11 +385,25 @@ const listingImportResponseFormat = {
             drivetrain: enumProp(DRIVETRAINS),
             ownerInfo: enumProp(OWNER_INFO_OPTIONS),
             tradeStatus: enumProp(TRADE_STATUSES),
+            tramerAmount: { type: ["integer", "null"] },
+            paintedParts: { type: ["string", "null"] },
+            replacedParts: { type: ["string", "null"] },
+            localPaintedParts: { type: ["string", "null"] },
             airbagStatus: enumProp(AIRBAG_STATUSES),
             lpgStatus: enumProp(LPG_STATUSES),
             hasHeavyDamage: { type: ["boolean", "null"] },
             hasChassisRepair: { type: ["boolean", "null"] },
+            hasTotalLossHistory: { type: ["boolean", "null"] },
+            hasExpertiseReport: { type: ["boolean", "null"] },
+            lpgRegistered: { type: ["boolean", "null"] },
             hasSpareKey: { type: ["boolean", "null"] },
+            hasMaintenanceInvoices: { type: ["boolean", "null"] },
+            lastMaintenanceDate: { type: ["string", "null"] },
+            timingBeltInfo: enumProp(TIMING_BELT_STATUSES),
+            transmissionMaintenanceInfo: enumProp(TRANSMISSION_MAINTENANCE_STATUSES),
+            batteryStatus: enumProp(BATTERY_STATUSES),
+            tireStatus: enumProp(TIRE_STATUSES),
+            inspectionEndDate: { type: ["string", "null"] },
             sellerDescription: { type: ["string", "null"] },
           },
         },
@@ -384,15 +430,20 @@ function buildMessages(input) {
         "(brand, trim, fuelType, transmission, city, bodyType, drivetrain, ownerInfo, tradeStatus, airbagStatus, " +
         "lpgStatus) SADECE verilen listedeki degerlerden birini sec; listede tam karsiligi yoksa null birak. " +
         "(3) sellerDescription alanina sayfadaki navigasyon/reklam/cerez metnini degil, satici tarafindan " +
-        "yazilmis gercek ilan aciklama metnini koy (temizlenmis, kisaltilmamis). (4) hasHeavyDamage ve " +
-        "hasChassisRepair alanlarini sadece ilan acikca 'agir hasarli', 'sasi degisti/kaynak' gibi bir sey " +
-        "belirtiyorsa true yap; aksi halde null birak (yokluk kaniti degil, sadece belirtilmemis demektir). " +
-        "(5) Emin olmadigin ama yine de doldurdugun alanlarin adini lowConfidenceFields dizisine ekle. " +
-        "(6) Sayfa bir arac ilanina benzemiyorsa (kaldirilmis ilan, arama sonuc sayfasi, hata sayfasi) " +
+        "yazilmis gercek ilan aciklama metnini koy (temizlenmis, kisaltilmamis). (4) paintedParts, " +
+        "replacedParts ve localPaintedParts alanlarini yalnizca ilanda acikca yazan parca adlariyla doldur; " +
+        "virgulle ayrilmis Turkce parca listesi kullan (orn. 'Kaput, Sol on kapi'). Degisensiz/boyasiz gibi " +
+        "ifade varsa ilgili parca alanlarini null birak. (5) hasHeavyDamage, hasChassisRepair, " +
+        "hasTotalLossHistory, hasExpertiseReport, lpgRegistered, hasSpareKey, hasMaintenanceInvoices alanlarini " +
+        "sadece ilan acikca belirtiyorsa true/false yap; yokluk kaniti yoksa null birak. (6) tramerAmount, " +
+        "lastMaintenanceDate ve inspectionEndDate alanlarini yalnizca acik deger varsa doldur. " +
+        "(7) Emin olmadigin ama yine de doldurdugun alanlarin adini lowConfidenceFields dizisine ekle. " +
+        "(8) Sayfa bir arac ilanina benzemiyorsa (kaldirilmis ilan, arama sonuc sayfasi, hata sayfasi) " +
         "warnings dizisine bunu Turkce belirt ve fields'i olabildigince null birak. " +
-        "(7) Fiyati ve kilometreyi Turkce bicimden (orn. '1.845.000 TL', '125.000 km') temiz tam sayiya cevir. " +
-        "(8) Tum metin alanlarini SADECE Turkce yaz; baska bir dilden tek kelime bile karistirma. " +
-        "(9) Kesin hukum verme; ilanin kendi beyani oldugunu unutma, dogrulanmis gercek gibi sunma.",
+        "(9) Fiyati, kilometreyi ve tramer tutarini Turkce bicimden (orn. '1.845.000 TL', '125.000 km') " +
+        "temiz tam sayiya cevir. (10) Tum metin alanlarini SADECE Turkce yaz; baska bir dilden tek kelime " +
+        "bile karistirma. (11) Kesin hukum verme; ilanin kendi beyani oldugunu unutma, dogrulanmis gercek " +
+        "gibi sunma.",
     },
     {
       role: "user",

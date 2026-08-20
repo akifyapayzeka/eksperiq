@@ -19,11 +19,25 @@ function baseFields(overrides: Partial<Record<keyof ImportedListingFields, unkno
     drivetrain: null,
     ownerInfo: null,
     tradeStatus: null,
+    tramerAmount: null,
+    paintedParts: null,
+    replacedParts: null,
+    localPaintedParts: null,
     airbagStatus: null,
     lpgStatus: null,
     hasHeavyDamage: null,
     hasChassisRepair: null,
+    hasTotalLossHistory: null,
+    hasExpertiseReport: null,
+    lpgRegistered: null,
     hasSpareKey: null,
+    hasMaintenanceInvoices: null,
+    lastMaintenanceDate: null,
+    timingBeltInfo: null,
+    transmissionMaintenanceInfo: null,
+    batteryStatus: null,
+    tireStatus: null,
+    inspectionEndDate: null,
     sellerDescription: null,
     ...overrides,
   } as ImportedListingFields;
@@ -42,6 +56,9 @@ describe("applyImportedFieldsToForm", () => {
         mileage: 317000,
         price: 329000,
         fuelType: "Benzin",
+        lpgStatus: "Var",
+        lpgRegistered: true,
+        replacedParts: "Kaput, Sol ön kapı",
       }),
       setValue,
     );
@@ -53,6 +70,9 @@ describe("applyImportedFieldsToForm", () => {
     expect(setValue).toHaveBeenCalledWith("mileage", 317000, expect.anything());
     expect(setValue).toHaveBeenCalledWith("price", 329000, expect.anything());
     expect(setValue).toHaveBeenCalledWith("fuelType", "Benzin", expect.anything());
+    expect(setValue).toHaveBeenCalledWith("lpgStatus", "Var", expect.anything());
+    expect(setValue).toHaveBeenCalledWith("lpgRegistered", true, expect.anything());
+    expect(setValue).toHaveBeenCalledWith("replacedParts", "Kaput, Sol ön kapı", expect.anything());
   });
 
   it("does not write arbitrary objects into string select fields", () => {

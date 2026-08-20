@@ -396,10 +396,38 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
         .map(function(s) { return s.textContent || ''; })
         .filter(Boolean)
         .slice(0, 5);
-      var images = Array.from(document.images || [])
-        .map(function(img) { return img.currentSrc || img.src || ''; })
-        .filter(function(src) { return src.indexOf('http') === 0; });
-      var uniqueImages = Array.from(new Set(images)).slice(0, 30);
+      function absolutize(src) {
+        try { return new URL(src, window.location.href).href; } catch (_) { return ''; }
+      }
+      function srcsetUrls(value) {
+        return (value || '').split(',').map(function(part) {
+          return absolutize(part.trim().split(/\s+/)[0] || '');
+        });
+      }
+      function backgroundUrl(value) {
+        var match = String(value || '').match(/url\\(["']?([^"')]+)["']?\\)/i);
+        return match ? absolutize(match[1]) : '';
+      }
+      var imageCandidates = [];
+      Array.from(document.querySelectorAll('meta[property="og:image"], meta[name="og:image"]'))
+        .forEach(function(meta) { imageCandidates.push(absolutize(meta.getAttribute('content') || '')); });
+      Array.from(document.images || []).forEach(function(img) {
+        imageCandidates.push(absolutize(img.currentSrc || img.src || ''));
+        ['data-src', 'data-original', 'data-lazy', 'data-url', 'data-full', 'data-zoom-image'].forEach(function(name) {
+          imageCandidates.push(absolutize(img.getAttribute(name) || ''));
+        });
+        imageCandidates = imageCandidates.concat(srcsetUrls(img.getAttribute('srcset') || ''));
+      });
+      Array.from(document.querySelectorAll('[style]')).forEach(function(el) {
+        imageCandidates.push(backgroundUrl(el.getAttribute('style') || ''));
+      });
+      var uniqueImages = Array.from(new Set(imageCandidates))
+        .filter(function(src) {
+          return /^https?:\\/\\//i.test(src) &&
+            !/sprite|icon|logo|favicon|avatar|blank|placeholder/i.test(src) &&
+            /\\.(jpe?g|png|webp)(\\?|$)|image|photo|classified|sahibinden|arabam/i.test(src);
+        })
+        .slice(0, 30);
       return JSON.stringify({
         title: document.title || '',
         ogTitle: attr('meta[property="og:title"]', 'content'),

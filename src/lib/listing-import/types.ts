@@ -16,11 +16,25 @@ export type ImportedListingFields = {
   drivetrain: string | null;
   ownerInfo: string | null;
   tradeStatus: string | null;
+  tramerAmount: number | null;
+  paintedParts: string | null;
+  replacedParts: string | null;
+  localPaintedParts: string | null;
   airbagStatus: string | null;
   lpgStatus: string | null;
   hasHeavyDamage: boolean | null;
   hasChassisRepair: boolean | null;
+  hasTotalLossHistory: boolean | null;
+  hasExpertiseReport: boolean | null;
+  lpgRegistered: boolean | null;
   hasSpareKey: boolean | null;
+  hasMaintenanceInvoices: boolean | null;
+  lastMaintenanceDate: string | null;
+  timingBeltInfo: string | null;
+  transmissionMaintenanceInfo: string | null;
+  batteryStatus: string | null;
+  tireStatus: string | null;
+  inspectionEndDate: string | null;
   sellerDescription: string | null;
 };
 

@@ -261,6 +261,27 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
               Düşük güvenle dolduruldu: {result.lowConfidenceFields.join(", ")}
             </p>
           ) : null}
+          {result.images.length ? (
+            <div className="mt-3">
+              <p className="text-xs font-semibold text-foreground/80">
+                İlandan alınan fotoğraflar ({Math.min(result.images.length, 8)})
+              </p>
+              <div className="mt-2 grid grid-cols-4 gap-2">
+                {result.images.slice(0, 8).map((imageUrl) => (
+                  <a
+                    key={imageUrl}
+                    href={imageUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block aspect-square overflow-hidden rounded-theme-sm border border-border bg-muted"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element -- External listing CDNs are not known at build time. */}
+                    <img src={imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : null}
           {result.missingFields.length ? (
             <p className="mt-1 text-xs leading-5 text-muted-foreground">
               Bulunamadı: {result.missingFields.join(", ")}
