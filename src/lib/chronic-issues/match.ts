@@ -28,7 +28,14 @@ function engineMatchesDisplacement(engine: EngineVariant, displacement: number):
 function descriptionMentionsEngine(engine: EngineVariant, haystack: string): boolean {
   const label = normalize(engine.engineLabel).replace(/\s+/g, " ");
   if (!label) return false;
+  if (label.includes("dq200") && /\bdsg\b|yarı otomatik|yari otomatik/.test(haystack)) return true;
   return haystack.includes(label) || haystack.includes(label.replace(/\s+/g, ""));
+}
+
+function trimMatches(engine: EngineVariant, trim: string): boolean {
+  if (!engine.trims?.length) return true;
+  if (!trim) return true;
+  return engine.trims.some((candidate) => trim.includes(normalize(candidate)));
 }
 
 function withinYearRange(entry: ModelEntry, engine: EngineVariant, year: number): boolean {
@@ -44,7 +51,10 @@ function withinYearRange(entry: ModelEntry, engine: EngineVariant, year: number)
  * car's condition or history.
  */
 export function findChronicIssues(
-  input: Pick<VehicleFormData, "brand" | "model" | "year" | "fuelType" | "engineSize" | "trim" | "sellerDescription">,
+  input: Pick<
+    VehicleFormData,
+    "brand" | "model" | "year" | "fuelType" | "transmission" | "engineSize" | "trim" | "sellerDescription"
+  >,
 ): {
   entry: ModelEntry | null;
   issues: MatchedIssue[];
@@ -60,9 +70,16 @@ export function findChronicIssues(
     return { entry: entry ?? null, issues: [] };
   }
 
-  const enginesInYear = entry.engines.filter((engine) => withinYearRange(entry, engine, input.year));
+  const inputTrim = normalize(input.trim);
+  const enginesInYear = entry.engines.filter(
+    (engine) => withinYearRange(entry, engine, input.year) && trimMatches(engine, inputTrim),
+  );
   const fuelType = normalize(input.fuelType);
   const byFuel = fuelType ? enginesInYear.filter((engine) => normalize(engine.fuelType) === fuelType) : enginesInYear;
+  const transmission = normalize(input.transmission);
+  const byTransmission = transmission
+    ? byFuel.filter((engine) => !engine.transmission || normalize(engine.transmission) === transmission)
+    : byFuel;
 
   const displacement = parseDisplacement(input.engineSize ?? "");
   const descriptionHaystack = normalize(`${input.trim ?? ""} ${input.sellerDescription ?? ""}`);
@@ -70,18 +87,18 @@ export function findChronicIssues(
   let matched: EngineVariant[];
   let broadMatch = false;
 
-  const byDescription = byFuel.filter((engine) => descriptionMentionsEngine(engine, descriptionHaystack));
+  const byDescription = byTransmission.filter((engine) => descriptionMentionsEngine(engine, descriptionHaystack));
   if (byDescription.length > 0) {
     matched = byDescription;
   } else if (displacement !== null) {
-    const byDisplacement = byFuel.filter((engine) => engineMatchesDisplacement(engine, displacement));
+    const byDisplacement = byTransmission.filter((engine) => engineMatchesDisplacement(engine, displacement));
     matched = byDisplacement;
   } else {
     // No engine code in the description and no displacement entered — show
     // everything for this brand/model/year/fuel as a broader, clearly-
     // labeled set rather than nothing at all.
-    matched = byFuel;
-    broadMatch = byFuel.length > 1;
+    matched = byTransmission;
+    broadMatch = byTransmission.length > 1;
   }
 
   const issues: MatchedIssue[] = matched.flatMap((engine) =>

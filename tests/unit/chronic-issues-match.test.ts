@@ -9,14 +9,57 @@ describe("findChronicIssues", () => {
       model: "Ibiza",
       year: 2015,
       fuelType: "Benzin",
+      transmission: "Manuel",
       engineSize: "1.2",
       trim: "Reference",
       sellerDescription: "Temiz 1.2 TSI, tek elden, bakımları yetkili serviste yapılmış.",
     });
 
     expect(issues.length).toBeGreaterThan(0);
-    expect(issues.every((issue) => issue.engineLabel === "1.2 TSI")).toBe(true);
     expect(issues.some((issue) => issue.id === "ibiza-12tsi-cbzb-chain")).toBe(true);
+    expect(issues.some((issue) => issue.id === "ibiza-12tsi-ea211-belt-service")).toBe(true);
+  });
+
+  it("does not apply the EA111 chain issue to the EA211 belt-driven 1.2 TSI variant", () => {
+    const { issues } = findChronicIssues({
+      brand: "Seat",
+      model: "Ibiza",
+      year: 2016,
+      fuelType: "Benzin",
+      transmission: "Manuel",
+      engineSize: "1.2",
+      trim: "Style",
+      sellerDescription: "2016 Seat Ibiza 1.2 TSI 110 PS CJZD kayışlı motor, bakımlı.",
+    });
+
+    expect(issues.some((issue) => issue.id === "ibiza-12tsi-cbzb-chain")).toBe(false);
+    expect(issues.some((issue) => issue.id === "ibiza-12tsi-ea211-belt-service")).toBe(true);
+  });
+
+  it("applies DSG DQ200 issues only to semi-automatic Ibiza listings", () => {
+    const manual = findChronicIssues({
+      brand: "Seat",
+      model: "Ibiza",
+      year: 2015,
+      fuelType: "Benzin",
+      transmission: "Manuel",
+      engineSize: "",
+      trim: "Reference",
+      sellerDescription: "Manuel vites 1.2 TSI",
+    });
+    const dsg = findChronicIssues({
+      brand: "Seat",
+      model: "Ibiza",
+      year: 2015,
+      fuelType: "Benzin",
+      transmission: "Yarı otomatik",
+      engineSize: "",
+      trim: "Style",
+      sellerDescription: "DSG otomatik 1.2 TSI",
+    });
+
+    expect(manual.issues.some((issue) => issue.id === "ibiza-dq200-mechatronic-clutch")).toBe(false);
+    expect(dsg.issues.some((issue) => issue.id === "ibiza-dq200-mechatronic-clutch")).toBe(true);
   });
 
   it("falls back to displacement matching when the description has no engine code", () => {
@@ -25,6 +68,7 @@ describe("findChronicIssues", () => {
       model: "Egea",
       year: 2018,
       fuelType: "Dizel",
+      transmission: "Manuel",
       engineSize: "1.6",
       trim: "",
       sellerDescription: "Bakımlı, hasarsız araç.",
@@ -40,6 +84,7 @@ describe("findChronicIssues", () => {
       model: "Egea",
       year: 2018,
       fuelType: "Dizel",
+      transmission: "Manuel",
       engineSize: "",
       trim: "",
       sellerDescription: "Bakımlı, hasarsız araç.",
@@ -55,6 +100,7 @@ describe("findChronicIssues", () => {
       model: "UnknownModel",
       year: 2018,
       fuelType: "Benzin",
+      transmission: "Manuel",
       engineSize: "1.6",
       trim: "",
       sellerDescription: "",
@@ -81,6 +127,7 @@ describe("findChronicIssues", () => {
       model: "Egea",
       year: 1999,
       fuelType: "Dizel",
+      transmission: "Manuel",
       engineSize: "1.6",
       trim: "",
       sellerDescription: "",

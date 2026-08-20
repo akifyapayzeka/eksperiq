@@ -198,26 +198,82 @@ export const PEUGEOT_SEAT_ENTRIES: ModelEntry[] = [
     yearFrom: 2008,
     yearTo: 2021,
     generalNote:
-      "Kronik sorunlar büyük ölçüde motor koduna göre değişiyor; paket (Reference/Style/FR) bazında ayrı bir mekanik arıza deseni için güvenilir kaynak bulunamadı.",
+      "Kronik sorunlar büyük ölçüde motor koduna ve şanzımana göre değişiyor. Reference/Style gibi paketler donanım seviyesi; aynı motor-şanzımanla satıldığında pakete özgü ayrı bir mekanik kronik arıza deseni için güvenilir kanıt bulunamadı.",
     engines: [
       {
-        engineLabel: "1.2 TSI",
+        engineLabel: "1.2 TSI EA111 / CBZB 105 PS (zincirli)",
         fuelType: "Benzin",
         transmission: "Manuel",
-        yearFrom: 2008,
+        yearFrom: 2009,
         yearTo: 2015,
         reliabilityNote:
-          "Sorun özellikle 10/2011 öncesi üretilen CBZB kodlu motorlarda belgelenmiştir; bu tarihten sonraki üretimde parça revizyonu yapılmıştır.",
+          "2015 civarında Ibiza'da hem EA111 zincirli hem EA211 kayışlı 1.2 TSI varyantları görülebildiği için motor kodu kritik. CBZB/EA111 zincirli 105 PS versiyonda zincir-gerdirici riski vardır; aynı risk EA211 kayışlı CJZ* versiyon için aynı şekilde uygulanmaz.",
         issues: [
           {
             id: "ibiza-12tsi-cbzb-chain",
             severity: "high",
-            title: "Triger zinciri erken uzama/gerdirici arızası (10/2011 öncesi üretim)",
+            title: "Triger zinciri erken uzama/gerdirici arızası (EA111/CBZB)",
             detail:
-              "Zincir birkaç on bin km içinde erken uzuyor; gerdirici setinin sadece zincir+gerdirici değil tüm parça setiyle (kılavuzlar dahil) değiştirilmesi gerekiyor, aksi halde arıza tekrarlıyor. Belirti soğuk startta çıtırtı/tıkırtı sesidir.",
-            typicalOnset: "30.000-80.000 km aralığında, bazı örneklerde daha erken",
+              "EA111/CBZB 1.2 TSI zincirli motorda soğuk çalıştırmada çıtırtı/tıkırtı, kam-krank korelasyon hatası ve ilerleyen aşamada zincir atlama riski bildiriliyor. Sadece zincir değil, gerdirici ve kılavuz setinin birlikte kontrol edilmesi gerekir. Reference/Style paketi bu mekanik riski değiştirmez.",
+            typicalOnset: "60.000-100.000 km aralığında; bakımsız/uzun yağ aralıklı araçlarda daha erken",
             costLevel: "Yüksek",
-            sourceNote: "Marka forumları ve bağımsız servis vaka kayıtları; birden fazla kaynakta tekrar eden bulgu.",
+            sourceNote:
+              "ClickMechanic, Au7o, Volksmaster ve SeatCupra kullanıcı/teknik tartışmalarında 1.2 TSI zincir rattle/uzama bulgusu tekrar ediyor; parça katalogları CBZB'nin zincirli olduğunu doğruluyor.",
+          },
+          {
+            id: "ibiza-12tsi-cbzb-wastegate",
+            severity: "medium",
+            title: "Turbo wastegate/aktüatör rattle ve düşük yükte metalik ses",
+            detail:
+              "1.2 TSI ve bazı 1.4 TSI Ibiza'larda hafif gazda veya gaz kesince metalik rattle/wastegate sesi raporlanıyor. Performans düşüşü, turbo basınç hatası veya arıza lambası eşlik ediyorsa turbo aktüatör boşluğu ve basınç kontrolü kontrol edilmeli.",
+            typicalOnset: "60.000 km sonrası daha sık raporlanır",
+            costLevel: "Orta",
+            sourceNote:
+              "ClickMechanic 1.2/1.4 TSI Ibiza Mk4 için turbo wastegate rattle belirtisini model bazlı yaygın sorun olarak listeliyor; VAG özel servis kaynakları benzer kontrol öneriyor.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.2 TSI EA211 / CJZ* 90-110 PS (kayışlı)",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2012,
+        yearTo: 2017,
+        reliabilityNote:
+          "EA211/CJZ* kayışlı 1.2 TSI, EA111/CBZB zincirli motorla karıştırılmamalı. Zincir uzama kroniği bu motor için doğrudan uygulanmaz; alımda motor kodu ve triger kayışı bakım kaydı doğrulanmalı.",
+        issues: [
+          {
+            id: "ibiza-12tsi-ea211-belt-service",
+            severity: "low",
+            title: "EA111 zincir sorunu yok; triger kayışı bakım geçmişi doğrulanmalı",
+            detail:
+              "Kayışlı EA211 1.2 TSI'da CBZB zincir-gerdirici arızası beklenmez. Ancak triger kayışı, su pompası, doğru yağ ve soğutma sistemi bakımı belgelenmelidir; ilan yalnızca '1.2 TSI' diyorsa motor kodu ile ayrım yapılmadan zincir/kayış hükmü verilmemeli.",
+            typicalOnset: "Periyodik bakım aralığına bağlı",
+            costLevel: "Orta",
+            sourceNote:
+              "SeatCupra kullanıcı kayıtları 2015 FR 1.2 TSI'da zincirli 105 PS ile kayışlı EA211 varyant ayrımını, parça katalogları CJZD/CJZ* kayış setini gösteriyor.",
+          },
+        ],
+      },
+      {
+        engineLabel: "DSG7 DQ200 (kuru kavrama)",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2009,
+        yearTo: 2017,
+        reliabilityNote:
+          "Bu şanzıman riski, motor paketinden bağımsız olarak DQ200 kuru kavramalı DSG bulunan Ibiza'lar için değerlendirilir; manuel vitesli Reference/Style araçlara uygulanmaz.",
+        issues: [
+          {
+            id: "ibiza-dq200-mechatronic-clutch",
+            severity: "high",
+            title: "DQ200 mekatronik/kuru kavrama titreme ve vites geçiş arızaları",
+            detail:
+              "Düşük hızda titreme, 1-2 geçişinde vuruntu, kalkışta gecikme, PRNDS/şanzıman arızası ve mekatronik basınç kaybı DQ200 ailesinde sık raporlanır. Şehir içi yoğun kullanım ve eski yağ/yazılım durumu riski artırır.",
+            typicalOnset: "60.000-130.000 km aralığında",
+            costLevel: "Yüksek",
+            sourceNote:
+              "Au7o Ibiza sorun derlemesi ve bağımsız DSG uzman kaynakları DQ200 mekatronik/kavrama arızasını Ibiza/Leon/Polo platformunda tekrarlayan yüksek maliyetli risk olarak listeliyor.",
           },
         ],
       },
