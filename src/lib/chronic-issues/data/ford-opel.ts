@@ -315,4 +315,511 @@ export const FORD_OPEL_ENTRIES: ModelEntry[] = [
       },
     ],
   },
+  {
+    brand: "Ford",
+    model: "B-Max",
+    yearFrom: 2012,
+    yearTo: 2018,
+    engines: [
+      {
+        engineLabel: "1.0 EcoBoost",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2012,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "ford-bmax-10ecoboost-wetbelt",
+            severity: "high",
+            title: "1.0 EcoBoost ıslak triger kayışı ve soğutma sistemi riski",
+            detail:
+              "Yağ içinde çalışan kayışın parçalanması yağ süzgecini tıkayabilir; soğutma hortumu/genleşme kabı kaçakları hararet ve ağır motor hasarı riski yaratır.",
+            typicalOnset: "100.000-160.000 km veya yaşa bağlı",
+            costLevel: "Yüksek",
+            sourceNote:
+              "Ford 1.0 EcoBoost resmi geri çağırma/servis kayıtları ve bağımsız motor kaynaklarında tekrar eden iyi belgelenmiş risk.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 / 1.6 TDCi",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2012,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "ford-bmax-tdci-egr-dpf",
+            severity: "medium",
+            title: "EGR/DPF, enjektör contası ve turbo hortumu kontrolü",
+            detail:
+              "TDCi B-Max'te kısa mesafe kullanım EGR/DPF doluluğunu, enjektör conta kaçaklarını ve turbo hortumu çatlaklarını öne çıkarır.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "Ford TDCi ailesi forumları ve bağımsız servis kayıtlarında tekrar eden dizel yan sistem bulguları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Ford",
+    model: "C-Max",
+    yearFrom: 2003,
+    yearTo: 2019,
+    engines: [
+      {
+        engineLabel: "1.6 TDCi",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2003,
+        yearTo: 2015,
+        issues: [
+          {
+            id: "ford-cmax-16tdci-turbo-injector",
+            severity: "medium",
+            title: "Turbo yağ beslemesi, enjektör contası ve DPF kontrolü",
+            detail:
+              "1.6 TDCi'de turbo yağ besleme hattı, enjektör conta kaçakları, EGR/DPF ve çift kütleli volan kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "PSA/Ford 1.6 TDCi teknik kaynakları ve C-Max kullanıcı forumlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.0 EcoBoost",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2012,
+        yearTo: 2019,
+        issues: [
+          {
+            id: "ford-cmax-10ecoboost-wetbelt-cooling",
+            severity: "high",
+            title: "Islak kayış ve soğutma kaçakları",
+            detail:
+              "1.0 EcoBoost C-Max'te ıslak kayış parçalanması, yağ basıncı sorunu ve soğutma sistemi kaçakları alımda özellikle sorgulanmalı.",
+            typicalOnset: "100.000-160.000 km",
+            costLevel: "Yüksek",
+            sourceNote: "Ford 1.0 EcoBoost motor ailesi için çok sayıda bağımsız kaynakta tekrar eden risk.",
+          },
+        ],
+      },
+      {
+        engineLabel: "PowerShift",
+        fuelType: "Dizel",
+        transmission: "Yarı otomatik",
+        yearFrom: 2010,
+        yearTo: 2019,
+        issues: [
+          {
+            id: "ford-cmax-powershift",
+            severity: "high",
+            title: "PowerShift kavrama/mechatronic ve yağ bakım geçmişi",
+            detail:
+              "PowerShift şanzımanda kalkış titremesi, geçiş gecikmesi, kavrama ve mekatronik arızaları pahalı olabilir; yağ bakım faturası ve test sürüşü kritik.",
+            typicalOnset: "80.000-140.000 km",
+            costLevel: "Yüksek",
+            sourceNote:
+              "Ford PowerShift kullanıcı şikayetleri ve şanzıman servis kayıtlarında tekrar eden iyi bilinen risk.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Ford",
+    model: "Courier",
+    yearFrom: 2014,
+    yearTo: 2026,
+    generalNote:
+      "Türkiye'de ticari kullanımı çok yaygındır; gerçek kullanım tipi, yük geçmişi ve bakım aralığı motor kadar belirleyicidir.",
+    engines: [
+      {
+        engineLabel: "1.5 TDCi / EcoBlue",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2014,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "ford-courier-15tdci-ecoblue",
+            severity: "medium",
+            title: "EGR/DPF, enjektör ve turbo hortumu kontrolü",
+            detail:
+              "Courier dizellerde kısa mesafe ve ticari kullanım EGR/DPF, enjektör, turbo hortumu ve debriyaj/volan aşınmasını öne çıkarır.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "Ford Courier/TDCi kullanıcı kayıtları ve ticari araç servis kaynaklarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.0 EcoBoost",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2014,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "ford-courier-10ecoboost-wetbelt",
+            severity: "high",
+            title: "1.0 EcoBoost ıslak kayış ve soğutma sistemi",
+            detail:
+              "Benzinli Courier'de 1.0 EcoBoost wet belt bakım geçmişi, yağ kalitesi ve soğutma sistemi kaçakları kontrol edilmelidir.",
+            typicalOnset: "100.000-160.000 km",
+            costLevel: "Yüksek",
+            sourceNote: "Ford 1.0 EcoBoost ailesi için tekrar eden teknik kaynak bulgusu.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Ford",
+    model: "Tourneo Courier",
+    yearFrom: 2014,
+    yearTo: 2026,
+    generalNote:
+      "Courier ile aynı temel motor ailesini paylaşır; binek kullanımda dahi ticari geçmiş kontrol edilmelidir.",
+    engines: [
+      {
+        engineLabel: "1.5 TDCi / EcoBlue",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2014,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "ford-tourneo-courier-15tdci-egr-dpf",
+            severity: "medium",
+            title: "EGR/DPF, enjektör ve debriyaj/volan kontrolü",
+            detail:
+              "Tourneo Courier'de kısa mesafe dizel kullanımı EGR/DPF doluluğu, enjektör değerleri ve debriyaj-volan aşınmasını artırabilir.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Ford TDCi/EcoBlue kullanıcı forumları ve ticari araç servis kayıtları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.0 EcoBoost",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2014,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "ford-tourneo-courier-10ecoboost",
+            severity: "high",
+            title: "Islak triger kayışı ve turbo/soğutma kontrolü",
+            detail:
+              "1.0 EcoBoost'ta wet belt, yağ basıncı, turbo sesi ve soğutma kaçakları servis faturasıyla doğrulanmalı.",
+            typicalOnset: "100.000-160.000 km",
+            costLevel: "Yüksek",
+            sourceNote: "Ford 1.0 EcoBoost teknik kaynakları ve kullanıcı kayıtlarında tekrar eden risk.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Ford",
+    model: "Tourneo Connect",
+    yearFrom: 2002,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.8 TDCi",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2002,
+        yearTo: 2013,
+        issues: [
+          {
+            id: "ford-connect-18tdci-injector-turbo",
+            severity: "medium",
+            title: "Enjektör, turbo ve yüksek km ticari yıpranma",
+            detail:
+              "Eski Connect 1.8 TDCi'de enjektör, turbo, debriyaj/volan, mazot pompası ve kilometre tutarlılığı özellikle kontrol edilmelidir.",
+            typicalOnset: "180.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Ford Connect kullanıcı forumları ve ticari servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 / 1.6 TDCi",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2013,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "ford-connect-tdci-egr-dpf-dmf",
+            severity: "medium",
+            title: "EGR/DPF, enjektör ve çift kütleli volan kontrolü",
+            detail:
+              "Yeni Connect dizellerde EGR/DPF doluluğu, enjektör conta/değerleri ve debriyaj/volan ticari kullanımda erken masraf çıkarabilir.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Ford TDCi/EcoBlue ailesi ve Connect servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Ford",
+    model: "EcoSport",
+    yearFrom: 2013,
+    yearTo: 2022,
+    engines: [
+      {
+        engineLabel: "1.0 EcoBoost",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2013,
+        yearTo: 2022,
+        issues: [
+          {
+            id: "ford-ecosport-10ecoboost-wetbelt",
+            severity: "high",
+            title: "1.0 EcoBoost wet belt ve soğutma sistemi",
+            detail:
+              "EcoSport 1.0 EcoBoost'ta ıslak triger kayışı, yağ basıncı ve soğutma kaçakları alım öncesi mutlaka kontrol edilmelidir.",
+            typicalOnset: "100.000-160.000 km",
+            costLevel: "Yüksek",
+            sourceNote: "Ford 1.0 EcoBoost ailesi için tekrar eden teknik ve kullanıcı kayıtları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 TDCi",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2013,
+        yearTo: 2022,
+        issues: [
+          {
+            id: "ford-ecosport-15tdci-dpf",
+            severity: "medium",
+            title: "DPF/EGR ve turbo hortumu kontrolü",
+            detail:
+              "EcoSport dizellerde şehir içi kullanım DPF/EGR ve turbo hortumu sorunlarını artırabilir; enjektör ve triger kaydı kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Ford 1.5 TDCi kullanıcı forumları ve servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Ford",
+    model: "Kuga",
+    yearFrom: 2008,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.5 / 1.6 EcoBoost",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2013,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "ford-kuga-ecoboost-cooling-powershift",
+            severity: "high",
+            title: "EcoBoost soğutma/hararet ve otomatik şanzıman kontrolü",
+            detail:
+              "EcoBoost Kuga'da soğutma suyu kaybı, hararet geçmişi, silindir kapağı riski ve otomatik/PowerShift davranışı kontrol edilmeli.",
+            typicalOnset: "80.000-140.000 km",
+            costLevel: "Yüksek",
+            sourceNote: "Ford EcoBoost soğutma sistemi geri çağırma/servis kayıtları ve Kuga kullanıcı forumları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "2.0 TDCi",
+        fuelType: "Dizel",
+        transmission: "Yarı otomatik",
+        yearFrom: 2008,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "ford-kuga-20tdci-powershift-awd",
+            severity: "high",
+            title: "PowerShift, AWD ve dizel emisyon sistemi",
+            detail:
+              "2.0 TDCi Kuga'da PowerShift yağ/kavrama, AWD/haldex benzeri aktarma bakım geçmişi, EGR/DPF ve turbo kontrol edilmelidir.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Ford Kuga/PowerShift kullanıcı şikayetleri ve bağımsız servis kayıtlarında tekrar eden risk.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 EcoBlue",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2020,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "ford-kuga-15ecoblue-adblue",
+            severity: "medium",
+            title: "AdBlue/DPF/EGR ve otomatik şanzıman bakım kontrolü",
+            detail:
+              "Yeni Kuga EcoBlue'da AdBlue sistemi, DPF/EGR, turbo ve otomatik şanzıman servis kayıtları alımda kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Ford EcoBlue servis kayıtları ve Kuga kullanıcı deneyimlerinde tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Ford",
+    model: "Mondeo",
+    yearFrom: 2000,
+    yearTo: 2022,
+    engines: [
+      {
+        engineLabel: "2.0 TDCi",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2000,
+        yearTo: 2022,
+        issues: [
+          {
+            id: "ford-mondeo-20tdci-injector-dpf",
+            severity: "medium",
+            title: "Enjektör, turbo, DPF/EGR ve çift kütleli volan kontrolü",
+            detail:
+              "Mondeo 2.0 TDCi'de yüksek km enjektör, turbo, DPF/EGR, debriyaj/volan ve otomatik varsa PowerShift kontrol edilmelidir.",
+            typicalOnset: "150.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Ford Mondeo TDCi kullanıcı forumları ve bağımsız servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 / 1.6 EcoBoost",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2010,
+        yearTo: 2022,
+        issues: [
+          {
+            id: "ford-mondeo-ecoboost-cooling",
+            severity: "medium",
+            title: "EcoBoost soğutma sistemi ve turbo kontrolü",
+            detail:
+              "EcoBoost Mondeo'da soğutma kaçakları, turbo sesi, yağ bakımı ve otomatik şanzıman geçişleri kontrol edilmelidir.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Ford EcoBoost ailesi ve Mondeo kullanıcı kayıtlarında tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Ford",
+    model: "Puma",
+    yearFrom: 2019,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.0 EcoBoost mHEV",
+        fuelType: "Hibrit",
+        transmission: "Manuel",
+        yearFrom: 2019,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "ford-puma-10ecoboost-mhev-wetbelt",
+            severity: "medium",
+            title: "EcoBoost wet belt, 48V sistem ve yazılım kontrolü",
+            detail:
+              "Puma mHEV'de 1.0 EcoBoost wet belt bakım geçmişi, 48V akü/şarj sistemi, yazılım güncellemeleri ve soğutma sistemi kontrol edilmeli.",
+            typicalOnset: "Garanti devri ve 100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Ford 1.0 EcoBoost mHEV kullanıcı deneyimleri ve teknik servis kayıtları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Ford",
+    model: "Ranger",
+    yearFrom: 2006,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "2.2 TDCi",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2012,
+        yearTo: 2022,
+        issues: [
+          {
+            id: "ford-ranger-22tdci-injector-turbo",
+            severity: "medium",
+            title: "Enjektör, turbo, EGR ve arazi/yük kullanım izi",
+            detail:
+              "Ranger 2.2 TDCi'de enjektör, turbo, EGR/DPF, transfer kutusu, diferansiyel ve şasi-alt takım arazi/yük kullanım izleri kontrol edilmeli.",
+            typicalOnset: "Kullanım tarzına bağlı",
+            costLevel: "Yüksek",
+            sourceNote: "Pickup alım rehberleri ve Ford Ranger kullanıcı forumlarında tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+      {
+        engineLabel: "3.2 TDCi",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2012,
+        yearTo: 2022,
+        issues: [
+          {
+            id: "ford-ranger-32tdci-egr-auto",
+            severity: "medium",
+            title: "EGR/soğutma, otomatik şanzıman ve 4x4 aktarma kontrolü",
+            detail:
+              "3.2 TDCi Ranger'da EGR/soğutma, turbo, otomatik şanzıman yağ bakımı, 4x4 aktarma ve çekme/yük geçmişi kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası veya ağır kullanımda",
+            costLevel: "Yüksek",
+            sourceNote: "Ranger 3.2 TDCi kullanıcı forumları ve pickup servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "2.0 EcoBlue Bi-Turbo",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2019,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "ford-ranger-20ecoblue-adblue-biturbo",
+            severity: "medium",
+            title: "AdBlue/DPF, çift turbo ve 10 ileri otomatik bakım kontrolü",
+            detail:
+              "Yeni Ranger 2.0 EcoBlue'da AdBlue/DPF, çift turbo, 10 ileri otomatik şanzıman davranışı ve arazi kullanım izleri kontrol edilmelidir.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote:
+              "Ford EcoBlue/Ranger kullanıcı deneyimleri ve pickup alım rehberlerinde tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+    ],
+  },
 ];

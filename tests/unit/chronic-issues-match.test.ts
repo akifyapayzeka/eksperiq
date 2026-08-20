@@ -264,6 +264,28 @@ describe("findChronicIssues", () => {
     expect(volkswagenModels.filter((model) => !coveredVolkswagenModels.has(model))).toEqual([]);
   });
 
+  it("covers every Ford model listed in the analysis form catalog", () => {
+    const fordModels = [
+      "B-Max",
+      "C-Max",
+      "Courier",
+      "EcoSport",
+      "Fiesta",
+      "Focus",
+      "Kuga",
+      "Mondeo",
+      "Puma",
+      "Ranger",
+      "Tourneo Connect",
+      "Tourneo Courier",
+    ];
+    const coveredFordModels = new Set(
+      CHRONIC_ISSUES_DB.filter((entry) => entry.brand === "Ford").map((entry) => entry.model),
+    );
+
+    expect(fordModels.filter((model) => !coveredFordModels.has(model))).toEqual([]);
+  });
+
   it("matches newly added premium brand engine-specific issues", () => {
     const bmw = findChronicIssues({
       brand: "BMW",
