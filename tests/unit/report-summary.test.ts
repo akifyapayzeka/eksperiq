@@ -54,7 +54,8 @@ describe("report summary", () => {
     expect(summary).toContain("Neden:");
     expect(summary).toContain("Öne çıkan riskler:");
     expect(summary).toContain("Satıcıya ilk sorular:");
-    expect(summary).toContain("İlan referansı: https://example.com/ilan/123");
+    expect(summary).not.toContain("İlan referansı:");
+    expect(summary).not.toContain("https://example.com/ilan/123");
     expect(summary).toContain("Profesyonel araç ekspertizinin");
   });
 
@@ -66,6 +67,7 @@ describe("report summary", () => {
     expect(message).toContain("1.");
     expect(message).toContain("EksperIQ karar desteği notum:");
     expect(message).toContain("kesin ekspertiz sonucu değildir");
-    expect(message).toContain("İlan referansı: https://example.com/ilan/123");
+    expect(message).not.toContain("İlan referansı:");
+    expect(message).not.toContain("https://example.com/ilan/123");
   });
 });

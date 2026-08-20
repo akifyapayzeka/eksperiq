@@ -26,7 +26,6 @@ export function formatAnalysisSummary(result: AnalysisResult): string {
     `Kilometre: ${result.input.mileage.toLocaleString("tr-TR")} km`,
     `İlan fiyatı: ${formatCurrency(result.input.price)}`,
     result.input.city ? `Şehir: ${result.input.city}` : "",
-    result.input.listingUrl ? `İlan referansı: ${result.input.listingUrl}` : "",
     "",
     `Risk skoru: ${result.totalScore} / 100`,
     `Sonuç: ${result.riskLabel}`,
@@ -65,7 +64,6 @@ export function formatSellerQuestionMessage(result: AnalysisResult): string {
     "",
     `EksperIQ karar desteği notum: ${result.totalScore}/100 - ${result.riskLabel}.`,
     "Bu skor kesin ekspertiz sonucu değildir; yalnızca hangi bilgileri doğrulamam gerektiğini gösterir.",
-    result.input.listingUrl ? `İlan referansı: ${result.input.listingUrl}` : "",
   ]
     .filter((line) => line !== "")
     .join("\n");

@@ -103,8 +103,9 @@ function descriptionWithMissingIdentityNotes(result: ListingImportResult, missin
 
 export function buildVehicleInputFromListingImport(
   result: ListingImportResult,
-  listingUrl: string,
+  _listingUrl: string,
 ): ImportedAnalysisInputResult {
+  void _listingUrl;
   const fields = result.fields;
   const brand = importedString(fields.brand) ?? fallbackBrand(result);
   const model = importedString(fields.model) ?? fallbackModel(result, brand);
@@ -150,7 +151,7 @@ export function buildVehicleInputFromListingImport(
     hasSpareKey: importedBoolean(fields.hasSpareKey),
     hasMaintenanceInvoices: importedBoolean(fields.hasMaintenanceInvoices),
     sellerDescription: descriptionWithMissingIdentityNotes(result, missingIdentityFields),
-    listingUrl,
+    listingUrl: "",
   };
 
   const parsed = vehicleSchema.safeParse(input);

@@ -17,26 +17,14 @@ import {
   RotateCcw,
   Share2,
   ShieldQuestion,
-  Sparkles,
-  ThumbsDown,
-  ThumbsUp,
   Trash2,
   X,
 } from "lucide-react";
-import { Spinner } from "@/components/ui/spinner";
 import { appConfig } from "@/lib/constants/app";
-import { apiFetch } from "@/lib/api/client";
 import { shareReportPdf } from "@/lib/report/pdf-share";
 import { BUYER_DECISION_GUIDE, BUYER_EDUCATION_NOTES } from "@/lib/analysis/buyer-education";
 import { SCORE_WEIGHTS } from "@/lib/constants/analysis";
 import { formatAnalysisSummary, formatSellerQuestionMessage } from "@/lib/analysis/report-summary";
-import { buildAiAnalysisNoteInput } from "@/lib/ai/analysis-note";
-import {
-  clearAiNoteFeedback,
-  loadAiNoteFeedback,
-  saveAiNoteFeedback,
-  type AiNoteFeedback,
-} from "@/lib/storage/ai-feedback-storage";
 import {
   clearAnalysis,
   loadAnalysis,
@@ -48,7 +36,6 @@ import {
 } from "@/lib/storage/analysis-storage";
 import { addToComparison } from "@/lib/storage/comparison-storage";
 import type { AnalysisResult, ScoreCategory } from "@/lib/analysis/types";
-import { isAiAnalysisNoteVisible } from "@/lib/ai/feature-flags";
 import { riskBucket } from "@/lib/analysis/risk-bucket";
 import { SectionCard } from "@/components/ui/section-card";
 
@@ -198,7 +185,6 @@ function reportCorrectionMailto(result: AnalysisResult): string {
   const body = `Rapor icin duzeltme / eksik bilgi notu
 
 Arac: ${result.input.year} ${result.input.brand} ${result.input.model}
-Ilan: ${result.input.listingUrl ?? ""}
 Bilgi durumu: ${result.completeness.completed}/${result.completeness.total}
 Eksik alanlar: ${result.completeness.missing.join(", ") || "Yok"}
 
@@ -229,11 +215,6 @@ export function ResultClient() {
   const [addedToComparison, setAddedToComparison] = useState(false);
   const [findingFilter, setFindingFilter] = useState<FindingFilter>("all");
   const [checkedChecklist, setCheckedChecklist] = useState<Set<string>>(new Set());
-  const [aiNote, setAiNote] = useState<string | null>(null);
-  const [aiNoteStatus, setAiNoteStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
-  const [aiNoteMessage, setAiNoteMessage] = useState<string>("");
-  const [aiNoteFeedback, setAiNoteFeedback] = useState<AiNoteFeedback | null>(null);
-  const [aiNoteConsent, setAiNoteConsent] = useState(false);
   const [scoreRingFilled, setScoreRingFilled] = useState(false);
   const [toastNonce, setToastNonce] = useState(0);
   const [activeTab, setActiveTab] = useState<ReportTab>("ozet");
@@ -259,7 +240,6 @@ export function ResultClient() {
       setResult(current);
       setFindingFilter(loadFindingFilter());
       setCheckedChecklist(new Set(current ? loadChecklist(current.finalChecklist) : []));
-      setAiNoteFeedback(loadAiNoteFeedback());
       setIsReady(true);
     });
 
@@ -414,49 +394,11 @@ export function ResultClient() {
     if (outcome.ok) setAddedToComparison(true);
   }
 
-  async function requestAiNote() {
-    if (!result || aiNoteStatus === "loading") return;
-    if (!aiNoteConsent) {
-      setAiNoteStatus("error");
-      setAiNoteMessage("AI sağlayıcısına veri gönderimini onaylamadan karar destek notu oluşturulamaz.");
-      return;
-    }
-
-    setAiNoteStatus("loading");
-    setAiNoteMessage("");
-
-    try {
-      const response = await apiFetch("/api/ai/analysis-note", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...buildAiAnalysisNoteInput(result), aiProviderConsent: true }),
-      });
-      const payload = (await response.json()) as { note?: string; error?: string; remaining?: number };
-
-      if (!response.ok || !payload.note) {
-        setAiNoteStatus("error");
-        setAiNoteMessage(payload.error ?? "Karar destek notu şu anda oluşturulamadı.");
-        return;
-      }
-
-      setAiNote(payload.note);
-      setAiNoteStatus("ready");
-      setAiNoteMessage(typeof payload.remaining === "number" ? `Bugün kalan deneme hakkı: ${payload.remaining}` : "");
-    } catch {
-      setAiNoteStatus("error");
-      setAiNoteMessage("Karar destek notu alınamadı. Kural tabanlı rapor kullanılmaya devam edebilir.");
-    }
-  }
-
   function clearCurrentAnalysis() {
     clearAnalysis();
-    clearAiNoteFeedback();
     setResult(null);
     setCheckedChecklist(new Set());
     setFindingFilter("all");
-    setAiNoteFeedback(null);
   }
 
   function selectFindingFilter(filter: FindingFilter) {
@@ -475,11 +417,6 @@ export function ResultClient() {
       saveChecklist([...next]);
       return next;
     });
-  }
-
-  function recordAiNoteFeedback(value: AiNoteFeedback) {
-    saveAiNoteFeedback(value);
-    setAiNoteFeedback(value);
   }
 
   if (!isReady) {
@@ -514,7 +451,6 @@ export function ResultClient() {
 
   const visibleFindings =
     findingFilter === "all" ? result.findings : result.findings.filter((finding) => finding.severity === findingFilter);
-  const showAiAnalysisNote = isAiAnalysisNoteVisible();
 
   return (
     <>
@@ -669,10 +605,10 @@ export function ResultClient() {
                 Veri kaynağı
               </div>
               <p className="mt-2 text-lg font-semibold leading-snug text-foreground">
-                {result.input.listingUrl ? "İlan linkinden oluşturuldu" : "Manuel bilgilerle oluşturuldu"}
+                {result.listingImages?.length ? "İlandan alınan bilgilerle oluşturuldu" : "Manuel bilgilerle oluşturuldu"}
               </p>
               <p className="mt-2 break-words text-sm leading-6 text-muted-foreground">
-                {result.input.listingUrl
+                {result.listingImages?.length
                   ? "Rapordaki araç bilgileri ilan sayfasından alınan metin ve görsellerle hazırlanır; satıcı iddiaları belge yerine geçmez."
                   : "Rapordaki araç bilgileri kullanıcının girdiği alanlara göre hazırlanır."}
               </p>
@@ -823,33 +759,7 @@ export function ResultClient() {
               </p>
             </div>
           ) : null}
-          <div className="no-print border-t border-border bg-muted p-4 text-sm text-foreground/80">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="font-medium text-foreground">
-                  Bu raporda eksik veya fazla sert görünen bir uyarı var mı?
-                </p>
-                <p className="mt-1">
-                  Kural setlerini gerçek kullanıcı geri bildirimiyle geliştiriyoruz. Kişisel veri paylaşmadan not
-                  bırakabilirsiniz.
-                </p>
-              </div>
-              <Link
-                href="/geri-bildirim"
-                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-card px-4 font-semibold text-foreground ring-1 ring-border hover:ring-accent"
-              >
-                Geri bildirim gönder
-                <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
-              </Link>
-            </div>
-          </div>
         </section>
-        <div className="rounded-theme border border-warning/30 bg-warning/10 p-4 text-sm leading-6 text-foreground">
-          <div className="flex gap-3">
-            <AlertTriangle aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" />
-            <p>{appConfig.disclaimer}</p>
-          </div>
-        </div>
         <div
           role="tablist"
           aria-label="Rapor bölümleri"
@@ -880,99 +790,6 @@ export function ResultClient() {
           aria-labelledby="rapor-sekme-ozet"
           className={`report-tab-panel ${activeTab === "ozet" ? "contents" : "hidden"}`}
         >
-          {showAiAnalysisNote ? (
-            <SectionCard
-              title="Karar destek notu"
-              description="Kural tabanlı raporu bozmadan, riskleri daha sade açıklayan opsiyonel bir not üretir."
-            >
-              <div className="rounded-theme border border-accent/15 bg-secondary p-4">
-                <div className="flex items-start gap-3">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-card text-accent">
-                    <Sparkles aria-hidden="true" className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <p className="font-semibold text-foreground">Ek açıklama üret</p>
-                    <p className="mt-1 text-sm leading-6 text-foreground/80">
-                      Kural tabanlı rapor ana karar desteği olarak kalır. Bu not yalnızca riskleri sadeleştiren ek bir
-                      açıklama üretir ve kesin ekspertiz sonucu vermez.
-                    </p>
-                  </div>
-                </div>
-                <label className="mt-4 flex items-start gap-3 rounded-theme-sm border border-border bg-card p-3 text-sm font-semibold text-foreground/90">
-                  <input
-                    type="checkbox"
-                    checked={aiNoteConsent}
-                    onChange={(event) => setAiNoteConsent(event.target.checked)}
-                    className="mt-1 h-4 w-4 shrink-0 accent-primary"
-                  />
-                  <span>
-                    Bu not için araç bilgileri, risk skoru ve bulgu başlıklarının üçüncü taraf bir AI sağlayıcısına
-                    gönderileceğini anladım ve onaylıyorum.
-                  </span>
-                </label>
-                <button
-                  type="button"
-                  onClick={requestAiNote}
-                  disabled={!aiNoteConsent || aiNoteStatus === "loading"}
-                  className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {aiNoteStatus === "loading" ? <Spinner /> : <Sparkles aria-hidden="true" className="h-4 w-4" />}
-                  {aiNoteStatus === "loading" ? "Not hazırlanıyor" : "Not oluştur"}
-                </button>
-                {aiNote ? (
-                  <div className="mt-4 rounded-theme-sm border border-border bg-card p-4 text-sm leading-6 text-foreground/80">
-                    {aiNote}
-                  </div>
-                ) : null}
-                {aiNote ? (
-                  <div className="mt-4 rounded-theme-sm border border-border bg-card p-3">
-                    <p className="text-sm font-semibold text-foreground">Bu not faydalı mı?</p>
-                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                      <button
-                        type="button"
-                        onClick={() => recordAiNoteFeedback("helpful")}
-                        aria-pressed={aiNoteFeedback === "helpful"}
-                        className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-theme-sm border px-4 text-sm font-semibold ${
-                          aiNoteFeedback === "helpful"
-                            ? "border-accent bg-accent/10 text-accent"
-                            : "border-border text-foreground/90 hover:border-accent"
-                        }`}
-                      >
-                        <ThumbsUp aria-hidden="true" className="h-4 w-4" />
-                        Faydalı
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => recordAiNoteFeedback("needs-improvement")}
-                        aria-pressed={aiNoteFeedback === "needs-improvement"}
-                        className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-theme-sm border px-4 text-sm font-semibold ${
-                          aiNoteFeedback === "needs-improvement"
-                            ? "border-warning bg-warning/10 text-warning"
-                            : "border-border text-foreground/90 hover:border-warning"
-                        }`}
-                      >
-                        <ThumbsDown aria-hidden="true" className="h-4 w-4" />
-                        Geliştirilmeli
-                      </button>
-                    </div>
-                    {aiNoteFeedback ? (
-                      <p className="mt-3 text-sm text-muted-foreground" role="status">
-                        Geri bildiriminiz bu tarayıcı oturumunda tutuldu.
-                      </p>
-                    ) : null}
-                  </div>
-                ) : null}
-                {aiNoteMessage ? (
-                  <p
-                    className={`mt-3 text-sm ${aiNoteStatus === "error" ? "font-medium text-destructive" : "text-muted-foreground"}`}
-                    role="status"
-                  >
-                    {aiNoteMessage}
-                  </p>
-                ) : null}
-              </div>
-            </SectionCard>
-          ) : null}
           <SectionCard
             title="Paylaşılabilir kısa özet"
             description="Uzun rapor yerine satıcıya, ekspertize veya kendinize gönderebileceğiniz kısa karar desteği özeti."
@@ -1087,19 +904,6 @@ export function ResultClient() {
                 Araç yaşı yaklaşık {result.mileage.vehicleAge} yıl, yıllık ortalama kullanım yaklaşık{" "}
                 {result.mileage.annualMileage.toLocaleString("tr-TR")} km. Bu değerler yalnızca genel referanstır.
               </p>
-              {result.input.listingUrl ? (
-                <p className="mt-3 break-words text-sm text-foreground/80">
-                  İlan referansı:{" "}
-                  <a
-                    className="font-medium text-accent underline"
-                    href={result.input.listingUrl}
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    {result.input.listingUrl}
-                  </a>
-                </p>
-              ) : null}
             </div>
             {result.listingImages?.length ? (
               <div className="mt-4">

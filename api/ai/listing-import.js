@@ -426,6 +426,41 @@ function extractEnginePowerFromText(text) {
   return match ? `${match[1]} HP` : null;
 }
 
+function parseListingNumber(value) {
+  const digits = String(value || "").replace(/[^\d]/g, "");
+  if (!digits) return null;
+  const parsed = Number.parseInt(digits, 10);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function extractMileageFromText(text) {
+  const source = String(text || "");
+  const patterns = [
+    /(?:kilometre|km)\D{0,50}(\d[\d.\s]{2,})/i,
+    /(\d[\d.\s]{2,})\s*(?:km|kilometre)\b/i,
+  ];
+  for (const pattern of patterns) {
+    const match = source.match(pattern);
+    const parsed = parseListingNumber(match?.[1]);
+    if (parsed && parsed >= 1_000 && parsed <= 2_000_000) return parsed;
+  }
+  return null;
+}
+
+function extractPriceFromText(text) {
+  const source = String(text || "");
+  const patterns = [
+    /(?:fiyat|ilan\s+fiyat[ıi])\D{0,50}(\d[\d.\s]{4,})\s*(?:tl|₺)?/i,
+    /(\d[\d.\s]{4,})\s*(?:tl|₺)\b/i,
+  ];
+  for (const pattern of patterns) {
+    const match = source.match(pattern);
+    const parsed = parseListingNumber(match?.[1]);
+    if (parsed && parsed >= 10_000 && parsed <= 100_000_000) return parsed;
+  }
+  return null;
+}
+
 const PART_ALIASES = [
   ["Ön tampon", /ön\s+tampon|on\s+tampon/i],
   ["Arka tampon", /arka\s+tampon/i],
@@ -451,6 +486,30 @@ function extractPartsNearKeyword(text, keywordPattern) {
   const end = Math.min(compact.length, (keywordMatch.index ?? 0) + keywordMatch[0].length + 80);
   const window = compact.slice(start, end);
   const parts = PART_ALIASES.filter(([, pattern]) => pattern.test(window)).map(([name]) => name);
+  return parts.length ? Array.from(new Set(parts)).join(", ") : null;
+}
+
+const PART_SECTION_STOP_PATTERN =
+  /^(boyal[ıi]|boyas[ıi]z|de[ğg]i[şs]en|de[ğg]i[şs]ensiz|lokal\s+boyal[ıi]|lokal\s+boya|özellikler|ozellikler|güvenlik|guvenlik|iç\s+donan[ıi]m|ic\s+donanim|multimedya|konum|aç[ıi]klama|ac[ıi]klama|tüm\s+teknik|tum\s+teknik)/i;
+
+function extractPartsUnderLabel(text, labelPattern) {
+  const lines = String(text || "")
+    .split(/\r?\n+/)
+    .map(cleanListingLine)
+    .filter(Boolean);
+  const labelIndex = lines.findIndex((line) => labelPattern.test(normalizeTurkish(line)));
+  if (labelIndex < 0) return null;
+
+  const parts = [];
+  for (const line of lines.slice(labelIndex + 1, labelIndex + 12)) {
+    const normalizedLine = normalizeTurkish(line);
+    if (parts.length && PART_SECTION_STOP_PATTERN.test(normalizedLine)) break;
+    for (const [name, pattern] of PART_ALIASES) {
+      if (pattern.test(line)) parts.push(name);
+    }
+    if (parts.length && line.length > 120) break;
+  }
+
   return parts.length ? Array.from(new Set(parts)).join(", ") : null;
 }
 
@@ -609,6 +668,38 @@ function normalizeListingImportJson(json, input, model) {
     if (fallbackEnginePower) {
       fields.enginePower = fallbackEnginePower;
       json.missingFields = removeMissingField(json.missingFields, "enginePower");
+    }
+  }
+  if (!fields.mileage) {
+    const fallbackMileage = extractMileageFromText(fallbackText);
+    if (fallbackMileage) {
+      fields.mileage = fallbackMileage;
+      json.missingFields = removeMissingField(json.missingFields, "mileage");
+    }
+  }
+  if (!fields.price) {
+    const fallbackPrice = extractPriceFromText(fallbackText);
+    if (fallbackPrice) {
+      fields.price = fallbackPrice;
+      json.missingFields = removeMissingField(json.missingFields, "price");
+    }
+  }
+  if (!fields.paintedParts) {
+    const fallbackPaintedParts =
+      extractPartsUnderLabel(fallbackText, /^boyal[ıi]$/i) ||
+      extractPartsNearKeyword(fallbackText, /\bboyal[ıi]\b/i);
+    if (fallbackPaintedParts) {
+      fields.paintedParts = fallbackPaintedParts;
+      json.missingFields = removeMissingField(json.missingFields, "paintedParts");
+    }
+  }
+  if (!fields.replacedParts) {
+    const fallbackReplacedParts =
+      extractPartsUnderLabel(fallbackText, /^de[ğg]i[şs]en$/i) ||
+      extractPartsNearKeyword(fallbackText, /\bde[ğg]i[şs]en\b/i);
+    if (fallbackReplacedParts) {
+      fields.replacedParts = fallbackReplacedParts;
+      json.missingFields = removeMissingField(json.missingFields, "replacedParts");
     }
   }
   if (!fields.localPaintedParts) {

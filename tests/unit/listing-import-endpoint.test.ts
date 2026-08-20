@@ -164,7 +164,7 @@ describe("listing import AI endpoint", () => {
     expect(body.error).toBe("İlan bilgisi işlenemedi.");
   });
 
-  it("fills seller description, city, engine power and local paint from page text when the model misses them", async () => {
+  it("fills seller description, city, mileage, price, paint details, engine power and local paint from page text when the model misses them", async () => {
     const modelResponse = {
       choices: [
         {
@@ -178,8 +178,8 @@ describe("listing import AI endpoint", () => {
                 trim: null,
                 fuelType: "Benzin",
                 transmission: "Otomatik",
-                mileage: 87000,
-                price: 1125000,
+                mileage: null,
+                price: null,
                 city: null,
                 bodyType: "Hatchback",
                 engineSize: "1.4",
@@ -209,7 +209,17 @@ describe("listing import AI endpoint", () => {
                 sellerDescription: null,
               },
               lowConfidenceFields: [],
-              missingFields: ["sellerDescription", "city", "enginePower", "localPaintedParts", "hasHeavyDamage"],
+              missingFields: [
+                "sellerDescription",
+                "city",
+                "mileage",
+                "price",
+                "enginePower",
+                "paintedParts",
+                "replacedParts",
+                "localPaintedParts",
+                "hasHeavyDamage",
+              ],
               warnings: [],
             }),
           },
@@ -220,6 +230,16 @@ describe("listing import AI endpoint", () => {
       ...validBody,
       bodyText: [
         "İlan Açıklaması",
+        "İlan Fiyatı",
+        "1.125.000 TL",
+        "Kilometre",
+        "87.000 km",
+        "BOYA, DEĞİŞEN VE EKSPERTİZ BİLGİSİ",
+        "Boyalı",
+        "• Sağ Ön Kapı",
+        "Değişen",
+        "• Ön Tampon",
+        "ÖZELLİKLER",
         "ŞENTÜRK OTOMOTİV E HOŞ GELDİNİZ",
         "ARAÇLARIMIZ İSTEDİĞİNİZ EXPERTİZ E USTAYA AÇIKTIR",
         "SOL ÖN ÇAMURLUK LOKAL BOYA HARİCİ",
@@ -240,11 +260,19 @@ describe("listing import AI endpoint", () => {
     const result = body.result as { fields: Record<string, unknown>; missingFields: string[] };
     expect(result.fields.sellerDescription).toContain("ŞENTÜRK OTOMOTİV");
     expect(result.fields.city).toBe("Samsun");
+    expect(result.fields.mileage).toBe(87000);
+    expect(result.fields.price).toBe(1125000);
     expect(result.fields.enginePower).toBe("145 HP");
+    expect(result.fields.paintedParts).toBe("Sağ ön kapı");
+    expect(result.fields.replacedParts).toBe("Ön tampon");
     expect(result.fields.localPaintedParts).toBe("Sol ön çamurluk");
     expect(result.fields.hasHeavyDamage).toBe(false);
     expect(result.missingFields).not.toContain("sellerDescription");
     expect(result.missingFields).not.toContain("city");
+    expect(result.missingFields).not.toContain("mileage");
+    expect(result.missingFields).not.toContain("price");
+    expect(result.missingFields).not.toContain("paintedParts");
+    expect(result.missingFields).not.toContain("replacedParts");
   });
 
   it("falls back to the paid listing model when the free model hits OpenRouter capacity", async () => {
