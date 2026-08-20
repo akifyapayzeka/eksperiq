@@ -1,5 +1,12 @@
 const OPENROUTER_CHAT_COMPLETIONS_URL = "https://openrouter.ai/api/v1/chat/completions";
-const DEFAULT_TIMEOUT_MS = 20_000;
+// Was 20s — Vercel logs confirmed the free-tier model genuinely taking
+// 20-30+ seconds on some requests, so a 20s AbortController was firing (and
+// then retrying into the *same* slow model) before the call had a real
+// chance to finish. All api/ai/*.js callers share this default and share
+// vercel.json's api/ai/*.js maxDuration (120s) — with DEFAULT_MAX_RETRIES=1
+// (two attempts), 40s x 2 + retry delay leaves ~40s of headroom under that
+// ceiling for rate-limiting and response handling.
+const DEFAULT_TIMEOUT_MS = 40_000;
 const DEFAULT_MAX_RETRIES = 1;
 const RETRY_DELAY_MS = 500;
 

@@ -223,9 +223,9 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
             />
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            Bu işlem sayfayı açıp araç bilgilerini analiz ettiği için genelde 10-30 saniye sürer, bağlantı yavaşsa 1
-            dakikaya kadar çıkabilir. Uygulamayı kapatmadan ana ekrana dönebilirsiniz — bittiğinde bildirim
-            gönderilir.
+            Bu işlem sayfayı açıp araç bilgilerini analiz ettiği için genelde 10-30 saniye sürer, bağlantı yavaşsa
+            veya bir kez otomatik tekrar denenirse birkaç dakikaya kadar çıkabilir. Uygulamayı kapatmadan ana ekrana
+            dönebilirsiniz — bittiğinde bildirim gönderilir.
           </p>
         </div>
       ) : null}

@@ -180,15 +180,16 @@ private enum ListingImportRequester {
             return Outcome(succeeded: false, httpStatus: 0, responseJson: "")
         }
 
-        // Was 20s, then 55s — each time raised to chase the server's own
-        // ceiling (vercel.json's api/ai/*.js maxDuration), but a client
-        // timeout BELOW the server's meant a slow-but-successful response
-        // got cut off mid-stream instead of ever reaching the server limit —
-        // confirmed live: server maxDuration went 60->90, this stayed at 55,
-        // and the very next slow response was truncated client-side ("raw="
-        // empty, JS parse error) even though the server had logged a clean
-        // 200. Must always stay ABOVE the server's maxDuration, not under it.
-        var request = URLRequest(url: endpoint, timeoutInterval: 100)
+        // Was 20s, then 55s, then 100s — each time raised to chase the
+        // server's own ceiling (vercel.json's api/ai/*.js maxDuration), but
+        // a client timeout BELOW the server's meant a slow-but-successful
+        // response got cut off mid-stream instead of ever reaching the
+        // server limit — confirmed live: server maxDuration went 60->90,
+        // this stayed at 55, and the very next slow response was truncated
+        // client-side ("raw=" empty, JS parse error) even though the server
+        // had logged a clean 200. Must always stay ABOVE the server's
+        // maxDuration (currently 120s), not under it.
+        var request = URLRequest(url: endpoint, timeoutInterval: 140)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         if let installId, !installId.isEmpty {
@@ -250,7 +251,13 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
         return "Mozilla/5.0 (iPhone; CPU iPhone OS \(underscored) like Mac OS X) AppleWebKit/605.1.15 " +
             "(KHTML, like Gecko) Version/\(version) Mobile/15E148 Safari/604.1"
     }
-    private static let hardTimeoutSeconds: TimeInterval = 35
+    // Was 35s (with the network request itself capped at 30s below) — a
+    // short-link redirect chain plus Cloudflare's own challenge JS can
+    // legitimately take longer than that on a slow connection before the
+    // page actually settles, giving up early was indistinguishable from a
+    // real block. Raised with the same headroom relationship kept intact:
+    // this must stay comfortably above the network request's own timeout.
+    private static let hardTimeoutSeconds: TimeInterval = 50
     private static let settleDelaySeconds: TimeInterval = 2.0
 
     private var continuation: CheckedContinuation<ExtractedPageData, Error>?
@@ -296,7 +303,10 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
             self.timeoutWorkItem = timeout
             DispatchQueue.main.asyncAfter(deadline: .now() + Self.hardTimeoutSeconds, execute: timeout)
 
-            webView.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 30))
+            // Was 30s. Must stay below hardTimeoutSeconds so a real network
+            // timeout is reported as such rather than papered over by the
+            // generic hard-timeout fallback above.
+            webView.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 45))
         }
     }
 

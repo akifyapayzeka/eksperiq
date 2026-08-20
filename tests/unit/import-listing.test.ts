@@ -93,7 +93,7 @@ describe("importListingFromUrl", () => {
 
     const outcomePromise = importListingFromUrl(SUPPORTED_URL);
 
-    vi.setSystemTime(Date.now() + 310_000);
+    vi.setSystemTime(Date.now() + 460_000);
     Object.defineProperty(document, "visibilityState", { value: "visible", configurable: true });
     document.dispatchEvent(new Event("visibilitychange"));
 
