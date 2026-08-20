@@ -12,6 +12,8 @@ import {
   FileText,
   Gauge,
   GitCompareArrows,
+  Minus,
+  Plus,
   RotateCcw,
   Share2,
   ShieldQuestion,
@@ -19,6 +21,7 @@ import {
   ThumbsDown,
   ThumbsUp,
   Trash2,
+  X,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { appConfig } from "@/lib/constants/app";
@@ -128,6 +131,9 @@ function priorityToneClass(severity: string): string {
 
 const SCORE_RING_RADIUS = 16;
 const SCORE_RING_CIRCUMFERENCE = 2 * Math.PI * SCORE_RING_RADIUS;
+const MIN_IMAGE_ZOOM = 1;
+const MAX_IMAGE_ZOOM = 4;
+const IMAGE_ZOOM_STEP = 0.5;
 
 function scoreRingOffset(score: number): number {
   const clamped = Math.min(100, Math.max(0, score));
@@ -210,6 +216,12 @@ export function ResultClient() {
   const [scoreRingFilled, setScoreRingFilled] = useState(false);
   const [toastNonce, setToastNonce] = useState(0);
   const [activeTab, setActiveTab] = useState<ReportTab>("ozet");
+  const [selectedListingImageIndex, setSelectedListingImageIndex] = useState<number | null>(null);
+  const [listingImageZoom, setListingImageZoom] = useState(MIN_IMAGE_ZOOM);
+
+  const listingImages = result?.listingImages ?? [];
+  const selectedListingImage =
+    selectedListingImageIndex !== null ? (listingImages[selectedListingImageIndex] ?? null) : null;
 
   // setCopyStatus alone doesn't restart the toast if the same action is
   // repeated within 3s (React bails out on setting an identical primitive
@@ -244,6 +256,36 @@ export function ResultClient() {
     const timer = window.setTimeout(() => setCopyStatus("idle"), 3000);
     return () => window.clearTimeout(timer);
   }, [copyStatus]);
+
+  useEffect(() => {
+    if (selectedListingImageIndex === null) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setSelectedListingImageIndex(null);
+    }
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [selectedListingImageIndex]);
+
+  function openListingImage(index: number) {
+    setSelectedListingImageIndex(index);
+    setListingImageZoom(MIN_IMAGE_ZOOM);
+  }
+
+  function closeListingImage() {
+    setSelectedListingImageIndex(null);
+    setListingImageZoom(MIN_IMAGE_ZOOM);
+  }
+
+  function changeListingImageZoom(delta: number) {
+    setListingImageZoom((current) =>
+      Math.min(MAX_IMAGE_ZOOM, Math.max(MIN_IMAGE_ZOOM, Number((current + delta).toFixed(1)))),
+    );
+  }
 
   async function copyText(
     text: string,
@@ -454,6 +496,7 @@ export function ResultClient() {
   const showAiAnalysisNote = isAiAnalysisNoteVisible();
 
   return (
+    <>
     <main className="flex-1 bg-background">
       <div className="mx-auto grid max-w-6xl gap-6 px-4 pb-28 pt-6 sm:px-6 sm:pb-6 lg:px-8">
         <div className="print-only mb-2 flex items-center justify-between border-b border-border pb-3">
@@ -644,17 +687,17 @@ export function ResultClient() {
                 </span>
               </div>
               <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
-                {result.listingImages.slice(0, 12).map((imageUrl) => (
-                  <a
+                {result.listingImages.slice(0, 12).map((imageUrl, index) => (
+                  <button
                     key={imageUrl}
-                    href={imageUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block aspect-square overflow-hidden rounded-theme-sm border border-border bg-muted"
+                    type="button"
+                    onClick={() => openListingImage(index)}
+                    className="block aspect-square overflow-hidden rounded-theme-sm border border-border bg-muted text-left transition hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                    aria-label={`İlan fotoğrafını büyüt: ${index + 1}`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element -- External listing CDNs are not known at build time. */}
                     <img src={imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
-                  </a>
+                  </button>
                 ))}
               </div>
             </div>
@@ -1024,17 +1067,17 @@ export function ResultClient() {
               <div className="mt-4">
                 <p className="text-sm font-semibold text-foreground">İlandan alınan fotoğraflar</p>
                 <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
-                  {result.listingImages.slice(0, 8).map((imageUrl) => (
-                    <a
+                  {result.listingImages.slice(0, 8).map((imageUrl, index) => (
+                    <button
                       key={imageUrl}
-                      href={imageUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="block aspect-square overflow-hidden rounded-lg border border-border bg-muted"
+                      type="button"
+                      onClick={() => openListingImage(index)}
+                      className="block aspect-square overflow-hidden rounded-lg border border-border bg-muted text-left transition hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                      aria-label={`İlan fotoğrafını büyüt: ${index + 1}`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element -- Listing image hosts vary by source site. */}
                       <img src={imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
-                    </a>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -1303,5 +1346,79 @@ export function ResultClient() {
         </div>
       </div>
     </main>
+    {selectedListingImage ? (
+      <div
+        className="fixed inset-0 z-50 bg-foreground/80 p-3 backdrop-blur-sm sm:p-6"
+        role="dialog"
+        aria-modal="true"
+        aria-label="İlan fotoğrafı görüntüleyici"
+        onClick={closeListingImage}
+      >
+        <div
+          className="mx-auto flex h-full max-w-5xl flex-col overflow-hidden rounded-theme border border-border bg-card shadow-xl"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="flex min-h-14 items-center justify-between gap-2 border-b border-border px-3 py-2 sm:px-4">
+            <div>
+              <p className="text-sm font-semibold text-foreground">Araç fotoğrafı</p>
+              <p className="text-xs text-muted-foreground">
+                {selectedListingImageIndex !== null ? selectedListingImageIndex + 1 : 1} / {listingImages.length}
+              </p>
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => changeListingImageZoom(-IMAGE_ZOOM_STEP)}
+                disabled={listingImageZoom <= MIN_IMAGE_ZOOM}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground/80 disabled:opacity-40"
+                aria-label="Fotoğrafı küçült"
+              >
+                <Minus aria-hidden="true" className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setListingImageZoom(MIN_IMAGE_ZOOM)}
+                className="inline-flex h-10 min-w-14 items-center justify-center rounded-full border border-border px-3 text-xs font-semibold text-foreground/80"
+                aria-label="Yakınlaştırmayı sıfırla"
+              >
+                {Math.round(listingImageZoom * 100)}%
+              </button>
+              <button
+                type="button"
+                onClick={() => changeListingImageZoom(IMAGE_ZOOM_STEP)}
+                disabled={listingImageZoom >= MAX_IMAGE_ZOOM}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground/80 disabled:opacity-40"
+                aria-label="Fotoğrafı büyüt"
+              >
+                <Plus aria-hidden="true" className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={closeListingImage}
+                className="ml-1 inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground"
+                aria-label="Fotoğraf görüntüleyiciyi kapat"
+              >
+                <X aria-hidden="true" className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+          <div className="min-h-0 flex-1 overflow-auto bg-muted p-3">
+            <div className="flex min-h-full items-center justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element -- Listing image hosts vary by source site. */}
+              <img
+                src={selectedListingImage}
+                alt="İlandan alınan araç fotoğrafı"
+                className="max-h-none max-w-none rounded-theme-sm object-contain shadow-sm"
+                style={{
+                  width: `${listingImageZoom * 100}%`,
+                  maxWidth: listingImageZoom === MIN_IMAGE_ZOOM ? "100%" : "none",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    ) : null}
+    </>
   );
 }
