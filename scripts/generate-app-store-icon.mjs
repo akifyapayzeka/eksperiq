@@ -3,15 +3,7 @@ import { join } from "node:path";
 
 const source = join(process.cwd(), "public", "brand", "source", "eksperiq-app-icon-master-1024.png");
 const output = join(process.cwd(), "public", "app-store-icon-1024.png");
-const iosIcon = join(
-  process.cwd(),
-  "ios",
-  "App",
-  "App",
-  "Assets.xcassets",
-  "AppIcon.appiconset",
-  "AppIcon-512@2x.png",
-);
+const iosIcon = join(process.cwd(), "ios", "App", "App", "Assets.xcassets", "AppIcon.appiconset", "AppIcon-512@2x.png");
 
 if (!existsSync(source)) {
   console.error(`Master ikon bulunamadi: ${source}`);

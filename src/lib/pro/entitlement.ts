@@ -88,9 +88,10 @@ const ENTITLEMENT_STATE_PRIORITY: EntitlementState[] = [
   "free",
 ];
 
-function pickBestSnapshot(
-  snapshots: Array<{ state: EntitlementState; expiresAt?: string }>,
-): { state: EntitlementState; expiresAt?: string } {
+function pickBestSnapshot(snapshots: Array<{ state: EntitlementState; expiresAt?: string }>): {
+  state: EntitlementState;
+  expiresAt?: string;
+} {
   for (const wanted of ENTITLEMENT_STATE_PRIORITY) {
     const match = snapshots.find((snapshot) => snapshot.state === wanted);
     if (match) return match;
@@ -106,9 +107,9 @@ export const nativeStoreKitEntitlementProvider: EntitlementProvider = {
     try {
       const results = await Promise.all(
         ALL_PRODUCT_IDS.map((productId) =>
-          EksperIQEntitlementPlugin.currentEntitlement({ productId }).catch(
-            () => ({ state: "unknown" as EntitlementState }),
-          ),
+          EksperIQEntitlementPlugin.currentEntitlement({ productId }).catch(() => ({
+            state: "unknown" as EntitlementState,
+          })),
         ),
       );
       const best = pickBestSnapshot(results);

@@ -21,13 +21,15 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2013,
         yearTo: 2016,
-        reliabilityNote: "Türkiye'de 2015-2016 civarı emisyon nedeniyle satıştan kalkmıştır; genel olarak dayanıklı kabul edilir.",
+        reliabilityNote:
+          "Türkiye'de 2015-2016 civarı emisyon nedeniyle satıştan kalkmıştır; genel olarak dayanıklı kabul edilir.",
         issues: [
           {
             id: "corolla-14d4d-scv",
             severity: "medium",
             title: "Yakıt basınç regülatörü (SCV) tıkanması",
-            detail: "Yakıt rayı basınç regülatörü zamanla aşınıp tıkanabiliyor; uzun marş süresi, rölantide takılma/stop etme ve güç kaybı şeklinde belirtiler bildiriliyor.",
+            detail:
+              "Yakıt rayı basınç regülatörü zamanla aşınıp tıkanabiliyor; uzun marş süresi, rölantide takılma/stop etme ve güç kaybı şeklinde belirtiler bildiriliyor.",
             typicalOnset: "100.000-150.000 km sonrası",
             costLevel: "Orta",
             sourceNote: "Birden fazla İngilizce oto forumu ve teknik arıza sitesinde tekrar eden bir konu.",
@@ -49,7 +51,8 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2013,
         yearTo: 2019,
-        reliabilityNote: "Bu motor için yaygın/kronik bir mekanik sorun tespit edilemedi; genel olarak çok güvenilir kabul edilir.",
+        reliabilityNote:
+          "Bu motor için yaygın/kronik bir mekanik sorun tespit edilemedi; genel olarak çok güvenilir kabul edilir.",
         issues: [],
       },
       {
@@ -58,13 +61,15 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
         transmission: "Otomatik",
         yearFrom: 2013,
         yearTo: 2019,
-        reliabilityNote: "Valvematic sistemi klasik VVT-i'ye göre daha karmaşık ve sorunlara daha açık kabul edilir; Toyota bu sistemi 2015/2016 civarı revize etmiştir.",
+        reliabilityNote:
+          "Valvematic sistemi klasik VVT-i'ye göre daha karmaşık ve sorunlara daha açık kabul edilir; Toyota bu sistemi 2015/2016 civarı revize etmiştir.",
         issues: [
           {
             id: "corolla-16valvematic-actuator",
             severity: "high",
             title: "Valvematic aktüatörü tutukluğu (2014-2015 model)",
-            detail: "Emme manifoldundaki karbon birikimi nedeniyle Valvematic aktüatörü sıkışabiliyor; çoklu arıza kodu, ciddi güç kaybı, bazı durumlarda motorun çalışmaması bildirilmiştir. 2015/2016 sonrası revize motorlarda görülme sıklığı azalmıştır.",
+            detail:
+              "Emme manifoldundaki karbon birikimi nedeniyle Valvematic aktüatörü sıkışabiliyor; çoklu arıza kodu, ciddi güç kaybı, bazı durumlarda motorun çalışmaması bildirilmiştir. 2015/2016 sonrası revize motorlarda görülme sıklığı azalmıştır.",
             typicalOnset: "80.000-150.000 km",
             costLevel: "Yüksek",
             sourceNote: "Birden fazla teknik forum ve motor inceleme sitesinde tekrar eden, isimlendirilmiş bir arıza.",
@@ -73,7 +78,8 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
             id: "corolla-16valvematic-oil",
             severity: "medium",
             title: "Yağ tüketimi",
-            detail: "Bu motorda en sık bildirilen şikayet aşırı yağ tüketimi; piston segmanı/supap keçesi aşınmasına bağlanıyor.",
+            detail:
+              "Bu motorda en sık bildirilen şikayet aşırı yağ tüketimi; piston segmanı/supap keçesi aşınmasına bağlanıyor.",
             typicalOnset: "100.000 km üzeri",
             costLevel: "Orta",
             sourceNote: "Çok sayıda kullanıcı forumunda ve motor spesifikasyon sitelerinde tekrar eden gözlem.",
@@ -86,13 +92,15 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
         transmission: "Otomatik",
         yearFrom: 2019,
         yearTo: 2023,
-        reliabilityNote: "E210 nesli genel olarak güvenilir kabul edilir; bilinen sorunlar çoğunlukla resmi geri çağırma kayıtlarına dayanır.",
+        reliabilityNote:
+          "E210 nesli genel olarak güvenilir kabul edilir; bilinen sorunlar çoğunlukla resmi geri çağırma kayıtlarına dayanır.",
         issues: [
           {
             id: "corolla-e210-oilring-recall",
             severity: "medium",
             title: "Piston segmanı/yağ tüketimi geri çağırması (2019-2020 üretim)",
-            detail: "Bazı 2019-2020 model yıllarında piston segmanı kaynaklı yağ tüketimi sorunu için resmi geri çağırma yapılmıştır; alım öncesi şasi numarasıyla kontrol önerilir.",
+            detail:
+              "Bazı 2019-2020 model yıllarında piston segmanı kaynaklı yağ tüketimi sorunu için resmi geri çağırma yapılmıştır; alım öncesi şasi numarasıyla kontrol önerilir.",
             costLevel: "Orta",
             sourceNote: "Resmi Toyota geri çağırma kaydına dayalı bilgi.",
           },
@@ -106,7 +114,8 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
     generation: "PB (2008-2014) ve GB (2014-2020)",
     yearFrom: 2008,
     yearTo: 2020,
-    generalNote: "Hyundai i20 genel olarak orta düzeyde güvenilir kabul edilir; motor ailesine göre bilinen belirli zayıf noktalar mevcuttur.",
+    generalNote:
+      "Hyundai i20 genel olarak orta düzeyde güvenilir kabul edilir; motor ailesine göre bilinen belirli zayıf noktalar mevcuttur.",
     engines: [
       {
         engineLabel: "1.4 CRDi",
@@ -119,10 +128,12 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
             id: "i20-14crdi-injector-washer",
             severity: "high",
             title: "Enjektör bakır sızdırmazlık rondelası arızası",
-            detail: "Enjektörlerin bakır sızdırmazlık rondelaları zamanla arızalanarak egzoz gazının motor yağına karışmasına, is/karbon birikimine ve yağ pompası emme borusunun tıkanmasına yol açabiliyor; bu durum yağ açlığından turbo arızasına kadar ilerleyebiliyor.",
+            detail:
+              "Enjektörlerin bakır sızdırmazlık rondelaları zamanla arızalanarak egzoz gazının motor yağına karışmasına, is/karbon birikimine ve yağ pompası emme borusunun tıkanmasına yol açabiliyor; bu durum yağ açlığından turbo arızasına kadar ilerleyebiliyor.",
             typicalOnset: "100.000 km üzeri",
             costLevel: "Yüksek",
-            sourceNote: "Birden fazla teknik forum ve parça/arıza kaynağında tekrar eden, mekanizması net tarif edilmiş bir sorun.",
+            sourceNote:
+              "Birden fazla teknik forum ve parça/arıza kaynağında tekrar eden, mekanizması net tarif edilmiş bir sorun.",
           },
         ],
       },
@@ -155,7 +166,8 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
             id: "i20-12kappa-timingchain",
             severity: "high",
             title: "Triger zinciri gerdirici arızası",
-            detail: "Ömür boyu parça olarak tasarlanan zincir, hidrolik gerdiricinin zayıflamasıyla gevşeyebiliyor; soğuk marşta 1-30 saniye süren belirgin bir tıkırtı sesi tipik belirtidir.",
+            detail:
+              "Ömür boyu parça olarak tasarlanan zincir, hidrolik gerdiricinin zayıflamasıyla gevşeyebiliyor; soğuk marşta 1-30 saniye süren belirgin bir tıkırtı sesi tipik belirtidir.",
             typicalOnset: "60.000-120.000 km",
             costLevel: "Yüksek",
             sourceNote: "Birden fazla İngilizce parça/arıza sitesinde tekrar eden, iyi belgelenmiş bir sorun.",
@@ -164,7 +176,8 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
             id: "i20-12kappa-oil",
             severity: "medium",
             title: "Yağ tüketimi",
-            detail: "Piston segmanı ve supap keçesi aşınmasına bağlı olarak servisler arası yağ takviyesi gerektiği bildirilmiştir.",
+            detail:
+              "Piston segmanı ve supap keçesi aşınmasına bağlı olarak servisler arası yağ takviyesi gerektiği bildirilmiştir.",
             costLevel: "Orta",
             sourceNote: "Birden fazla kaynakta tekrar eden gözlem.",
           },
@@ -182,7 +195,8 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
             id: "i20-14kappa-timingchain",
             severity: "medium",
             title: "Triger zinciri gerdirici arızası",
-            detail: "1.2 Kappa'ya benzer şekilde zincir gerdiricisi zamanla zayıflayıp soğuk marşta tıkırtı sesine yol açabiliyor; 1.4 versiyonunda bildirim sıklığı 1.2'ye göre biraz daha düşük.",
+            detail:
+              "1.2 Kappa'ya benzer şekilde zincir gerdiricisi zamanla zayıflayıp soğuk marşta tıkırtı sesine yol açabiliyor; 1.4 versiyonunda bildirim sıklığı 1.2'ye göre biraz daha düşük.",
             typicalOnset: "80.000-130.000 km",
             costLevel: "Yüksek",
             sourceNote: "Aynı motor ailesi için tekrar eden forum/arıza kaynağı gözlemleri.",
@@ -205,16 +219,19 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
         transmission: "Yarı otomatik",
         yearFrom: 2011,
         yearTo: 2020,
-        reliabilityNote: "7DCT (7 ileri kuru çift kavramalı) şanzımanla eşleştirilen versiyonlarda şanzıman kaynaklı şikayetler manuel versiyona göre belirgin şekilde daha fazladır.",
+        reliabilityNote:
+          "7DCT (7 ileri kuru çift kavramalı) şanzımanla eşleştirilen versiyonlarda şanzıman kaynaklı şikayetler manuel versiyona göre belirgin şekilde daha fazladır.",
         issues: [
           {
             id: "accent-16crdi-dct-judder",
             severity: "high",
             title: "7DCT kuru çift kavramalı şanzımanda düşük hızda titreme/sarsıntı",
-            detail: "Kalkışta veya düşük hızda ani sarsıntı, gecikmeli vites geçişi, kavrama titremesi bildirilmiştir. Hyundai bu konuda teknik servis bülteni yayınlayarak TCU yazılım güncellemesi ve gerekirse çift kavrama değişimi öngörmüştür.",
+            detail:
+              "Kalkışta veya düşük hızda ani sarsıntı, gecikmeli vites geçişi, kavrama titremesi bildirilmiştir. Hyundai bu konuda teknik servis bülteni yayınlayarak TCU yazılım güncellemesi ve gerekirse çift kavrama değişimi öngörmüştür.",
             typicalOnset: "30.000-80.000 km",
             costLevel: "Yüksek",
-            sourceNote: "Hyundai'nin kendi teknik servis bülteni ve birden fazla bağımsız şanzıman tamir/forum kaynağında tekrar eden, iyi belgelenmiş bir sorun.",
+            sourceNote:
+              "Hyundai'nin kendi teknik servis bülteni ve birden fazla bağımsız şanzıman tamir/forum kaynağında tekrar eden, iyi belgelenmiş bir sorun.",
           },
         ],
       },
@@ -232,13 +249,15 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
             detail: "İleri kilometrede supap ve supap yatağında aşınma bildirilmektedir.",
             typicalOnset: "Yüksek km (150.000+)",
             costLevel: "Yüksek",
-            sourceNote: "Türkçe kronik arıza veritabanı (kronikariza.com.tr) ve genel kullanıcı şikayet platformlarında (Şikayetvar) tekrar eden bir konu.",
+            sourceNote:
+              "Türkçe kronik arıza veritabanı (kronikariza.com.tr) ve genel kullanıcı şikayet platformlarında (Şikayetvar) tekrar eden bir konu.",
           },
           {
             id: "accent-14dcvvt-ignition",
             severity: "medium",
             title: "Ateşleme bobini / buji arızası",
-            detail: "Ateşleme bobini arızası; motor arıza lambası, marş ve performans sorunları, düzensiz rölanti şeklinde belirtiler.",
+            detail:
+              "Ateşleme bobini arızası; motor arıza lambası, marş ve performans sorunları, düzensiz rölanti şeklinde belirtiler.",
             costLevel: "Orta",
             sourceNote: "Türkçe kronik arıza veritabanı ve genel Accent şikayet kaynaklarında tekrar eden gözlem.",
           },
@@ -255,10 +274,12 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
             id: "accent-16gdi-piston-oil",
             severity: "medium",
             title: "Piston segmanı aşınması ve karbon birikimine bağlı yağ tüketimi",
-            detail: "Direkt enjeksiyonlu (GDI) motorlarda tipik olarak emme supaplarında ve piston segmanlarında karbon birikimi; segmanların yağı düzgün sıyıramaması sonucu yağ tüketiminde artış bildirilmiştir.",
+            detail:
+              "Direkt enjeksiyonlu (GDI) motorlarda tipik olarak emme supaplarında ve piston segmanlarında karbon birikimi; segmanların yağı düzgün sıyıramaması sonucu yağ tüketiminde artış bildirilmiştir.",
             typicalOnset: "80.000-150.000 km",
             costLevel: "Orta",
-            sourceNote: "Birden fazla forum ve genel GDI motor arıza kaynağında tekrar eden, GDI motorlar için bilinen bir mekanizma.",
+            sourceNote:
+              "Birden fazla forum ve genel GDI motor arıza kaynağında tekrar eden, GDI motorlar için bilinen bir mekanizma.",
           },
         ],
       },
@@ -286,7 +307,8 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
             detail: "Kalkışta veya düşük hızda ani sarsıntı, gecikmeli vites geçişi, kavrama titremesi bildirilmiştir.",
             typicalOnset: "30.000-80.000 km",
             costLevel: "Yüksek",
-            sourceNote: "Hyundai'nin kendi teknik servis bülteni ve birden fazla bağımsız kaynakta tekrar eden, iyi belgelenmiş bir sorun.",
+            sourceNote:
+              "Hyundai'nin kendi teknik servis bülteni ve birden fazla bağımsız kaynakta tekrar eden, iyi belgelenmiş bir sorun.",
           },
         ],
       },
@@ -301,7 +323,8 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
             id: "elantra-16gdi-piston-oil",
             severity: "medium",
             title: "Piston segmanı aşınması ve karbon birikimine bağlı yağ tüketimi",
-            detail: "Direkt enjeksiyonlu (GDI) motorlarda emme supaplarında ve piston segmanlarında karbon birikimi; yağ tüketiminde artış bildirilmiştir.",
+            detail:
+              "Direkt enjeksiyonlu (GDI) motorlarda emme supaplarında ve piston segmanlarında karbon birikimi; yağ tüketiminde artış bildirilmiştir.",
             typicalOnset: "80.000-150.000 km",
             costLevel: "Orta",
             sourceNote: "Birden fazla forum ve genel GDI motor arıza kaynağında tekrar eden bulgu.",
@@ -316,7 +339,8 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
     generation: "1. Nesil (2010-2017) ve 2. Nesil (2018-2023)",
     yearFrom: 2010,
     yearTo: 2023,
-    generalNote: "Dacia Duster'ın genel güvenilirlik notu orta seviyededir; küçük ama can sıkıcı arızalar sık, parça/onarım maliyetleri ise görece düşüktür.",
+    generalNote:
+      "Dacia Duster'ın genel güvenilirlik notu orta seviyededir; küçük ama can sıkıcı arızalar sık, parça/onarım maliyetleri ise görece düşüktür.",
     engines: [
       {
         engineLabel: "1.5 dCi",
@@ -329,7 +353,8 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
             id: "duster-15dci-turbo",
             severity: "high",
             title: "Turbo arızası (yağ açlığı/aşırı ısınma kaynaklı)",
-            detail: "İhmal edilen anormal yağ tüketimi veya yağ açlığı sonucu turboda erken aşınma/arıza bildirilmektedir; belirtiler güç kaybı ve artan egzoz emisyonudur.",
+            detail:
+              "İhmal edilen anormal yağ tüketimi veya yağ açlığı sonucu turboda erken aşınma/arıza bildirilmektedir; belirtiler güç kaybı ve artan egzoz emisyonudur.",
             typicalOnset: "100.000 km üzeri, bakım ihmalinde daha erken",
             costLevel: "Yüksek",
             sourceNote: "Birden fazla teknik kaynak ve forum sitesinde tekrar eden bir sorun.",
@@ -338,7 +363,8 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
             id: "duster-15dci-egr",
             severity: "medium",
             title: "EGR valfi tıkanması",
-            detail: "Özellikle sık kısa mesafe kullanımda EGR valfinde karbon birikimi/tıkanma; duman, güç kaybı ve yakıt tüketiminde artışa yol açabiliyor.",
+            detail:
+              "Özellikle sık kısa mesafe kullanımda EGR valfinde karbon birikimi/tıkanma; duman, güç kaybı ve yakıt tüketiminde artışa yol açabiliyor.",
             typicalOnset: "Kısa mesafe kullanımda daha erken, genelde 80.000 km üzeri",
             costLevel: "Orta",
             sourceNote: "Çok sayıda forum ve arıza kaynağında tekrar eden gözlem.",
@@ -356,7 +382,8 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
             id: "duster-16-16v-valvecover",
             severity: "medium",
             title: "Buji yuvası ve supap kapağı contası sızıntısı",
-            detail: "Özellikle 2013 öncesi üretimlerde buji yuvasından ve supap kapağı contasından yağ/nem sızıntısı bildirilmiştir; bujilerde arızaya yol açabiliyor.",
+            detail:
+              "Özellikle 2013 öncesi üretimlerde buji yuvasından ve supap kapağı contasından yağ/nem sızıntısı bildirilmiştir; bujilerde arızaya yol açabiliyor.",
             costLevel: "Düşük",
             sourceNote: "Birden fazla arıza kataloğu sitesinde tekrar eden gözlem.",
           },
@@ -368,16 +395,19 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2013,
         yearTo: 2018,
-        reliabilityNote: "Bu motor performans ve yakıt tüketimi açısından övülse de zincir gerdirici sorunuyla ün yapmıştır; ikinci el alımında özellikle dikkat edilmesi önerilir.",
+        reliabilityNote:
+          "Bu motor performans ve yakıt tüketimi açısından övülse de zincir gerdirici sorunuyla ün yapmıştır; ikinci el alımında özellikle dikkat edilmesi önerilir.",
         issues: [
           {
             id: "duster-12tce-timingchain",
             severity: "high",
             title: "Triger zinciri gerdirici arızası",
-            detail: "Zincir gerdiricisi sabit gerginlik sağlayamıyor, zamanla faz kayması kötüleşiyor; ilk belirtiler soğukken metalik ses ve zamanlama ile ilgili arıza lambasıdır. OEM veya kaliteli yedek parça ile onarılsa bile bazı araçlarda tekrarlayabiliyor.",
+            detail:
+              "Zincir gerdiricisi sabit gerginlik sağlayamıyor, zamanla faz kayması kötüleşiyor; ilk belirtiler soğukken metalik ses ve zamanlama ile ilgili arıza lambasıdır. OEM veya kaliteli yedek parça ile onarılsa bile bazı araçlarda tekrarlayabiliyor.",
             typicalOnset: "60.000-100.000 km",
             costLevel: "Yüksek",
-            sourceNote: "Birden fazla bağımsız teknik kaynakta tekrar eden, motor kodu (H5F) ile isimlendirilmiş, iyi belgelenmiş bir sorun.",
+            sourceNote:
+              "Birden fazla bağımsız teknik kaynakta tekrar eden, motor kodu (H5F) ile isimlendirilmiş, iyi belgelenmiş bir sorun.",
           },
         ],
       },
@@ -387,13 +417,15 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2018,
         yearTo: 2023,
-        reliabilityNote: "1.2 TCe'nin yerini alan bu motor için yaygın/kronik bir zincir sorunu tespit edilemedi. Manuel supap ayarı gerektirmesi (60.000 km'de) dikkat edilmesi gereken bir bakım noktasıdır.",
+        reliabilityNote:
+          "1.2 TCe'nin yerini alan bu motor için yaygın/kronik bir zincir sorunu tespit edilemedi. Manuel supap ayarı gerektirmesi (60.000 km'de) dikkat edilmesi gereken bir bakım noktasıdır.",
         issues: [
           {
             id: "duster-13tce-valveclearance",
             severity: "low",
             title: "Periyodik manuel supap boşluğu ayarı ihtiyacı",
-            detail: "Bu motor hidrolik supap ayarına sahip değildir; yaklaşık 60.000 km'de manuel supap boşluğu ayarı gerektirir. Bu bir arıza değil, üreticinin öngördüğü bir bakım gereksinimidir.",
+            detail:
+              "Bu motor hidrolik supap ayarına sahip değildir; yaklaşık 60.000 km'de manuel supap boşluğu ayarı gerektirir. Bu bir arıza değil, üreticinin öngördüğü bir bakım gereksinimidir.",
             typicalOnset: "60.000 km",
             costLevel: "Düşük",
             sourceNote: "Kullanıcı forumları ve teknik özellik kaynaklarında tekrar eden bakım notu.",

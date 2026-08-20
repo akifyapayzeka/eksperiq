@@ -211,18 +211,21 @@ export const productModules: ProductModule[] = [
       },
     ],
     dataPolicy: "Konum yalnızca arama isteği sırasında kullanılır, cihazda veya sunucuda saklanmaz.",
-    certaintyPolicy: "Fiyat göstermez — hiçbir harita/işletme kaynağı gerçek fiyat yayınlamaz; telefonla teyit gerekir.",
+    certaintyPolicy:
+      "Fiyat göstermez — hiçbir harita/işletme kaynağı gerçek fiyat yayınlamaz; telefonla teyit gerekir.",
   },
   {
     id: "model-guide",
     title: "Model Rehberi",
     status: "active",
     href: "/model-rehberi",
-    summary: "Marka/model/motor bazında derlenmiş bilinen kronik sorunları, araç analiz etmeden de gezilebilir bir rehber olarak sunar.",
+    summary:
+      "Marka/model/motor bazında derlenmiş bilinen kronik sorunları, araç analiz etmeden de gezilebilir bir rehber olarak sunar.",
     capabilities: [
       {
         title: "Motor bazında arıza rehberi",
-        description: "Zincir gerdirici, DSG, DPF/EGR gibi motor ailesine özgü bilinen sorunları kaynaklarıyla listeler.",
+        description:
+          "Zincir gerdirici, DSG, DPF/EGR gibi motor ailesine özgü bilinen sorunları kaynaklarıyla listeler.",
       },
       {
         title: "Analiz raporuna otomatik ekleme",

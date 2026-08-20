@@ -285,68 +285,68 @@ export default function VehicleHealthRecordPage() {
             </button>
           ) : null}
           {isRecordFormOpen && (
-          <>
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <label className="grid gap-2 text-sm font-medium text-foreground/90">
-              Tür
-              <select
-                value={type}
-                onChange={(event) => setType(event.target.value as HealthRecordType)}
-                className="min-h-12 rounded-theme-sm border border-border px-3"
+            <>
+              <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                <label className="grid gap-2 text-sm font-medium text-foreground/90">
+                  Tür
+                  <select
+                    value={type}
+                    onChange={(event) => setType(event.target.value as HealthRecordType)}
+                    className="min-h-12 rounded-theme-sm border border-border px-3"
+                  >
+                    {healthRecordTypes.map((option) => (
+                      <option key={option}>{option}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-foreground/90 sm:col-span-2">
+                  Başlık
+                  <input
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
+                    className="min-h-12 rounded-theme-sm border border-border px-3"
+                    placeholder="Örn. 90 bin km bakımı"
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-foreground/90">
+                  Tarih
+                  <input
+                    type="date"
+                    value={date}
+                    onChange={(event) => setDate(event.target.value)}
+                    className="min-h-12 rounded-theme-sm border border-border px-3"
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-foreground/90">
+                  Skor (opsiyonel, 0-100)
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={score}
+                    onChange={(event) => setScore(event.target.value)}
+                    className="min-h-12 rounded-theme-sm border border-border px-3"
+                  />
+                </label>
+              </div>
+              <label className="mt-4 grid gap-2 text-sm font-medium text-foreground/90">
+                Detay
+                <textarea
+                  value={detail}
+                  onChange={(event) => setDetail(event.target.value)}
+                  className="min-h-24 rounded-theme-sm border border-border px-3 py-3"
+                />
+              </label>
+              <button
+                type="button"
+                onClick={addRecord}
+                disabled={!selectedVehicleId}
+                className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-5 font-semibold text-primary-foreground disabled:opacity-50 dark:bg-card dark:text-foreground"
               >
-                {healthRecordTypes.map((option) => (
-                  <option key={option}>{option}</option>
-                ))}
-              </select>
-            </label>
-            <label className="grid gap-2 text-sm font-medium text-foreground/90 sm:col-span-2">
-              Başlık
-              <input
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                className="min-h-12 rounded-theme-sm border border-border px-3"
-                placeholder="Örn. 90 bin km bakımı"
-              />
-            </label>
-            <label className="grid gap-2 text-sm font-medium text-foreground/90">
-              Tarih
-              <input
-                type="date"
-                value={date}
-                onChange={(event) => setDate(event.target.value)}
-                className="min-h-12 rounded-theme-sm border border-border px-3"
-              />
-            </label>
-            <label className="grid gap-2 text-sm font-medium text-foreground/90">
-              Skor (opsiyonel, 0-100)
-              <input
-                type="number"
-                min="0"
-                max="100"
-                value={score}
-                onChange={(event) => setScore(event.target.value)}
-                className="min-h-12 rounded-theme-sm border border-border px-3"
-              />
-            </label>
-          </div>
-          <label className="mt-4 grid gap-2 text-sm font-medium text-foreground/90">
-            Detay
-            <textarea
-              value={detail}
-              onChange={(event) => setDetail(event.target.value)}
-              className="min-h-24 rounded-theme-sm border border-border px-3 py-3"
-            />
-          </label>
-          <button
-            type="button"
-            onClick={addRecord}
-            disabled={!selectedVehicleId}
-            className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-5 font-semibold text-primary-foreground disabled:opacity-50 dark:bg-card dark:text-foreground"
-          >
-            <Plus aria-hidden="true" className="h-5 w-5" />
-            Kaydı ekle
-          </button>
-          </>
+                <Plus aria-hidden="true" className="h-5 w-5" />
+                Kaydı ekle
+              </button>
+            </>
           )}
         </section>
 

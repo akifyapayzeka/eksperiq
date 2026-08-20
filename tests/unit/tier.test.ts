@@ -43,9 +43,7 @@ describe("resolveSubscriptionTier", () => {
     isNativePlatform.mockReturnValue(true);
     const { PRO_PLUS_MONTHLY_PRODUCT_ID } = await import("@/lib/pro/entitlement");
     currentEntitlement.mockImplementation((options: { productId: string }) =>
-      Promise.resolve(
-        options.productId === PRO_PLUS_MONTHLY_PRODUCT_ID ? { state: "pro" } : { state: "free" },
-      ),
+      Promise.resolve(options.productId === PRO_PLUS_MONTHLY_PRODUCT_ID ? { state: "pro" } : { state: "free" }),
     );
     const { resolveSubscriptionTier } = await import("@/lib/pro/tier");
 

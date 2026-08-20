@@ -56,17 +56,20 @@ export default function ModelGuidePage() {
         <div className="flex gap-3">
           <AlertTriangle aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" />
           <p>
-            Bu liste henüz Türkiye&apos;de en yaygın ~25-30 modeli kapsıyor ve zamanla genişletiliyor. Her bulgu
-            forum konsensüsü, teknik servis bültenleri veya resmi geri çağırma kayıtları gibi kaynaklara dayanır;
-            kesin arıza teşhisi değildir — bağımsız ekspertizin yerini tutmaz. Modeliniz burada yoksa bu genel
-            rehberde henüz araştırılmamış demektir, o motorda sorun olmadığı anlamına gelmez.
+            Bu liste henüz Türkiye&apos;de en yaygın ~25-30 modeli kapsıyor ve zamanla genişletiliyor. Her bulgu forum
+            konsensüsü, teknik servis bültenleri veya resmi geri çağırma kayıtları gibi kaynaklara dayanır; kesin arıza
+            teşhisi değildir — bağımsız ekspertizin yerini tutmaz. Modeliniz burada yoksa bu genel rehberde henüz
+            araştırılmamış demektir, o motorda sorun olmadığı anlamına gelmez.
           </p>
         </div>
       </div>
 
       <section className="mt-6">
         <div className="relative">
-          <Search aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search
+            aria-hidden="true"
+            className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          />
           <input
             type="text"
             value={query}
@@ -134,7 +137,10 @@ export default function ModelGuidePage() {
                         {engine.issues.length ? (
                           <div className="mt-3 grid gap-2">
                             {engine.issues.map((issue) => (
-                              <div key={issue.id} className={`rounded-theme-sm border p-3 ${severityClass(issue.severity)}`}>
+                              <div
+                                key={issue.id}
+                                className={`rounded-theme-sm border p-3 ${severityClass(issue.severity)}`}
+                              >
                                 <p className="text-xs font-semibold uppercase tracking-wide">
                                   {severityLabels[issue.severity]}
                                 </p>

@@ -361,9 +361,7 @@ export function ResultClient() {
 
       setAiNote(payload.note);
       setAiNoteStatus("ready");
-      setAiNoteMessage(
-        typeof payload.remaining === "number" ? `Bugün kalan deneme hakkı: ${payload.remaining}` : "",
-      );
+      setAiNoteMessage(typeof payload.remaining === "number" ? `Bugün kalan deneme hakkı: ${payload.remaining}` : "");
     } catch {
       setAiNoteStatus("error");
       setAiNoteMessage("Karar destek notu alınamadı. Kural tabanlı rapor kullanılmaya devam edebilir.");
@@ -704,321 +702,321 @@ export function ResultClient() {
           aria-labelledby="rapor-sekme-ozet"
           className={`report-tab-panel ${activeTab === "ozet" ? "contents" : "hidden"}`}
         >
-        {showAiAnalysisNote ? (
-          <SectionCard
-            title="Karar destek notu"
-            description="Kural tabanlı raporu bozmadan, riskleri daha sade açıklayan opsiyonel bir not üretir."
-          >
-            <div className="rounded-theme border border-accent/15 bg-secondary p-4">
-              <div className="flex items-start gap-3">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-card text-accent">
-                  <Sparkles aria-hidden="true" className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="font-semibold text-foreground">Ek açıklama üret</p>
-                  <p className="mt-1 text-sm leading-6 text-foreground/80">
-                    Kural tabanlı rapor ana karar desteği olarak kalır. Bu not yalnızca riskleri sadeleştiren ek bir
-                    açıklama üretir ve kesin ekspertiz sonucu vermez.
+          {showAiAnalysisNote ? (
+            <SectionCard
+              title="Karar destek notu"
+              description="Kural tabanlı raporu bozmadan, riskleri daha sade açıklayan opsiyonel bir not üretir."
+            >
+              <div className="rounded-theme border border-accent/15 bg-secondary p-4">
+                <div className="flex items-start gap-3">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-card text-accent">
+                    <Sparkles aria-hidden="true" className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="font-semibold text-foreground">Ek açıklama üret</p>
+                    <p className="mt-1 text-sm leading-6 text-foreground/80">
+                      Kural tabanlı rapor ana karar desteği olarak kalır. Bu not yalnızca riskleri sadeleştiren ek bir
+                      açıklama üretir ve kesin ekspertiz sonucu vermez.
+                    </p>
+                  </div>
+                </div>
+                <label className="mt-4 flex items-start gap-3 rounded-theme-sm border border-border bg-card p-3 text-sm font-semibold text-foreground/90">
+                  <input
+                    type="checkbox"
+                    checked={aiNoteConsent}
+                    onChange={(event) => setAiNoteConsent(event.target.checked)}
+                    className="mt-1 h-4 w-4 shrink-0 accent-primary"
+                  />
+                  <span>
+                    Bu not için araç bilgileri, risk skoru ve bulgu başlıklarının üçüncü taraf bir AI sağlayıcısına
+                    gönderileceğini anladım ve onaylıyorum.
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  onClick={requestAiNote}
+                  disabled={!aiNoteConsent || aiNoteStatus === "loading"}
+                  className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {aiNoteStatus === "loading" ? <Spinner /> : <Sparkles aria-hidden="true" className="h-4 w-4" />}
+                  {aiNoteStatus === "loading" ? "Not hazırlanıyor" : "Not oluştur"}
+                </button>
+                {aiNote ? (
+                  <div className="mt-4 rounded-theme-sm border border-border bg-card p-4 text-sm leading-6 text-foreground/80">
+                    {aiNote}
+                  </div>
+                ) : null}
+                {aiNote ? (
+                  <div className="mt-4 rounded-theme-sm border border-border bg-card p-3">
+                    <p className="text-sm font-semibold text-foreground">Bu not faydalı mı?</p>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                      <button
+                        type="button"
+                        onClick={() => recordAiNoteFeedback("helpful")}
+                        aria-pressed={aiNoteFeedback === "helpful"}
+                        className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-theme-sm border px-4 text-sm font-semibold ${
+                          aiNoteFeedback === "helpful"
+                            ? "border-accent bg-accent/10 text-accent"
+                            : "border-border text-foreground/90 hover:border-accent"
+                        }`}
+                      >
+                        <ThumbsUp aria-hidden="true" className="h-4 w-4" />
+                        Faydalı
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => recordAiNoteFeedback("needs-improvement")}
+                        aria-pressed={aiNoteFeedback === "needs-improvement"}
+                        className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-theme-sm border px-4 text-sm font-semibold ${
+                          aiNoteFeedback === "needs-improvement"
+                            ? "border-warning bg-warning/10 text-warning"
+                            : "border-border text-foreground/90 hover:border-warning"
+                        }`}
+                      >
+                        <ThumbsDown aria-hidden="true" className="h-4 w-4" />
+                        Geliştirilmeli
+                      </button>
+                    </div>
+                    {aiNoteFeedback ? (
+                      <p className="mt-3 text-sm text-muted-foreground" role="status">
+                        Geri bildiriminiz bu tarayıcı oturumunda tutuldu.
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+                {aiNoteMessage ? (
+                  <p
+                    className={`mt-3 text-sm ${aiNoteStatus === "error" ? "font-medium text-destructive" : "text-muted-foreground"}`}
+                    role="status"
+                  >
+                    {aiNoteMessage}
                   </p>
+                ) : null}
+              </div>
+            </SectionCard>
+          ) : null}
+          <SectionCard
+            title="Paylaşılabilir kısa özet"
+            description="Uzun rapor yerine satıcıya, ekspertize veya kendinize gönderebileceğiniz kısa karar desteği özeti."
+          >
+            <div className="rounded-theme border border-border bg-muted p-4">
+              <div className="grid gap-3 text-sm leading-6 text-foreground/80">
+                <p>
+                  <strong className="text-foreground">
+                    {result.input.year} {result.input.brand} {result.input.model}
+                  </strong>{" "}
+                  için EksperIQ skoru {result.totalScore}/100, sonuç: {result.riskLabel}.
+                </p>
+                <p>
+                  Karar özeti: <strong className="text-foreground">{result.decision}</strong>
+                </p>
+                <div>
+                  <p className="font-semibold text-foreground">İlk kontrol edilecek bulgular</p>
+                  <ul className="mt-2 grid gap-1">
+                    {result.findings.slice(0, 3).map((finding) => (
+                      <li key={finding.id}>- {finding.title}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground">Satıcıya ilk sorular</p>
+                  <ol className="mt-2 grid list-decimal gap-1 pl-5">
+                    {result.sellerQuestions.slice(0, 3).map((question) => (
+                      <li key={question}>{question}</li>
+                    ))}
+                  </ol>
                 </div>
               </div>
-              <label className="mt-4 flex items-start gap-3 rounded-theme-sm border border-border bg-card p-3 text-sm font-semibold text-foreground/90">
-                <input
-                  type="checkbox"
-                  checked={aiNoteConsent}
-                  onChange={(event) => setAiNoteConsent(event.target.checked)}
-                  className="mt-1 h-4 w-4 shrink-0 accent-primary"
-                />
-                <span>
-                  Bu not için araç bilgileri, risk skoru ve bulgu başlıklarının üçüncü taraf bir AI sağlayıcısına
-                  gönderileceğini anladım ve onaylıyorum.
-                </span>
-              </label>
               <button
                 type="button"
-                onClick={requestAiNote}
-                disabled={!aiNoteConsent || aiNoteStatus === "loading"}
-                className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={copyCompactSummary}
+                className="no-print mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
               >
-                {aiNoteStatus === "loading" ? <Spinner /> : <Sparkles aria-hidden="true" className="h-4 w-4" />}
-                {aiNoteStatus === "loading" ? "Not hazırlanıyor" : "Not oluştur"}
+                <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
+                Kısa özeti kopyala
               </button>
-              {aiNote ? (
-                <div className="mt-4 rounded-theme-sm border border-border bg-card p-4 text-sm leading-6 text-foreground/80">
-                  {aiNote}
-                </div>
-              ) : null}
-              {aiNote ? (
-                <div className="mt-4 rounded-theme-sm border border-border bg-card p-3">
-                  <p className="text-sm font-semibold text-foreground">Bu not faydalı mı?</p>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                    <button
-                      type="button"
-                      onClick={() => recordAiNoteFeedback("helpful")}
-                      aria-pressed={aiNoteFeedback === "helpful"}
-                      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-theme-sm border px-4 text-sm font-semibold ${
-                        aiNoteFeedback === "helpful"
-                          ? "border-accent bg-accent/10 text-accent"
-                          : "border-border text-foreground/90 hover:border-accent"
-                      }`}
-                    >
-                      <ThumbsUp aria-hidden="true" className="h-4 w-4" />
-                      Faydalı
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => recordAiNoteFeedback("needs-improvement")}
-                      aria-pressed={aiNoteFeedback === "needs-improvement"}
-                      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-theme-sm border px-4 text-sm font-semibold ${
-                        aiNoteFeedback === "needs-improvement"
-                          ? "border-warning bg-warning/10 text-warning"
-                          : "border-border text-foreground/90 hover:border-warning"
-                      }`}
-                    >
-                      <ThumbsDown aria-hidden="true" className="h-4 w-4" />
-                      Geliştirilmeli
-                    </button>
-                  </div>
-                  {aiNoteFeedback ? (
-                    <p className="mt-3 text-sm text-muted-foreground" role="status">
-                      Geri bildiriminiz bu tarayıcı oturumunda tutuldu.
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
-              {aiNoteMessage ? (
-                <p
-                  className={`mt-3 text-sm ${aiNoteStatus === "error" ? "font-medium text-destructive" : "text-muted-foreground"}`}
-                  role="status"
+            </div>
+          </SectionCard>
+          <SectionCard
+            title="Bilgi doluluğu"
+            description="Daha fazla doğrulanabilir bilgi girildikçe raporun karar desteği değeri artar."
+          >
+            <div className="rounded-lg border border-border bg-muted p-4">
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <span className="font-medium text-foreground/90">Dolu bilgi alanları</span>
+                <strong
+                  className="text-foreground"
+                  aria-label={`Bilgi doluluğu ${result.completeness.completed} / ${result.completeness.total}`}
                 >
-                  {aiNoteMessage}
+                  {result.completeness.completed} / {result.completeness.total}
+                </strong>
+              </div>
+              <div
+                className="mt-3 h-2 rounded-full bg-muted"
+                role="progressbar"
+                aria-label="Bilgi doluluğu yüzdesi"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={result.completeness.percentage}
+              >
+                <div className="h-2 rounded-full bg-accent" style={{ width: `${result.completeness.percentage}%` }} />
+              </div>
+              {result.completeness.missing.length ? (
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-foreground/90">Satıcıdan tamamlanması istenecek bilgiler</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {result.completeness.missing.slice(0, 10).map((item) => (
+                      <span
+                        key={item}
+                        className="rounded-full border border-border bg-card px-3 py-1 text-sm text-foreground/80"
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-foreground/80">Temel bilgi alanları dolu görünüyor.</p>
+              )}
+            </div>
+          </SectionCard>
+          <SectionCard title="Araç ve ilan özeti">
+            <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-lg border border-border p-3">
+                <dt className="text-sm text-muted-foreground">Araç</dt>
+                <dd className="mt-1 font-semibold text-foreground">
+                  {result.input.brand} {result.input.model}
+                </dd>
+              </div>
+              <div className="rounded-lg border border-border p-3">
+                <dt className="text-sm text-muted-foreground">Yıl / km</dt>
+                <dd className="mt-1 font-semibold text-foreground">
+                  {result.input.year} / {result.input.mileage.toLocaleString("tr-TR")} km
+                </dd>
+              </div>
+              <div className="rounded-lg border border-border p-3">
+                <dt className="text-sm text-muted-foreground">Fiyat</dt>
+                <dd className="mt-1 font-semibold text-foreground">{formatCurrency(result.input.price)}</dd>
+              </div>
+              <div className="rounded-lg border border-border p-3">
+                <dt className="text-sm text-muted-foreground">Şehir</dt>
+                <dd className="mt-1 font-semibold text-foreground">{result.input.city}</dd>
+              </div>
+            </dl>
+            <div className="mt-4 rounded-lg border border-border bg-muted p-4">
+              <p className="font-medium text-foreground">{result.mileage.label}</p>
+              <p className="mt-1 text-sm leading-6 text-foreground/80">
+                Araç yaşı yaklaşık {result.mileage.vehicleAge} yıl, yıllık ortalama kullanım yaklaşık{" "}
+                {result.mileage.annualMileage.toLocaleString("tr-TR")} km. Bu değerler yalnızca genel referanstır.
+              </p>
+              {result.input.listingUrl ? (
+                <p className="mt-3 break-words text-sm text-foreground/80">
+                  İlan referansı:{" "}
+                  <a
+                    className="font-medium text-accent underline"
+                    href={result.input.listingUrl}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    {result.input.listingUrl}
+                  </a>
                 </p>
               ) : null}
             </div>
           </SectionCard>
-        ) : null}
-        <SectionCard
-          title="Paylaşılabilir kısa özet"
-          description="Uzun rapor yerine satıcıya, ekspertize veya kendinize gönderebileceğiniz kısa karar desteği özeti."
-        >
-          <div className="rounded-theme border border-border bg-muted p-4">
-            <div className="grid gap-3 text-sm leading-6 text-foreground/80">
-              <p>
-                <strong className="text-foreground">
-                  {result.input.year} {result.input.brand} {result.input.model}
-                </strong>{" "}
-                için EksperIQ skoru {result.totalScore}/100, sonuç: {result.riskLabel}.
-              </p>
-              <p>
-                Karar özeti: <strong className="text-foreground">{result.decision}</strong>
-              </p>
-              <div>
-                <p className="font-semibold text-foreground">İlk kontrol edilecek bulgular</p>
-                <ul className="mt-2 grid gap-1">
-                  {result.findings.slice(0, 3).map((finding) => (
-                    <li key={finding.id}>- {finding.title}</li>
+          <SectionCard title="Kategori skorları">
+            <div className="grid gap-3 md:grid-cols-2">
+              {Object.entries(result.breakdown).map(([key, value]) => {
+                const category = key as ScoreCategory;
+                const label = scoreLabels[category];
+
+                return (
+                  <div key={key} className="rounded-lg border border-border p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="font-medium text-foreground/90">{label}</span>
+                      <span className="font-semibold text-foreground">
+                        {value} / {SCORE_WEIGHTS[category]}
+                      </span>
+                    </div>
+                    <div
+                      className="mt-3 h-2 rounded-full bg-muted"
+                      role="progressbar"
+                      aria-label={`${label} skoru`}
+                      aria-valuemin={0}
+                      aria-valuemax={SCORE_WEIGHTS[category]}
+                      aria-valuenow={value}
+                    >
+                      <div
+                        className="h-2 rounded-full bg-accent"
+                        style={{ width: `${scorePercent(category, value)}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </SectionCard>
+          <SectionCard
+            title="Skor nasıl okunmalı?"
+            description="Skor, kullanıcının girdiği bilgiye göre çalışan kural tabanlı bir karar desteğidir; kesin ekspertiz sonucu değildir."
+          >
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div className="rounded-lg border border-border p-4">
+                <h3 className="font-semibold text-foreground">Risk aralıkları</h3>
+                <ul className="mt-3 grid gap-2 text-sm text-foreground/80">
+                  {RISK_LEVELS.map((level) => (
+                    <li
+                      key={level.label}
+                      className="flex items-center justify-between gap-3 rounded-md bg-muted px-3 py-2"
+                    >
+                      <span>
+                        {level.min}-{level.max}
+                      </span>
+                      <strong className="text-foreground">{level.label}</strong>
+                    </li>
                   ))}
                 </ul>
               </div>
-              <div>
-                <p className="font-semibold text-foreground">Satıcıya ilk sorular</p>
-                <ol className="mt-2 grid list-decimal gap-1 pl-5">
-                  {result.sellerQuestions.slice(0, 3).map((question) => (
-                    <li key={question}>{question}</li>
+              <div className="rounded-lg border border-border p-4">
+                <h3 className="font-semibold text-foreground">Kategori ağırlıkları</h3>
+                <ul className="mt-3 grid gap-2 text-sm text-foreground/80">
+                  {Object.entries(SCORE_WEIGHTS).map(([key, value]) => (
+                    <li key={key} className="flex items-center justify-between gap-3 rounded-md bg-muted px-3 py-2">
+                      <span>{scoreLabels[key as keyof typeof scoreLabels]}</span>
+                      <strong className="text-foreground">{value} puan</strong>
+                    </li>
                   ))}
-                </ol>
+                </ul>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={copyCompactSummary}
-              className="no-print mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
-            >
-              <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
-              Kısa özeti kopyala
-            </button>
-          </div>
-        </SectionCard>
-        <SectionCard
-          title="Bilgi doluluğu"
-          description="Daha fazla doğrulanabilir bilgi girildikçe raporun karar desteği değeri artar."
-        >
-          <div className="rounded-lg border border-border bg-muted p-4">
-            <div className="flex items-center justify-between gap-3 text-sm">
-              <span className="font-medium text-foreground/90">Dolu bilgi alanları</span>
-              <strong
-                className="text-foreground"
-                aria-label={`Bilgi doluluğu ${result.completeness.completed} / ${result.completeness.total}`}
-              >
-                {result.completeness.completed} / {result.completeness.total}
-              </strong>
-            </div>
-            <div
-              className="mt-3 h-2 rounded-full bg-muted"
-              role="progressbar"
-              aria-label="Bilgi doluluğu yüzdesi"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={result.completeness.percentage}
-            >
-              <div className="h-2 rounded-full bg-accent" style={{ width: `${result.completeness.percentage}%` }} />
-            </div>
-            {result.completeness.missing.length ? (
-              <div className="mt-4">
-                <p className="text-sm font-medium text-foreground/90">Satıcıdan tamamlanması istenecek bilgiler</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {result.completeness.missing.slice(0, 10).map((item) => (
-                    <span
-                      key={item}
-                      className="rounded-full border border-border bg-card px-3 py-1 text-sm text-foreground/80"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <p className="mt-3 text-sm text-foreground/80">Temel bilgi alanları dolu görünüyor.</p>
-            )}
-          </div>
-        </SectionCard>
-        <SectionCard title="Araç ve ilan özeti">
-          <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg border border-border p-3">
-              <dt className="text-sm text-muted-foreground">Araç</dt>
-              <dd className="mt-1 font-semibold text-foreground">
-                {result.input.brand} {result.input.model}
-              </dd>
-            </div>
-            <div className="rounded-lg border border-border p-3">
-              <dt className="text-sm text-muted-foreground">Yıl / km</dt>
-              <dd className="mt-1 font-semibold text-foreground">
-                {result.input.year} / {result.input.mileage.toLocaleString("tr-TR")} km
-              </dd>
-            </div>
-            <div className="rounded-lg border border-border p-3">
-              <dt className="text-sm text-muted-foreground">Fiyat</dt>
-              <dd className="mt-1 font-semibold text-foreground">{formatCurrency(result.input.price)}</dd>
-            </div>
-            <div className="rounded-lg border border-border p-3">
-              <dt className="text-sm text-muted-foreground">Şehir</dt>
-              <dd className="mt-1 font-semibold text-foreground">{result.input.city}</dd>
-            </div>
-          </dl>
-          <div className="mt-4 rounded-lg border border-border bg-muted p-4">
-            <p className="font-medium text-foreground">{result.mileage.label}</p>
-            <p className="mt-1 text-sm leading-6 text-foreground/80">
-              Araç yaşı yaklaşık {result.mileage.vehicleAge} yıl, yıllık ortalama kullanım yaklaşık{" "}
-              {result.mileage.annualMileage.toLocaleString("tr-TR")} km. Bu değerler yalnızca genel referanstır.
-            </p>
-            {result.input.listingUrl ? (
-              <p className="mt-3 break-words text-sm text-foreground/80">
-                İlan referansı:{" "}
-                <a
-                  className="font-medium text-accent underline"
-                  href={result.input.listingUrl}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  {result.input.listingUrl}
-                </a>
-              </p>
-            ) : null}
-          </div>
-        </SectionCard>
-        <SectionCard title="Kategori skorları">
-          <div className="grid gap-3 md:grid-cols-2">
-            {Object.entries(result.breakdown).map(([key, value]) => {
-              const category = key as ScoreCategory;
-              const label = scoreLabels[category];
-
-              return (
-                <div key={key} className="rounded-lg border border-border p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="font-medium text-foreground/90">{label}</span>
-                    <span className="font-semibold text-foreground">
-                      {value} / {SCORE_WEIGHTS[category]}
-                    </span>
-                  </div>
-                  <div
-                    className="mt-3 h-2 rounded-full bg-muted"
-                    role="progressbar"
-                    aria-label={`${label} skoru`}
-                    aria-valuemin={0}
-                    aria-valuemax={SCORE_WEIGHTS[category]}
-                    aria-valuenow={value}
-                  >
-                    <div
-                      className="h-2 rounded-full bg-accent"
-                      style={{ width: `${scorePercent(category, value)}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </SectionCard>
-        <SectionCard
-          title="Skor nasıl okunmalı?"
-          description="Skor, kullanıcının girdiği bilgiye göre çalışan kural tabanlı bir karar desteğidir; kesin ekspertiz sonucu değildir."
-        >
-          <div className="grid gap-4 lg:grid-cols-2">
-            <div className="rounded-lg border border-border p-4">
-              <h3 className="font-semibold text-foreground">Risk aralıkları</h3>
-              <ul className="mt-3 grid gap-2 text-sm text-foreground/80">
-                {RISK_LEVELS.map((level) => (
-                  <li
-                    key={level.label}
-                    className="flex items-center justify-between gap-3 rounded-md bg-muted px-3 py-2"
-                  >
-                    <span>
-                      {level.min}-{level.max}
-                    </span>
-                    <strong className="text-foreground">{level.label}</strong>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="rounded-lg border border-border p-4">
-              <h3 className="font-semibold text-foreground">Kategori ağırlıkları</h3>
-              <ul className="mt-3 grid gap-2 text-sm text-foreground/80">
-                {Object.entries(SCORE_WEIGHTS).map(([key, value]) => (
-                  <li key={key} className="flex items-center justify-between gap-3 rounded-md bg-muted px-3 py-2">
-                    <span>{scoreLabels[key as keyof typeof scoreLabels]}</span>
-                    <strong className="text-foreground">{value} puan</strong>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </SectionCard>
-        <SectionCard
-          title="Güçlü taraflar"
-          description="Bu maddeler girdiğiniz bilgiye dayanır; TRAMER veya e-Devlet'ten doğrulanmadıkça kesin kabul edilmemelidir."
-        >
-          <ul className="grid gap-2">
-            {result.strengths.map((item) => (
-              <li key={item} className="flex gap-2">
-                <CheckCircle2 aria-hidden="true" className="mt-0.5 h-5 w-5 text-accent" />
-                {item}
-              </li>
-            ))}
-          </ul>
-        </SectionCard>
-        <SectionCard
-          id="rapor-aksiyonlar"
-          title="Öncelikli ilk aksiyonlar"
-          description="Satıcıyla görüşmeden veya ekspertize gitmeden önce netleştirmeniz gereken başlıklar."
-        >
-          <ol className="grid list-decimal gap-3 pl-5">
-            {result.priorityActions.map((action) => (
-              <li key={action.title} className="pl-1">
-                <span className="font-semibold text-foreground">{action.title}</span>
-                <p className="mt-1 text-sm leading-6 text-muted-foreground">Neden: {action.reason}</p>
-              </li>
-            ))}
-          </ol>
-        </SectionCard>
+          </SectionCard>
+          <SectionCard
+            title="Güçlü taraflar"
+            description="Bu maddeler girdiğiniz bilgiye dayanır; TRAMER veya e-Devlet'ten doğrulanmadıkça kesin kabul edilmemelidir."
+          >
+            <ul className="grid gap-2">
+              {result.strengths.map((item) => (
+                <li key={item} className="flex gap-2">
+                  <CheckCircle2 aria-hidden="true" className="mt-0.5 h-5 w-5 text-accent" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </SectionCard>
+          <SectionCard
+            id="rapor-aksiyonlar"
+            title="Öncelikli ilk aksiyonlar"
+            description="Satıcıyla görüşmeden veya ekspertize gitmeden önce netleştirmeniz gereken başlıklar."
+          >
+            <ol className="grid list-decimal gap-3 pl-5">
+              {result.priorityActions.map((action) => (
+                <li key={action.title} className="pl-1">
+                  <span className="font-semibold text-foreground">{action.title}</span>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">Neden: {action.reason}</p>
+                </li>
+              ))}
+            </ol>
+          </SectionCard>
         </div>
         <div
           role="tabpanel"
@@ -1026,96 +1024,99 @@ export function ResultClient() {
           aria-labelledby="rapor-sekme-bulgular"
           className={`report-tab-panel ${activeTab === "bulgular" ? "contents" : "hidden"}`}
         >
-        <SectionCard id="rapor-bulgular" title="Riskli noktalar">
-          <div className="mb-4 grid gap-3 sm:grid-cols-3" aria-label="Risk bulgusu dağılımı">
-            <div className="rounded-theme-sm border border-destructive/30 bg-destructive/10 p-3">
-              <p className="text-sm font-medium text-destructive">Yüksek riskli bulgu</p>
-              <strong className="mt-1 block text-2xl text-destructive">{findingCount(result, "high")}</strong>
+          <SectionCard id="rapor-bulgular" title="Riskli noktalar">
+            <div className="mb-4 grid gap-3 sm:grid-cols-3" aria-label="Risk bulgusu dağılımı">
+              <div className="rounded-theme-sm border border-destructive/30 bg-destructive/10 p-3">
+                <p className="text-sm font-medium text-destructive">Yüksek riskli bulgu</p>
+                <strong className="mt-1 block text-2xl text-destructive">{findingCount(result, "high")}</strong>
+              </div>
+              <div className="rounded-theme-sm border border-warning/30 bg-warning/10 p-3">
+                <p className="text-sm font-medium text-warning">Orta riskli bulgu</p>
+                <strong className="mt-1 block text-2xl text-warning">{findingCount(result, "medium")}</strong>
+              </div>
+              <div className="rounded-theme-sm border border-success/30 bg-success/10 p-3">
+                <p className="text-sm font-medium text-success">Düşük riskli bulgu</p>
+                <strong className="mt-1 block text-2xl text-success">{findingCount(result, "low")}</strong>
+              </div>
             </div>
-            <div className="rounded-theme-sm border border-warning/30 bg-warning/10 p-3">
-              <p className="text-sm font-medium text-warning">Orta riskli bulgu</p>
-              <strong className="mt-1 block text-2xl text-warning">{findingCount(result, "medium")}</strong>
-            </div>
-            <div className="rounded-theme-sm border border-success/30 bg-success/10 p-3">
-              <p className="text-sm font-medium text-success">Düşük riskli bulgu</p>
-              <strong className="mt-1 block text-2xl text-success">{findingCount(result, "low")}</strong>
-            </div>
-          </div>
-          <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Risk bulgusu filtresi">
-            {findingFilters.map((filter) => {
-              const isActive = findingFilter === filter.value;
-              const count = filter.value === "all" ? result.findings.length : findingCount(result, filter.value);
+            <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Risk bulgusu filtresi">
+              {findingFilters.map((filter) => {
+                const isActive = findingFilter === filter.value;
+                const count = filter.value === "all" ? result.findings.length : findingCount(result, filter.value);
 
-              return (
-                <button
-                  key={filter.value}
-                  type="button"
-                  aria-pressed={isActive}
-                  onClick={() => selectFindingFilter(filter.value)}
-                  className={`min-h-11 rounded-theme-sm border px-4 text-sm font-semibold ${
-                    isActive
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-card text-foreground/90 hover:border-accent hover:text-accent"
-                  }`}
-                >
-                  {filter.label} ({count})
-                </button>
-              );
-            })}
-          </div>
-          <div className="grid gap-3">
-            {visibleFindings.map((finding) => (
-              <article key={finding.id} className={`rounded-lg border p-4 ${severityClass(finding.severity)}`}>
-                <p className="text-xs font-semibold uppercase tracking-wide">
-                  {finding.category} / {severityLabels[finding.severity]}
-                </p>
-                <h3 className="mt-1 font-semibold">{finding.title}</h3>
-                <p className="mt-2 text-sm leading-6">{finding.explanation}</p>
-                <p className="mt-2 text-sm font-medium">{finding.recommendation}</p>
-              </article>
-            ))}
-          </div>
-        </SectionCard>
-        {result.knownIssues.length > 0 ? (
-          <SectionCard
-            id="rapor-kronik-sorunlar"
-            title="Bu motor için bilinen kronik sorunlar"
-            description="Bu bölüm BU aracın kendi durumuyla değil, aynı marka/model/motoru kullanan araçlarda genel olarak bildirilen sorunlarla ilgilidir — risk skorunu etkilemez, ekspertizde nelere özellikle bakılması gerektiğine dair bir rehberdir."
-          >
-            {result.knownIssues.some((issue) => issue.broadMatch) ? (
-              <p className="mb-3 rounded-theme-sm border border-border bg-muted p-3 text-sm text-muted-foreground">
-                Motor hacmi/kodu belirtilmediği için bu marka/modelin bu yıl aralığındaki tüm motor seçeneklerinin
-                bilinen sorunları gösteriliyor. Motor bilgisini eklerseniz liste daralır.
-              </p>
-            ) : null}
+                return (
+                  <button
+                    key={filter.value}
+                    type="button"
+                    aria-pressed={isActive}
+                    onClick={() => selectFindingFilter(filter.value)}
+                    className={`min-h-11 rounded-theme-sm border px-4 text-sm font-semibold ${
+                      isActive
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-card text-foreground/90 hover:border-accent hover:text-accent"
+                    }`}
+                  >
+                    {filter.label} ({count})
+                  </button>
+                );
+              })}
+            </div>
             <div className="grid gap-3">
-              {result.knownIssues.map((issue) => (
-                <article key={`${issue.engineLabel}-${issue.id}`} className={`rounded-lg border p-4 ${severityClass(issue.severity)}`}>
+              {visibleFindings.map((finding) => (
+                <article key={finding.id} className={`rounded-lg border p-4 ${severityClass(finding.severity)}`}>
                   <p className="text-xs font-semibold uppercase tracking-wide">
-                    {issue.engineLabel} / {severityLabels[issue.severity]}
+                    {finding.category} / {severityLabels[finding.severity]}
                   </p>
-                  <h3 className="mt-1 font-semibold">{issue.title}</h3>
-                  <p className="mt-2 text-sm leading-6">{issue.detail}</p>
-                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium opacity-80">
-                    {issue.typicalOnset ? <span>Tipik görülme: {issue.typicalOnset}</span> : null}
-                    {issue.costLevel ? <span>Tahmini maliyet: {issue.costLevel}</span> : null}
-                  </div>
-                  <p className="mt-2 text-xs italic opacity-70">{issue.sourceNote}</p>
+                  <h3 className="mt-1 font-semibold">{finding.title}</h3>
+                  <p className="mt-2 text-sm leading-6">{finding.explanation}</p>
+                  <p className="mt-2 text-sm font-medium">{finding.recommendation}</p>
                 </article>
               ))}
             </div>
           </SectionCard>
-        ) : null}
-        <SectionCard id="rapor-masraflar" title="Yakın zamanda çıkabilecek masraflar">
-          <ul className="grid gap-2">
-            {result.costs.map((cost) => (
-              <li key={cost.item} className="flex justify-between gap-3 rounded-lg border border-border p-3">
-                <span>{cost.item}</span>
-                <strong>{cost.level}</strong>
-              </li>
-            ))}
-          </ul>
-        </SectionCard>
+          {result.knownIssues.length > 0 ? (
+            <SectionCard
+              id="rapor-kronik-sorunlar"
+              title="Bu motor için bilinen kronik sorunlar"
+              description="Bu bölüm BU aracın kendi durumuyla değil, aynı marka/model/motoru kullanan araçlarda genel olarak bildirilen sorunlarla ilgilidir — risk skorunu etkilemez, ekspertizde nelere özellikle bakılması gerektiğine dair bir rehberdir."
+            >
+              {result.knownIssues.some((issue) => issue.broadMatch) ? (
+                <p className="mb-3 rounded-theme-sm border border-border bg-muted p-3 text-sm text-muted-foreground">
+                  Motor hacmi/kodu belirtilmediği için bu marka/modelin bu yıl aralığındaki tüm motor seçeneklerinin
+                  bilinen sorunları gösteriliyor. Motor bilgisini eklerseniz liste daralır.
+                </p>
+              ) : null}
+              <div className="grid gap-3">
+                {result.knownIssues.map((issue) => (
+                  <article
+                    key={`${issue.engineLabel}-${issue.id}`}
+                    className={`rounded-lg border p-4 ${severityClass(issue.severity)}`}
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-wide">
+                      {issue.engineLabel} / {severityLabels[issue.severity]}
+                    </p>
+                    <h3 className="mt-1 font-semibold">{issue.title}</h3>
+                    <p className="mt-2 text-sm leading-6">{issue.detail}</p>
+                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium opacity-80">
+                      {issue.typicalOnset ? <span>Tipik görülme: {issue.typicalOnset}</span> : null}
+                      {issue.costLevel ? <span>Tahmini maliyet: {issue.costLevel}</span> : null}
+                    </div>
+                    <p className="mt-2 text-xs italic opacity-70">{issue.sourceNote}</p>
+                  </article>
+                ))}
+              </div>
+            </SectionCard>
+          ) : null}
+          <SectionCard id="rapor-masraflar" title="Yakın zamanda çıkabilecek masraflar">
+            <ul className="grid gap-2">
+              {result.costs.map((cost) => (
+                <li key={cost.item} className="flex justify-between gap-3 rounded-lg border border-border p-3">
+                  <span>{cost.item}</span>
+                  <strong>{cost.level}</strong>
+                </li>
+              ))}
+            </ul>
+          </SectionCard>
         </div>
         <div
           role="tabpanel"
@@ -1123,29 +1124,29 @@ export function ResultClient() {
           aria-labelledby="rapor-sekme-sorular"
           className={`report-tab-panel ${activeTab === "sorular" ? "contents" : "hidden"}`}
         >
-        <SectionCard id="rapor-sorular" title="Satıcıya sorulacak sorular">
-          <ol className="grid list-decimal gap-2 pl-5">
-            {result.sellerQuestions.map((question) => (
-              <li key={question}>{question}</li>
-            ))}
-          </ol>
-        </SectionCard>
-        <SectionCard id="rapor-ekspertiz-kontrol" title="Ekspertizde özellikle kontrol edilmesi gerekenler">
-          <div className="grid gap-2 sm:grid-cols-2">
-            {result.inspectionFocus.map((item) => (
-              <span key={item} className="rounded-lg border border-border bg-card p-3">
-                {item}
-              </span>
-            ))}
-          </div>
-          <Link
-            href="/yakinimdaki-hizmetler"
-            className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-accent px-4 text-sm font-semibold text-accent"
-          >
-            Yakınımdaki ekspertiz ve noter firmalarını bul
-            <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
-          </Link>
-        </SectionCard>
+          <SectionCard id="rapor-sorular" title="Satıcıya sorulacak sorular">
+            <ol className="grid list-decimal gap-2 pl-5">
+              {result.sellerQuestions.map((question) => (
+                <li key={question}>{question}</li>
+              ))}
+            </ol>
+          </SectionCard>
+          <SectionCard id="rapor-ekspertiz-kontrol" title="Ekspertizde özellikle kontrol edilmesi gerekenler">
+            <div className="grid gap-2 sm:grid-cols-2">
+              {result.inspectionFocus.map((item) => (
+                <span key={item} className="rounded-lg border border-border bg-card p-3">
+                  {item}
+                </span>
+              ))}
+            </div>
+            <Link
+              href="/yakinimdaki-hizmetler"
+              className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-accent px-4 text-sm font-semibold text-accent"
+            >
+              Yakınımdaki ekspertiz ve noter firmalarını bul
+              <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+            </Link>
+          </SectionCard>
         </div>
         <div
           role="tabpanel"
@@ -1153,47 +1154,47 @@ export function ResultClient() {
           aria-labelledby="rapor-sekme-kontrol"
           className={`report-tab-panel ${activeTab === "kontrol" ? "contents" : "hidden"}`}
         >
-        <SectionCard
-          id="rapor-kontrol-listesi"
-          title="Son kontrol listesi"
-          description="Bu liste yalnızca mevcut tarayıcı oturumunda saklanır; oturum verisini silerseniz işaretler de temizlenir."
-        >
-          <div className="mb-4 rounded-lg border border-border bg-muted p-4">
-            <div className="flex items-center justify-between gap-3 text-sm">
-              <span className="font-medium text-foreground/90">Tamamlanan kontroller</span>
-              <strong
-                className="text-foreground"
-                aria-label={`Tamamlanan kontroller ${checkedChecklist.size} / ${result.finalChecklist.length}`}
-              >
-                {checkedChecklist.size} / {result.finalChecklist.length}
-              </strong>
-            </div>
-            <div className="mt-3 h-2 rounded-full bg-muted" aria-hidden="true">
-              <div
-                className="h-2 rounded-full bg-accent transition-all"
-                style={{ width: `${Math.round((checkedChecklist.size / result.finalChecklist.length) * 100)}%` }}
-              />
-            </div>
-            <p className="mt-2 text-sm text-muted-foreground" role="status">
-              {checkedChecklist.size === result.finalChecklist.length
-                ? "Tüm kontrol maddeleri işaretlendi. Yine de nihai karar öncesi belge ve ekspertiz sonuçlarını birlikte değerlendirin."
-                : "Satın alma öncesi doğruladığınız maddeleri işaretleyin."}
-            </p>
-          </div>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {result.finalChecklist.map((item) => (
-              <label key={item} className="flex min-h-12 items-center gap-3 rounded-lg border border-border p-3">
-                <input
-                  type="checkbox"
-                  checked={checkedChecklist.has(item)}
-                  onChange={() => toggleChecklistItem(item)}
-                  className="h-5 w-5"
+          <SectionCard
+            id="rapor-kontrol-listesi"
+            title="Son kontrol listesi"
+            description="Bu liste yalnızca mevcut tarayıcı oturumunda saklanır; oturum verisini silerseniz işaretler de temizlenir."
+          >
+            <div className="mb-4 rounded-lg border border-border bg-muted p-4">
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <span className="font-medium text-foreground/90">Tamamlanan kontroller</span>
+                <strong
+                  className="text-foreground"
+                  aria-label={`Tamamlanan kontroller ${checkedChecklist.size} / ${result.finalChecklist.length}`}
+                >
+                  {checkedChecklist.size} / {result.finalChecklist.length}
+                </strong>
+              </div>
+              <div className="mt-3 h-2 rounded-full bg-muted" aria-hidden="true">
+                <div
+                  className="h-2 rounded-full bg-accent transition-all"
+                  style={{ width: `${Math.round((checkedChecklist.size / result.finalChecklist.length) * 100)}%` }}
                 />
-                {item}
-              </label>
-            ))}
-          </div>
-        </SectionCard>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground" role="status">
+                {checkedChecklist.size === result.finalChecklist.length
+                  ? "Tüm kontrol maddeleri işaretlendi. Yine de nihai karar öncesi belge ve ekspertiz sonuçlarını birlikte değerlendirin."
+                  : "Satın alma öncesi doğruladığınız maddeleri işaretleyin."}
+              </p>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {result.finalChecklist.map((item) => (
+                <label key={item} className="flex min-h-12 items-center gap-3 rounded-lg border border-border p-3">
+                  <input
+                    type="checkbox"
+                    checked={checkedChecklist.has(item)}
+                    onChange={() => toggleChecklistItem(item)}
+                    className="h-5 w-5"
+                  />
+                  {item}
+                </label>
+              ))}
+            </div>
+          </SectionCard>
         </div>
       </div>
     </main>

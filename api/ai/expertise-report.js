@@ -125,8 +125,7 @@ function normalizeAnalysis(value) {
     findings: isReportReadable
       ? findingsRaw.slice(0, 12).map((finding, index) => ({
           id: `report-${index + 1}`,
-          category:
-            isRecord(finding) && typeof finding.category === "string" ? finding.category.slice(0, 60) : "Genel",
+          category: isRecord(finding) && typeof finding.category === "string" ? finding.category.slice(0, 60) : "Genel",
           area: isRecord(finding) && typeof finding.area === "string" ? finding.area.slice(0, 80) : "Belirtilmemiş",
           status: isRecord(finding) && typeof finding.status === "string" ? finding.status.slice(0, 60) : "",
           explanation:

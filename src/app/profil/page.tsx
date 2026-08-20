@@ -68,7 +68,6 @@ export default function ProfilePage() {
       <div className="mt-4">
         <DisclaimerCard>{appConfig.privacy}</DisclaimerCard>
       </div>
-
     </AppShell>
   );
 }

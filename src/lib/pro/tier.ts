@@ -14,9 +14,9 @@ async function isPlanActive(planId: EksperIqPaidPlanId): Promise<boolean> {
   const plan = EKSPERIQ_PLAN_PRICING[planId];
   const results = await Promise.all(
     [plan.monthlyProductId, plan.yearlyProductId].map((productId) =>
-      EksperIQEntitlementPlugin.currentEntitlement({ productId }).catch(
-        () => ({ state: "unknown" as EntitlementState }),
-      ),
+      EksperIQEntitlementPlugin.currentEntitlement({ productId }).catch(() => ({
+        state: "unknown" as EntitlementState,
+      })),
     ),
   );
   return results.some((result) => ACTIVE_STATES.has(result.state));

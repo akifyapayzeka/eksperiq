@@ -39,12 +39,7 @@ export default function AnalysisPage() {
     return (
       <AppShell>
         <div className="pt-6">
-          <HeroCard
-            icon={ScanSearch}
-            title="Yeni analiz oluştur"
-            description="Ne yapmak istiyorsunuz?"
-            tone="accent"
-          />
+          <HeroCard icon={ScanSearch} title="Yeni analiz oluştur" description="Ne yapmak istiyorsunuz?" tone="accent" />
         </div>
         <div className="mt-5 grid gap-4">
           <button
@@ -72,7 +67,9 @@ export default function AnalysisPage() {
               <Camera aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block font-heading text-base font-bold text-foreground">Kendi aracımı analiz edeceğim</span>
+              <span className="block font-heading text-base font-bold text-foreground">
+                Kendi aracımı analiz edeceğim
+              </span>
               <span className="mt-1 block text-sm leading-6 text-muted-foreground">
                 Aracınızın fotoğraflarını yükleyin, çizik/göçük gibi olası hasarları işaretleyelim.
               </span>

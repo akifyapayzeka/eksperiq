@@ -97,7 +97,10 @@ async function handler(request, response) {
     return;
   }
 
-  console.log("[listing-import-trace]", JSON.stringify({ step: body.step, detail: body.detail ?? null, ts: Date.now() }));
+  console.log(
+    "[listing-import-trace]",
+    JSON.stringify({ step: body.step, detail: body.detail ?? null, ts: Date.now() }),
+  );
   response.statusCode = 204;
   response.end();
 }

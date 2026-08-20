@@ -92,9 +92,8 @@ describe("nativeStoreKitEntitlementProvider", () => {
 
   it("checks every known product id and forwards whichever one is active", async () => {
     isNativePlatform.mockReturnValue(true);
-    const { nativeStoreKitEntitlementProvider, PRO_MONTHLY_PRODUCT_ID, ALL_PRODUCT_IDS } = await import(
-      "@/lib/pro/entitlement"
-    );
+    const { nativeStoreKitEntitlementProvider, PRO_MONTHLY_PRODUCT_ID, ALL_PRODUCT_IDS } =
+      await import("@/lib/pro/entitlement");
     currentEntitlement.mockImplementation((options: { productId: string }) =>
       Promise.resolve(
         options.productId === PRO_MONTHLY_PRODUCT_ID

@@ -17,25 +17,30 @@ export const FIAT_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2015,
         yearTo: 2020,
-        reliabilityNote: "Egea'nın erken yıllarında sunulan bu motor, daha sonra üretimden kaldırılıp yerini 1.6 Multijet'e bırakmıştır.",
+        reliabilityNote:
+          "Egea'nın erken yıllarında sunulan bu motor, daha sonra üretimden kaldırılıp yerini 1.6 Multijet'e bırakmıştır.",
         issues: [
           {
             id: "egea-13mjet-turbo",
             severity: "medium",
             title: "Turbo aşınması / körük çatlağı",
-            detail: "Turbo kanatları ve körüklerinde zamanla aşınma/çatlama bildirilmekte; güç kaybı, ıslık sesi ve yağ sızıntısı ile kendini gösterebiliyor.",
+            detail:
+              "Turbo kanatları ve körüklerinde zamanla aşınma/çatlama bildirilmekte; güç kaybı, ıslık sesi ve yağ sızıntısı ile kendini gösterebiliyor.",
             typicalOnset: "100.000 km sonrası",
             costLevel: "Yüksek",
-            sourceNote: "Birden fazla forum ve şikayet platformunda (DonanımHaber, Şikayetvar) tekrar eden kullanıcı bildirimlerine dayanır.",
+            sourceNote:
+              "Birden fazla forum ve şikayet platformunda (DonanımHaber, Şikayetvar) tekrar eden kullanıcı bildirimlerine dayanır.",
           },
           {
             id: "egea-13mjet-enjektor",
             severity: "medium",
             title: "Enjektör kirlenmesi/arızası",
-            detail: "Düşük kaliteli yakıt veya gecikmiş filtre değişimiyle ilişkilendirilen enjektör tıkanması; sarsıntılı rölanti, güç kaybı ve siyah duman ile ortaya çıkabiliyor.",
+            detail:
+              "Düşük kaliteli yakıt veya gecikmiş filtre değişimiyle ilişkilendirilen enjektör tıkanması; sarsıntılı rölanti, güç kaybı ve siyah duman ile ortaya çıkabiliyor.",
             typicalOnset: "80.000-120.000 km arası",
             costLevel: "Orta",
-            sourceNote: "Fiat 1.3 Multijet ailesi için genel forum ve teknik servis kaynaklarında tekrarlanan bir tema.",
+            sourceNote:
+              "Fiat 1.3 Multijet ailesi için genel forum ve teknik servis kaynaklarında tekrarlanan bir tema.",
           },
           {
             id: "egea-13mjet-egr",
@@ -49,7 +54,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "egea-13mjet-ckv",
             severity: "medium",
             title: "Çift kütleli volan / debriyaj erken aşınması",
-            detail: "Özellikle şehir içi dur-kalk kullanımda çift kütleli volan ve debriyaj setinde erken aşınma; rölantide tıkırtı, vites geçişinde titreşim.",
+            detail:
+              "Özellikle şehir içi dur-kalk kullanımda çift kütleli volan ve debriyaj setinde erken aşınma; rölantide tıkırtı, vites geçişinde titreşim.",
             typicalOnset: "100.000 km civarı",
             costLevel: "Yüksek",
             sourceNote: "Fiat Multijet motor ailesi için tekrar eden forum/teknik kaynak bulgusu.",
@@ -62,13 +68,15 @@ export const FIAT_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2015,
         yearTo: 2023,
-        reliabilityNote: "Egea'nın en yaygın dizel motor seçeneği; genel olarak makul kabul edilse de tekrarlayan enjektör ve turbo aktüatör şikayetleri mevcut.",
+        reliabilityNote:
+          "Egea'nın en yaygın dizel motor seçeneği; genel olarak makul kabul edilse de tekrarlayan enjektör ve turbo aktüatör şikayetleri mevcut.",
         issues: [
           {
             id: "egea-16mjet-enjektor",
             severity: "medium",
             title: "Tekrarlayan enjektör arızası",
-            detail: "Değişim sonrası bile tekrarlayan enjektör arızaları bildirilmiş; güç kaybı ve arıza lambası ile kendini gösteriyor.",
+            detail:
+              "Değişim sonrası bile tekrarlayan enjektör arızaları bildirilmiş; güç kaybı ve arıza lambası ile kendini gösteriyor.",
             costLevel: "Yüksek",
             sourceNote: "Şikayetvar ve kronik sorun derleme sitelerinde tekrarlanan kullanıcı şikayetleri.",
           },
@@ -76,7 +84,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "egea-16mjet-turboact",
             severity: "medium",
             title: "Turbo aktüatör (değişken geometri) arızası",
-            detail: "Turbonun geometri kontrol aktüatöründeki arıza motoru 'limp mode'a (acil çalışma moduna) sokarak belirgin güç kaybına yol açabiliyor.",
+            detail:
+              "Turbonun geometri kontrol aktüatöründeki arıza motoru 'limp mode'a (acil çalışma moduna) sokarak belirgin güç kaybına yol açabiliyor.",
             costLevel: "Orta",
             sourceNote: "Türkçe forum ve şikayet platformlarında tekrar eden bulgu.",
           },
@@ -84,7 +93,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "egea-16mjet-ckv",
             severity: "medium",
             title: "Çift kütleli volan / debriyaj erken aşınması",
-            detail: "Manuel şanzımanlı versiyonlarda, özellikle şehir içi kullanımda debriyaj ve çift kütleli volan erken yıpranıyor; vites geçişinde sarsıntı/ses.",
+            detail:
+              "Manuel şanzımanlı versiyonlarda, özellikle şehir içi kullanımda debriyaj ve çift kütleli volan erken yıpranıyor; vites geçişinde sarsıntı/ses.",
             typicalOnset: "90.000-120.000 km",
             costLevel: "Yüksek",
             sourceNote: "DonanımHaber ve kronik sorun derleme sitelerinde tekrarlanan bulgu.",
@@ -93,7 +103,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "egea-16mjet-manifold",
             severity: "low",
             title: "Emme manifoldunda karbon birikimi",
-            detail: "Emme manifoldu ve gaz kelebeğinde kurum/karbon birikimi rölanti düzensizliği, güç kaybı ve titreşime yol açabiliyor.",
+            detail:
+              "Emme manifoldu ve gaz kelebeğinde kurum/karbon birikimi rölanti düzensizliği, güç kaybı ve titreşime yol açabiliyor.",
             costLevel: "Orta",
             sourceNote: "Türkçe forum kaynaklarında tekrarlanan gözlem.",
           },
@@ -110,7 +121,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "egea-14fire-yagsizmasi",
             severity: "medium",
             title: "Conta/keçe kaynaklı yağ sızıntısı ve yağ tüketimi",
-            detail: "Motor contaları ve keçelerinden zamanla yağ sızıntısı; bazı kullanıcılar düzenli bakıma rağmen artan yağ tüketimi bildiriyor.",
+            detail:
+              "Motor contaları ve keçelerinden zamanla yağ sızıntısı; bazı kullanıcılar düzenli bakıma rağmen artan yağ tüketimi bildiriyor.",
             costLevel: "Orta",
             sourceNote: "Kronik sorun derleme siteleri ve forum kaynaklarında tekrarlanan bulgu.",
           },
@@ -118,7 +130,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "egea-14fire-bobin",
             severity: "low",
             title: "Ateşleme bobini arızası",
-            detail: "Buji ateşleme bobinlerinin sık değişen parçalardan biri olduğu, arızalandığında motor arızası uyarısı ve tekleme görüldüğü bildiriliyor.",
+            detail:
+              "Buji ateşleme bobinlerinin sık değişen parçalardan biri olduğu, arızalandığında motor arızası uyarısı ve tekleme görüldüğü bildiriliyor.",
             costLevel: "Düşük",
             sourceNote: "Türkçe forum kaynaklarında tekrarlanan gözlem.",
           },
@@ -142,7 +155,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "egea-16etorq-termostat",
             severity: "medium",
             title: "Termostat arızası",
-            detail: "70.000-100.000 km aralığında termostat arızası sık görülüyor; motor ısınma süresinin uzaması veya aşırı ısınma eğilimi yaratabiliyor.",
+            detail:
+              "70.000-100.000 km aralığında termostat arızası sık görülüyor; motor ısınma süresinin uzaması veya aşırı ısınma eğilimi yaratabiliyor.",
             typicalOnset: "70.000-100.000 km",
             costLevel: "Düşük",
             sourceNote: "Birden fazla teknik blog ve forum kaynağında tekrarlanan bulgu.",
@@ -151,7 +165,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "egea-16etorq-yagsizmasi",
             severity: "low",
             title: "Silindir kapak contası ve krank keçesinden yağ sızıntısı",
-            detail: "Yüksek kilometrede silindir kapak contası ve krank mili yağ keçelerinden sızıntı ve hafif yağ eksiltme bildiriliyor.",
+            detail:
+              "Yüksek kilometrede silindir kapak contası ve krank mili yağ keçelerinden sızıntı ve hafif yağ eksiltme bildiriliyor.",
             costLevel: "Orta",
             sourceNote: "Teknik servis odaklı blog kaynaklarında tekrarlanan bulgu.",
           },
@@ -184,7 +199,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "linea-13mjet-turbo",
             severity: "medium",
             title: "Turbo arızası (körük çatlağı, yağ sızıntısı)",
-            detail: "Turbo körüklerinde çatlak, yağ sızdırması ve ıslık sesi ile kendini gösteren turbo arızaları bildiriliyor.",
+            detail:
+              "Turbo körüklerinde çatlak, yağ sızdırması ve ıslık sesi ile kendini gösteren turbo arızaları bildiriliyor.",
             typicalOnset: "100.000 km sonrası",
             costLevel: "Yüksek",
             sourceNote: "DonanımHaber ve kronik sorun sitelerinde tekrarlanan bulgu.",
@@ -193,7 +209,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "linea-13mjet-egr",
             severity: "low",
             title: "EGR valfi arızası",
-            detail: "EGR valfi tıkanması veya arızası kirli enjektörle birlikte siyah duman ve performans kaybına katkıda bulunabiliyor.",
+            detail:
+              "EGR valfi tıkanması veya arızası kirli enjektörle birlikte siyah duman ve performans kaybına katkıda bulunabiliyor.",
             costLevel: "Orta",
             sourceNote: "Forum kaynaklarında tekrarlanan gözlem.",
           },
@@ -208,7 +225,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "linea-16mjet-dpf",
             severity: "medium",
             title: "DPF (partikül filtresi) tıkanması",
-            detail: "Özellikle kısa mesafe şehir içi kullanımda DPF tıkanması, güç kaybı ve arıza lambası ile sonuçlanabiliyor.",
+            detail:
+              "Özellikle kısa mesafe şehir içi kullanımda DPF tıkanması, güç kaybı ve arıza lambası ile sonuçlanabiliyor.",
             costLevel: "Yüksek",
             sourceNote: "Türkçe forum kaynaklarında tekrarlanan bulgu.",
           },
@@ -226,13 +244,15 @@ export const FIAT_ENTRIES: ModelEntry[] = [
         engineLabel: "1.4 T-Jet",
         fuelType: "Benzin",
         transmission: "Manuel",
-        reliabilityNote: "Birinci nesil turbo benzinli motor olduğu için düzenli 'turbo zamanlaması' (soğuma süresi bekletme) bakımına dikkat önerilir.",
+        reliabilityNote:
+          "Birinci nesil turbo benzinli motor olduğu için düzenli 'turbo zamanlaması' (soğuma süresi bekletme) bakımına dikkat önerilir.",
         issues: [
           {
             id: "linea-14tjet-basinckontrol",
             severity: "medium",
             title: "Turbo basınç kontrol valfi arızası",
-            detail: "Turboya giden hava akışını düzenleyen basınç kontrol valfinin arızalanması turbonun devreye girmemesine ve belirgin güç kaybına yol açabiliyor.",
+            detail:
+              "Turboya giden hava akışını düzenleyen basınç kontrol valfinin arızalanması turbonun devreye girmemesine ve belirgin güç kaybına yol açabiliyor.",
             costLevel: "Orta",
             sourceNote: "DonanımHaber forumunda belgelenmiş, tekrar eden bir kullanıcı bulgusu.",
           },
@@ -280,7 +300,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "doblo-13mjet-turbo",
             severity: "medium",
             title: "Turbo körüğü çatlağı / yağ sızdırması",
-            detail: "Turbo körüklerinde çatlak oluşumu güç düşüşüne ve aşırı duman çıkışına, ayrıca turbo yağ sızdırmasına yol açabiliyor.",
+            detail:
+              "Turbo körüklerinde çatlak oluşumu güç düşüşüne ve aşırı duman çıkışına, ayrıca turbo yağ sızdırmasına yol açabiliyor.",
             typicalOnset: "100.000 km sonrası",
             costLevel: "Yüksek",
             sourceNote: "Team Doblo ve Şikayetvar'da tekrarlanan bulgu.",
@@ -289,7 +310,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "doblo-13mjet-krank-sensor",
             severity: "medium",
             title: "Krank mili pozisyon sensörü arızası",
-            detail: "Sensör arızası aracın sürüş sırasında aniden durmasına veya çalışmaz hale gelmesine yol açabiliyor.",
+            detail:
+              "Sensör arızası aracın sürüş sırasında aniden durmasına veya çalışmaz hale gelmesine yol açabiliyor.",
             costLevel: "Düşük",
             sourceNote: "Team Doblo forumunda tekrarlanan kullanıcı bildirimi.",
           },
@@ -297,7 +319,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "doblo-13mjet-vites",
             severity: "low",
             title: "Vites kutusu/bağlantı çubuklarında aşınma",
-            detail: "Yoğun yük taşıma kullanımında vites körüğü ve bağlantı çubukları zamanla aşınıyor; vitesler boşa kaçabiliyor veya geçişler sertleşebiliyor.",
+            detail:
+              "Yoğun yük taşıma kullanımında vites körüğü ve bağlantı çubukları zamanla aşınıyor; vitesler boşa kaçabiliyor veya geçişler sertleşebiliyor.",
             costLevel: "Orta",
             sourceNote: "Forum kaynaklarında ticari kullanım bağlamında tekrarlanan gözlem.",
           },
@@ -312,7 +335,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "doblo-16mjet-enjektor",
             severity: "medium",
             title: "Enjektör arızaları",
-            detail: "1.6 Multijet motorlarda enjektör arızası, güç kaybı, aşırı duman ve arıza lambası ile kendini gösteriyor.",
+            detail:
+              "1.6 Multijet motorlarda enjektör arızası, güç kaybı, aşırı duman ve arıza lambası ile kendini gösteriyor.",
             costLevel: "Orta",
             sourceNote: "Şikayetvar ve Team Doblo forumunda tekrarlanan bulgu.",
           },
@@ -320,7 +344,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "doblo-16mjet-dpf",
             severity: "medium",
             title: "DPF tıkanması",
-            detail: "Partikül filtresi tıkanması güç kaybı ve artan yakıt tüketimine yol açabiliyor, özellikle kısa mesafe kullanımda.",
+            detail:
+              "Partikül filtresi tıkanması güç kaybı ve artan yakıt tüketimine yol açabiliyor, özellikle kısa mesafe kullanımda.",
             costLevel: "Yüksek",
             sourceNote: "Forum kaynaklarında tekrarlanan bulgu.",
           },
@@ -328,7 +353,8 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "doblo-16mjet-ckv",
             severity: "medium",
             title: "Çift kütleli volan / debriyaj sorunları",
-            detail: "Vites değişiminde tıkırtı veya titreşim şeklinde kendini gösteren çift kütleli volan aşınması bildiriliyor.",
+            detail:
+              "Vites değişiminde tıkırtı veya titreşim şeklinde kendini gösteren çift kütleli volan aşınması bildiriliyor.",
             costLevel: "Yüksek",
             sourceNote: "Forum kaynaklarında tekrarlanan gözlem.",
           },
@@ -343,9 +369,11 @@ export const FIAT_ENTRIES: ModelEntry[] = [
             id: "doblo-14fire-beyin",
             severity: "medium",
             title: "Motor beyni (ECU) arızası",
-            detail: "Motor beyninin motor üzerinde konumlanmış olması nedeniyle motor ısısından etkilenip arızalandığı, kullanıcılar tarafından bildiriliyor.",
+            detail:
+              "Motor beyninin motor üzerinde konumlanmış olması nedeniyle motor ısısından etkilenip arızalandığı, kullanıcılar tarafından bildiriliyor.",
             costLevel: "Yüksek",
-            sourceNote: "Şikayetvar'da tekrarlanan kullanıcı şikayeti; tek platform ağırlıklı olduğu için orta güvenilirlikte değerlendirildi.",
+            sourceNote:
+              "Şikayetvar'da tekrarlanan kullanıcı şikayeti; tek platform ağırlıklı olduğu için orta güvenilirlikte değerlendirildi.",
           },
         ],
       },

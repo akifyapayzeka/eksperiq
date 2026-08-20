@@ -43,7 +43,9 @@ function withinYearRange(entry: ModelEntry, engine: EngineVariant, year: number)
  * since it describes the model/engine family in general, not this specific
  * car's condition or history.
  */
-export function findChronicIssues(input: Pick<VehicleFormData, "brand" | "model" | "year" | "fuelType" | "engineSize" | "trim" | "sellerDescription">): {
+export function findChronicIssues(
+  input: Pick<VehicleFormData, "brand" | "model" | "year" | "fuelType" | "engineSize" | "trim" | "sellerDescription">,
+): {
   entry: ModelEntry | null;
   issues: MatchedIssue[];
 } {

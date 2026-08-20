@@ -25,7 +25,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-golf-mk6-12tsi-timing-chain",
             severity: "high",
             title: "Zincir gerdirici arızası",
-            detail: "EA111 1.2 TSI motorlarda zincir gerdiricisinin tasarım kusuru nedeniyle zincirde boşluk oluşabilir ve ilerlemiş vakalarda supap-piston teması ile ciddi motor hasarı bildirilir. VW bu konuda 2012'de bir teknik servis bülteni yayınlamıştır.",
+            detail:
+              "EA111 1.2 TSI motorlarda zincir gerdiricisinin tasarım kusuru nedeniyle zincirde boşluk oluşabilir ve ilerlemiş vakalarda supap-piston teması ile ciddi motor hasarı bildirilir. VW bu konuda 2012'de bir teknik servis bülteni yayınlamıştır.",
             typicalOnset: "40.000-90.000 km",
             costLevel: "Yüksek",
             sourceNote: "Yaygın forum raporları, VW TSB'si ve bağımsız servis kaynaklarında tekrarlanan bir sorun.",
@@ -34,7 +35,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-golf-mk6-12tsi-dsg-dq200",
             severity: "medium",
             title: "DQ200 kuru kavramalı DSG'de kavrama titremesi",
-            detail: "DQ200 kuru çift kavramalı otomatik şanzımanda kalkışta titreme, sarsıntılı vites geçişi ve mekatronik ünitede arıza bildirilmektedir.",
+            detail:
+              "DQ200 kuru çift kavramalı otomatik şanzımanda kalkışta titreme, sarsıntılı vites geçişi ve mekatronik ünitede arıza bildirilmektedir.",
             typicalOnset: "60.000-120.000 km",
             costLevel: "Orta",
             sourceNote: "Yaygın forum ve bağımsız servis raporlarında sık bildirilen bir sorun.",
@@ -52,7 +54,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-golf-mk6-14tsi-timing-chain",
             severity: "high",
             title: "Zincir gerdirici arızası",
-            detail: "1.2 TSI ile aynı EA111 motor mimarisini paylaşan 1.4 TSI'de de zincir gerdiricisi kusuru bildirilir; zincir sesi (özellikle soğuk çalıştırmada) erken uyarı belirtisidir.",
+            detail:
+              "1.2 TSI ile aynı EA111 motor mimarisini paylaşan 1.4 TSI'de de zincir gerdiricisi kusuru bildirilir; zincir sesi (özellikle soğuk çalıştırmada) erken uyarı belirtisidir.",
             typicalOnset: "40.000-90.000 km",
             costLevel: "Yüksek",
             sourceNote: "Yaygın forum raporları ve VW'nin 2012 TSB'si.",
@@ -64,16 +67,19 @@ export const VW_ENTRIES: ModelEntry[] = [
         fuelType: "Benzin",
         yearFrom: 2009,
         yearTo: 2012,
-        reliabilityNote: "EA888 Gen1/Gen2 ailesi (GTI/R gibi performans versiyonları). 2012 öncesi üretimde belirgin bir zincir gerdirici kusuru bildirilir.",
+        reliabilityNote:
+          "EA888 Gen1/Gen2 ailesi (GTI/R gibi performans versiyonları). 2012 öncesi üretimde belirgin bir zincir gerdirici kusuru bildirilir.",
         issues: [
           {
             id: "vw-golf-mk6-20tsi-timing-chain",
             severity: "high",
             title: "Zincir gerdirici arızası (2012 öncesi üretim)",
-            detail: "2008-2012 arası üretilen EA888 Gen1/Gen2 2.0 TSI motorlarda hatalı tasarımlı alt zincir gerdiricisi bildirilir; hidrolik basıncı kaybeden gerdirici düşük kilometrelerde bile ciddi motor hasarına yol açabilir. 2012 sonrası üretimde revize gerdirici kullanılmıştır.",
+            detail:
+              "2008-2012 arası üretilen EA888 Gen1/Gen2 2.0 TSI motorlarda hatalı tasarımlı alt zincir gerdiricisi bildirilir; hidrolik basıncı kaybeden gerdirici düşük kilometrelerde bile ciddi motor hasarına yol açabilir. 2012 sonrası üretimde revize gerdirici kullanılmıştır.",
             typicalOnset: "30.000-80.000 km",
             costLevel: "Yüksek",
-            sourceNote: "Yaygın forum raporları, bağımsız servis vaka çalışmaları ve toplu dava/uzlaşma kayıtlarında tekrarlanan bir sorun.",
+            sourceNote:
+              "Yaygın forum raporları, bağımsız servis vaka çalışmaları ve toplu dava/uzlaşma kayıtlarında tekrarlanan bir sorun.",
           },
         ],
       },
@@ -88,7 +94,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-golf-mk6-16tdi-injector",
             severity: "high",
             title: "Enjektör arızası (piezo enjektör izolasyon bozulması)",
-            detail: "2009-2013 arası üretilen Siemens piezoelektrik enjektörlerde iç izolasyon bozulması bildirilir; sarsıntılı rölanti, ateşleme boşlukları, siyah duman ve güç kaybına yol açar.",
+            detail:
+              "2009-2013 arası üretilen Siemens piezoelektrik enjektörlerde iç izolasyon bozulması bildirilir; sarsıntılı rölanti, ateşleme boşlukları, siyah duman ve güç kaybına yol açar.",
             typicalOnset: "100.000-180.000 km",
             costLevel: "Yüksek",
             sourceNote: "Yaygın forum raporları ve bağımsız servis kaynaklarında tekrarlanan bir sorun.",
@@ -97,7 +104,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-golf-mk6-16tdi-dmf",
             severity: "medium",
             title: "Çift kütleli volan (DMF) aşınması",
-            detail: "Rölantide metalik tıkırtı ve pedaldan titreşim ile kendini gösteren DMF aşınması, manuel şanzımanlı versiyonlarda orta-yüksek kilometrelerde bildirilir.",
+            detail:
+              "Rölantide metalik tıkırtı ve pedaldan titreşim ile kendini gösteren DMF aşınması, manuel şanzımanlı versiyonlarda orta-yüksek kilometrelerde bildirilir.",
             typicalOnset: "150.000-220.000 km",
             costLevel: "Orta",
             sourceNote: "Yaygın forum ve servis raporlarında tekrarlanan bir sorun.",
@@ -109,13 +117,15 @@ export const VW_ENTRIES: ModelEntry[] = [
         fuelType: "Dizel",
         yearFrom: 2009,
         yearTo: 2012,
-        reliabilityNote: "EA189 ailesi motordur; DSG6 (DQ250, ıslak kavrama) yüksek torklu versiyonlarda yaygın eşleşmedir.",
+        reliabilityNote:
+          "EA189 ailesi motordur; DSG6 (DQ250, ıslak kavrama) yüksek torklu versiyonlarda yaygın eşleşmedir.",
         issues: [
           {
             id: "vw-golf-mk6-20tdi-injector",
             severity: "high",
             title: "Enjektör arızası",
-            detail: "Common-rail enjektörlerde zamanla tıkanma veya elektriksel arıza bildirilir; güç kaybı, sarsıntılı çalışma ve artan yakıt tüketimi ile kendini gösterir.",
+            detail:
+              "Common-rail enjektörlerde zamanla tıkanma veya elektriksel arıza bildirilir; güç kaybı, sarsıntılı çalışma ve artan yakıt tüketimi ile kendini gösterir.",
             typicalOnset: "120.000-180.000 km",
             costLevel: "Yüksek",
             sourceNote: "Yaygın forum ve bağımsız servis kaynaklarında tekrarlanan bir sorun.",
@@ -124,7 +134,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-golf-mk6-20tdi-dmf",
             severity: "medium",
             title: "Çift kütleli volan (DMF) aşınması",
-            detail: "2.0 TDI'nin yüksek torku nedeniyle DMF ömrü diğer motorlara göre daha kısa bildirilir; rölantide tıkırtı ve kavrama kaymasıyla kendini gösterir.",
+            detail:
+              "2.0 TDI'nin yüksek torku nedeniyle DMF ömrü diğer motorlara göre daha kısa bildirilir; rölantide tıkırtı ve kavrama kaymasıyla kendini gösterir.",
             typicalOnset: "150.000-220.000 km",
             costLevel: "Orta",
             sourceNote: "Yaygın forum ve servis raporlarında tekrarlanan bir sorun.",
@@ -136,13 +147,15 @@ export const VW_ENTRIES: ModelEntry[] = [
         fuelType: "Benzin",
         yearFrom: 2012,
         yearTo: 2020,
-        reliabilityNote: "EA211 ailesi motordur (Mk7 dönemi); zincir yerine ömür boyu tasarlanmış triger kayışı kullanır ve EA111'e göre belirgin şekilde daha güvenilir kabul edilir.",
+        reliabilityNote:
+          "EA211 ailesi motordur (Mk7 dönemi); zincir yerine ömür boyu tasarlanmış triger kayışı kullanır ve EA111'e göre belirgin şekilde daha güvenilir kabul edilir.",
         issues: [
           {
             id: "vw-golf-mk7-12tsi-waterpump",
             severity: "low",
             title: "Su pompası/termostat gövdesi sızıntısı",
-            detail: "EA211 ailesinde paylaşılan plastik termostat gövdesi ve entegre su pompasında zamanla küçük soğutucu sızıntıları bildirilir.",
+            detail:
+              "EA211 ailesinde paylaşılan plastik termostat gövdesi ve entegre su pompasında zamanla küçük soğutucu sızıntıları bildirilir.",
             typicalOnset: "80.000-130.000 km",
             costLevel: "Düşük",
             sourceNote: "Yaygın forum ve servis raporlarında tekrarlanan bir sorun.",
@@ -151,7 +164,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-golf-mk7-12tsi-dsg-dq200",
             severity: "medium",
             title: "DQ200 kuru kavramalı DSG'de kavrama titremesi",
-            detail: "1.2 TSI'nin eşleştiği DQ200 kuru kavramalı DSG'de kalkışta titreme ve mekatronik adaptasyon kayması bildirilir.",
+            detail:
+              "1.2 TSI'nin eşleştiği DQ200 kuru kavramalı DSG'de kalkışta titreme ve mekatronik adaptasyon kayması bildirilir.",
             typicalOnset: "60.000-120.000 km",
             costLevel: "Orta",
             sourceNote: "Yaygın forum ve bağımsız servis raporlarında sık bildirilen bir sorun.",
@@ -163,13 +177,15 @@ export const VW_ENTRIES: ModelEntry[] = [
         fuelType: "Benzin",
         yearFrom: 2012,
         yearTo: 2020,
-        reliabilityNote: "EA211 ailesi motordur; 125/150 PS versiyonları mevcuttur, 140-150 PS versiyonlar ACT (silindir devre dışı bırakma) özelliğine sahiptir.",
+        reliabilityNote:
+          "EA211 ailesi motordur; 125/150 PS versiyonları mevcuttur, 140-150 PS versiyonlar ACT (silindir devre dışı bırakma) özelliğine sahiptir.",
         issues: [
           {
             id: "vw-golf-mk7-14tsi-act-rocker",
             severity: "high",
             title: "ACT (silindir kapatma) rocker kolu aşınması",
-            detail: "Silindir devre dışı bırakma mekanizmasındaki kayan rocker kolları zamanla aşınabilir veya kırılabilir; emme kamının ve takipçi elemanların değişimini gerektirir. ACT özelliği olmayan düşük güçlü versiyonlarda görülmez.",
+            detail:
+              "Silindir devre dışı bırakma mekanizmasındaki kayan rocker kolları zamanla aşınabilir veya kırılabilir; emme kamının ve takipçi elemanların değişimini gerektirir. ACT özelliği olmayan düşük güçlü versiyonlarda görülmez.",
             typicalOnset: "100.000+ km",
             costLevel: "Yüksek",
             sourceNote: "Uzman VAG servislerinden ve bağımsız güvenilirlik raporlarından tekrarlanan bir sorun.",
@@ -178,7 +194,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-golf-mk7-14tsi-wastegate",
             severity: "medium",
             title: "Turbo wastegate mekanizmasında gevşeme/tıkırtı",
-            detail: "Soğuk çalıştırmada turbo tarafından gelen tıkırtı sesi, EPC arıza lambası ve boost basıncı dalgalanmaları ile kendini gösteren wastegate aktüatör sorunları bildirilir.",
+            detail:
+              "Soğuk çalıştırmada turbo tarafından gelen tıkırtı sesi, EPC arıza lambası ve boost basıncı dalgalanmaları ile kendini gösteren wastegate aktüatör sorunları bildirilir.",
             typicalOnset: "60.000-120.000 km",
             costLevel: "Orta",
             sourceNote: "Yaygın forum ve servis raporlarında tekrarlanan bir sorun.",
@@ -187,7 +204,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-golf-mk7-14tsi-dsg-dq200",
             severity: "medium",
             title: "DQ200 kuru kavramalı DSG'de kavrama titremesi",
-            detail: "Kuru kavramalı DQ200 şanzımanda kalkışta titreme ve mekatronik valf gövdesinde çatlama bildirilir.",
+            detail:
+              "Kuru kavramalı DQ200 şanzımanda kalkışta titreme ve mekatronik valf gövdesinde çatlama bildirilir.",
             typicalOnset: "60.000-120.000 km",
             costLevel: "Orta",
             sourceNote: "Yaygın forum ve bağımsız servis raporlarında sık bildirilen bir sorun.",
@@ -205,7 +223,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-golf-mk7-16tdi-injector",
             severity: "medium",
             title: "Enjektör kokslanması/elektriksel arıza",
-            detail: "Yüksek kilometrelerde common-rail enjektörlerde kokslanma veya elektriksel arıza bildirilir; güç kaybı ve düzensiz çalışmaya yol açar.",
+            detail:
+              "Yüksek kilometrelerde common-rail enjektörlerde kokslanma veya elektriksel arıza bildirilir; güç kaybı ve düzensiz çalışmaya yol açar.",
             typicalOnset: "120.000-180.000 km",
             costLevel: "Orta",
             sourceNote: "Yaygın forum ve bağımsız servis kaynaklarında tekrarlanan bir sorun.",
@@ -214,7 +233,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-golf-mk7-16tdi-adblue",
             severity: "medium",
             title: "AdBlue/SCR sistemi arızaları (2015 sonrası Euro 6 versiyonlar)",
-            detail: "AdBlue enjeksiyon sistemi ve sensörlerinde arıza bildirilir; genellikle arıza lambası ve motor gücü kısıtlaması ile kendini gösterir.",
+            detail:
+              "AdBlue enjeksiyon sistemi ve sensörlerinde arıza bildirilir; genellikle arıza lambası ve motor gücü kısıtlaması ile kendini gösterir.",
             typicalOnset: "80.000-150.000 km",
             costLevel: "Orta",
             sourceNote: "Yaygın forum ve servis raporlarında tekrarlanan bir sorun.",
@@ -269,10 +289,12 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-passat-b7-18tsi-timing-chain",
             severity: "high",
             title: "Zincir gerdirici arızası (2012 öncesi üretim)",
-            detail: "Aynı EA888 ailesindeki 2.0 TSI'de belgelenen zincir gerdirici kusuru, 1.8 TSI'de de bazı kaynaklarda bildirilmektedir.",
+            detail:
+              "Aynı EA888 ailesindeki 2.0 TSI'de belgelenen zincir gerdirici kusuru, 1.8 TSI'de de bazı kaynaklarda bildirilmektedir.",
             typicalOnset: "30.000-80.000 km",
             costLevel: "Yüksek",
-            sourceNote: "Esas olarak 2.0 TSI için belgelenmiş olup, aynı motor ailesindeki 1.8 TSI'de de forum raporlarında bildirilmiştir.",
+            sourceNote:
+              "Esas olarak 2.0 TSI için belgelenmiş olup, aynı motor ailesindeki 1.8 TSI'de de forum raporlarında bildirilmiştir.",
           },
         ],
       },
@@ -281,16 +303,19 @@ export const VW_ENTRIES: ModelEntry[] = [
         fuelType: "Benzin",
         yearFrom: 2010,
         yearTo: 2014,
-        reliabilityNote: "EA888 Gen2 ailesi motordur. 2012 öncesi üretimde belirgin bir zincir gerdirici kusuru bildirilir.",
+        reliabilityNote:
+          "EA888 Gen2 ailesi motordur. 2012 öncesi üretimde belirgin bir zincir gerdirici kusuru bildirilir.",
         issues: [
           {
             id: "vw-passat-b7-20tsi-timing-chain",
             severity: "high",
             title: "Zincir gerdirici arızası (2012 öncesi üretim)",
-            detail: "2008-2012 arası üretilen EA888 Gen2 2.0 TSI motorlarda hatalı tasarımlı alt zincir gerdiricisi bildirilir; düşük kilometrelerde bile ciddi motor hasarına yol açabilir.",
+            detail:
+              "2008-2012 arası üretilen EA888 Gen2 2.0 TSI motorlarda hatalı tasarımlı alt zincir gerdiricisi bildirilir; düşük kilometrelerde bile ciddi motor hasarına yol açabilir.",
             typicalOnset: "30.000-80.000 km",
             costLevel: "Yüksek",
-            sourceNote: "Yaygın forum raporları, bağımsız servis vaka çalışmaları ve toplu dava/uzlaşma kayıtlarında tekrarlanan bir sorun.",
+            sourceNote:
+              "Yaygın forum raporları, bağımsız servis vaka çalışmaları ve toplu dava/uzlaşma kayıtlarında tekrarlanan bir sorun.",
           },
         ],
       },
@@ -305,7 +330,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-passat-b7-16tdi-injector",
             severity: "high",
             title: "Enjektör arızası (piezo enjektör izolasyon bozulması)",
-            detail: "2009-2013 arası üretilen Siemens piezoelektrik enjektörlerde iç izolasyon bozulması bildirilir; sarsıntılı rölanti ve güç kaybına yol açar.",
+            detail:
+              "2009-2013 arası üretilen Siemens piezoelektrik enjektörlerde iç izolasyon bozulması bildirilir; sarsıntılı rölanti ve güç kaybına yol açar.",
             typicalOnset: "100.000-180.000 km",
             costLevel: "Yüksek",
             sourceNote: "Yaygın forum raporları ve bağımsız servis kaynaklarında tekrarlanan bir sorun.",
@@ -323,7 +349,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-passat-b7-20tdi-dmf",
             severity: "medium",
             title: "Çift kütleli volan (DMF) aşınması",
-            detail: "2.0 TDI'nin yüksek torku, özellikle yüksek viteste düşük devirde sürüşle birleştiğinde DMF ömrünü kısaltır; rölantide metalik tıkırtı ve kavrama kayması ile kendini gösterir.",
+            detail:
+              "2.0 TDI'nin yüksek torku, özellikle yüksek viteste düşük devirde sürüşle birleştiğinde DMF ömrünü kısaltır; rölantide metalik tıkırtı ve kavrama kayması ile kendini gösterir.",
             typicalOnset: "150.000-220.000 km",
             costLevel: "Orta",
             sourceNote: "Passat B7 2.0 TDI'ye özgü olarak yaygın forum ve servis raporlarında tekrarlanan bir sorun.",
@@ -344,13 +371,15 @@ export const VW_ENTRIES: ModelEntry[] = [
         fuelType: "Benzin",
         yearFrom: 2014,
         yearTo: 2020,
-        reliabilityNote: "EA211 ailesi motordur (B8 dönemi); 150 PS versiyon ACT (silindir devre dışı bırakma) özelliğine sahiptir.",
+        reliabilityNote:
+          "EA211 ailesi motordur (B8 dönemi); 150 PS versiyon ACT (silindir devre dışı bırakma) özelliğine sahiptir.",
         issues: [
           {
             id: "vw-passat-b8-14tsi-act-rocker",
             severity: "high",
             title: "ACT (silindir kapatma) rocker kolu aşınması",
-            detail: "Silindir devre dışı bırakma mekanizmasındaki rocker kollarında zamanla aşınma bildirilir; kamin ve takipçi elemanların değişimini gerektirebilir.",
+            detail:
+              "Silindir devre dışı bırakma mekanizmasındaki rocker kollarında zamanla aşınma bildirilir; kamin ve takipçi elemanların değişimini gerektirebilir.",
             typicalOnset: "100.000+ km",
             costLevel: "Yüksek",
             sourceNote: "Uzman VAG servislerinden ve bağımsız güvenilirlik raporlarından tekrarlanan bir sorun.",
@@ -368,7 +397,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-passat-b8-16tdi-adblue",
             severity: "medium",
             title: "AdBlue/SCR sistemi arızaları",
-            detail: "AdBlue enjeksiyon sistemi ve sensörlerinde arıza bildirilir; arıza lambası ve motor gücü kısıtlamasına yol açabilir.",
+            detail:
+              "AdBlue enjeksiyon sistemi ve sensörlerinde arıza bildirilir; arıza lambası ve motor gücü kısıtlamasına yol açabilir.",
             typicalOnset: "80.000-150.000 km",
             costLevel: "Orta",
             sourceNote: "Yaygın forum ve servis raporlarında tekrarlanan bir sorun.",
@@ -414,7 +444,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-polo-6r-12tsi-timing-chain",
             severity: "high",
             title: "Zincir gerdirici arızası",
-            detail: "EA111 ailesinin bilinen zincir gerdirici kusuru bu motorda da bildirilir; soğuk çalıştırmada metalik zincir sesi erken uyarı belirtisi olarak tarif edilir.",
+            detail:
+              "EA111 ailesinin bilinen zincir gerdirici kusuru bu motorda da bildirilir; soğuk çalıştırmada metalik zincir sesi erken uyarı belirtisi olarak tarif edilir.",
             typicalOnset: "40.000-90.000 km",
             costLevel: "Yüksek",
             sourceNote: "Yaygın forum raporları ve VW'nin 2012 TSB'si.",
@@ -426,13 +457,15 @@ export const VW_ENTRIES: ModelEntry[] = [
         fuelType: "Dizel",
         yearFrom: 2009,
         yearTo: 2017,
-        reliabilityNote: "EA189 ailesi 3 silindirli küçük hacimli dizel motordur; küçük hacme rağmen tam emisyon donanımı taşıması nedeniyle 1.6 TDI'ye göre daha kırılgan kabul edilir.",
+        reliabilityNote:
+          "EA189 ailesi 3 silindirli küçük hacimli dizel motordur; küçük hacme rağmen tam emisyon donanımı taşıması nedeniyle 1.6 TDI'ye göre daha kırılgan kabul edilir.",
         issues: [
           {
             id: "vw-polo-6r-12tdi-egr-dpf",
             severity: "medium",
             title: "EGR/DPF tıkanması",
-            detail: "Küçük hacimli 3 silindirli dizelde EGR ve DPF tıkanması, özellikle kısa mesafe kullanımında sık bildirilir.",
+            detail:
+              "Küçük hacimli 3 silindirli dizelde EGR ve DPF tıkanması, özellikle kısa mesafe kullanımında sık bildirilir.",
             typicalOnset: "70.000-130.000 km",
             costLevel: "Orta",
             sourceNote: "Yaygın forum ve servis raporlarında sık bildirilen bir sorun.",
@@ -450,7 +483,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-polo-6r-16tdi-injector",
             severity: "high",
             title: "Enjektör arızası",
-            detail: "Piezo enjektörlerde izolasyon bozulması veya tıkanma bildirilir; sarsıntılı rölanti ve güç kaybına yol açar.",
+            detail:
+              "Piezo enjektörlerde izolasyon bozulması veya tıkanma bildirilir; sarsıntılı rölanti ve güç kaybına yol açar.",
             typicalOnset: "100.000-180.000 km",
             costLevel: "Yüksek",
             sourceNote: "Yaygın forum ve bağımsız servis kaynaklarında tekrarlanan bir sorun.",
@@ -459,7 +493,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-polo-6r-16tdi-timing-belt",
             severity: "high",
             title: "Zamanında değiştirilmeyen triger kayışının kopması riski",
-            detail: "1.6 TDI temaslı bir motordur; VW'nin öngördüğü yaklaşık 140.000 km / 5 yıllık değişim aralığı kaçırılırsa kayış kopması durumunda supap-piston teması ile ağır motor hasarı oluşabilir. Bu, motorun kusuru değil, bakım takvimine uyulmamasıyla ortaya çıkan bilinen bir risktir.",
+            detail:
+              "1.6 TDI temaslı bir motordur; VW'nin öngördüğü yaklaşık 140.000 km / 5 yıllık değişim aralığı kaçırılırsa kayış kopması durumunda supap-piston teması ile ağır motor hasarı oluşabilir. Bu, motorun kusuru değil, bakım takvimine uyulmamasıyla ortaya çıkan bilinen bir risktir.",
             typicalOnset: "140.000 km / 5 yıl (bakım aralığı)",
             costLevel: "Yüksek",
             sourceNote: "VW bakım şeması ve yaygın servis/forum kaynaklarında tekrarlanan bir uyarı.",
@@ -471,13 +506,15 @@ export const VW_ENTRIES: ModelEntry[] = [
         fuelType: "Benzin",
         yearFrom: 2017,
         yearTo: 2021,
-        reliabilityNote: "Atmosferik EA211 3 silindirli motordur (AW dönemi). Basit tasarımı nedeniyle genel olarak güvenilir kabul edilir.",
+        reliabilityNote:
+          "Atmosferik EA211 3 silindirli motordur (AW dönemi). Basit tasarımı nedeniyle genel olarak güvenilir kabul edilir.",
         issues: [
           {
             id: "vw-polo-aw-10mpi-waterpump",
             severity: "medium",
             title: "Su pompası keçesi sızıntısı",
-            detail: "Zamanla su pompası keçesinde küçük sızıntılar başlar; ihmal edilirse soğutucu kaybına ve aşırı ısınmaya yol açabilir.",
+            detail:
+              "Zamanla su pompası keçesinde küçük sızıntılar başlar; ihmal edilirse soğutucu kaybına ve aşırı ısınmaya yol açabilir.",
             typicalOnset: "80.000 km civarı",
             costLevel: "Orta",
             sourceNote: "Yaygın forum ve servis raporlarında tekrarlanan bir sorun.",
@@ -495,7 +532,8 @@ export const VW_ENTRIES: ModelEntry[] = [
             id: "vw-polo-aw-10tsi-dsg-dq200",
             severity: "medium",
             title: "DQ200 kuru kavramalı DSG'de kavrama titremesi",
-            detail: "Otomatik (DQ200 kuru kavramalı DSG) donanımlı araçlarda kalkışta titreme ve mekatronik adaptasyon kayması bildirilir.",
+            detail:
+              "Otomatik (DQ200 kuru kavramalı DSG) donanımlı araçlarda kalkışta titreme ve mekatronik adaptasyon kayması bildirilir.",
             typicalOnset: "60.000-120.000 km",
             costLevel: "Orta",
             sourceNote: "Yaygın forum ve bağımsız servis raporlarında sık bildirilen bir sorun.",

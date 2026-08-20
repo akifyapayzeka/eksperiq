@@ -11,7 +11,5 @@ export function ProfileWelcomeBanner() {
 
   if (!fullName) return null;
 
-  return (
-    <h1 className="mb-4 font-heading text-3xl font-bold text-foreground">Hoşgeldin, {fullName}!</h1>
-  );
+  return <h1 className="mb-4 font-heading text-3xl font-bold text-foreground">Hoşgeldin, {fullName}!</h1>;
 }

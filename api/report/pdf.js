@@ -210,13 +210,23 @@ function createWriter(doc, fonts, logoImage) {
     if (state.page) drawFooter(state.page);
   }
 
-  return { drawHeader, sectionTitle, paragraph, numberedList, ensureSpace, get page() {
-    return state.page;
-  }, get y() {
-    return state.y;
-  }, set y(value) {
-    state.y = value;
-  }, finish };
+  return {
+    drawHeader,
+    sectionTitle,
+    paragraph,
+    numberedList,
+    ensureSpace,
+    get page() {
+      return state.page;
+    },
+    get y() {
+      return state.y;
+    },
+    set y(value) {
+      state.y = value;
+    },
+    finish,
+  };
 }
 
 async function buildPdf(payload) {
@@ -302,7 +312,9 @@ async function buildPdf(payload) {
     w.sectionTitle("Öncelikli aksiyonlar");
     w.numberedList(
       priorityActions.map((action) =>
-        action && action.reason ? `${asString(action.title)} — ${asString(action.reason)}` : asString(action && action.title),
+        action && action.reason
+          ? `${asString(action.title)} — ${asString(action.reason)}`
+          : asString(action && action.title),
       ),
     );
   }

@@ -247,7 +247,10 @@ async function attemptNativeImport(
     return { ok: false, reason: "ai-failed" };
   }
   if (importHttpStatus !== 200 || !payload.result) {
-    trace("js-payload-missing-result", `status=${importHttpStatus} keys=${Object.keys(payload).join(",")}`.slice(0, 300));
+    trace(
+      "js-payload-missing-result",
+      `status=${importHttpStatus} keys=${Object.keys(payload).join(",")}`.slice(0, 300),
+    );
     return { ok: false, reason: "ai-failed" };
   }
 

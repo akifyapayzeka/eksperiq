@@ -276,13 +276,7 @@ export function ReminderCalendarScreen({
         </Link>
 
         <div className="mt-3">
-          <HeroCard
-            icon={icon}
-            eyebrow={eyebrow}
-            title={title}
-            description={description}
-            tone="accent"
-          />
+          <HeroCard icon={icon} eyebrow={eyebrow} title={title} description={description} tone="accent" />
         </div>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start">

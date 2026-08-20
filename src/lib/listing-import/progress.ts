@@ -10,12 +10,11 @@ import type { ImportStage } from "./import-listing";
  * instead eases the number up continuously within the current stage's
  * range so the user can see it's still working.
  */
-const STAGE_RANGE: Record<Exclude<ImportStage, "done">, { floor: number; ceiling: number; halfLifeSeconds: number }> =
-  {
-    "checking-url": { floor: 1, ceiling: 8, halfLifeSeconds: 1 },
-    "opening-page": { floor: 8, ceiling: 70, halfLifeSeconds: 8 },
-    normalizing: { floor: 70, ceiling: 95, halfLifeSeconds: 5 },
-  };
+const STAGE_RANGE: Record<Exclude<ImportStage, "done">, { floor: number; ceiling: number; halfLifeSeconds: number }> = {
+  "checking-url": { floor: 1, ceiling: 8, halfLifeSeconds: 1 },
+  "opening-page": { floor: 8, ceiling: 70, halfLifeSeconds: 8 },
+  normalizing: { floor: 70, ceiling: 95, halfLifeSeconds: 5 },
+};
 
 /**
  * Asymptotically eases from a stage's floor toward its ceiling as time

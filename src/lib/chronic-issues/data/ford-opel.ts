@@ -26,19 +26,23 @@ export const FORD_OPEL_ENTRIES: ModelEntry[] = [
             id: "focus-16tdci-injector",
             severity: "medium",
             title: "Enjektör tıkanması ve sızdırmazlık sorunu",
-            detail: "Enjektör contalarında ve gövdesinde zamanla sızıntı/karbon birikimi oluşabiliyor; sonucunda çalışma sesinde dizel vuruntusu, duman ve rölantide dengesizlik görülüyor.",
+            detail:
+              "Enjektör contalarında ve gövdesinde zamanla sızıntı/karbon birikimi oluşabiliyor; sonucunda çalışma sesinde dizel vuruntusu, duman ve rölantide dengesizlik görülüyor.",
             typicalOnset: "80.000-150.000 km",
             costLevel: "Orta",
-            sourceNote: "Birden fazla bağımsız Ford forumu (TalkFord, FordOwnersClub, FocusFanatics) ve motor tamir bloglarında tekrar eden şikayet.",
+            sourceNote:
+              "Birden fazla bağımsız Ford forumu (TalkFord, FordOwnersClub, FocusFanatics) ve motor tamir bloglarında tekrar eden şikayet.",
           },
           {
             id: "focus-16tdci-dmf",
             severity: "medium",
             title: "Çift kütleli volan (DMF) aşınması",
-            detail: "Aynı motor ailesi Fiesta'da düşük kilometrede DMF arızası ile belgelenmiştir; Focus'ta da vites değişiminde titreşim/tıkırtı şikayetleri bildiriliyor.",
+            detail:
+              "Aynı motor ailesi Fiesta'da düşük kilometrede DMF arızası ile belgelenmiştir; Focus'ta da vites değişiminde titreşim/tıkırtı şikayetleri bildiriliyor.",
             typicalOnset: "100.000-160.000 km",
             costLevel: "Orta",
-            sourceNote: "Aynı motor ailesini paylaşan Fiesta forum verilerinden çıkarım; Focus'a özgü doğrudan kaynak sayısı sınırlı.",
+            sourceNote:
+              "Aynı motor ailesini paylaşan Fiesta forum verilerinden çıkarım; Focus'a özgü doğrudan kaynak sayısı sınırlı.",
           },
         ],
       },
@@ -53,10 +57,12 @@ export const FORD_OPEL_ENTRIES: ModelEntry[] = [
             id: "focus-20tdci-powershift",
             severity: "high",
             title: "Powershift kuru çift kavramalı şanzıman arızaları",
-            detail: "Kalkışta sarsılma/titreme, 1-2. vites geçişinde sertlik, gecikmeli vites değişimi bildiriliyor. Kavrama paketine yağ/sızıntı bulaşması kaymaya neden olabiliyor; TCM (şanzıman kontrol ünitesi) arızaları da yaygın.",
+            detail:
+              "Kalkışta sarsılma/titreme, 1-2. vites geçişinde sertlik, gecikmeli vites değişimi bildiriliyor. Kavrama paketine yağ/sızıntı bulaşması kaymaya neden olabiliyor; TCM (şanzıman kontrol ünitesi) arızaları da yaygın.",
             typicalOnset: "40.000-100.000 km arası belirti başlangıcı",
             costLevel: "Yüksek",
-            sourceNote: "ABD'de toplu dava ve resmi soruşturmalara konu olmuş, çok sayıda bağımsız forum ve teknik servis kaynağında tekrarlanan, iyi belgelenmiş bir sorun.",
+            sourceNote:
+              "ABD'de toplu dava ve resmi soruşturmalara konu olmuş, çok sayıda bağımsız forum ve teknik servis kaynağında tekrarlanan, iyi belgelenmiş bir sorun.",
           },
         ],
       },
@@ -72,18 +78,22 @@ export const FORD_OPEL_ENTRIES: ModelEntry[] = [
             id: "focus-10ecoboost-wetbelt",
             severity: "high",
             title: "Yağ içinde çalışan (ıslak) zamanlama kayışının aşınması",
-            detail: "Kayış motor yağı içinde çalıştığından yanlış yağ spesifikasyonu veya geciken yağ değişimlerinde erken aşınıp parçalanabiliyor; bu durum yağ süzgecinin tıkanmasına ve ciddi motor hasarına yol açabiliyor.",
+            detail:
+              "Kayış motor yağı içinde çalıştığından yanlış yağ spesifikasyonu veya geciken yağ değişimlerinde erken aşınıp parçalanabiliyor; bu durum yağ süzgecinin tıkanmasına ve ciddi motor hasarına yol açabiliyor.",
             typicalOnset: "60.000-100.000 km, bakım ihmalinde daha erken",
             costLevel: "Yüksek",
-            sourceNote: "Çok sayıda bağımsız motor tamir/inceleme sitesinde tutarlı biçimde tekrarlanan, yaygın kabul görmüş sorun.",
+            sourceNote:
+              "Çok sayıda bağımsız motor tamir/inceleme sitesinde tutarlı biçimde tekrarlanan, yaygın kabul görmüş sorun.",
           },
           {
             id: "focus-10ecoboost-coolant",
             severity: "high",
             title: "Soğutma sıvısı kaybı ve aşırı ısınma riski",
-            detail: "Plastik degas hortumu, genleşme tankı ve termostat gövdesi O-ringi zamanla çatlayıp sızdırabiliyor; hızlı soğutucu kaybı motoru hızla ısıtıp silindir kapağı hasarına kadar gidebiliyor. Ekim 2011-Ekim 2013 arası üretilen araçlarda resmi geri çağırma uygulanmıştır.",
+            detail:
+              "Plastik degas hortumu, genleşme tankı ve termostat gövdesi O-ringi zamanla çatlayıp sızdırabiliyor; hızlı soğutucu kaybı motoru hızla ısıtıp silindir kapağı hasarına kadar gidebiliyor. Ekim 2011-Ekim 2013 arası üretilen araçlarda resmi geri çağırma uygulanmıştır.",
             costLevel: "Yüksek",
-            sourceNote: "Ford'un resmi geri çağırma kaydı ve çok sayıda bağımsız motor tamir/servis kaynağında tutarlı biçimde belgelenmiş.",
+            sourceNote:
+              "Ford'un resmi geri çağırma kaydı ve çok sayıda bağımsız motor tamir/servis kaynağında tutarlı biçimde belgelenmiş.",
           },
         ],
       },
@@ -98,10 +108,12 @@ export const FORD_OPEL_ENTRIES: ModelEntry[] = [
             id: "focus-15ecoblue-dilution",
             severity: "medium",
             title: "Yağ seyrelmesi (dizel yakıtın motor yağına karışması)",
-            detail: "DPF rejenerasyon döngüleri sırasında az miktarda yakıt yağ karterine karışabiliyor; uzun vadede yağ seviyesinin yükselmesi ve yağlama kalitesinin düşmesi riski var. Kısa mesafe/şehir içi kullanımda daha belirgin.",
+            detail:
+              "DPF rejenerasyon döngüleri sırasında az miktarda yakıt yağ karterine karışabiliyor; uzun vadede yağ seviyesinin yükselmesi ve yağlama kalitesinin düşmesi riski var. Kısa mesafe/şehir içi kullanımda daha belirgin.",
             typicalOnset: "Servis aralıklarında yağ seviyesi takibiyle fark edilir, genellikle 20.000-40.000 km",
             costLevel: "Orta",
-            sourceNote: "Ford sahip forumları ve bağımsız motor/servis inceleme siteleri genelinde tekrar eden, EcoBlue ailesinde yaygın bilinen bir konu.",
+            sourceNote:
+              "Ford sahip forumları ve bağımsız motor/servis inceleme siteleri genelinde tekrar eden, EcoBlue ailesinde yaygın bilinen bir konu.",
           },
         ],
       },
@@ -126,7 +138,8 @@ export const FORD_OPEL_ENTRIES: ModelEntry[] = [
             id: "fiesta-14tdci-dmf",
             severity: "high",
             title: "Çift kütleli volan (DMF) erken arızası",
-            detail: "Nispeten düşük kilometrede DMF sertleşmesi/aşınması bildiriliyor; titreşim, tıkırtı ve vites geçişinde sarsıntı ile ortaya çıkıyor.",
+            detail:
+              "Nispeten düşük kilometrede DMF sertleşmesi/aşınması bildiriliyor; titreşim, tıkırtı ve vites geçişinde sarsıntı ile ortaya çıkıyor.",
             typicalOnset: "60.000-100.000 km gibi erken kilometrelerde bile görülebiliyor",
             costLevel: "Orta",
             sourceNote: "Ford sahip forumlarında tekrarlanan, iyi belgelenmiş şikayet.",
@@ -135,7 +148,8 @@ export const FORD_OPEL_ENTRIES: ModelEntry[] = [
             id: "fiesta-14tdci-turbo-oil",
             severity: "medium",
             title: "Enjektör keçesi bozulmasına bağlı türbo yağ açlığı",
-            detail: "Enjektör keçelerindeki bozulma yağ kaçağına ve türbine giden yağlamanın azalmasına yol açarak türbo aşınmasını hızlandırabiliyor.",
+            detail:
+              "Enjektör keçelerindeki bozulma yağ kaçağına ve türbine giden yağlamanın azalmasına yol açarak türbo aşınmasını hızlandırabiliyor.",
             typicalOnset: "100.000 km sonrası",
             costLevel: "Orta",
             sourceNote: "Ford sahip forumlarında tekrar eden teknik gözlem.",
@@ -153,18 +167,22 @@ export const FORD_OPEL_ENTRIES: ModelEntry[] = [
             id: "fiesta-10ecoboost-wetbelt",
             severity: "high",
             title: "Yağ içinde çalışan (ıslak) zamanlama kayışının aşınması",
-            detail: "Focus ile aynı motor ailesi; yanlış yağ kullanımı veya geciken yağ değişiminde kayış erken aşınıp ciddi motor hasarına yol açabiliyor.",
+            detail:
+              "Focus ile aynı motor ailesi; yanlış yağ kullanımı veya geciken yağ değişiminde kayış erken aşınıp ciddi motor hasarına yol açabiliyor.",
             typicalOnset: "60.000-100.000 km, bakım ihmalinde daha erken",
             costLevel: "Yüksek",
-            sourceNote: "Aynı 1.0 EcoBoost motor ailesi için çok sayıda bağımsız kaynakta tekrarlanan, yaygın kabul görmüş sorun.",
+            sourceNote:
+              "Aynı 1.0 EcoBoost motor ailesi için çok sayıda bağımsız kaynakta tekrarlanan, yaygın kabul görmüş sorun.",
           },
           {
             id: "fiesta-10ecoboost-coolant",
             severity: "high",
             title: "Soğutma sıvısı kaybı ve aşırı ısınma riski",
-            detail: "Degas hortumu ve genleşme tankındaki çatlaklar hızlı soğutucu kaybına yol açabiliyor. Ekim 2011-Ekim 2013 üretim aralığı için resmi geri çağırma uygulanmıştır.",
+            detail:
+              "Degas hortumu ve genleşme tankındaki çatlaklar hızlı soğutucu kaybına yol açabiliyor. Ekim 2011-Ekim 2013 üretim aralığı için resmi geri çağırma uygulanmıştır.",
             costLevel: "Yüksek",
-            sourceNote: "Ford resmi geri çağırma kaydı ve bağımsız motor tamir kaynaklarında tutarlı biçimde belgelenmiş.",
+            sourceNote:
+              "Ford resmi geri çağırma kaydı ve bağımsız motor tamir kaynaklarında tutarlı biçimde belgelenmiş.",
           },
         ],
       },
@@ -186,7 +204,8 @@ export const FORD_OPEL_ENTRIES: ModelEntry[] = [
             id: "corsa-13cdti-timingchain",
             severity: "medium",
             title: "Zamanlama zinciri gerdiricisinde aşınma",
-            detail: "Hidrolik zincir gerdiricisi zamanla basınç kaybedip zincirin gevşemesine yol açabiliyor; soğuk çalıştırmada tıkırtı, dengesiz rölanti ve zor çalışma ile kendini gösteriyor.",
+            detail:
+              "Hidrolik zincir gerdiricisi zamanla basınç kaybedip zincirin gevşemesine yol açabiliyor; soğuk çalıştırmada tıkırtı, dengesiz rölanti ve zor çalışma ile kendini gösteriyor.",
             typicalOnset: "100.000-150.000 km",
             costLevel: "Orta",
             sourceNote: "Birden fazla bağımsız kaynak genelinde tekrarlanan bulgu.",
@@ -195,7 +214,8 @@ export const FORD_OPEL_ENTRIES: ModelEntry[] = [
             id: "corsa-13cdti-turbo",
             severity: "medium",
             title: "Türboda yağ açlığına bağlı aşınma",
-            detail: "Yağ değişimi ihmal edilirse veya düşük kaliteli yağ kullanılırsa türboda ıslık sesi, güç kaybı, aşırı duman ve yağ sızıntısı görülebiliyor.",
+            detail:
+              "Yağ değişimi ihmal edilirse veya düşük kaliteli yağ kullanılırsa türboda ıslık sesi, güç kaybı, aşırı duman ve yağ sızıntısı görülebiliyor.",
             typicalOnset: "100.000 km sonrası, bakım ihmalinde daha erken",
             costLevel: "Orta",
             sourceNote: "Forum kaynaklarında tekrar eden bulgu.",
@@ -222,7 +242,8 @@ export const FORD_OPEL_ENTRIES: ModelEntry[] = [
             id: "corsae-turbo-timingchain",
             severity: "medium",
             title: "Zamanlama zinciri üst kılavuz rayı aşınması",
-            detail: "Yağ değişimi geciktirilir veya yanlış yağ kullanılırsa üst kılavuz rayı erken aşınıp soğuk çalıştırmada tıkırtıya yol açıyor; ihmal edilirse zincir kayması/kopması ve supap hasarı riski var.",
+            detail:
+              "Yağ değişimi geciktirilir veya yanlış yağ kullanılırsa üst kılavuz rayı erken aşınıp soğuk çalıştırmada tıkırtıya yol açıyor; ihmal edilirse zincir kayması/kopması ve supap hasarı riski var.",
             typicalOnset: "Bakım kalitesine bağlı, genelde 80.000 km sonrası",
             costLevel: "Yüksek",
             sourceNote: "Otomotiv arıza veritabanları genelinde tekrarlanan bulgu.",
@@ -247,10 +268,12 @@ export const FORD_OPEL_ENTRIES: ModelEntry[] = [
             id: "astra-16cdti-timingchain",
             severity: "high",
             title: "Zamanlama zinciri gerdiricisinde tasarım kaynaklı yağ kaçağı ve tıkırtı",
-            detail: "Orijinal zincir gerdiricisinde conta bulunmuyor; motor kapatıldığında yağ boşalıyor ve yeniden çalıştırmada yağ basıncı oluşana kadar zincir tıkırdıyor. İhmal edilirse zincir kılavuzlarının plastik parçaları kırılıp yağ pompası emişini tıkayarak ciddi motor hasarına yol açabiliyor.",
+            detail:
+              "Orijinal zincir gerdiricisinde conta bulunmuyor; motor kapatıldığında yağ boşalıyor ve yeniden çalıştırmada yağ basıncı oluşana kadar zincir tıkırdıyor. İhmal edilirse zincir kılavuzlarının plastik parçaları kırılıp yağ pompası emişini tıkayarak ciddi motor hasarına yol açabiliyor.",
             typicalOnset: "80.000-150.000 km arası, genelde 100.000 km civarı",
             costLevel: "Yüksek",
-            sourceNote: "Çok sayıda bağımsız Vauxhall/Opel forumu ve bağımsız servis kaynağı genelinde tutarlı ve yaygın biçimde belgelenmiş, iyi bilinen bir sorun.",
+            sourceNote:
+              "Çok sayıda bağımsız Vauxhall/Opel forumu ve bağımsız servis kaynağı genelinde tutarlı ve yaygın biçimde belgelenmiş, iyi bilinen bir sorun.",
           },
           {
             id: "astra-16cdti-dpf",
@@ -272,7 +295,8 @@ export const FORD_OPEL_ENTRIES: ModelEntry[] = [
             id: "astra-14turbo-turbo",
             severity: "medium",
             title: "Türbo aşınması ve wastegate arızası",
-            detail: "100.000-150.000 km aralığında türbin çarkı aşınması, arızalı wastegate valfi ve yağ hattı sızıntıları görülüyor; belirtiler arasında zor çalıştırma, belirgin güç kaybı ve mavimsi egzoz dumanı var.",
+            detail:
+              "100.000-150.000 km aralığında türbin çarkı aşınması, arızalı wastegate valfi ve yağ hattı sızıntıları görülüyor; belirtiler arasında zor çalıştırma, belirgin güç kaybı ve mavimsi egzoz dumanı var.",
             typicalOnset: "100.000-150.000 km",
             costLevel: "Yüksek",
             sourceNote: "Birden fazla bağımsız kaynakta tutarlı biçimde tekrarlanan bulgu.",
@@ -281,7 +305,8 @@ export const FORD_OPEL_ENTRIES: ModelEntry[] = [
             id: "astra-14turbo-timingchain",
             severity: "medium",
             title: "Zamanlama zinciri aşınması",
-            detail: "Soğuk çalıştırmada tıkırtı/vuruntu sesi ile kendini gösteriyor; Astra K'da bu belirtiler nispeten erken kilometrelerde de bildiriliyor.",
+            detail:
+              "Soğuk çalıştırmada tıkırtı/vuruntu sesi ile kendini gösteriyor; Astra K'da bu belirtiler nispeten erken kilometrelerde de bildiriliyor.",
             typicalOnset: "60.000 km kadar erken başlayabiliyor",
             costLevel: "Orta",
             sourceNote: "Forum kaynaklarında tekrarlanan bulgu.",

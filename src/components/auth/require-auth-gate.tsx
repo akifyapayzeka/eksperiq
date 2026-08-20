@@ -88,7 +88,6 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
     setPlansDismissed(true);
   }
 
-
   if (step === "checking") {
     return (
       <Screen>
@@ -189,7 +188,8 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
                 <Link href="/gizlilik" className="underline">
                   Gizlilik Politikası
                 </Link>
-                , <Link href="/kullanim-kosullari" className="underline">
+                ,{" "}
+                <Link href="/kullanim-kosullari" className="underline">
                   Kullanım Koşulları
                 </Link>{" "}
                 ve KVKK kapsamında üçüncü taraf bir AI sağlayıcısına geçici veri gönderimini kabul ediyorum.

@@ -140,9 +140,7 @@ export function RepairCostEstimator({ hint }: { hint?: { area: string; signal: s
       </button>
       {locateMessage ? <p className="mt-2 text-sm font-medium text-destructive">{locateMessage}</p> : null}
       <div className="mt-4 rounded-theme-sm border border-accent/20 bg-accent/10 p-4 text-foreground">
-        <p className="text-sm font-medium">
-          Yaklaşık aralık{city ? ` · ${city}` : ""}
-        </p>
+        <p className="text-sm font-medium">Yaklaşık aralık{city ? ` · ${city}` : ""}</p>
         <p className="mt-1 text-2xl font-semibold">
           {range[0].toLocaleString("tr-TR")} - {range[1].toLocaleString("tr-TR")} TL
         </p>

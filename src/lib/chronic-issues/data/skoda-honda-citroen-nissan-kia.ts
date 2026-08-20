@@ -12,7 +12,8 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
     generation: "A7 (3. Nesil)",
     yearFrom: 2013,
     yearTo: 2020,
-    generalNote: "MQB platformunda üretilen A7 nesli, motor ailesine göre değişen kronik sorunlara sahiptir; DSG'li ve TSI'lı versiyonlarda periyodik bakım eksikliği sorunları büyütür.",
+    generalNote:
+      "MQB platformunda üretilen A7 nesli, motor ailesine göre değişen kronik sorunlara sahiptir; DSG'li ve TSI'lı versiyonlarda periyodik bakım eksikliği sorunları büyütür.",
     engines: [
       {
         engineLabel: "1.6 TDI",
@@ -20,16 +21,19 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2013,
         yearTo: 2020,
-        reliabilityNote: "Mekanik olarak dayanıklı kabul edilir, ancak enjektör ve emisyon sistemi arızaları yaygın şikayet konusudur.",
+        reliabilityNote:
+          "Mekanik olarak dayanıklı kabul edilir, ancak enjektör ve emisyon sistemi arızaları yaygın şikayet konusudur.",
         issues: [
           {
             id: "octavia-16tdi-injector",
             severity: "medium",
             title: "Enjektör arızaları (özellikle aynı silindirde tekrarlayan)",
-            detail: "Bazı araçlarda tekrarlayan enjektör arızaları bildirilmiştir; dizel emisyon güncellemesi sonrası ekstra enjeksiyon döngüsü nedeniyle enjektör yükünün arttığı yönünde tekrarlayan gözlemler var.",
+            detail:
+              "Bazı araçlarda tekrarlayan enjektör arızaları bildirilmiştir; dizel emisyon güncellemesi sonrası ekstra enjeksiyon döngüsü nedeniyle enjektör yükünün arttığı yönünde tekrarlayan gözlemler var.",
             typicalOnset: "80.000-150.000 km",
             costLevel: "Orta",
-            sourceNote: "Birden fazla İngiliz otomotiv forumu (BRISKODA) ve teknik servis/soru-cevap sitesi kaynaklı, tekrarlayan raporlar.",
+            sourceNote:
+              "Birden fazla İngiliz otomotiv forumu (BRISKODA) ve teknik servis/soru-cevap sitesi kaynaklı, tekrarlayan raporlar.",
           },
         ],
       },
@@ -39,16 +43,19 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2013,
         yearTo: 2020,
-        reliabilityNote: "Mekanik gövde olarak dayanıklı (200.000+ km) kabul edilir; asıl risk emisyon yan sistemlerinde.",
+        reliabilityNote:
+          "Mekanik gövde olarak dayanıklı (200.000+ km) kabul edilir; asıl risk emisyon yan sistemlerinde.",
         issues: [
           {
             id: "octavia-20tdi-egr-cooler",
             severity: "medium",
             title: "EGR soğutucusunda çatlak / soğutma suyu kaçağı",
-            detail: "EGR soğutucusunun içten çatlayarak soğutma suyunun emme sistemine sızması; beyaz duman, soğutma suyu kaybı ve nadiren hidrolik kilitlenmeye yol açabildiği bildiriliyor.",
+            detail:
+              "EGR soğutucusunun içten çatlayarak soğutma suyunun emme sistemine sızması; beyaz duman, soğutma suyu kaybı ve nadiren hidrolik kilitlenmeye yol açabildiği bildiriliyor.",
             typicalOnset: "100.000-180.000 km",
             costLevel: "Orta",
-            sourceNote: "Bağımsız araç güvenilirlik raporlama siteleri ve teknik servis anlatımları, tutarlı şekilde tekrarlanıyor.",
+            sourceNote:
+              "Bağımsız araç güvenilirlik raporlama siteleri ve teknik servis anlatımları, tutarlı şekilde tekrarlanıyor.",
           },
         ],
       },
@@ -58,16 +65,19 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2013,
         yearTo: 2015,
-        reliabilityNote: "Bu motor kodu esas olarak Octavia A7'nin ilk üretim yıllarında (EA111 geçiş dönemi) görülür; araç bazında motor kodu teyit edilmeli.",
+        reliabilityNote:
+          "Bu motor kodu esas olarak Octavia A7'nin ilk üretim yıllarında (EA111 geçiş dönemi) görülür; araç bazında motor kodu teyit edilmeli.",
         issues: [
           {
             id: "octavia-14tsi-ea111-chain",
             severity: "high",
             title: "Zaman zinciri gergi bilyası (tensioner) erken arızası",
-            detail: "EA111 ailesi 1.2/1.4 TSI motorlarda zaman zinciri gergisinin erken aşınıp zincirde boşluk oluşturması, ciddi motor hasarına yol açabilen bilinen bir tasarım zayıflığı olarak çok sayıda kaynakta tekrarlanıyor.",
+            detail:
+              "EA111 ailesi 1.2/1.4 TSI motorlarda zaman zinciri gergisinin erken aşınıp zincirde boşluk oluşturması, ciddi motor hasarına yol açabilen bilinen bir tasarım zayıflığı olarak çok sayıda kaynakta tekrarlanıyor.",
             typicalOnset: "30.000-80.000 km",
             costLevel: "Yüksek",
-            sourceNote: "VW/Skoda motor teknik incelemeleri ve BRISKODA forumu dahil çok sayıda bağımsız kaynakta tekrar eden, iyi belgelenmiş bir sorun.",
+            sourceNote:
+              "VW/Skoda motor teknik incelemeleri ve BRISKODA forumu dahil çok sayıda bağımsız kaynakta tekrar eden, iyi belgelenmiş bir sorun.",
           },
         ],
       },
@@ -78,16 +88,19 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
         trims: ["TSI ve TDI'nin DSG versiyonları"],
         yearFrom: 2013,
         yearTo: 2020,
-        reliabilityNote: "DSG şanzımanlarda mekatronik ünite ve debriyaj paketi bakımı ihmal edildiğinde ciddi arızalar görülüyor.",
+        reliabilityNote:
+          "DSG şanzımanlarda mekatronik ünite ve debriyaj paketi bakımı ihmal edildiğinde ciddi arızalar görülüyor.",
         issues: [
           {
             id: "octavia-dsg-mechatronic",
             severity: "high",
             title: "Mekatronik ünite / kavrama sensör arızaları",
-            detail: "DSG şanzımanlarda sarsıntılı/gecikmeli vites geçişleri, kavrama pozisyon sensörü arızaları ve mekatronik ünite bozulmaları; yağ ve filtre değişimi periyodu aşıldığında risk artıyor.",
+            detail:
+              "DSG şanzımanlarda sarsıntılı/gecikmeli vites geçişleri, kavrama pozisyon sensörü arızaları ve mekatronik ünite bozulmaları; yağ ve filtre değişimi periyodu aşıldığında risk artıyor.",
             typicalOnset: "80.000-150.000 km (bakımsız araçlarda daha erken)",
             costLevel: "Yüksek",
-            sourceNote: "Şanzıman tamir servisleri (Mister Gearbox, ASR Gearbox Repairs) ve genel otomotiv arıza rehberlerinde tekrarlayan, tutarlı bir tema.",
+            sourceNote:
+              "Şanzıman tamir servisleri (Mister Gearbox, ASR Gearbox Repairs) ve genel otomotiv arıza rehberlerinde tekrarlayan, tutarlı bir tema.",
           },
         ],
       },
@@ -98,7 +111,8 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
     model: "Fabia",
     yearFrom: 2007,
     yearTo: 2021,
-    generalNote: "Mk2 (2007-2014) ve Mk3 (2014-2021) nesilleri farklı motor aileleri kullanır; küçük 3 silindirli ve turbo benzinli motorlarda zincir sorunları öne çıkıyor.",
+    generalNote:
+      "Mk2 (2007-2014) ve Mk3 (2014-2021) nesilleri farklı motor aileleri kullanır; küçük 3 silindirli ve turbo benzinli motorlarda zincir sorunları öne çıkıyor.",
     engines: [
       {
         engineLabel: "1.2 HTP",
@@ -112,7 +126,8 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
             id: "fabia-12htp-chain",
             severity: "high",
             title: "Zaman zinciri gerilme / gergi zayıflığı",
-            detail: "Alüminyum blok ve nispeten ince zaman zinciri kombinasyonu zamanla zincirin gerilmesine ve gerginin zayıflamasına yol açıyor; soğuk startta duyulan çıtırtı sesi erken uyarı işareti, ihmal edilirse zincir atlaması motora ciddi hasar verebiliyor.",
+            detail:
+              "Alüminyum blok ve nispeten ince zaman zinciri kombinasyonu zamanla zincirin gerilmesine ve gerginin zayıflamasına yol açıyor; soğuk startta duyulan çıtırtı sesi erken uyarı işareti, ihmal edilirse zincir atlaması motora ciddi hasar verebiliyor.",
             typicalOnset: "30.000-60.000 km",
             costLevel: "Orta",
             sourceNote: "Bağımsız motor arıza rehberleri ve kullanıcı forumlarında tekrarlayan, tutarlı bir bulgu.",
@@ -125,16 +140,19 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2010,
         yearTo: 2012,
-        reliabilityNote: "2012 öncesi üretilen motorlarda zincir kalitesi sorunlu; 2012 sonrası revize edilen parçalarla güvenilirlik arttığı belirtiliyor.",
+        reliabilityNote:
+          "2012 öncesi üretilen motorlarda zincir kalitesi sorunlu; 2012 sonrası revize edilen parçalarla güvenilirlik arttığı belirtiliyor.",
         issues: [
           {
             id: "fabia-12tsi-chain-early",
             severity: "high",
             title: "Erken zaman zinciri gerilmesi/arızası",
-            detail: "2011 sonu öncesi üretilen motorlarda zincirin birkaç on bin kilometrede erken gerilmesi ve gergi bilyasının arızalanması bildiriliyor.",
+            detail:
+              "2011 sonu öncesi üretilen motorlarda zincirin birkaç on bin kilometrede erken gerilmesi ve gergi bilyasının arızalanması bildiriliyor.",
             typicalOnset: "30.000-60.000 km",
             costLevel: "Yüksek",
-            sourceNote: "BRISKODA ve SEATCUPRA.NET forumlarında, ayrıca bağımsız teknik servis videolarında tekrarlayan, iyi belgelenmiş sorun.",
+            sourceNote:
+              "BRISKODA ve SEATCUPRA.NET forumlarında, ayrıca bağımsız teknik servis videolarında tekrarlayan, iyi belgelenmiş sorun.",
           },
         ],
       },
@@ -150,10 +168,12 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
             id: "fabia-dsg7-electrical",
             severity: "high",
             title: "Şanzıman elektronik/yağ kaynaklı arıza",
-            detail: "7 ileri DSG şanzımanda yağdaki kimyasal değişimlerin elektronik sistemde kısa devreye yol açabildiği, ciddi arızalara neden olduğu bildiriliyor.",
+            detail:
+              "7 ileri DSG şanzımanda yağdaki kimyasal değişimlerin elektronik sistemde kısa devreye yol açabildiği, ciddi arızalara neden olduğu bildiriliyor.",
             typicalOnset: "60.000-100.000 km",
             costLevel: "Yüksek",
-            sourceNote: "Bağımsız otomotiv arıza rehberleri tarafında tekrarlayan bulgu; VW grubu genelinde DQ200 için bilinen bir konu.",
+            sourceNote:
+              "Bağımsız otomotiv arıza rehberleri tarafında tekrarlayan bulgu; VW grubu genelinde DQ200 için bilinen bir konu.",
           },
         ],
       },
@@ -165,7 +185,8 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
     generation: "FK/FC (9. ve 10. Nesil)",
     yearFrom: 2012,
     yearTo: 2021,
-    generalNote: "Honda Civic genel olarak güvenilirlik sıralamalarında iyi performans gösterir; en belirgin sorunlar 1.6 i-DTEC dizel ve 1.0 VTEC Turbo benzinli motorlarda görülüyor.",
+    generalNote:
+      "Honda Civic genel olarak güvenilirlik sıralamalarında iyi performans gösterir; en belirgin sorunlar 1.6 i-DTEC dizel ve 1.0 VTEC Turbo benzinli motorlarda görülüyor.",
     engines: [
       {
         engineLabel: "1.6 i-DTEC",
@@ -173,22 +194,26 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2013,
         yearTo: 2021,
-        reliabilityNote: "Genel olarak dayanıklı kabul edilir ancak enjektör ve kam mili aşınması ile ilgili tekrarlayan raporlar var.",
+        reliabilityNote:
+          "Genel olarak dayanıklı kabul edilir ancak enjektör ve kam mili aşınması ile ilgili tekrarlayan raporlar var.",
         issues: [
           {
             id: "civic-16idtec-injector",
             severity: "medium",
             title: "Enjektör arızaları",
-            detail: "Dizel uzmanlarının aylık olarak birden fazla arızalı 1.6 i-DTEC enjektör seti aldığını bildirmesi, bu motor ailesinde sistemik bir enjektör sorununa işaret ediyor.",
+            detail:
+              "Dizel uzmanlarının aylık olarak birden fazla arızalı 1.6 i-DTEC enjektör seti aldığını bildirmesi, bu motor ailesinde sistemik bir enjektör sorununa işaret ediyor.",
             typicalOnset: "100.000+ km",
             costLevel: "Orta",
-            sourceNote: "Honda Civic sahip forumları (civinfo) ve bağımsız dizel enjektör servisleri kaynaklı tekrarlayan raporlar.",
+            sourceNote:
+              "Honda Civic sahip forumları (civinfo) ve bağımsız dizel enjektör servisleri kaynaklı tekrarlayan raporlar.",
           },
           {
             id: "civic-16idtec-camshaft",
             severity: "medium",
             title: "Kam mili aşınması / eksenel boşluk",
-            detail: "16MY (2016 model yılı) 1.6 i-DTEC motorlarda kam millerinin aşınıp aşırı eksenel boşluk oluşturduğu, düşük devirde ve rölantide gümbürtü sesine yol açtığı bildiriliyor.",
+            detail:
+              "16MY (2016 model yılı) 1.6 i-DTEC motorlarda kam millerinin aşınıp aşırı eksenel boşluk oluşturduğu, düşük devirde ve rölantide gümbürtü sesine yol açtığı bildiriliyor.",
             typicalOnset: "Orta kilometrede, model yılına bağlı",
             costLevel: "Orta",
             sourceNote: "Honda Civic sahip forumu üzerinde tekrarlayan, spesifik model-yılı referanslı rapor.",
@@ -201,16 +226,19 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2017,
         yearTo: 2021,
-        reliabilityNote: "Küçük turbo motor olarak yağ seyrelmesi konusunda dikkat gerektiriyor; Honda bu motor ailesi için yazılım güncellemeleri yayınlamıştır.",
+        reliabilityNote:
+          "Küçük turbo motor olarak yağ seyrelmesi konusunda dikkat gerektiriyor; Honda bu motor ailesi için yazılım güncellemeleri yayınlamıştır.",
         issues: [
           {
             id: "civic-10turbo-dilution",
             severity: "medium",
             title: "Yağ seyrelmesi (benzin karışımı)",
-            detail: "Soğuk havada ve kısa mesafe kullanımda yakıtın motor yağına karışarak yağı seyrelttiği bildiriliyor; Honda ECU yazılım güncellemesi yayınlamıştır.",
+            detail:
+              "Soğuk havada ve kısa mesafe kullanımda yakıtın motor yağına karışarak yağı seyrelttiği bildiriliyor; Honda ECU yazılım güncellemesi yayınlamıştır.",
             typicalOnset: "Kışın/kısa mesafe kullanımda daha belirgin",
             costLevel: "Orta",
-            sourceNote: "Honda sahip forumları ve tüketici basınında tekrarlayan, üretici tarafından da yazılım güncellemesiyle kısmen kabul edilmiş bir sorun.",
+            sourceNote:
+              "Honda sahip forumları ve tüketici basınında tekrarlayan, üretici tarafından da yazılım güncellemesiyle kısmen kabul edilmiş bir sorun.",
           },
         ],
       },
@@ -220,7 +248,8 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2012,
         yearTo: 2021,
-        reliabilityNote: "Genel olarak çok güvenilir kabul edilen motor ailesi; ciddi mekanik kronik arıza paterni bulunmuyor.",
+        reliabilityNote:
+          "Genel olarak çok güvenilir kabul edilen motor ailesi; ciddi mekanik kronik arıza paterni bulunmuyor.",
         issues: [],
       },
     ],
@@ -230,7 +259,8 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
     model: "C-Elysee",
     yearFrom: 2012,
     yearTo: 2022,
-    generalNote: "PSA'nın giriş segmenti sedanı; hem benzinli VTi/Prince hem dizel e-HDi motorlarında belgelenmiş zaman zinciri ve emisyon sistemi sorunları var.",
+    generalNote:
+      "PSA'nın giriş segmenti sedanı; hem benzinli VTi/Prince hem dizel e-HDi motorlarında belgelenmiş zaman zinciri ve emisyon sistemi sorunları var.",
     engines: [
       {
         engineLabel: "1.6 VTi",
@@ -238,16 +268,19 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2012,
         yearTo: 2022,
-        reliabilityNote: "Zaman zinciri gergi sistemi, PSA/BMW Prince motor ailesinde bilinen bir zayıf noktadır ve bazı pazarlarda geri çağırma konusu olmuştur.",
+        reliabilityNote:
+          "Zaman zinciri gergi sistemi, PSA/BMW Prince motor ailesinde bilinen bir zayıf noktadır ve bazı pazarlarda geri çağırma konusu olmuştur.",
         issues: [
           {
             id: "celysee-16vti-chain",
             severity: "high",
             title: "Zaman zinciri gergi tertibatı arızası",
-            detail: "Hidrolik zincir gergisinde kaynaklanan sorunlar zincirde gevşekliğe, motor tarafından duyulan ritmik vuruntu/tıkırtı sesine yol açıyor; ilerlemiş durumda zincir diş atlayabiliyor veya kopabiliyor, ciddi motor hasarına neden olabiliyor. Bazı pazarlarda bu konuda geri çağırma kampanyası yürütülmüştür.",
+            detail:
+              "Hidrolik zincir gergisinde kaynaklanan sorunlar zincirde gevşekliğe, motor tarafından duyulan ritmik vuruntu/tıkırtı sesine yol açıyor; ilerlemiş durumda zincir diş atlayabiliyor veya kopabiliyor, ciddi motor hasarına neden olabiliyor. Bazı pazarlarda bu konuda geri çağırma kampanyası yürütülmüştür.",
             typicalOnset: "Değişken, düzensiz yağ bakımında daha erken",
             costLevel: "Yüksek",
-            sourceNote: "Fransız otomotiv forumları ve tüketici şikayet platformlarında (Şikayetvar) tekrarlayan, çok sayıda kaynakta doğrulanan bir sorun.",
+            sourceNote:
+              "Fransız otomotiv forumları ve tüketici şikayet platformlarında (Şikayetvar) tekrarlayan, çok sayıda kaynakta doğrulanan bir sorun.",
           },
         ],
       },
@@ -257,13 +290,15 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2012,
         yearTo: 2022,
-        reliabilityNote: "EGR/DPF ve enjektör sorunları, kısa mesafe kullanımı ve karter tasarımı kaynaklı yağ tahliye sorunlarıyla ilişkilendiriliyor.",
+        reliabilityNote:
+          "EGR/DPF ve enjektör sorunları, kısa mesafe kullanımı ve karter tasarımı kaynaklı yağ tahliye sorunlarıyla ilişkilendiriliyor.",
         issues: [
           {
             id: "celysee-16ehdi-egr",
             severity: "medium",
             title: "EGR valfi tıkanması / karbon birikimi",
-            detail: "EGR valfinin zamanla kurum birikintisiyle tıkanması motor performansını düşürüyor, emisyonları artırıyor, hatta motorun stop etmesine yol açabiliyor.",
+            detail:
+              "EGR valfinin zamanla kurum birikintisiyle tıkanması motor performansını düşürüyor, emisyonları artırıyor, hatta motorun stop etmesine yol açabiliyor.",
             typicalOnset: "60.000+ km",
             costLevel: "Orta",
             sourceNote: "Bağımsız motor inceleme siteleri ve Fransız/PSA forumlarında tekrarlayan bulgu.",
@@ -272,7 +307,8 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
             id: "celysee-16ehdi-injector-sludge",
             severity: "medium",
             title: "Karter tasarımı kaynaklı yağ tahliye sorunu ve enjektör keçe arızası",
-            detail: "1.6 HDI motorun orijinal karter tasarımının yağ değişiminde tam boşalmaya izin vermediği, kalan yağ/çamurun turbo yağ besleme hatlarını tıkayabildiği ve enjektör keçelerinin arızalanmasına yol açabildiği bildiriliyor.",
+            detail:
+              "1.6 HDI motorun orijinal karter tasarımının yağ değişiminde tam boşalmaya izin vermediği, kalan yağ/çamurun turbo yağ besleme hatlarını tıkayabildiği ve enjektör keçelerinin arızalanmasına yol açabildiği bildiriliyor.",
             typicalOnset: "60.000+ km",
             costLevel: "Orta",
             sourceNote: "Bağımsız motor teknik inceleme kaynağı; PSA HDI motor ailesi için tekrarlayan bir tema.",
@@ -287,7 +323,8 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
     generation: "J10 (2007-2013) ve J11 (2013-2021)",
     yearFrom: 2007,
     yearTo: 2021,
-    generalNote: "İki nesil arasında motor aileleri farklıdır; J11'in 1.2 DIG-T turbo benzinli motoru ve CVT şanzımanı özellikle dikkat gerektiriyor.",
+    generalNote:
+      "İki nesil arasında motor aileleri farklıdır; J11'in 1.2 DIG-T turbo benzinli motoru ve CVT şanzımanı özellikle dikkat gerektiriyor.",
     engines: [
       {
         engineLabel: "1.6 dCi",
@@ -295,7 +332,8 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2011,
         yearTo: 2021,
-        reliabilityNote: "Zaman zinciri kullanır (kayış değil); bakımlı araçlarda zincirle ilgili yaygın bir arıza paterni belgelenmedi.",
+        reliabilityNote:
+          "Zaman zinciri kullanır (kayış değil); bakımlı araçlarda zincirle ilgili yaygın bir arıza paterni belgelenmedi.",
         issues: [
           {
             id: "qashqai-16dci-dpf-egr",
@@ -314,16 +352,19 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2007,
         yearTo: 2013,
-        reliabilityNote: "Nissan'ın bu motor için biyel kolu yatağı aşınmasına yönelik gönüllü servis kampanyası düzenlediği bildiriliyor.",
+        reliabilityNote:
+          "Nissan'ın bu motor için biyel kolu yatağı aşınmasına yönelik gönüllü servis kampanyası düzenlediği bildiriliyor.",
         issues: [
           {
             id: "qashqai-20dci-bearing",
             severity: "high",
             title: "Krank mili biyel yatağı erken aşınması",
-            detail: "Nissan, bu motorda erken biyel kolu yatağı aşınmasına yönelik gönüllü bir servis kampanyası yürütmüştür; yüksek yük/yüksek devirde yatakların arızalanıp motor sıkışmasına yol açabildiği bildiriliyor. İkinci el alımda bu kampanya kapsamındaki işlemin yapılıp yapılmadığının teyit edilmesi öneriliyor.",
+            detail:
+              "Nissan, bu motorda erken biyel kolu yatağı aşınmasına yönelik gönüllü bir servis kampanyası yürütmüştür; yüksek yük/yüksek devirde yatakların arızalanıp motor sıkışmasına yol açabildiği bildiriliyor. İkinci el alımda bu kampanya kapsamındaki işlemin yapılıp yapılmadığının teyit edilmesi öneriliyor.",
             typicalOnset: "150.000-200.000 km (bakımsız araçlarda)",
             costLevel: "Yüksek",
-            sourceNote: "What Car? ve bağımsız güvenilirlik raporlama siteleri üzerinde tekrarlayan, üretici servis kampanyasına dayanan belgelenmiş bir sorun.",
+            sourceNote:
+              "What Car? ve bağımsız güvenilirlik raporlama siteleri üzerinde tekrarlayan, üretici servis kampanyasına dayanan belgelenmiş bir sorun.",
           },
         ],
       },
@@ -333,16 +374,19 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2013,
         yearTo: 2021,
-        reliabilityNote: "Erken üretim (2014-2015) araçlarda yağ tüketimi ve zaman zinciri sorunları yoğun; 2016 ECU yazılım güncellemesi ve revize piston segmanlarıyla iyileştirildiği bildiriliyor.",
+        reliabilityNote:
+          "Erken üretim (2014-2015) araçlarda yağ tüketimi ve zaman zinciri sorunları yoğun; 2016 ECU yazılım güncellemesi ve revize piston segmanlarıyla iyileştirildiği bildiriliyor.",
         issues: [
           {
             id: "qashqai-12digt-chain-oil",
             severity: "high",
             title: "Yağ tüketimi ve zaman zinciri gergi arızası",
-            detail: "Erken üretim 1.2 DIG-T motorlarda aşırı yağ tüketimi bildirilmiş; düşük yağ seviyesi zincir gergisinin yağsız kalıp arızalanmasına yol açıyor, soğuk startta tıkırtı sesiyle kendini gösteriyor. Nissan 2016'da ECU yazılım güncellemesi ve revize piston segmanları yayınlamıştır.",
+            detail:
+              "Erken üretim 1.2 DIG-T motorlarda aşırı yağ tüketimi bildirilmiş; düşük yağ seviyesi zincir gergisinin yağsız kalıp arızalanmasına yol açıyor, soğuk startta tıkırtı sesiyle kendini gösteriyor. Nissan 2016'da ECU yazılım güncellemesi ve revize piston segmanları yayınlamıştır.",
             typicalOnset: "2014-2015 üretim, düşük-orta kilometre",
             costLevel: "Yüksek",
-            sourceNote: "Qashqai sahip forumları ve bağımsız güvenilirlik raporlama siteleri üzerinde çok sayıda tekrarlayan, ayrıntılı belgelenmiş bir sorun.",
+            sourceNote:
+              "Qashqai sahip forumları ve bağımsız güvenilirlik raporlama siteleri üzerinde çok sayıda tekrarlayan, ayrıntılı belgelenmiş bir sorun.",
           },
         ],
       },
@@ -353,16 +397,19 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
         trims: ["1.2 DIG-T ve 1.6 benzinli CVT versiyonları"],
         yearFrom: 2013,
         yearTo: 2021,
-        reliabilityNote: "Nissan'ın 'ömür boyu dolum' iddiasına rağmen periyodik CVT yağı değişiminin şanzıman ömrü için kritik olduğu vurgulanıyor.",
+        reliabilityNote:
+          "Nissan'ın 'ömür boyu dolum' iddiasına rağmen periyodik CVT yağı değişiminin şanzıman ömrü için kritik olduğu vurgulanıyor.",
         issues: [
           {
             id: "qashqai-cvt-overheat-judder",
             severity: "high",
             title: "CVT aşırı ısınma, sarsıntı ve erken arıza",
-            detail: "Trafikte veya yokuş çıkışlarında aşırı ısınma; düşük hızda sarsıntı, gecikmeli hızlanma tepkisi, uğultu sesi ve şanzımanın koruma moduna geçmesi bildiriliyor. Yağın 40.000-60.000 km aralığında NS-3 spesifikasyonuyla değiştirilmemesi durumunda erken arıza riskinin arttığı belirtiliyor.",
+            detail:
+              "Trafikte veya yokuş çıkışlarında aşırı ısınma; düşük hızda sarsıntı, gecikmeli hızlanma tepkisi, uğultu sesi ve şanzımanın koruma moduna geçmesi bildiriliyor. Yağın 40.000-60.000 km aralığında NS-3 spesifikasyonuyla değiştirilmemesi durumunda erken arıza riskinin arttığı belirtiliyor.",
             typicalOnset: "60.000-120.000 km (bakımsız araçlarda)",
             costLevel: "Yüksek",
-            sourceNote: "Qashqai sahip forumları, şanzıman tamir servisleri ve bağımsız güvenilirlik raporlarında tekrarlayan, tutarlı bir bulgu.",
+            sourceNote:
+              "Qashqai sahip forumları, şanzıman tamir servisleri ve bağımsız güvenilirlik raporlarında tekrarlayan, tutarlı bir bulgu.",
           },
         ],
       },
@@ -373,7 +420,8 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
     model: "Sportage",
     yearFrom: 2010,
     yearTo: 2020,
-    generalNote: "Cerato ile Hyundai-Kia'nın Gamma 1.6 GDI benzinli ve CRDi dizel motor ailelerini paylaşır; en belirgin kronik sorunlar direkt enjeksiyonlu benzin motorunda karbon birikimi ve dizel modellerde DPF/DCT şikayetleridir.",
+    generalNote:
+      "Cerato ile Hyundai-Kia'nın Gamma 1.6 GDI benzinli ve CRDi dizel motor ailelerini paylaşır; en belirgin kronik sorunlar direkt enjeksiyonlu benzin motorunda karbon birikimi ve dizel modellerde DPF/DCT şikayetleridir.",
     engines: [
       {
         engineLabel: "1.6 GDI",
@@ -381,16 +429,19 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2010,
         yearTo: 2020,
-        reliabilityNote: "Genel olarak yaygın bir motor arızası paterni yok, ancak direkt enjeksiyon kaynaklı karbon birikimi tekrarlayan şikayetler arasında.",
+        reliabilityNote:
+          "Genel olarak yaygın bir motor arızası paterni yok, ancak direkt enjeksiyon kaynaklı karbon birikimi tekrarlayan şikayetler arasında.",
         issues: [
           {
             id: "sportage-16gdi-carbon",
             severity: "medium",
             title: "Emme supaplarında karbon birikimi (direkt enjeksiyon kaynaklı)",
-            detail: "Direkt enjeksiyon tasarımı gereği yakıtın supap arkasından geçmemesi nedeniyle zamanla emme supaplarında ve emme manifoldunda karbon birikmesi; güç kaybı, düzensiz rölanti, kısılma/misfire ve check engine lambası şeklinde kendini gösteriyor.",
+            detail:
+              "Direkt enjeksiyon tasarımı gereği yakıtın supap arkasından geçmemesi nedeniyle zamanla emme supaplarında ve emme manifoldunda karbon birikmesi; güç kaybı, düzensiz rölanti, kısılma/misfire ve check engine lambası şeklinde kendini gösteriyor.",
             typicalOnset: "40.000-80.000 km",
             costLevel: "Orta",
-            sourceNote: "Kia sahip forumları ve bağımsız motor inceleme siteleri üzerinde tekrarlayan, çok sayıda kaynakta doğrulanan bir tema.",
+            sourceNote:
+              "Kia sahip forumları ve bağımsız motor inceleme siteleri üzerinde tekrarlayan, çok sayıda kaynakta doğrulanan bir tema.",
           },
         ],
       },
@@ -400,13 +451,15 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2010,
         yearTo: 2020,
-        reliabilityNote: "Motor gövdesi dayanıklı kabul edilir; asıl risk DPF/EGR ve turbo yan sistemlerinde yoğunlaşıyor.",
+        reliabilityNote:
+          "Motor gövdesi dayanıklı kabul edilir; asıl risk DPF/EGR ve turbo yan sistemlerinde yoğunlaşıyor.",
         issues: [
           {
             id: "sportage-17crdi-dpf",
             severity: "medium",
             title: "DPF tıkanması / sensör arızaları",
-            detail: "DPF basınç sensörü arızaları, tıkalı sensör hortumları veya kısa mesafe kullanım alışkanlıkları nedeniyle DPF'nin kendini temizleyememesi; DPF uyarı lambası, güç kaybı ve nihayetinde koruma moduna geçiş bildiriliyor.",
+            detail:
+              "DPF basınç sensörü arızaları, tıkalı sensör hortumları veya kısa mesafe kullanım alışkanlıkları nedeniyle DPF'nin kendini temizleyememesi; DPF uyarı lambası, güç kaybı ve nihayetinde koruma moduna geçiş bildiriliyor.",
             typicalOnset: "80.000+ km, kısa mesafe kullanımda daha erken",
             costLevel: "Orta",
             sourceNote: "Bağımsız güvenilirlik raporlama siteleri üzerinde tekrarlayan bulgu.",
@@ -415,7 +468,8 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
             id: "sportage-17crdi-turbo",
             severity: "medium",
             title: "Turbo arızası (yağ açlığı/kirlenmesi kaynaklı)",
-            detail: "Güç kaybı ve artan egzoz dumanıyla kendini gösteren turbo arızaları; yağ açlığı, kirlenme veya genel aşınmaya bağlandığı bildiriliyor.",
+            detail:
+              "Güç kaybı ve artan egzoz dumanıyla kendini gösteren turbo arızaları; yağ açlığı, kirlenme veya genel aşınmaya bağlandığı bildiriliyor.",
             typicalOnset: "100.000+ km",
             costLevel: "Yüksek",
             sourceNote: "Bağımsız güvenilirlik raporlama siteleri üzerinde tekrarlayan bulgu.",
@@ -435,7 +489,8 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
             id: "sportage-dct-shudder",
             severity: "medium",
             title: "Kalkışta sarsıntı ve erken kavrama aşınması",
-            detail: "Özellikle stop-and-go trafikte kalkış anında sarsıntı, tereddüt ve erken kavrama aşınması sıkça bildiriliyor.",
+            detail:
+              "Özellikle stop-and-go trafikte kalkış anında sarsıntı, tereddüt ve erken kavrama aşınması sıkça bildiriliyor.",
             typicalOnset: "50.000-100.000 km",
             costLevel: "Orta",
             sourceNote: "Bağımsız güvenilirlik raporlama siteleri üzerinde tekrarlayan bulgu.",
@@ -462,7 +517,8 @@ export const SKODA_HONDA_CITROEN_NISSAN_KIA_ENTRIES: ModelEntry[] = [
             id: "cerato-16gdi-carbon",
             severity: "medium",
             title: "Emme supaplarında karbon birikimi (direkt enjeksiyon kaynaklı)",
-            detail: "Direkt enjeksiyon tasarımı gereği zamanla emme supaplarında karbon birikmesi; güç kaybı, düzensiz rölanti ve check engine lambası şeklinde kendini gösteriyor.",
+            detail:
+              "Direkt enjeksiyon tasarımı gereği zamanla emme supaplarında karbon birikmesi; güç kaybı, düzensiz rölanti ve check engine lambası şeklinde kendini gösteriyor.",
             typicalOnset: "40.000-80.000 km",
             costLevel: "Orta",
             sourceNote: "Kia sahip forumları ve bağımsız motor inceleme siteleri üzerinde tekrarlayan bulgu.",

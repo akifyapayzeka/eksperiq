@@ -50,7 +50,8 @@ export default function ExpertiseReportPage() {
   const [message, setMessage] = useState("");
   const [analysis, setAnalysis] = useState<ReportAnalysis | null>(null);
 
-  const canRunAi = isExpertiseReportAiEnabled && Boolean(selectedFile) && consent && status !== "loading" && status !== "preparing";
+  const canRunAi =
+    isExpertiseReportAiEnabled && Boolean(selectedFile) && consent && status !== "loading" && status !== "preparing";
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.currentTarget.files?.[0] ?? null;
@@ -143,12 +144,15 @@ export default function ExpertiseReportPage() {
             <p className="font-semibold text-foreground">Raporu okumadan önce bilmeniz gereken 3 şey</p>
             <ul className="mt-2 grid gap-1 text-sm leading-6">
               <li>
-                <strong className="text-foreground">Orijinal</strong> normaldir. <strong className="text-foreground">Boyalı</strong>{" "}
-                genelde kozmetiktir (tampon/çamurluk gibi darbe alan parçalarda sık görülür). Kaput, tavan, direk veya
-                şaside <strong className="text-foreground">değişen/işlem</strong> görülmesi ise ağır kaza geçmişine
-                işaret edebilir — bu bölgelere özellikle dikkat edin.
+                <strong className="text-foreground">Orijinal</strong> normaldir.{" "}
+                <strong className="text-foreground">Boyalı</strong> genelde kozmetiktir (tampon/çamurluk gibi darbe alan
+                parçalarda sık görülür). Kaput, tavan, direk veya şaside{" "}
+                <strong className="text-foreground">değişen/işlem</strong> görülmesi ise ağır kaza geçmişine işaret
+                edebilir — bu bölgelere özellikle dikkat edin.
               </li>
-              <li>Ekspertiz firmasını her zaman siz (alıcı) seçin; satıcının anlaşmalı olduğu firma kusur gizleyebilir.</li>
+              <li>
+                Ekspertiz firmasını her zaman siz (alıcı) seçin; satıcının anlaşmalı olduğu firma kusur gizleyebilir.
+              </li>
               <li>1 yıldan eski bir ekspertiz raporuna güvenmeyin, aracın durumu değişmiş olabilir.</li>
             </ul>
           </InfoAlert>

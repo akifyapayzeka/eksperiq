@@ -320,8 +320,8 @@ export function AnalysisForm() {
           Analiz için araç bilgilerini doldurun
         </h2>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">
-          İlan linkiyle otomatik doldurabilir veya bildiğiniz bilgileri kendiniz girebilirsiniz. Eksik bilgiler
-          raporda satıcıya sorulacak noktalar olarak gösterilir.
+          İlan linkiyle otomatik doldurabilir veya bildiğiniz bilgileri kendiniz girebilirsiniz. Eksik bilgiler raporda
+          satıcıya sorulacak noktalar olarak gösterilir.
         </p>
         <p className="mt-4 text-xs leading-5 text-muted-foreground">{appConfig.privacy}</p>
       </section>

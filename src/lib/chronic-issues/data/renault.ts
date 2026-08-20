@@ -21,22 +21,26 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
         engineLabel: "1.5 dCi",
         fuelType: "Dizel",
         transmission: "Manuel",
-        reliabilityNote: "K9K, Avrupa'nın en çok üretilen dizel motorlarından biri; blok kendisi 200.000 km üzerini görebiliyor, ancak destekleyici sistemler (enjektör, EGR, turbo) zayıf nokta olarak öne çıkıyor.",
+        reliabilityNote:
+          "K9K, Avrupa'nın en çok üretilen dizel motorlarından biri; blok kendisi 200.000 km üzerini görebiliyor, ancak destekleyici sistemler (enjektör, EGR, turbo) zayıf nokta olarak öne çıkıyor.",
         issues: [
           {
             id: "clio-15dci-enjektor",
             severity: "high",
             title: "Common rail enjektör arızası",
-            detail: "Enjektörler düşük kilometrede bile sorun çıkarabiliyor; tekleme, rölanti bozukluğu, siyah duman, çalışma güçlüğü ve metalik vuruntu şeklinde belirti veriyor.",
+            detail:
+              "Enjektörler düşük kilometrede bile sorun çıkarabiliyor; tekleme, rölanti bozukluğu, siyah duman, çalışma güçlüğü ve metalik vuruntu şeklinde belirti veriyor.",
             typicalOnset: "100.000 km sonrası artan sıklıkta",
             costLevel: "Yüksek",
-            sourceNote: "Birden fazla bağımsız teknik kaynakta K9K enjektörlerinin tasarımsal zayıf nokta olduğu tekrar ediyor.",
+            sourceNote:
+              "Birden fazla bağımsız teknik kaynakta K9K enjektörlerinin tasarımsal zayıf nokta olduğu tekrar ediyor.",
           },
           {
             id: "clio-15dci-turbo-egr",
             severity: "medium",
             title: "Turbo ve EGR/DPF tıkanması",
-            detail: "Turbo kanat mekanizması ve EGR valfi tıkanması/yapışması yaygın arıza noktaları arasında; kısa mesafe kullanımda DPF de tıkanabiliyor.",
+            detail:
+              "Turbo kanat mekanizması ve EGR valfi tıkanması/yapışması yaygın arıza noktaları arasında; kısa mesafe kullanımda DPF de tıkanabiliyor.",
             costLevel: "Orta",
             sourceNote: "Bağımsız motor inceleme kaynakları ve K9K teknik incelemeleri.",
           },
@@ -44,7 +48,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
             id: "clio-15dci-dmf",
             severity: "medium",
             title: "Çift kütleli volan (DMF) / debriyaj aşınması",
-            detail: "Manuel şanzımanlı dCi modellerde çift kütleli volan iç yayları zamanla zayıflar; debriyaj basarken sarsıntı, rölantide takırtı ve hızlanmada titreşim görülür.",
+            detail:
+              "Manuel şanzımanlı dCi modellerde çift kütleli volan iç yayları zamanla zayıflar; debriyaj basarken sarsıntı, rölantide takırtı ve hızlanmada titreşim görülür.",
             typicalOnset: "100.000-150.000 km",
             costLevel: "Yüksek",
             sourceNote: "Renault/Megane sahip forumları, K9K dCi raporlarıyla tutarlı.",
@@ -55,7 +60,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
         engineLabel: "1.2 16V",
         fuelType: "Benzin",
         transmission: "Manuel",
-        reliabilityNote: "Doğal emişli, görece basit yapılı bir motor; triger kayışı zamanında değiştirildiğinde 200.000 km üzerini rahatlıkla görebiliyor. Bu motora özgü belgelenmiş bir kronik mekanik arıza kalıbı bulunamadı.",
+        reliabilityNote:
+          "Doğal emişli, görece basit yapılı bir motor; triger kayışı zamanında değiştirildiğinde 200.000 km üzerini rahatlıkla görebiliyor. Bu motora özgü belgelenmiş bir kronik mekanik arıza kalıbı bulunamadı.",
         issues: [],
       },
       {
@@ -70,7 +76,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
             id: "clio-16-16v-bobin",
             severity: "medium",
             title: "Ateşleme bobini arızası",
-            detail: "Tekleme, sarsıntılı çalışma, güç kaybı ve yanıp sönen arıza lambası ile kendini gösterir; yakıt tüketimini artırır.",
+            detail:
+              "Tekleme, sarsıntılı çalışma, güç kaybı ve yanıp sönen arıza lambası ile kendini gösterir; yakıt tüketimini artırır.",
             typicalOnset: "80.000-140.000 km",
             costLevel: "Düşük",
             sourceNote: "Motor inceleme kaynakları (aynı K4M ailesi için genel bulgular).",
@@ -79,7 +86,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
             id: "clio-16-16v-vvt",
             severity: "medium",
             title: "Değişken supap zamanlaması (VVT) kasnağı arızası",
-            detail: "Soğuk çalıştırmada takırtı sesi ve kalıcı arıza lambası ile ortaya çıkar; yağ bakımı ihmal edildiğinde daha erken görülür.",
+            detail:
+              "Soğuk çalıştırmada takırtı sesi ve kalıcı arıza lambası ile ortaya çıkar; yağ bakımı ihmal edildiğinde daha erken görülür.",
             typicalOnset: "~100.000 km sonrası",
             costLevel: "Orta",
             sourceNote: "K4M motor ailesi için tekrarlanan teknik kaynaklar.",
@@ -97,7 +105,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
             id: "clio4-09tce-triger",
             severity: "high",
             title: "Triger zinciri ve gergi arızası",
-            detail: "Zincir gerginliğini kaybediyor, gergi mekanizması erken aşınabiliyor; sabah soğuk çalıştırmada belirgin zincir sesi tipik erken belirti.",
+            detail:
+              "Zincir gerginliğini kaybediyor, gergi mekanizması erken aşınabiliyor; sabah soğuk çalıştırmada belirgin zincir sesi tipik erken belirti.",
             typicalOnset: "~100.000 km civarı, bakım geçmişine bağlı olarak daha erken de olabilir",
             costLevel: "Yüksek",
             sourceNote: "Renault servis paylaşımları ve bağımsız motor incelemeleri.",
@@ -110,13 +119,15 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2013,
         yearTo: 2019,
-        reliabilityNote: "Birden fazla bağımsız kaynakta belgelenmiş kalıcı tasarım sorunları olan, ikinci elde dikkatli değerlendirilmesi gereken bir motor ailesi.",
+        reliabilityNote:
+          "Birden fazla bağımsız kaynakta belgelenmiş kalıcı tasarım sorunları olan, ikinci elde dikkatli değerlendirilmesi gereken bir motor ailesi.",
         issues: [
           {
             id: "clio4-12tce-yag",
             severity: "high",
             title: "Aşırı yağ tüketimi",
-            detail: "Piston/segman/silindir toleranslarının geniş olması nedeniyle yağ yanma odasına geçiyor; 1000 km'de 1 litreyi aşan tüketim vakaları raporlanmış.",
+            detail:
+              "Piston/segman/silindir toleranslarının geniş olması nedeniyle yağ yanma odasına geçiyor; 1000 km'de 1 litreyi aşan tüketim vakaları raporlanmış.",
             costLevel: "Yüksek",
             sourceNote: "Bağımsız motor inceleme kaynakları (H5Ft motor incelemeleri).",
           },
@@ -124,7 +135,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
             id: "clio4-12tce-triger",
             severity: "high",
             title: "Triger zinciri erken gerginlik kaybı",
-            detail: "Ömür boyu tasarlanmış olmasına rağmen zincir erken uzayabiliyor; zinciri yağlayan yağ memesinin kurumla tıkanması sorunu ağırlaştırıyor.",
+            detail:
+              "Ömür boyu tasarlanmış olmasına rağmen zincir erken uzayabiliyor; zinciri yağlayan yağ memesinin kurumla tıkanması sorunu ağırlaştırıyor.",
             typicalOnset: "80.000-120.000 km",
             costLevel: "Yüksek",
             sourceNote: "Bağımsız motor inceleme kaynakları ve forum tartışmaları.",
@@ -133,7 +145,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
             id: "clio4-12tce-supap-turbo",
             severity: "high",
             title: "Supap hasarı ve turbo yağ açlığı",
-            detail: "Yanma odasında yanan yağ egzoz sıcaklığını artırarak supaplarda çarpılma/yanmaya yol açabiliyor; tıkanan yağ hatları turbo yataklarında yağ açlığına neden olabiliyor.",
+            detail:
+              "Yanma odasında yanan yağ egzoz sıcaklığını artırarak supaplarda çarpılma/yanmaya yol açabiliyor; tıkanan yağ hatları turbo yataklarında yağ açlığına neden olabiliyor.",
             typicalOnset: "~100.000 km sonrası",
             costLevel: "Yüksek",
             sourceNote: "Bağımsız motor güvenilirlik değerlendirmeleri.",
@@ -160,7 +173,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
             id: "megane-15dci-enjektor",
             severity: "high",
             title: "Common rail enjektör arızası",
-            detail: "K9K'nın en çok bilinen zayıf noktası; tekleme, güç kaybı, siyah duman ve zor çalışma ile kendini gösterir.",
+            detail:
+              "K9K'nın en çok bilinen zayıf noktası; tekleme, güç kaybı, siyah duman ve zor çalışma ile kendini gösterir.",
             typicalOnset: "100.000 km sonrası",
             costLevel: "Yüksek",
             sourceNote: "Bağımsız güvenilirlik raporları Megane 1.5 dCi'nin zayıf noktası olarak açıkça belirtiyor.",
@@ -169,7 +183,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
             id: "megane-15dci-egr-dpf",
             severity: "medium",
             title: "Turbo ve EGR/DPF tıkanması",
-            detail: "Turbo kanat mekanizması ve EGR valfi tıkanması güç kaybı ve arıza lambasına yol açabiliyor; kısa mesafe kullanımda DPF de tıkanabiliyor.",
+            detail:
+              "Turbo kanat mekanizması ve EGR valfi tıkanması güç kaybı ve arıza lambasına yol açabiliyor; kısa mesafe kullanımda DPF de tıkanabiliyor.",
             costLevel: "Orta",
             sourceNote: "Genel K9K teknik incelemeleri.",
           },
@@ -195,7 +210,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
             id: "megane3-19dci-pompa",
             severity: "high",
             title: "Yüksek basınç pompası arızası",
-            detail: "Pompa iç yapısı dağılabiliyor; ortaya çıkan metal parçacıklar tüm yakıt sistemine (enjektörler dahil) yayılıp ciddi hasara yol açabiliyor.",
+            detail:
+              "Pompa iç yapısı dağılabiliyor; ortaya çıkan metal parçacıklar tüm yakıt sistemine (enjektörler dahil) yayılıp ciddi hasara yol açabiliyor.",
             costLevel: "Yüksek",
             sourceNote: "Sahip forumları tartışmaları (1.9 dCi yüksek basınç pompası arızaları).",
           },
@@ -215,7 +231,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2008,
         yearTo: 2016,
-        reliabilityNote: "Genel olarak sağlam kabul edilen, 250.000 km üzerini görebilen bir motor; triger kayışı zamanında değiştirilmeli.",
+        reliabilityNote:
+          "Genel olarak sağlam kabul edilen, 250.000 km üzerini görebilen bir motor; triger kayışı zamanında değiştirilmeli.",
         issues: [
           {
             id: "megane3-16-16v-bobin",
@@ -243,7 +260,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2008,
         yearTo: 2016,
-        reliabilityNote: "Doğal emişli, düzgün çalışan, triger kayışlı (zincirli değil) bir motor; belgelenmiş kronik mekanik arıza bulunamadı.",
+        reliabilityNote:
+          "Doğal emişli, düzgün çalışan, triger kayışlı (zincirli değil) bir motor; belgelenmiş kronik mekanik arıza bulunamadı.",
         issues: [],
       },
       {
@@ -257,7 +275,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
             id: "megane3-14tce-conta",
             severity: "high",
             title: "Silindir kapağı contası (head gasket) arızası",
-            detail: "3. silindirde aşırı ısınma, soğutma sıvısı kaybı ve egzoz gazının soğutma sistemine karışması ile kendini gösterir.",
+            detail:
+              "3. silindirde aşırı ısınma, soğutma sıvısı kaybı ve egzoz gazının soğutma sistemine karışması ile kendini gösterir.",
             costLevel: "Yüksek",
             sourceNote: "Bağımsız güvenilirlik raporları ve sahip forumları.",
           },
@@ -265,7 +284,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
             id: "megane3-14tce-turbo",
             severity: "medium",
             title: "Turbo arızası",
-            detail: "Yetersiz yağlama veya arızalı wastegate nedeniyle turbo aşırı basınca maruz kalıp erken yıpranabiliyor.",
+            detail:
+              "Yetersiz yağlama veya arızalı wastegate nedeniyle turbo aşırı basınca maruz kalıp erken yıpranabiliyor.",
             costLevel: "Orta",
             sourceNote: "Bağımsız motor inceleme kaynakları.",
           },
@@ -286,7 +306,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2014,
         yearTo: 2020,
-        reliabilityNote: "Birden fazla bağımsız kaynakta güvenilirlik puanı düşük olarak raporlanıyor; tasarım kusurlarının geri döndürülemez olduğu belirtiliyor.",
+        reliabilityNote:
+          "Birden fazla bağımsız kaynakta güvenilirlik puanı düşük olarak raporlanıyor; tasarım kusurlarının geri döndürülemez olduğu belirtiliyor.",
         issues: [
           {
             id: "megane-12tce-yag",
@@ -300,7 +321,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
             id: "megane-12tce-triger-supap",
             severity: "high",
             title: "Triger zinciri ve supap hasarı",
-            detail: "Zincir erken gerginlik kaybedebiliyor; yağ yanmasının yol açtığı yüksek egzoz sıcaklıkları supaplarda çarpılma/yanmaya neden olabiliyor.",
+            detail:
+              "Zincir erken gerginlik kaybedebiliyor; yağ yanmasının yol açtığı yüksek egzoz sıcaklıkları supaplarda çarpılma/yanmaya neden olabiliyor.",
             typicalOnset: "80.000-120.000 km",
             costLevel: "Yüksek",
             sourceNote: "Bağımsız motor inceleme kaynakları.",
@@ -322,13 +344,15 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
         transmission: "Manuel",
         yearFrom: 2018,
         yearTo: 2020,
-        reliabilityNote: "1.2 TCe'ye kıyasla belirgin şekilde daha güvenilir bulunmuş; 150.000 km üzerini büyük sorun yaşamadan gören örnekler bildiriliyor.",
+        reliabilityNote:
+          "1.2 TCe'ye kıyasla belirgin şekilde daha güvenilir bulunmuş; 150.000 km üzerini büyük sorun yaşamadan gören örnekler bildiriliyor.",
         issues: [
           {
             id: "megane4-13tce-karbon",
             severity: "low",
             title: "Emme supaplarında karbon birikimi",
-            detail: "Direkt enjeksiyonlu motorlarda tipik olan bir durum; hafif rölanti bozukluğu, hafif güç kaybı ve artan yakıt tüketimi olarak kendini gösterir.",
+            detail:
+              "Direkt enjeksiyonlu motorlarda tipik olan bir durum; hafif rölanti bozukluğu, hafif güç kaybı ve artan yakıt tüketimi olarak kendini gösterir.",
             typicalOnset: "80.000-120.000 km",
             costLevel: "Orta",
             sourceNote: "Bağımsız motor inceleme kaynakları.",
@@ -337,7 +361,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
             id: "megane4-13tce-edc",
             severity: "medium",
             title: "7 ileri EDC şanzımanda sarsıntılı vites geçişi",
-            detail: "Özellikle facelift öncesi modellerde 1-2 vites geçişinde sertlik ve düşük hızda sarsıntı bildiriliyor.",
+            detail:
+              "Özellikle facelift öncesi modellerde 1-2 vites geçişinde sertlik ve düşük hızda sarsıntı bildiriliyor.",
             costLevel: "Orta",
             sourceNote: "Kullanılmış araç rehberi kaynakları.",
           },
@@ -354,7 +379,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
             id: "megane4-16dci-egr",
             severity: "medium",
             title: "EGR valfi tıkanması",
-            detail: "Kısa mesafe/şehir içi kullanımda sık tıkanan bir arıza noktası; emisyon sistemi uyarısını tetikleyebiliyor.",
+            detail:
+              "Kısa mesafe/şehir içi kullanımda sık tıkanan bir arıza noktası; emisyon sistemi uyarısını tetikleyebiliyor.",
             costLevel: "Orta",
             sourceNote: "Kullanıcı soru-cevap platformları.",
           },
@@ -382,13 +408,15 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
         engineLabel: "1.5 dCi",
         fuelType: "Dizel",
         transmission: "Manuel",
-        reliabilityNote: "Kanıtlanmış ve ekonomik bir motor olarak tanımlanıyor, ancak enjektörler yakıt kalitesine duyarlı; 2011 öncesi modellerde kurum birikimi eğilimi bildiriliyor.",
+        reliabilityNote:
+          "Kanıtlanmış ve ekonomik bir motor olarak tanımlanıyor, ancak enjektörler yakıt kalitesine duyarlı; 2011 öncesi modellerde kurum birikimi eğilimi bildiriliyor.",
         issues: [
           {
             id: "fluence-15dci-enjektor",
             severity: "medium",
             title: "Enjektör arızası / yakıt kalitesine duyarlılık",
-            detail: "Düşük kaliteli yakıtla kurum birikimi ve enjektör tıkanması; tekleme ve güç kaybına yol açabiliyor.",
+            detail:
+              "Düşük kaliteli yakıtla kurum birikimi ve enjektör tıkanması; tekleme ve güç kaybına yol açabiliyor.",
             costLevel: "Yüksek",
             sourceNote: "Bağımsız motor arıza rehberi kaynakları.",
           },

@@ -16,7 +16,10 @@ const setOpts = { shouldDirty: true, shouldTouch: true, shouldValidate: true } a
  * brand's real model catalog so an unmatched guess is left blank instead of
  * silently corrupting the field.
  */
-export function applyImportedFieldsToForm(fields: ImportedListingFields, setValue: UseFormSetValue<VehicleFormInput>): void {
+export function applyImportedFieldsToForm(
+  fields: ImportedListingFields,
+  setValue: UseFormSetValue<VehicleFormInput>,
+): void {
   if (fields.brand) setValue("brand", fields.brand, setOpts);
 
   if (fields.model && fields.brand) {

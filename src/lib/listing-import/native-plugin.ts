@@ -16,6 +16,4 @@ export interface EksperIQListingFetchPluginInterface extends Plugin {
 }
 
 /** Bridges to ios/App/App/Plugins/EksperIQListingFetchPlugin.swift. Native-only — see importListing(). */
-export const EksperIQListingFetchPlugin = registerPlugin<EksperIQListingFetchPluginInterface>(
-  "EksperIQListingFetch",
-);
+export const EksperIQListingFetchPlugin = registerPlugin<EksperIQListingFetchPluginInterface>("EksperIQListingFetch");

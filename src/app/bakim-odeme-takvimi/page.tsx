@@ -116,8 +116,8 @@ export default function MaintenancePaymentCalendarHubPage() {
             <h2 className="text-xl font-semibold text-foreground">Bildirimler</h2>
           </div>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Açarsanız, bir tarihe 30 gün ve 15 gün kala telefonunuza bildirim gönderilir (uygulama kapalıyken de).
-            Bu ayar bakım ve vergi tarihlerinin tümü için geçerlidir.
+            Açarsanız, bir tarihe 30 gün ve 15 gün kala telefonunuza bildirim gönderilir (uygulama kapalıyken de). Bu
+            ayar bakım ve vergi tarihlerinin tümü için geçerlidir.
           </p>
           {pushState === "not-configured" ? (
             <p className="mt-3 rounded-theme-sm border border-warning/30 bg-warning/10 px-3 py-2 text-sm font-medium text-foreground">

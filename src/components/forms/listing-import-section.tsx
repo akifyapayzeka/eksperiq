@@ -28,7 +28,8 @@ const errorMessages: Record<string, string> = {
   "invalid-url": "Bu bağlantı desteklenmiyor. Desteklenen ilan sitelerinden birinin bağlantısını yapıştırın.",
   "unsupported-platform": "İlan linkiyle otomatik doldurma yalnızca mobil uygulamada kullanılabilir.",
   "fetch-failed": "İlan sayfası açılamadı. Bağlantıyı kontrol edip tekrar deneyin.",
-  blocked: "Bu ilan otomatik olarak alınamadı. Ekran görüntüsü, ekspertiz raporu veya manuel girişle devam edebilirsiniz.",
+  blocked:
+    "Bu ilan otomatik olarak alınamadı. Ekran görüntüsü, ekspertiz raporu veya manuel girişle devam edebilirsiniz.",
   "ai-failed": "İlan bilgileri işlenemedi. Birazdan tekrar deneyin veya manuel doldurun.",
   "rate-limited": "Çok fazla içe aktarma denemesi yapıldı. Birazdan tekrar deneyin.",
 };
@@ -86,7 +87,8 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
     if (!consent) {
       setImportSession({
         status: "error",
-        errorMessage: "İlan sayfası içeriğinin üçüncü taraf bir AI sağlayıcısına gönderilmesini onaylamadan devam edilemez.",
+        errorMessage:
+          "İlan sayfası içeriğinin üçüncü taraf bir AI sağlayıcısına gönderilmesini onaylamadan devam edilemez.",
       });
       return;
     }
@@ -139,7 +141,10 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
   const progressPercent = computeDisplayPercent(stage, stageStartedAt, now);
 
   return (
-    <section className="rounded-theme border border-accent/20 bg-card p-4 shadow-sm" aria-labelledby="listing-import-title">
+    <section
+      className="rounded-theme border border-accent/20 bg-card p-4 shadow-sm"
+      aria-labelledby="listing-import-title"
+    >
       <div className="flex items-center gap-2">
         <LinkIcon aria-hidden="true" className="h-5 w-5 text-accent" />
         <h2 id="listing-import-title" className="font-semibold text-foreground">
@@ -162,8 +167,8 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
             className="mt-1 h-4 w-4 shrink-0 accent-primary"
           />
           <span>
-            İlan sayfasından çıkarılan metnin üçüncü taraf bir AI sağlayıcısına geçici olarak gönderileceğini anladım
-            ve onaylıyorum.
+            İlan sayfasından çıkarılan metnin üçüncü taraf bir AI sağlayıcısına geçici olarak gönderileceğini anladım ve
+            onaylıyorum.
           </span>
         </label>
       ) : null}
@@ -223,8 +228,8 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
             />
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            Bu işlem sayfayı açıp araç bilgilerini analiz ettiği için genelde 10-30 saniye sürer, bağlantı yavaşsa
-            veya bir kez otomatik tekrar denenirse birkaç dakikaya kadar çıkabilir. Uygulamayı kapatmadan ana ekrana
+            Bu işlem sayfayı açıp araç bilgilerini analiz ettiği için genelde 10-30 saniye sürer, bağlantı yavaşsa veya
+            bir kez otomatik tekrar denenirse birkaç dakikaya kadar çıkabilir. Uygulamayı kapatmadan ana ekrana
             dönebilirsiniz — bittiğinde bildirim gönderilir.
           </p>
         </div>

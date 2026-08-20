@@ -56,7 +56,7 @@ export const VEHICLE_MODELS_BY_BRAND: Record<string, string[]> = {
   Toyota: ["Corolla", "Yaris", "C-HR", "RAV4", "Auris", "Camry", "Hilux", "Corolla Cross"],
   Hyundai: ["i20", "i10", "Elantra", "Tucson", "Bayon", "Accent Blue", "Kona", "Santa Fe"],
   Peugeot: ["208", "301", "308", "2008", "3008", "508", "5008", "Partner"],
-  "Citroën": ["C3", "C-Elysée", "C4", "C4 Cactus", "Berlingo", "C5 Aircross"],
+  Citroën: ["C3", "C-Elysée", "C4", "C4 Cactus", "Berlingo", "C5 Aircross"],
   Dacia: ["Duster", "Sandero", "Logan", "Jogger", "Spring"],
   BMW: ["1 Serisi", "2 Serisi", "3 Serisi", "4 Serisi", "5 Serisi", "X1", "X3", "X5"],
   "Mercedes-Benz": ["A Serisi", "B Serisi", "C Serisi", "E Serisi", "CLA", "GLA", "GLC", "Vito"],
@@ -77,7 +77,7 @@ export const VEHICLE_MODELS_BY_BRAND: Record<string, string[]> = {
   "Alfa Romeo": ["Giulietta", "Giulia", "Stelvio", "Mito"],
   Chevrolet: ["Aveo", "Cruze", "Captiva", "Spark", "Lacetti"],
   MG: ["ZS", "HS", "MG5", "MG4"],
-  "Tofaş": ["Şahin", "Doğan", "Kartal", "Fiat Doblo (Tofaş üretim)"],
+  Tofaş: ["Şahin", "Doğan", "Kartal", "Fiat Doblo (Tofaş üretim)"],
   Togg: ["T10X"],
 };
 

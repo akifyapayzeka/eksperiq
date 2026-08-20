@@ -114,7 +114,9 @@ export default function Home() {
     }
   }
 
-  const maintenanceReminders = reminders.filter((reminder) => !TAX_CATEGORIES.has(reminder.category)).slice(0, MAX_LIST_ITEMS);
+  const maintenanceReminders = reminders
+    .filter((reminder) => !TAX_CATEGORIES.has(reminder.category))
+    .slice(0, MAX_LIST_ITEMS);
   const taxReminders = reminders.filter((reminder) => TAX_CATEGORIES.has(reminder.category)).slice(0, MAX_LIST_ITEMS);
 
   return (
@@ -170,7 +172,11 @@ export default function Home() {
       />
 
       <section className="mt-7">
-        <SectionHeader title="Aracın" description="Kayıtlı araç bilgileri" action={<Link href="/arac-saglik-karnesi">Garajı aç</Link>} />
+        <SectionHeader
+          title="Aracın"
+          description="Kayıtlı araç bilgileri"
+          action={<Link href="/arac-saglik-karnesi">Garajı aç</Link>}
+        />
         {!isReady ? (
           <LoadingSkeleton />
         ) : vehicle ? (
