@@ -18,6 +18,41 @@ function base64url(input) {
   return Buffer.from(input).toString("base64url");
 }
 
+function readDerLength(signature, offset) {
+  const first = signature[offset];
+  if (first < 0x80) return { length: first, bytes: 1 };
+  const byteCount = first & 0x7f;
+  let length = 0;
+  for (let index = 0; index < byteCount; index += 1) {
+    length = (length << 8) + signature[offset + 1 + index];
+  }
+  return { length, bytes: 1 + byteCount };
+}
+
+function normalizeInteger(bytes) {
+  let value = bytes;
+  while (value.length > 0 && value[0] === 0) value = value.subarray(1);
+  if (value.length > 32) fail("ES256 signature integer is longer than 32 bytes.");
+  if (value.length === 32) return value;
+  return Buffer.concat([Buffer.alloc(32 - value.length), value]);
+}
+
+function derToJose(signature) {
+  if (signature[0] !== 0x30) fail("ES256 signature is not a DER sequence.");
+  const sequence = readDerLength(signature, 1);
+  let offset = 1 + sequence.bytes;
+  if (signature[offset] !== 0x02) fail("ES256 signature is missing r integer.");
+  const rLength = readDerLength(signature, offset + 1);
+  offset += 1 + rLength.bytes;
+  const r = signature.subarray(offset, offset + rLength.length);
+  offset += rLength.length;
+  if (signature[offset] !== 0x02) fail("ES256 signature is missing s integer.");
+  const sLength = readDerLength(signature, offset + 1);
+  offset += 1 + sLength.bytes;
+  const s = signature.subarray(offset, offset + sLength.length);
+  return Buffer.concat([normalizeInteger(r), normalizeInteger(s)]);
+}
+
 function readPrivateKey() {
   const raw = process.env.APP_STORE_CONNECT_API_KEY_P8_BASE64;
   if (!raw) fail("APP_STORE_CONNECT_API_KEY_P8_BASE64 is missing.");
@@ -43,7 +78,7 @@ function createJwt() {
     exp: now + 15 * 60,
   };
   const signingInput = `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(payload))}`;
-  const signature = sign("sha256", Buffer.from(signingInput), createPrivateKey(readPrivateKey()));
+  const signature = derToJose(sign("sha256", Buffer.from(signingInput), createPrivateKey(readPrivateKey())));
   return `${signingInput}.${signature.toString("base64url")}`;
 }
 
