@@ -98,6 +98,25 @@ function profileEngines(spec: Spec): EngineVariant[] {
     case "alfa-premium":
       return [
         {
+          engineLabel: "1.5 MHEV / 1.3 PHEV",
+          fuelType: "Hibrit",
+          transmission: "Otomatik",
+          yearFrom: 2022,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "hybrid-software"),
+              severity: "medium",
+              title: "Hibrit batarya, yazılım ve garanti devri kontrolü",
+              detail:
+                "Tonale gibi hibrit Alfa modellerinde batarya sağlığı, şarj/hibrit sistem yazılımı, garanti devri, servis kampanyaları ve elektronik donanım kontrol edilmelidir.",
+              typicalOnset: "Garanti devri ve ikinci el alım öncesi",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
           engineLabel: "2.0 Turbo benzin",
           fuelType: "Benzin",
           transmission: "Otomatik",
@@ -202,6 +221,25 @@ function profileEngines(spec: Spec): EngineVariant[] {
     case "chevrolet":
       return [
         {
+          engineLabel: "LPG dönüşümlü benzin",
+          fuelType: "LPG",
+          transmission: "Manuel",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "lpg-cooling-valves"),
+              severity: "medium",
+              title: "LPG ayarı, subap/ateşleme ve soğutma kontrolü",
+              detail:
+                "LPG'li Chevrolet modellerinde ruhsat işleme, montaj kalitesi, subap ayarı, bobin/buji, hararet geçmişi ve soğutma sistemi özellikle kontrol edilmelidir.",
+              typicalOnset: "80.000 km sonrası veya kötü ayarda daha erken",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
           engineLabel: "1.2/1.4/1.6 Ecotec benzin",
           fuelType: "Benzin",
           transmission: "Manuel",
@@ -286,6 +324,25 @@ function profileEngines(spec: Spec): EngineVariant[] {
     case "ds-psa":
       return [
         {
+          engineLabel: "E-Tense plug-in hibrit",
+          fuelType: "Hibrit",
+          transmission: "Otomatik",
+          yearFrom: 2019,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "etense-hybrid"),
+              severity: "medium",
+              title: "PHEV batarya/şarj ve EAT8-hibrit modül kontrolü",
+              detail:
+                "DS E-Tense modellerinde batarya sağlık raporu, şarj portu, hibrit modül yazılımı, EAT8 geçişleri ve garanti/servis kampanyaları kontrol edilmeli.",
+              typicalOnset: "Garanti dışı dönem ve ikinci el devir öncesi",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
           engineLabel: "1.2 PureTech",
           fuelType: "Benzin",
           transmission: "Otomatik",
@@ -348,6 +405,25 @@ function profileEngines(spec: Spec): EngineVariant[] {
       ];
     case "honda":
       return [
+        {
+          engineLabel: "e:HEV / IMA hibrit",
+          fuelType: "Hibrit",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "hybrid-battery-cvt"),
+              severity: "low",
+              title: "Hibrit batarya, inverter ve e-CVT kontrolü",
+              detail:
+                "Honda hibritlerde batarya sağlık raporu, inverter soğutma, e-CVT davranışı ve servis kayıtları kontrol edilmeli; uzun yatmış araçlarda batarya dengesi ayrıca sorgulanmalı.",
+              typicalOnset: "150.000 km sonrası veya uzun yatmış araçlarda",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
         {
           engineLabel: "1.4/1.5/1.6 i-VTEC",
           fuelType: "Benzin",
@@ -472,6 +548,25 @@ function profileEngines(spec: Spec): EngineVariant[] {
     case "kia":
       return [
         {
+          engineLabel: "Hibrit / plug-in hibrit",
+          fuelType: "Hibrit",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "hybrid-dct-battery"),
+              severity: "medium",
+              title: "Hibrit batarya, DCT/otomatik ve garanti kontrolü",
+              detail:
+                "Kia hibritlerde batarya sağlık raporu, inverter/soğutma, DCT veya otomatik şanzıman geçişleri, servis kampanyaları ve garanti devri kontrol edilmeli.",
+              typicalOnset: "Garanti dışı dönem ve 120.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
           engineLabel: "1.0/1.4/1.6 benzin",
           fuelType: "Benzin",
           transmission: "Otomatik",
@@ -512,6 +607,25 @@ function profileEngines(spec: Spec): EngineVariant[] {
       ];
     case "lada":
       return [
+        {
+          engineLabel: "LPG dönüşümlü benzin",
+          fuelType: "LPG",
+          transmission: "Manuel",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "lpg-rust"),
+              severity: "medium",
+              title: "LPG montajı, pas ve elektrik tesisatı kontrolü",
+              detail:
+                "LPG'li Lada modellerinde montaj/ruhsat kaydı, karbüratör-enjeksiyon ayarı, pas, elektrik tesisatı ve manuel aktarma organları kontrol edilmelidir.",
+              typicalOnset: "Yaş ve kullanım şartlarına bağlı",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
         {
           engineLabel: "1.5/1.6/1.7 benzin",
           fuelType: "Benzin",
@@ -598,6 +712,25 @@ function profileEngines(spec: Spec): EngineVariant[] {
     case "mg":
       return [
         {
+          engineLabel: "Plug-in hibrit",
+          fuelType: "Hibrit",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "phev-battery-dct"),
+              severity: "medium",
+              title: "PHEV batarya, şarj portu ve otomatik şanzıman kontrolü",
+              detail:
+                "MG plug-in hibritlerde batarya sağlık raporu, şarj portu, hibrit sistem yazılımı, otomatik/DCT geçişleri ve garanti devri kontrol edilmeli.",
+              typicalOnset: "Garanti dışı dönem ve ikinci el devir öncesi",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
+        {
           engineLabel: "Elektrikli güç aktarma",
           fuelType: "Elektrik",
           transmission: "Otomatik",
@@ -679,6 +812,25 @@ function profileEngines(spec: Spec): EngineVariant[] {
       ];
     case "mitsubishi":
       return [
+        {
+          engineLabel: "PHEV hibrit",
+          fuelType: "Hibrit",
+          transmission: "Otomatik",
+          yearFrom: 2013,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "phev-battery-awd"),
+              severity: "medium",
+              title: "PHEV batarya, şarj sistemi ve AWD kontrolü",
+              detail:
+                "Outlander PHEV gibi Mitsubishi hibritlerde batarya sağlık raporu, şarj portu, inverter/soğutma, AWD aktarma ve servis yazılım güncellemeleri kontrol edilmeli.",
+              typicalOnset: "120.000 km sonrası veya uzun yatmış araçlarda",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
         {
           engineLabel: "Benzinli MIVEC",
           fuelType: "Benzin",
@@ -783,6 +935,25 @@ function profileEngines(spec: Spec): EngineVariant[] {
       ];
     case "porsche":
       return [
+        {
+          engineLabel: "E-Hybrid",
+          fuelType: "Hibrit",
+          transmission: "Otomatik",
+          yearFrom: 2010,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "ehybrid-battery-air"),
+              severity: "high",
+              title: "E-Hybrid batarya, soğutma ve havalı süspansiyon kontrolü",
+              detail:
+                "Porsche E-Hybrid modellerde batarya sağlık raporu, şarj sistemi, soğutma, PDK/Tiptronic bakım geçmişi ve havalı süspansiyon yüksek maliyetli kontrol kalemleridir.",
+              typicalOnset: "Garanti dışı dönem ve 100.000 km sonrası",
+              costLevel: "Yüksek",
+              sourceNote: common,
+            },
+          ],
+        },
         {
           engineLabel: "Benzinli boxer/V6/V8",
           fuelType: "Benzin",
@@ -909,6 +1080,25 @@ function profileEngines(spec: Spec): EngineVariant[] {
       ];
     case "volvo":
       return [
+        {
+          engineLabel: "T3/T4/T5 benzin",
+          fuelType: "Benzin",
+          transmission: "Otomatik",
+          yearFrom: spec.yearFrom,
+          yearTo: spec.yearTo,
+          issues: [
+            {
+              id: issueId(spec, "petrol-cooling-auto"),
+              severity: "medium",
+              title: "Benzinli turbo, soğutma ve otomatik şanzıman kontrolü",
+              detail:
+                "Volvo benzinli turbo motorlarda soğutma kaçakları, turbo hortumları, PCV/yağ kaçakları, otomatik şanzıman bakımı ve elektronik donanım kontrol edilmelidir.",
+              typicalOnset: "100.000 km sonrası",
+              costLevel: "Orta",
+              sourceNote: common,
+            },
+          ],
+        },
         {
           engineLabel: "D3/D4/D5 dizel",
           fuelType: "Dizel",
