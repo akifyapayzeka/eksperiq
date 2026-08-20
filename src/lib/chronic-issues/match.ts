@@ -29,7 +29,12 @@ function descriptionMentionsEngine(engine: EngineVariant, haystack: string): boo
   const label = normalize(engine.engineLabel).replace(/\s+/g, " ");
   if (!label) return false;
   if (label.includes("dq200") && /\bdsg\b|yarı otomatik|yari otomatik/.test(haystack)) return true;
-  return haystack.includes(label) || haystack.includes(label.replace(/\s+/g, ""));
+  const engineCode = label.match(/\b[a-z]{1,4}\d{1,4}[a-z]*\b/u)?.[0];
+  return (
+    haystack.includes(label) ||
+    haystack.includes(label.replace(/\s+/g, "")) ||
+    Boolean(engineCode && haystack.includes(engineCode))
+  );
 }
 
 function trimMatches(engine: EngineVariant, trim: string): boolean {

@@ -121,6 +121,71 @@ describe("findChronicIssues", () => {
     expect(duplicates).toEqual([]);
   });
 
+  it("covers the 20 priority Turkish used-car market brands with at least one model entry", () => {
+    const priorityBrands = [
+      "Volkswagen",
+      "Fiat",
+      "Renault",
+      "Ford",
+      "BMW",
+      "Opel",
+      "Peugeot",
+      "Mercedes-Benz",
+      "Hyundai",
+      "Toyota",
+      "Citroen",
+      "Honda",
+      "Dacia",
+      "Nissan",
+      "Skoda",
+      "Seat",
+      "Audi",
+      "Kia",
+      "Volvo",
+      "Suzuki",
+    ];
+    const covered = new Set(CHRONIC_ISSUES_DB.map((entry) => entry.brand));
+
+    expect(priorityBrands.filter((brand) => !covered.has(brand))).toEqual([]);
+  });
+
+  it("matches newly added premium brand engine-specific issues", () => {
+    const bmw = findChronicIssues({
+      brand: "BMW",
+      model: "3 Serisi",
+      year: 2014,
+      fuelType: "Dizel",
+      transmission: "Otomatik",
+      engineSize: "2.0",
+      trim: "320d",
+      sellerDescription: "F30 320d N47 motor, otomatik.",
+    });
+    const mercedes = findChronicIssues({
+      brand: "Mercedes-Benz",
+      model: "C Serisi",
+      year: 2012,
+      fuelType: "Benzin",
+      transmission: "Otomatik",
+      engineSize: "1.8",
+      trim: "C180 AMG",
+      sellerDescription: "W204 C180 CGI M271 motor.",
+    });
+    const audi = findChronicIssues({
+      brand: "Audi",
+      model: "A3",
+      year: 2016,
+      fuelType: "Benzin",
+      transmission: "Yarı otomatik",
+      engineSize: "1.4",
+      trim: "Sportback",
+      sellerDescription: "1.4 TFSI S tronic DSG.",
+    });
+
+    expect(bmw.issues.some((issue) => issue.id === "bmw-3-n47-timing-chain")).toBe(true);
+    expect(mercedes.issues.some((issue) => issue.id === "mercedes-c-m271-chain")).toBe(true);
+    expect(audi.issues.some((issue) => issue.id === "audi-a3-dq200-mechatronic")).toBe(true);
+  });
+
   it("returns nothing when the year falls outside the model's production range", () => {
     const { issues } = findChronicIssues({
       brand: "Fiat",
