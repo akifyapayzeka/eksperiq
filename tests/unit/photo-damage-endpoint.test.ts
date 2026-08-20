@@ -95,100 +95,11 @@ describe("photo damage AI endpoint", () => {
     expect(withDefault.DEFAULT_VISION_MODEL).toMatch(/:free$/);
   });
 
-  it('only uses the pro vision model when EKSPERIQ_FORCE_PRO is exactly "true"', () => {
-    const { resolveVisionModel } = handler as unknown as { resolveVisionModel: () => string };
-    const previousEnv = process.env;
-
-    process.env = {
-      ...previousEnv,
-      EKSPERIQ_FORCE_PRO: "true",
-      OPENROUTER_VISION_MODEL_PRO: "openai/gpt-4o-mini",
-    };
-    expect(resolveVisionModel()).toBe("openai/gpt-4o-mini");
-
-    // A regular client can never set this server-only env var, but if it were
-    // ever anything other than the exact string "true" (unset, "false", "1",
-    // a stray client-supplied value, etc.), the paid model must never be used.
-    for (const value of [undefined, "false", "1", "TRUE", ""]) {
-      process.env = {
-        ...previousEnv,
-        ...(value === undefined ? {} : { EKSPERIQ_FORCE_PRO: value }),
-        OPENROUTER_VISION_MODEL_PRO: "openai/gpt-4o-mini",
-      };
-      delete process.env.OPENROUTER_VISION_MODEL;
-      delete process.env.OPENROUTER_MODEL;
-      expect(resolveVisionModel()).not.toBe("openai/gpt-4o-mini");
-    }
-
-    process.env = previousEnv;
-  });
-
-  it("falls back to the normal free model when EKSPERIQ_FORCE_PRO is set but no pro model is configured", () => {
+  it("keeps photo analysis on a free vision model even when old Pro override env vars exist", () => {
     const { resolveVisionModel, DEFAULT_VISION_MODEL } = handler as unknown as {
       resolveVisionModel: () => string;
       DEFAULT_VISION_MODEL: string;
     };
-    const previousEnv = process.env;
-
-    process.env = { ...previousEnv, EKSPERIQ_FORCE_PRO: "true" };
-    delete process.env.OPENROUTER_VISION_MODEL_PRO;
-    delete process.env.OPENROUTER_VISION_MODEL;
-    delete process.env.OPENROUTER_MODEL;
-
-    expect(resolveVisionModel()).toBe(DEFAULT_VISION_MODEL);
-    process.env = previousEnv;
-  });
-
-  it('only uses the pro+ vision model when EKSPERIQ_FORCE_PRO_PLUS is exactly "true"', () => {
-    const { resolveVisionModel } = handler as unknown as { resolveVisionModel: () => string };
-    const previousEnv = process.env;
-
-    process.env = {
-      ...previousEnv,
-      EKSPERIQ_FORCE_PRO_PLUS: "true",
-      OPENROUTER_VISION_MODEL_PRO_PLUS: "openai/gpt-4o",
-    };
-    expect(resolveVisionModel()).toBe("openai/gpt-4o");
-
-    // Same server-only guarantee as EKSPERIQ_FORCE_PRO: a regular client can
-    // never set this env var, but if it were ever anything other than the
-    // exact string "true", the pro+ model must never be used.
-    for (const value of [undefined, "false", "1", "TRUE", ""]) {
-      process.env = {
-        ...previousEnv,
-        ...(value === undefined ? {} : { EKSPERIQ_FORCE_PRO_PLUS: value }),
-        OPENROUTER_VISION_MODEL_PRO_PLUS: "openai/gpt-4o",
-      };
-      delete process.env.EKSPERIQ_FORCE_PRO;
-      delete process.env.OPENROUTER_VISION_MODEL_PRO;
-      delete process.env.OPENROUTER_VISION_MODEL;
-      delete process.env.OPENROUTER_MODEL;
-      expect(resolveVisionModel()).not.toBe("openai/gpt-4o");
-    }
-
-    process.env = previousEnv;
-  });
-
-  it("falls back to the normal free model when EKSPERIQ_FORCE_PRO_PLUS is set but no pro+ model is configured", () => {
-    const { resolveVisionModel, DEFAULT_VISION_MODEL } = handler as unknown as {
-      resolveVisionModel: () => string;
-      DEFAULT_VISION_MODEL: string;
-    };
-    const previousEnv = process.env;
-
-    process.env = { ...previousEnv, EKSPERIQ_FORCE_PRO_PLUS: "true" };
-    delete process.env.OPENROUTER_VISION_MODEL_PRO_PLUS;
-    delete process.env.EKSPERIQ_FORCE_PRO;
-    delete process.env.OPENROUTER_VISION_MODEL_PRO;
-    delete process.env.OPENROUTER_VISION_MODEL;
-    delete process.env.OPENROUTER_MODEL;
-
-    expect(resolveVisionModel()).toBe(DEFAULT_VISION_MODEL);
-    process.env = previousEnv;
-  });
-
-  it("prefers the pro+ model over the pro model when both tiers are forced on", () => {
-    const { resolveVisionModel } = handler as unknown as { resolveVisionModel: () => string };
     const previousEnv = process.env;
 
     process.env = {
@@ -198,8 +109,25 @@ describe("photo damage AI endpoint", () => {
       EKSPERIQ_FORCE_PRO_PLUS: "true",
       OPENROUTER_VISION_MODEL_PRO_PLUS: "openai/gpt-4o",
     };
-    expect(resolveVisionModel()).toBe("openai/gpt-4o");
+    delete process.env.OPENROUTER_VISION_MODEL;
+    delete process.env.OPENROUTER_MODEL;
+    expect(resolveVisionModel()).toBe(DEFAULT_VISION_MODEL);
 
+    process.env = previousEnv;
+  });
+
+  it("uses a configured vision model only when it is explicitly a free OpenRouter model", () => {
+    const { resolveVisionModel, DEFAULT_VISION_MODEL } = handler as unknown as {
+      resolveVisionModel: () => string;
+      DEFAULT_VISION_MODEL: string;
+    };
+    const previousEnv = process.env;
+
+    process.env = { ...previousEnv, OPENROUTER_VISION_MODEL: "google/gemma-4-26b-a4b-it:free" };
+    expect(resolveVisionModel()).toBe("google/gemma-4-26b-a4b-it:free");
+
+    process.env = { ...previousEnv, OPENROUTER_VISION_MODEL: "openai/gpt-4o-mini" };
+    expect(resolveVisionModel()).toBe(DEFAULT_VISION_MODEL);
     process.env = previousEnv;
   });
 

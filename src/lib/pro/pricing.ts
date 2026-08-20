@@ -10,7 +10,6 @@ export interface EksperIqPlanPricing {
   monthlyOperatingCostTry: number;
   monthlyPriceTry: number;
   yearlyPriceTry: number;
-  includedAiPhotoAnalyses: number;
   notes: string;
 }
 
@@ -45,9 +44,8 @@ export const EKSPERIQ_PLAN_PRICING: Record<EksperIqPaidPlanId, EksperIqPlanPrici
       monthlyProductId: "com.eksperiq.app.pro.monthly",
       yearlyProductId: "com.eksperiq.app.pro.yearly",
       monthlyOperatingCostTry: 44,
-      includedAiPhotoAnalyses: 50,
       notes:
-        "Free model uzerine daha yuksek limit, PDF rapor ve kayitli analiz akislari. Fotograf hasar kontrolunde en guclu modelin bir altindaki gorsel AI modeli kullanilir. AI maliyeti ve temel altyapi payi dahil.",
+        "Aylik 20 ilan linki analizi, PDF rapor ve kayitli analiz akislari. Fotograf hasar kontrolu tum planlarda ayni ucretsiz gorsel AI modeliyle sunulur.",
     },
     PRO_COST_MULTIPLE,
   ),
@@ -58,9 +56,8 @@ export const EKSPERIQ_PLAN_PRICING: Record<EksperIqPaidPlanId, EksperIqPlanPrici
       monthlyProductId: "com.eksperiq.app.proplus.monthly",
       yearlyProductId: "com.eksperiq.app.proplus.yearly",
       monthlyOperatingCostTry: 200,
-      includedAiPhotoAnalyses: 200,
       notes:
-        "Yogun kullanici icin fotograf hasar kontrolunde en guclu gorsel AI modeli, yuksek analiz limiti ve profesyonel rapor/export payi dahil.",
+        "Yogun kullanici icin sinirsiz ilan linki analizi, profesyonel rapor/export payi ve kayitli analiz akislari. Fotograf hasar kontrolu tum planlarda ayni ucretsiz gorsel AI modeliyle sunulur.",
     },
     PRO_PLUS_COST_MULTIPLE,
   ),

@@ -233,7 +233,7 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
       <Screen>
         <PaywallPlansScreen
           headline="Pro ile daha güçlü analiz"
-          description="İlan analizlerinde çok daha yüksek limit ve garajınıza daha fazla araç ekleme imkanı için Pro veya Pro+'a geçin."
+          description="Ücretsiz 3 ilan linki analizinden sonra Pro ile ayda 20, Pro+ ile sınırsız ilan analizi yapın. Fotoğraf analizi ücretsiz kalır."
           dismissLabel="Şimdilik ücretsiz devam et"
           onDismiss={finishOnboarding}
         />

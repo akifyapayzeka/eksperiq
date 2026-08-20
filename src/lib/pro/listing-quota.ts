@@ -6,14 +6,13 @@ const STORAGE_KEY = "eksperiq:listing-quota";
 
 /**
  * Free is a lifetime cap (never resets, so it can't be reset by simply
- * waiting a month) — Pro and Pro+ are monthly caps. These are the real,
- * enforced numbers; the paywall shows Pro/Pro+ as multipliers ("5x"/"10x")
- * instead of these figures — see src/components/paywall/paywall-plans.tsx.
+ * waiting a month) — Pro is a monthly cap, and Pro+ is unlimited. These are
+ * the real, enforced numbers shown in the paywall.
  */
 const LISTING_ANALYSIS_LIMIT: Record<SubscriptionTier, number> = {
   free: 3,
   pro: 20,
-  proPlus: 50,
+  proPlus: Number.POSITIVE_INFINITY,
 };
 
 type QuotaRecord = {
@@ -53,6 +52,11 @@ function writeRecord(record: QuotaRecord): void {
 
 export function getListingAnalysisLimit(tier: SubscriptionTier): number {
   return LISTING_ANALYSIS_LIMIT[tier];
+}
+
+export function formatListingAnalysisLimit(tier: SubscriptionTier): string {
+  const limit = getListingAnalysisLimit(tier);
+  return Number.isFinite(limit) ? String(limit) : "Sınırsız";
 }
 
 /** How many listing analyses count against the given tier's limit right now. */

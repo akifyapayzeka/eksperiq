@@ -292,21 +292,8 @@ Tüm metin alanlarını yalnızca Türkçe yaz, başka dilden tek kelime bile ek
 }
 
 function resolveVisionModel() {
-  // EKSPERIQ_FORCE_PRO / EKSPERIQ_FORCE_PRO_PLUS are server-only env vars the
-  // admin sets on a separate (non-production) deployment to test a
-  // stronger/paid model tier. They are never read from the client, so a
-  // regular user can never trigger a paid model by themselves — there is no
-  // real Pro/Pro+ purchase/entitlement system yet (no accounts, no verified
-  // IAP receipts), so this must stay server-only until one exists.
-  const isForcedProPlus = process.env.EKSPERIQ_FORCE_PRO_PLUS === "true";
-  const proPlusModel = process.env.OPENROUTER_VISION_MODEL_PRO_PLUS?.trim();
-  if (isForcedProPlus && proPlusModel) return proPlusModel;
-
-  const isForcedPro = process.env.EKSPERIQ_FORCE_PRO === "true";
-  const proModel = process.env.OPENROUTER_VISION_MODEL_PRO?.trim();
-  if (isForcedPro && proModel) return proModel;
-
-  return process.env.OPENROUTER_VISION_MODEL?.trim() || process.env.OPENROUTER_MODEL?.trim() || DEFAULT_VISION_MODEL;
+  const configured = process.env.OPENROUTER_VISION_MODEL?.trim() || process.env.OPENROUTER_MODEL?.trim();
+  return configured && configured.endsWith(":free") ? configured : DEFAULT_VISION_MODEL;
 }
 
 async function requestOpenRouterVision(input) {

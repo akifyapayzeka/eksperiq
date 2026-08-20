@@ -215,20 +215,9 @@ Onemli/riskli bulgulari once siralayarak listele. "kesin", "kesinlikle" gibi kes
   ];
 }
 
-// Ayni kademelendirme mantigi api/ai/photo-damage.js'deki resolveVisionModel
-// ile birebir aynidir (bkz. oradaki yorum): FORCE bayraklari yalnizca
-// admin'in kendi test ortaminda model kalitesi karsilastirmasi icindir,
-// gercek kullanici bazli Pro/Pro+ secimi degildir.
 function resolveVisionModel() {
-  const isForcedProPlus = process.env.EKSPERIQ_FORCE_PRO_PLUS === "true";
-  const proPlusModel = process.env.OPENROUTER_VISION_MODEL_PRO_PLUS?.trim();
-  if (isForcedProPlus && proPlusModel) return proPlusModel;
-
-  const isForcedPro = process.env.EKSPERIQ_FORCE_PRO === "true";
-  const proModel = process.env.OPENROUTER_VISION_MODEL_PRO?.trim();
-  if (isForcedPro && proModel) return proModel;
-
-  return process.env.OPENROUTER_VISION_MODEL?.trim() || process.env.OPENROUTER_MODEL?.trim() || DEFAULT_VISION_MODEL;
+  const configured = process.env.OPENROUTER_VISION_MODEL?.trim() || process.env.OPENROUTER_MODEL?.trim();
+  return configured && configured.endsWith(":free") ? configured : DEFAULT_VISION_MODEL;
 }
 
 // Rapor gorselleri (coklu sayfa + yogun tablo/checkbox) diger iki uc noktaya

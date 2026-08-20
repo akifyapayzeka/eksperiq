@@ -14,7 +14,7 @@ describe("computeDisplayPercent", () => {
     const startedAt = new Date().toISOString();
     expect(computeDisplayPercent("checking-url", startedAt, new Date(startedAt).getTime())).toBe(1);
     expect(computeDisplayPercent("opening-page", startedAt, new Date(startedAt).getTime())).toBe(8);
-    expect(computeDisplayPercent("normalizing", startedAt, new Date(startedAt).getTime())).toBe(70);
+    expect(computeDisplayPercent("normalizing", startedAt, new Date(startedAt).getTime())).toBe(72);
   });
 
   it("keeps easing upward the longer a stage takes, without ever reaching its ceiling", () => {
@@ -28,7 +28,19 @@ describe("computeDisplayPercent", () => {
     expect(at5s).toBeGreaterThan(8);
     expect(at12s).toBeGreaterThan(at5s);
     expect(at20s).toBeGreaterThan(at12s);
-    expect(at20s).toBeLessThan(70);
+    expect(at20s).toBeLessThan(72);
+  });
+
+  it("keeps the long AI-normalizing stage moving past the old 95 percent plateau", () => {
+    const start = Date.now();
+    const startedAt = new Date(start).toISOString();
+
+    const at60s = computeDisplayPercent("normalizing", startedAt, start + 60_000);
+    const at120s = computeDisplayPercent("normalizing", startedAt, start + 120_000);
+
+    expect(at60s).toBeGreaterThan(95);
+    expect(at120s).toBeGreaterThanOrEqual(at60s);
+    expect(at120s).toBeLessThanOrEqual(99);
   });
 
   it("falls back to the stage floor if stageStartedAt is missing", () => {

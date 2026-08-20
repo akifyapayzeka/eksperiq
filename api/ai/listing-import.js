@@ -2,9 +2,10 @@ const { checkRateLimit } = require("../_lib/rate-limit.js");
 const { callOpenRouterChatCompletions, hedgeCertainLanguage } = require("../_lib/openrouter.js");
 const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
 
-// Text-only normalization (no image analysis here — that stays a cost the
-// user pays for at "Analiz oluştur" time, not at import time, per product
-// decision). Same reliable named free model as analysis-note.js; avoid
+// Text-only listing normalization. Photo analysis is a separate, always-free
+// user-owned vehicle flow; paid plan limits apply to listing-link analysis
+// volume, not to a stronger photo model. Same reliable named free model as
+// analysis-note.js; avoid
 // "openrouter/free" which can randomly route to a moderation/safety model.
 const DEFAULT_OPENROUTER_MODEL = "openai/gpt-oss-20b:free";
 const DEFAULT_DAILY_LIMIT = 60;

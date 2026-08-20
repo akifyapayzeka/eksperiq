@@ -3,19 +3,9 @@
 import { useState } from "react";
 import { Check, Clock, RotateCcw, Sparkles } from "lucide-react";
 import { EKSPERIQ_PLAN_PRICING, formatTry, type EksperIqPlanPricing } from "@/lib/pro/pricing";
+import { formatListingAnalysisLimit } from "@/lib/pro/listing-quota";
 import { purchasePlan, restorePurchases } from "@/lib/pro/entitlement";
 import { Spinner } from "@/components/ui/spinner";
-
-/**
- * Marketing multiplier shown to the user instead of the real monthly limit
- * (20/50 — see src/lib/pro/listing-quota.ts) — the free tier's real lifetime
- * cap (3) is never shown either; this framing is deliberate product policy,
- * not a placeholder.
- */
-const LISTING_ANALYSIS_MULTIPLIER: Record<EksperIqPlanPricing["id"], string> = {
-  pro: "5x",
-  proPlus: "10x",
-};
 
 const isStoreKitPurchasesEnabled = process.env.NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED === "true";
 
@@ -123,7 +113,7 @@ export function PaywallPlansScreen({
             </div>
             <p className="mt-2 flex items-center gap-2 text-sm text-foreground/90">
               <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
-              {LISTING_ANALYSIS_MULTIPLIER[plan.id]} daha fazla ilan analizi
+              {formatListingAnalysisLimit(plan.id)} ilan linki analizi
             </p>
             <p className="mt-1 flex items-center gap-2 text-sm text-foreground/90">
               <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
@@ -131,7 +121,7 @@ export function PaywallPlansScreen({
             </p>
             <p className="mt-1 flex items-center gap-2 text-sm text-foreground/90">
               <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
-              Ayda {plan.includedAiPhotoAnalyses} fotoğraf/rapor analizi dahil
+              Fotoğraf analizi tüm planlarda ücretsiz
             </p>
             <button
               type="button"

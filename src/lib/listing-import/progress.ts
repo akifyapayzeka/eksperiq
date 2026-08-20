@@ -12,8 +12,8 @@ import type { ImportStage } from "./import-listing";
  */
 const STAGE_RANGE: Record<Exclude<ImportStage, "done">, { floor: number; ceiling: number; halfLifeSeconds: number }> = {
   "checking-url": { floor: 1, ceiling: 8, halfLifeSeconds: 1 },
-  "opening-page": { floor: 8, ceiling: 70, halfLifeSeconds: 8 },
-  normalizing: { floor: 70, ceiling: 95, halfLifeSeconds: 5 },
+  "opening-page": { floor: 8, ceiling: 72, halfLifeSeconds: 10 },
+  normalizing: { floor: 72, ceiling: 99, halfLifeSeconds: 18 },
 };
 
 /**
@@ -39,5 +39,7 @@ export function computeDisplayPercent(stage: ImportStage | null, stageStartedAt:
   if (!stageStartedAt) return range.floor;
   const elapsedSeconds = Math.max(0, (now - new Date(stageStartedAt).getTime()) / 1000);
   const eased = 1 - Math.exp(-elapsedSeconds / range.halfLifeSeconds);
-  return Math.round(range.floor + (range.ceiling - range.floor) * eased);
+  const easedPercent = range.floor + (range.ceiling - range.floor) * eased;
+  const slowCreep = Math.min(2.5, elapsedSeconds / 24);
+  return Math.min(range.ceiling, Math.floor(easedPercent + slowCreep));
 }

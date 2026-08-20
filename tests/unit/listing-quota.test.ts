@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   getListingAnalysesUsed,
   getListingAnalysisLimit,
+  formatListingAnalysisLimit,
   hasListingAnalysisQuotaRemaining,
   recordListingAnalysisUsed,
 } from "@/lib/pro/listing-quota";
@@ -14,7 +15,10 @@ describe("listing analysis quota", () => {
   it("exposes the real (non-marketing) numeric limits per tier", () => {
     expect(getListingAnalysisLimit("free")).toBe(3);
     expect(getListingAnalysisLimit("pro")).toBe(20);
-    expect(getListingAnalysisLimit("proPlus")).toBe(50);
+    expect(getListingAnalysisLimit("proPlus")).toBe(Number.POSITIVE_INFINITY);
+    expect(formatListingAnalysisLimit("free")).toBe("3");
+    expect(formatListingAnalysisLimit("pro")).toBe("20");
+    expect(formatListingAnalysisLimit("proPlus")).toBe("Sınırsız");
   });
 
   it("free tier gets exactly 3 lifetime analyses, never resetting", () => {

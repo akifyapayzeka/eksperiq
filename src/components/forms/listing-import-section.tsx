@@ -22,6 +22,12 @@ const stageLabels: Record<ImportStage, string> = {
   done: "İlan analizi tamamlandı",
 };
 
+const loadingDetails: Record<Exclude<ImportStage, "done">, string[]> = {
+  "checking-url": ["Link kaynağı doğrulanıyor", "İlan sitesi hazırlanıyor", "Analiz oturumu başlatılıyor"],
+  "opening-page": ["Sayfa cihazınızda açılıyor", "İlan metni ve konum alanları okunuyor", "Araç fotoğrafları ayrıştırılıyor"],
+  normalizing: ["İlan bilgileri düzenleniyor", "Eksik alanlar açıklamadan tamamlanıyor", "Rapor için kronik sorunlar eşleştiriliyor"],
+};
+
 const errorMessages: Record<string, string> = {
   "invalid-url": "Bu bağlantı desteklenmiyor. Desteklenen ilan sitelerinden birinin bağlantısını yapıştırın.",
   "unsupported-platform": "İlan linkiyle otomatik doldurma yalnızca mobil uygulamada kullanılabilir.",
@@ -154,6 +160,10 @@ export function ListingImportSection({
   }
 
   const progressPercent = computeDisplayPercent(stage, stageStartedAt, now);
+  const loadingDetail =
+    status === "loading" && stage && stage !== "done"
+      ? loadingDetails[stage][Math.floor(now / 2200) % loadingDetails[stage].length]
+      : "";
 
   return (
     <section
@@ -242,6 +252,15 @@ export function ListingImportSection({
               style={{ width: `${progressPercent}%` }}
             />
           </div>
+          {loadingDetail ? (
+            <div className="mt-2 flex items-center gap-2 text-xs font-medium text-foreground/80" role="status">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+              </span>
+              {loadingDetail}
+            </div>
+          ) : null}
           <p className="mt-2 text-xs text-muted-foreground">
             Bu işlem sayfayı açıp araç bilgilerini analiz ettiği için genelde 10-30 saniye sürer, bağlantı yavaşsa veya
             otomatik tekrar denenirse birkaç dakikaya kadar çıkabilir. Uygulamayı kapatmadan bekleyin; hedef üst sınır 5

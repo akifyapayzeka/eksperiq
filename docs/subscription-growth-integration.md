@@ -10,34 +10,35 @@ Kullanici odeme istemeden en az bir arac fotografi veya ilan metni icin temel ri
 
 ## Pro Degerleri
 
-- Coklu fotograf analizi.
-- Daha ayrintili hasar bolgesi yorumu.
+- Pro: ayda 20 ilan linki analizi.
+- Pro+: sinirsiz ilan linki analizi.
 - PDF on ekspertiz/ilan risk raporu.
 - Analiz gecmisi ve karsilastirma.
-- Daha kaliteli AI modeli veya daha yuksek analiz limiti.
+- Fotograf analizi tum planlarda ayni ucretsiz gorsel AI modeliyle sunulur; premium ayrimi degildir.
 
 ## Fiyatlandirma
 
 Fiyatlar `src/lib/pro/pricing.ts` icinde maliyetin tam 5 kati olarak tutulur; App Store Connect urunleri acilinca ayni tutarlar StoreKit tarafina girilir.
 
-| Plan          | Aylik operasyon maliyeti | Aylik fiyat | Yillik fiyat | AI kapsami                                       |
-| ------------- | -----------------------: | ----------: | -----------: | ------------------------------------------------ |
-| EksperIQ Pro  |                    44 TL |      220 TL |     2.640 TL | Ayda 50 AI fotograf analizi                      |
-| EksperIQ Pro+ |                   200 TL |    1.000 TL |    12.000 TL | Ayda 200 AI fotograf analizi ve daha guclu model |
+| Plan          | Aylik operasyon maliyeti | Aylik fiyat | Yillik fiyat | Kapsam                         |
+| ------------- | -----------------------: | ----------: | -----------: | ------------------------------ |
+| EksperIQ Pro  |                    44 TL |      220 TL |     2.640 TL | Ayda 20 ilan linki analizi     |
+| EksperIQ Pro+ |                   200 TL |    1.000 TL |    12.000 TL | Sinirsiz ilan linki analizi    |
+
+Fotograf analizi Free, Pro ve Pro+ icin ucretsiz kalir ve ucretsiz gorsel AI modeliyle calisir.
 
 ## Paywall Triggerlari
 
-- Kullanici ikinci/ucuncu fotograf eklemek ister.
 - PDF rapor/export ister.
-- Daha ayrintili AI yorumu ister.
-- Ucretsiz analiz limiti dolar.
+- Ucretsiz 3 ilan linki analizi limiti dolar.
+- Pro kullanici aylik 20 ilan linki analizi limitine ulasir.
 
 ## Guven ve Uyum
 
 - Yonlendirici alis veya satis emri gibi okunabilecek dil kullanilmaz.
 - Fiyat, deneme, yenileme ve iptal bilgisi ayni ekranda gorunur.
 - "Simdilik Free ile devam et" aksiyonu gorunur kalir.
-- App Review notlarinda premium analiz, PDF export ve varsa AI model farki aciklanir.
+- App Review notlarinda premium ilan analizi kotasi ve PDF/export ayrimi aciklanir; fotograf analizinde AI model farki pazarlanmaz.
 
 ## Eventler
 
