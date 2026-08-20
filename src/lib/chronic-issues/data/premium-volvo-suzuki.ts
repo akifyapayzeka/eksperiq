@@ -361,6 +361,458 @@ export const PREMIUM_VOLVO_SUZUKI_ENTRIES: ModelEntry[] = [
     ],
   },
   {
+    brand: "Audi",
+    model: "A1",
+    yearFrom: 2010,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.0/1.2/1.4 TFSI",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2010,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "audi-a1-tfsi-turbo-chain-dsg",
+            severity: "medium",
+            title: "TFSI zincir/turbo ve S tronic kavrama kontrolü",
+            detail:
+              "A1 TFSI motorlarda erken EA111 zincir/gerdirici sesi, yeni 1.0 TFSI'da turbo aktüatör/EPC uyarısı, S tronic araçlarda kuru kavrama ve mekatronik kontrol edilmeli.",
+            typicalOnset: "70.000-130.000 km",
+            costLevel: "Orta",
+            sourceNote:
+              "Audi A1 alım rehberleri, TFSI teknik kayıtları ve DSG uzman servislerinde tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.6 TDI",
+        fuelType: "Dizel",
+        yearFrom: 2011,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "audi-a1-16tdi-egr-dpf",
+            severity: "medium",
+            title: "EGR/DPF ve enjektör kontrolü",
+            detail:
+              "1.6 TDI A1'de kısa mesafe kullanımda EGR/DPF doluluk, enjektör düzeltmeleri ve turbo aktüatör kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "VAG 1.6 TDI platform kaynaklarında A1/A3/Golf sınıfında tekrar eden dizel emisyon bulguları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Audi",
+    model: "A5",
+    yearFrom: 2007,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.8/2.0 TFSI EA888",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2007,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "audi-a5-ea888-oil-chain",
+            severity: "high",
+            title: "EA888 yağ tüketimi, zincir gerdirici ve karbon birikimi",
+            detail:
+              "B8 A5 1.8/2.0 TFSI araçlarda yağ tüketimi, zincir gerdirici ve direkt enjeksiyon karbon birikimi kontrol edilmeli; makyaj sonrası risk azalsa da bakım kaydı kritiktir.",
+            typicalOnset: "80.000-140.000 km",
+            costLevel: "Yüksek",
+            sourceNote:
+              "EA888 teknik kaynakları A4/A5/Q5 boyuna motorlu araçlarda yağ tüketimi ve zincir riskini tekrarlar.",
+          },
+        ],
+      },
+      {
+        engineLabel: "2.0/3.0 TDI",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2007,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "audi-a5-tdi-egr-s-tronic",
+            severity: "medium",
+            title: "TDI emisyon sistemi ve S tronic/Multitronic kontrolü",
+            detail:
+              "A5 dizelde EGR/DPF, turbo aktüatör, çift kütle volan ve şanzıman tipine göre Multitronic/S tronic bakım geçmişi kontrol edilmeli.",
+            typicalOnset: "130.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Audi A4/A5 TDI ve S tronic/Multitronic alım rehberlerinde tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Audi",
+    model: "A6",
+    yearFrom: 2000,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "2.0 TDI",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2005,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "audi-a6-20tdi-egr-multitronic",
+            severity: "medium",
+            title: "2.0 TDI EGR/DPF ve Multitronic/S tronic riski",
+            detail:
+              "A6 2.0 TDI'da EGR/DPF, turbo, yağ pompası geçmişi ve özellikle önden çekiş Multitronic şanzımanda titreme/kaydırma kontrol edilmeli.",
+            typicalOnset: "140.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Audi A6 TDI ve Multitronic uzman kaynaklarında tekrar eden pahalı kontrol başlıkları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "3.0 TDI / quattro",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2004,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "audi-a6-30tdi-chain-egr-quattro",
+            severity: "high",
+            title: "3.0 TDI zincir, EGR/DPF ve quattro aktarma masrafı",
+            detail:
+              "3.0 TDI A6'da arkaya yakın zincir seti sesi, EGR/DPF/AdBlue, turbo, Tiptronic/S tronic ve quattro diferansiyel/şaft bakım geçmişi kontrol edilmeli.",
+            typicalOnset: "160.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote:
+              "Audi V6 TDI kullanıcı/servis kayıtları ve A6 alım rehberlerinde tekrar eden yüksek maliyetli riskler.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Audi",
+    model: "A7",
+    yearFrom: 2010,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "3.0 TDI / 3.0 TFSI",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2010,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "audi-a7-v6-chain-s-tronic-air",
+            severity: "high",
+            title: "V6 zincir/emisyon, S tronic ve havalı süspansiyon kontrolü",
+            detail:
+              "A7'de V6 dizel zincir sesi, EGR/DPF/AdBlue, S tronic/Tiptronic bakım geçmişi, quattro aktarma ve havalı süspansiyon/elektronik donanımlar yüksek maliyetlidir.",
+            typicalOnset: "140.000 km sonrası veya yaşa bağlı",
+            costLevel: "Yüksek",
+            sourceNote: "Audi A6/A7 V6 ve quattro platform servis kayıtlarında tekrar eden pahalı riskler.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Audi",
+    model: "A8",
+    yearFrom: 2000,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "3.0 TDI / V6",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2003,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "audi-a8-v6-air-electronics",
+            severity: "high",
+            title: "Havalı süspansiyon, V6 TDI emisyon ve elektronik masrafı",
+            detail:
+              "A8'de motor kadar havalı süspansiyon, MMI/konfor elektroniği, kapı/koltuk modülleri, EGR/DPF/AdBlue ve otomatik şanzıman bakım geçmişi kritiktir.",
+            typicalOnset: "120.000 km sonrası veya yaşa bağlı",
+            costLevel: "Yüksek",
+            sourceNote:
+              "Audi A8 alım rehberleri ve bağımsız premium servis kayıtlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "V8/W12 benzin",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2000,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "audi-a8-v8-oil-cooling",
+            severity: "high",
+            title: "V8/W12 yağ kaçakları, soğutma ve karmaşık donanım masrafı",
+            detail:
+              "V8/W12 A8'lerde yağ kaçakları, soğutma sistemi, zincir/emme karbonu ve havalı süspansiyon/elektronik arızalar alım öncesi detaylı kontrol gerektirir.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Audi V8/W12 ve A8 kullanıcı/servis kayıtlarında tekrar eden yüksek maliyetli riskler.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Audi",
+    model: "Q2",
+    yearFrom: 2016,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.0/1.4/1.5 TFSI",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2016,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "audi-q2-tfsi-dsg",
+            severity: "medium",
+            title: "TFSI turbo/soğutma ve DQ200 S tronic kontrolü",
+            detail:
+              "Q2 benzinlilerde turbo aktüatör, soğutma kaçakları, bobin/buji ve kuru kavrama S tronic araçlarda kalkış titremesi/mekatronik kontrol edilmeli.",
+            typicalOnset: "80.000-120.000 km",
+            costLevel: "Orta",
+            sourceNote:
+              "Audi Q2/A1/A3 MQB platform kullanıcı kayıtları ve DSG uzman kaynaklarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.6 TDI",
+        fuelType: "Dizel",
+        yearFrom: 2016,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "audi-q2-16tdi-egr",
+            severity: "medium",
+            title: "1.6 TDI EGR/DPF ve şehir içi kullanım hassasiyeti",
+            detail: "Q2 1.6 TDI'da EGR/DPF, enjektör düzeltmeleri ve kısa mesafe kullanım geçmişi kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "VAG 1.6 TDI platform kayıtlarında tekrar eden EGR/DPF riskleri.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Audi",
+    model: "Q3",
+    yearFrom: 2011,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.4/1.5/2.0 TFSI",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2011,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "audi-q3-tfsi-dsg-quattro",
+            severity: "medium",
+            title: "TFSI yağ/turbo, S tronic ve quattro kontrolü",
+            detail:
+              "Q3 TFSI motorlarda yağ tüketimi/PCV, turbo-wastegate, soğutma kaçakları; S tronic ve quattro araçlarda kavrama/mekatronik ile Haldex bakım geçmişi kontrol edilmeli.",
+            typicalOnset: "90.000-140.000 km",
+            costLevel: "Orta",
+            sourceNote: "Audi Q3/VAG TFSI platform ve S tronic servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "2.0 TDI",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2011,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "audi-q3-20tdi-egr-dsg",
+            severity: "medium",
+            title: "2.0 TDI EGR/DPF ve S tronic bakım geçmişi",
+            detail:
+              "2.0 TDI Q3'te EGR/DPF, turbo aktüatör, emme kurumlanması ve S tronic yağ bakım kaydı kontrol edilmeli.",
+            typicalOnset: "130.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Audi Q3 2.0 TDI ve MQB/PQ35 platform servis kayıtları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Audi",
+    model: "Q5",
+    yearFrom: 2008,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "2.0 TFSI EA888",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2008,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "audi-q5-ea888-oil-chain",
+            severity: "high",
+            title: "EA888 yağ tüketimi/zincir ve quattro aktarma kontrolü",
+            detail:
+              "İlk nesil Q5 2.0 TFSI'da yağ tüketimi, zincir gerdirici ve PCV/karbon birikimi; quattro aktarma ve S tronic bakım geçmişi kontrol edilmeli.",
+            typicalOnset: "80.000-140.000 km",
+            costLevel: "Yüksek",
+            sourceNote: "EA888 kaynakları B8 A4/A5/Q5 uygulamalarında yağ tüketimi ve zincir riskini tekrarlar.",
+          },
+        ],
+      },
+      {
+        engineLabel: "2.0/3.0 TDI",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2008,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "audi-q5-tdi-egr-s-tronic",
+            severity: "medium",
+            title: "TDI EGR/DPF, turbo ve S tronic/quattro masrafı",
+            detail:
+              "Q5 dizellerde EGR/DPF/AdBlue, turbo, S tronic mekatronik/kavrama, quattro diferansiyel ve süspansiyon burçları kontrol edilmelidir.",
+            typicalOnset: "140.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Audi Q5 TDI ve S tronic/quattro servis kayıtlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Audi",
+    model: "Q7",
+    yearFrom: 2006,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "3.0 TDI",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2006,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "audi-q7-30tdi-chain-air",
+            severity: "high",
+            title: "3.0 TDI zincir/emisyon ve havalı süspansiyon masrafı",
+            detail:
+              "Q7 3.0 TDI'da zincir sesi, EGR/DPF/AdBlue, turbo, otomatik şanzıman, quattro aktarma ve havalı süspansiyon detaylı kontrol edilmelidir.",
+            typicalOnset: "150.000 km sonrası veya yaşa bağlı",
+            costLevel: "Yüksek",
+            sourceNote: "Audi Q7/V6 TDI ve premium SUV servis kayıtlarında tekrar eden yüksek maliyetli riskler.",
+          },
+        ],
+      },
+      {
+        engineLabel: "4.2 TDI / V8 benzin",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2006,
+        yearTo: 2015,
+        issues: [
+          {
+            id: "audi-q7-v8-cooling-air",
+            severity: "high",
+            title: "V8 motor, soğutma ve karmaşık süspansiyon/donanım riski",
+            detail:
+              "V8 Q7'lerde soğutma/yağ kaçakları, turbo/emme sistemi, havalı süspansiyon, fren/süspansiyon sarfiyatı ve elektronik donanımlar yüksek maliyetlidir.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Audi Q7 V8 ve büyük SUV kullanıcı/servis kayıtlarında tekrar eden pahalı kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Audi",
+    model: "Q8",
+    yearFrom: 2018,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "3.0 TDI/TFSI mild hybrid",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2018,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "audi-q8-mhev-air-electronics",
+            severity: "high",
+            title: "48V/mild hybrid, emisyon sistemi ve havalı süspansiyon kontrolü",
+            detail:
+              "Q8'de 48V sistem, alternatör marş jeneratörü, EGR/AdBlue, otomatik şanzıman, quattro aktarma, havalı süspansiyon ve MMI/konfor elektroniği kontrol edilmeli.",
+            typicalOnset: "80.000 km sonrası veya garanti dışı dönemde",
+            costLevel: "Yüksek",
+            sourceNote:
+              "Audi Q8/Q7 4M platform kullanıcı kayıtlarında tekrar eden 48V, hava süspansiyon ve elektronik riskler.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Audi",
+    model: "TT",
+    yearFrom: 2000,
+    yearTo: 2023,
+    engines: [
+      {
+        engineLabel: "1.8T / 2.0 TFSI",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2000,
+        yearTo: 2023,
+        issues: [
+          {
+            id: "audi-tt-tfsi-timing-dsg-haldex",
+            severity: "medium",
+            title: "Turbo/TFSI, DSG ve Haldex bakım kontrolü",
+            detail:
+              "TT'de 1.8T bobin/turbo/vakum kaçakları, 2.0 TFSI yağ tüketimi/zincir veya triger bakımı, DSG mekatronik ve quattro Haldex yağ bakım kaydı kontrol edilmeli.",
+            typicalOnset: "90.000-140.000 km",
+            costLevel: "Orta",
+            sourceNote: "Audi TT/VAG turbo benzinli ve DSG/Haldex servis kayıtlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
     brand: "Volvo",
     model: "V40",
     generation: "P1/V40 (2012-2019)",

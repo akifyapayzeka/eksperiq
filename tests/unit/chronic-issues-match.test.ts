@@ -400,6 +400,15 @@ describe("findChronicIssues", () => {
     expect(bmwModels.filter((model) => !coveredBmwModels.has(model))).toEqual([]);
   });
 
+  it("covers every Audi model listed in the analysis form catalog", () => {
+    const audiModels = ["A1", "A3", "A4", "A5", "A6", "A7", "A8", "Q2", "Q3", "Q5", "Q7", "Q8", "TT"];
+    const coveredAudiModels = new Set(
+      CHRONIC_ISSUES_DB.filter((entry) => entry.brand === "Audi").map((entry) => entry.model),
+    );
+
+    expect(audiModels.filter((model) => !coveredAudiModels.has(model))).toEqual([]);
+  });
+
   it("matches newly added premium brand engine-specific issues", () => {
     const bmw = findChronicIssues({
       brand: "BMW",
