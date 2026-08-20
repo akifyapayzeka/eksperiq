@@ -117,3 +117,29 @@ for (const item of missing) {
 for (const [brand, models] of [...byBrand.entries()].sort(([a], [b]) => a.localeCompare(b, "tr"))) {
   console.log(`- ${brand}: ${models.join(", ")}`);
 }
+
+const MIN_REQUIRED_BRANDS = 40;
+const MIN_REQUIRED_MODELS = [...formModelsByBrand.values()].flat().length;
+const MIN_REQUIRED_VARIANTS = 400;
+
+if (brands.size < MIN_REQUIRED_BRANDS) {
+  console.error(`Chronic coverage failed: expected at least ${MIN_REQUIRED_BRANDS} brands, found ${brands.size}.`);
+  process.exitCode = 1;
+}
+
+if (chronicEntries.length < MIN_REQUIRED_MODELS) {
+  console.error(
+    `Chronic coverage failed: expected at least ${MIN_REQUIRED_MODELS} model entries, found ${chronicEntries.length}.`,
+  );
+  process.exitCode = 1;
+}
+
+if (variants < MIN_REQUIRED_VARIANTS) {
+  console.error(`Chronic coverage failed: expected at least ${MIN_REQUIRED_VARIANTS} variants, found ${variants}.`);
+  process.exitCode = 1;
+}
+
+if (missing.length > 0) {
+  console.error("Chronic coverage failed: every form catalog model must have a chronic-issues entry.");
+  process.exitCode = 1;
+}
