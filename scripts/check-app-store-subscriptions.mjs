@@ -2,12 +2,35 @@ import { createPrivateKey, sign } from "node:crypto";
 
 const API_BASE = "https://api.appstoreconnect.apple.com/v1";
 const BUNDLE_ID = process.env.APP_STORE_BUNDLE_ID || "com.eksperiq.app";
+const SHOULD_CREATE_MISSING = process.argv.includes("--create-missing");
 const EXPECTED_PRODUCT_IDS = [
   "com.eksperiq.app.pro.monthly",
   "com.eksperiq.app.pro.yearly",
   "com.eksperiq.app.proplus.monthly",
   "com.eksperiq.app.proplus.yearly",
 ];
+const PRODUCT_DEFINITIONS = new Map([
+  [
+    "com.eksperiq.app.pro.yearly",
+    {
+      name: "EksperIQ Pro Yıllık",
+      productId: "com.eksperiq.app.pro.yearly",
+      subscriptionPeriod: "ONE_YEAR",
+      groupLevel: 2,
+      familySharable: false,
+    },
+  ],
+  [
+    "com.eksperiq.app.proplus.yearly",
+    {
+      name: "EksperIQ Pro+ Yıllık",
+      productId: "com.eksperiq.app.proplus.yearly",
+      subscriptionPeriod: "ONE_YEAR",
+      groupLevel: 1,
+      familySharable: false,
+    },
+  ],
+]);
 
 function fail(message) {
   console.error(`App Store subscription check failed: ${message}`);
@@ -82,8 +105,9 @@ function createJwt() {
   return `${signingInput}.${signature.toString("base64url")}`;
 }
 
-async function request(path, token) {
+async function request(path, token, init = {}) {
   const response = await fetch(`${API_BASE}${path}`, {
+    ...init,
     headers: { Authorization: `Bearer ${token}` },
   });
   const text = await response.text();
@@ -125,8 +149,40 @@ async function main() {
   }
 
   const missing = EXPECTED_PRODUCT_IDS.filter((productId) => !found.has(productId));
-  if (missing.length > 0) {
-    fail(`Missing expected subscription product ids: ${missing.join(", ")}`);
+  if (missing.length > 0 && SHOULD_CREATE_MISSING) {
+    const group = groups.data[0];
+    for (const productId of missing) {
+      const definition = PRODUCT_DEFINITIONS.get(productId);
+      if (!definition) fail(`No create definition exists for missing product id ${productId}.`);
+      await request("/subscriptions", token, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data: {
+            type: "subscriptions",
+            attributes: definition,
+            relationships: {
+              group: {
+                data: {
+                  type: "subscriptionGroups",
+                  id: group.id,
+                },
+              },
+            },
+          },
+        }),
+      });
+      found.add(productId);
+      console.log(`Created missing App Store subscription product: ${productId}`);
+    }
+  }
+
+  const stillMissing = EXPECTED_PRODUCT_IDS.filter((productId) => !found.has(productId));
+  if (stillMissing.length > 0) {
+    fail(`Missing expected subscription product ids: ${stillMissing.join(", ")}`);
   }
 
   console.log(`App Store subscription check passed for ${BUNDLE_ID}: ${EXPECTED_PRODUCT_IDS.join(", ")}`);

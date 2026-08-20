@@ -27,6 +27,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { appConfig } from "@/lib/constants/app";
 import { apiFetch } from "@/lib/api/client";
 import { shareReportPdf } from "@/lib/report/pdf-share";
+import { BUYER_EDUCATION_NOTES } from "@/lib/analysis/buyer-education";
 import { SCORE_WEIGHTS } from "@/lib/constants/analysis";
 import { formatAnalysisSummary, formatSellerQuestionMessage } from "@/lib/analysis/report-summary";
 import { buildAiAnalysisNoteInput } from "@/lib/ai/analysis-note";
@@ -1294,6 +1295,21 @@ export function ResultClient() {
               Yakınımdaki ekspertiz ve noter firmalarını bul
               <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
             </Link>
+          </SectionCard>
+          <SectionCard
+            id="rapor-alim-rehberi"
+            title="Araç alırken bunlar neden önemli?"
+            description="Kısa açıklamalar raporu okuyan kişinin teknik terimleri ezberlemeden doğru soruyu sormasına yardım eder."
+          >
+            <div className="grid gap-3">
+              {BUYER_EDUCATION_NOTES.map((note) => (
+                <article key={note.title} className="rounded-lg border border-border bg-card p-4">
+                  <h3 className="font-semibold text-foreground">{note.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">Neden önemli: {note.why}</p>
+                  <p className="mt-2 text-sm font-medium leading-6 text-foreground/90">Ne yapmalı: {note.check}</p>
+                </article>
+              ))}
+            </div>
           </SectionCard>
         </div>
         <div

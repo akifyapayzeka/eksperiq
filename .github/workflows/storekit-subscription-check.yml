@@ -2,6 +2,15 @@ name: StoreKit Subscription Product Check
 
 on:
   workflow_dispatch:
+    inputs:
+      create_missing:
+        description: "Create missing yearly subscription products in App Store Connect"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 jobs:
   check-products:
@@ -28,4 +37,9 @@ jobs:
         run: npm ci
 
       - name: Verify subscription product IDs
+        if: ${{ inputs.create_missing != 'true' }}
         run: npm run storekit:products-check
+
+      - name: Create missing subscription product IDs
+        if: ${{ inputs.create_missing == 'true' }}
+        run: npm run storekit:products-create-missing

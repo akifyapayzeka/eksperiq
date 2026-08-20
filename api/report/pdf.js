@@ -344,6 +344,20 @@ async function buildPdf(payload) {
     w.y -= 6;
   }
 
+  const buyerEducation = Array.isArray(payload.buyerEducation) ? payload.buyerEducation.slice(0, 8) : [];
+  if (buyerEducation.length) {
+    w.sectionTitle("Araç alırken bunlar neden önemli?");
+    w.numberedList(
+      buyerEducation.map((item) => {
+        const title = asString(item && item.title);
+        const why = asString(item && item.why);
+        const check = asString(item && item.check);
+        return `${title}: ${why} Ne yapmalı: ${check}`;
+      }),
+      { size: 9.6 },
+    );
+  }
+
   w.sectionTitle("Uyarı");
   w.paragraph(
     asString(
