@@ -350,6 +350,33 @@ describe("findChronicIssues", () => {
     expect(citroenModels.filter((model) => !coveredCitroenModels.has(model))).toEqual([]);
   });
 
+  it("covers every Toyota model listed in the analysis form catalog", () => {
+    const toyotaModels = ["Auris", "C-HR", "Corolla", "Corolla Cross", "Hilux", "RAV4", "Yaris", "Yaris Cross"];
+    const coveredToyotaModels = new Set(
+      CHRONIC_ISSUES_DB.filter((entry) => entry.brand === "Toyota").map((entry) => entry.model),
+    );
+
+    expect(toyotaModels.filter((model) => !coveredToyotaModels.has(model))).toEqual([]);
+  });
+
+  it("covers every Hyundai model listed in the analysis form catalog", () => {
+    const hyundaiModels = ["Accent Blue", "Bayon", "Elantra", "i10", "i20", "i30", "Kona", "Santa Fe", "Tucson"];
+    const coveredHyundaiModels = new Set(
+      CHRONIC_ISSUES_DB.filter((entry) => entry.brand === "Hyundai").map((entry) => entry.model),
+    );
+
+    expect(hyundaiModels.filter((model) => !coveredHyundaiModels.has(model))).toEqual([]);
+  });
+
+  it("covers every Dacia model listed in the analysis form catalog", () => {
+    const daciaModels = ["Dokker", "Duster", "Jogger", "Lodgy", "Logan", "Sandero", "Sandero Stepway", "Spring"];
+    const coveredDaciaModels = new Set(
+      CHRONIC_ISSUES_DB.filter((entry) => entry.brand === "Dacia").map((entry) => entry.model),
+    );
+
+    expect(daciaModels.filter((model) => !coveredDaciaModels.has(model))).toEqual([]);
+  });
+
   it("matches newly added premium brand engine-specific issues", () => {
     const bmw = findChronicIssues({
       brand: "BMW",

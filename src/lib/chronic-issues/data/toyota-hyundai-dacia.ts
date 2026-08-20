@@ -434,4 +434,902 @@ export const TOYOTA_HYUNDAI_DACIA_ENTRIES: ModelEntry[] = [
       },
     ],
   },
+  {
+    brand: "Toyota",
+    model: "Auris",
+    yearFrom: 2007,
+    yearTo: 2019,
+    engines: [
+      {
+        engineLabel: "1.33 / 1.6 VVT-i",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2007,
+        yearTo: 2019,
+        issues: [
+          {
+            id: "toyota-auris-vvti-waterpump-oil",
+            severity: "low",
+            title: "Su pompası, bobin ve yağ tüketimi kontrolü",
+            detail:
+              "Auris benzinliler genel olarak dayanıklı kabul edilir; su pompası kaçakları, bobin/buji tekleme, yağ tüketimi ve MMT varsa robotize şanzıman davranışı kontrol edilmelidir.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Düşük",
+            sourceNote:
+              "Toyota Auris kullanıcı forumları ve bağımsız servis alım listelerinde tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.4 D-4D",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2007,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "toyota-auris-14d4d-scv-egr",
+            severity: "medium",
+            title: "SCV/yakıt basıncı, EGR ve turbo yağ kontrolü",
+            detail:
+              "1.4 D-4D Auris'te yakıt basınç regülatörü, EGR kurumlanması, turbo yağ sızıntısı ve kısa mesafe dizel kullanımı kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Toyota 1.4 D-4D teknik kaynakları ve Auris kullanıcı forumlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "Hybrid 1.8 e-CVT",
+        fuelType: "Hibrit",
+        transmission: "Otomatik",
+        yearFrom: 2010,
+        yearTo: 2019,
+        issues: [
+          {
+            id: "toyota-auris-hybrid-battery-egr",
+            severity: "low",
+            title: "Hibrit batarya sağlığı ve EGR/soğutma temizliği",
+            detail:
+              "Auris Hybrid'de batarya sağlık raporu, inverter soğutma, EGR/emme temizliği ve taksi/filo kullanım geçmişi kontrol edilmeli.",
+            typicalOnset: "150.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "Toyota hibrit alım rehberleri ve Auris/Prius kullanıcı forumlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Toyota",
+    model: "Yaris",
+    yearFrom: 2000,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.0 / 1.33 VVT-i",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2000,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "toyota-yaris-vvti-chain-waterpump",
+            severity: "low",
+            title: "Su pompası, zincir sesi ve MMT robotize şanzıman kontrolü",
+            detail:
+              "Yaris benzinliler genel olarak güvenilirdir; su pompası, bobin, zincir sesi ve MMT robotize şanzımanlı araçlarda aktüatör/debriyaj davranışı kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Düşük",
+            sourceNote:
+              "Toyota Yaris kullanıcı forumları ve MMT şanzıman servis kayıtlarında tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+      {
+        engineLabel: "Hybrid 1.5 e-CVT",
+        fuelType: "Hibrit",
+        transmission: "Otomatik",
+        yearFrom: 2012,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "toyota-yaris-hybrid-battery-brake",
+            severity: "low",
+            title: "Hibrit batarya, fren aktüatörü ve inverter soğutma kontrolü",
+            detail:
+              "Yaris Hybrid'de batarya sağlık raporu, fren aktüatörü sesi, inverter soğutma ve servis/garanti geçmişi kontrol edilmeli.",
+            typicalOnset: "150.000 km sonrası veya uzun yatan araçlarda",
+            costLevel: "Orta",
+            sourceNote:
+              "Toyota hibrit alım rehberleri ve Yaris Hybrid kullanıcı deneyimlerinde tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Toyota",
+    model: "C-HR",
+    yearFrom: 2016,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "Hybrid 1.8 e-CVT",
+        fuelType: "Hibrit",
+        transmission: "Otomatik",
+        yearFrom: 2016,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "toyota-chr-hybrid-battery-egr",
+            severity: "low",
+            title: "Hibrit batarya, EGR/emme temizliği ve fren sistemi kontrolü",
+            detail:
+              "C-HR Hybrid'de batarya sağlık raporu, EGR/emme kirlenmesi, fren aktüatörü ve kaza sonrası ADAS/radar kalibrasyonu kontrol edilmeli.",
+            typicalOnset: "150.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Toyota hibrit ve C-HR kullanıcı forumlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.2 Turbo",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2016,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "toyota-chr-12turbo-cvt",
+            severity: "medium",
+            title: "Turbo/soğutma ve CVT davranışı kontrolü",
+            detail:
+              "1.2 Turbo C-HR'da turbo sesi, soğutma kaçakları, yağ bakımı ve CVT geçiş/uğultu davranışı kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "Toyota 1.2 Turbo/CVT kullanıcı deneyimleri ve servis kayıtlarında tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Toyota",
+    model: "Corolla Cross",
+    yearFrom: 2022,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "Hybrid 1.8 / 2.0 e-CVT",
+        fuelType: "Hibrit",
+        transmission: "Otomatik",
+        yearFrom: 2022,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "toyota-corollacross-hybrid-battery-adas",
+            severity: "low",
+            title: "Hibrit batarya, e-CVT ve ADAS kalibrasyonu kontrolü",
+            detail:
+              "Corolla Cross yeni model olduğu için kronik saha verisi sınırlıdır; batarya sağlığı, garanti devri, e-CVT davranışı ve kaza sonrası ADAS/radar kalibrasyonu kontrol edilmeli.",
+            typicalOnset: "Garanti devri öncesi",
+            costLevel: "Orta",
+            sourceNote: "Toyota hibrit alım rehberleri ve yeni nesil ADAS donanımlı araç kontrol pratikleri.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Toyota",
+    model: "RAV4",
+    yearFrom: 2000,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "2.0 VVT-i / Valvematic",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2000,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "toyota-rav4-20-awd-oil",
+            severity: "medium",
+            title: "Yağ tüketimi, AWD aktarma ve otomatik şanzıman kontrolü",
+            detail:
+              "RAV4 benzinlilerde yağ tüketimi, otomatik şanzıman geçişleri, AWD diferansiyel/transfer yağ bakımı ve süspansiyon burçları kontrol edilmeli.",
+            typicalOnset: "150.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Toyota RAV4 kullanıcı forumları ve AWD SUV alım rehberlerinde tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "Hybrid 2.5 e-CVT",
+        fuelType: "Hibrit",
+        transmission: "Otomatik",
+        yearFrom: 2016,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "toyota-rav4-hybrid-cable-battery",
+            severity: "medium",
+            title: "Hibrit batarya, inverter ve AWD yüksek voltaj kablo kontrolü",
+            detail:
+              "RAV4 Hybrid'de batarya sağlığı, inverter soğutma, AWD elektrikli arka aks ve bazı pazarlarda raporlanan yüksek voltaj kablo korozyonu kontrol edilmeli.",
+            typicalOnset: "Korozyonlu iklimlerde veya yüksek km'de",
+            costLevel: "Yüksek",
+            sourceNote:
+              "Toyota RAV4 Hybrid kullanıcı forumları ve hibrit servis/alım rehberlerinde tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+      {
+        engineLabel: "2.0 / 2.2 D-4D",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2000,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "toyota-rav4-d4d-egr-headgasket",
+            severity: "medium",
+            title: "D-4D EGR/turbo ve silindir kapak conta kontrolü",
+            detail:
+              "Dizel RAV4'lerde EGR, turbo, enjektör ve bazı 2.2 D-4D dönemlerinde silindir kapak conta/hararet geçmişi kontrol edilmeli.",
+            typicalOnset: "150.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Toyota D-4D ve RAV4 dizel kullanıcı forumlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Toyota",
+    model: "Hilux",
+    yearFrom: 2000,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "2.5 / 3.0 D-4D",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2005,
+        yearTo: 2016,
+        issues: [
+          {
+            id: "toyota-hilux-d4d-injector-turbo",
+            severity: "medium",
+            title: "Enjektör, turbo ve 4x4 arazi/yük kullanım izi",
+            detail:
+              "Hilux D-4D'de enjektör düzeltme değerleri, turbo, EGR, diferansiyel/transfer, şasi altı ve çekme/yük kullanım geçmişi kontrol edilmeli.",
+            typicalOnset: "Ağır kullanıma bağlı",
+            costLevel: "Yüksek",
+            sourceNote:
+              "Toyota Hilux kullanıcı forumları, pickup alım rehberleri ve dizel servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "2.4 D-4D",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2016,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "toyota-hilux-24d4d-dpf-auto",
+            severity: "medium",
+            title: "DPF/EGR, otomatik şanzıman ve 4x4 aktarma kontrolü",
+            detail:
+              "Yeni Hilux 2.4 D-4D'de DPF/EGR, enjektör, otomatik şanzıman yağı, transfer/diferansiyel ve arazi kullanım izleri kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası veya ağır kullanımda",
+            costLevel: "Yüksek",
+            sourceNote:
+              "Hilux 2.4 D-4D servis kaynakları ve pickup kullanıcı forumlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Toyota",
+    model: "Yaris Cross",
+    yearFrom: 2021,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "Hybrid 1.5 e-CVT",
+        fuelType: "Hibrit",
+        transmission: "Otomatik",
+        yearFrom: 2021,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "toyota-yariscross-hybrid-battery-adas",
+            severity: "low",
+            title: "Hibrit batarya, e-CVT ve ADAS/radar kalibrasyonu",
+            detail:
+              "Yaris Cross yeni ve genel olarak güvenilir kabul edilir; batarya sağlığı, garanti devri, e-CVT davranışı ve kaza sonrası ADAS/radar kalibrasyonu kontrol edilmeli.",
+            typicalOnset: "Garanti devri öncesi",
+            costLevel: "Orta",
+            sourceNote: "Toyota hibrit alım rehberleri ve yeni nesil ADAS donanımlı araç kontrol pratikleri.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Hyundai",
+    model: "i10",
+    yearFrom: 2008,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.0 / 1.2 Kappa",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2008,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "hyundai-i10-kappa-chain-oil",
+            severity: "low",
+            title: "Zincir sesi, yağ tüketimi ve bobin/buji kontrolü",
+            detail:
+              "i10 Kappa motorlar genel olarak basit ve dayanıklıdır; soğukta zincir sesi, yağ tüketimi, bobin/buji teklemesi ve otomatik varsa geçiş davranışı kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Düşük",
+            sourceNote:
+              "Hyundai Kappa motor kullanıcı forumları ve i10 servis kayıtlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Hyundai",
+    model: "i30",
+    yearFrom: 2007,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.6 CRDi",
+        fuelType: "Dizel",
+        transmission: "Yarı otomatik",
+        yearFrom: 2007,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "hyundai-i30-16crdi-dct-dpf",
+            severity: "medium",
+            title: "7DCT kavrama, DPF/EGR ve enjektör kontrolü",
+            detail:
+              "i30 1.6 CRDi'de DPF/EGR, enjektör değerleri ve 7DCT varsa kavrama titremesi/geçiş davranışı kontrol edilmeli.",
+            typicalOnset: "80.000-140.000 km",
+            costLevel: "Orta",
+            sourceNote:
+              "Hyundai 7DCT teknik bülteni, CRDi kullanıcı forumları ve i30 servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.4 / 1.6 GDI",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2007,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "hyundai-i30-gdi-carbon",
+            severity: "medium",
+            title: "GDI karbon birikimi ve yağ tüketimi kontrolü",
+            detail:
+              "Direkt enjeksiyonlu i30 benzinlilerde emme supabı karbon birikimi, bobin/buji teklemesi ve yağ tüketimi kontrol edilmelidir.",
+            typicalOnset: "80.000-150.000 km",
+            costLevel: "Orta",
+            sourceNote:
+              "Hyundai/Kia GDI motor ailesi kullanıcı forumları ve bağımsız servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Hyundai",
+    model: "Bayon",
+    yearFrom: 2021,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.0 T-GDI DCT",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2021,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "hyundai-bayon-10tgdi-dct",
+            severity: "medium",
+            title: "7DCT kavrama davranışı ve turbo/soğutma kontrolü",
+            detail:
+              "Bayon 1.0 T-GDI DCT'de dur-kalkta kavrama titremesi, geçiş gecikmesi, turbo sesi ve yazılım güncellemeleri kontrol edilmeli.",
+            typicalOnset: "Garanti devri ve 80.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "Hyundai 7DCT teknik bülteni ve 1.0 T-GDI kullanıcı deneyimlerinde tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.4 MPI",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2021,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "hyundai-bayon-14mpi-chain-coil",
+            severity: "low",
+            title: "MPI motor bobin, zincir sesi ve otomatik şanzıman kontrolü",
+            detail:
+              "1.4 MPI Bayon basit kabul edilir; bobin/buji, zincir sesi, yağ tüketimi ve tork konvertörlü otomatik geçişleri kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Düşük",
+            sourceNote: "Hyundai MPI/Kappa ailesi ve Bayon kullanıcı servis kayıtlarında tekrar eden kontrol kalemi.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Hyundai",
+    model: "Kona",
+    yearFrom: 2017,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.6 T-GDI DCT",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2017,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "hyundai-kona-16tgdi-dct",
+            severity: "medium",
+            title: "7DCT kavrama, GDI karbon ve turbo kontrolü",
+            detail:
+              "Kona 1.6 T-GDI'da DCT kavrama davranışı, GDI karbon birikimi, turbo sesi ve AWD varsa arka aktarma kontrol edilmeli.",
+            typicalOnset: "80.000-140.000 km",
+            costLevel: "Orta",
+            sourceNote: "Hyundai 7DCT/GDI kullanıcı kayıtları ve Kona forumlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "Elektrikli",
+        fuelType: "Elektrik",
+        transmission: "Otomatik",
+        yearFrom: 2018,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "hyundai-kona-ev-battery-recall",
+            severity: "medium",
+            title: "EV batarya geri çağırma/sağlık ve şarj sistemi kontrolü",
+            detail:
+              "Kona EV'de batarya geri çağırma kampanyası durumu, batarya sağlık raporu, DC hızlı şarj geçmişi ve şarj portu kontrol edilmeli.",
+            typicalOnset: "Garanti devri öncesi",
+            costLevel: "Orta",
+            sourceNote:
+              "Kona EV batarya kampanya kayıtları, EV alım rehberleri ve kullanıcı deneyimlerinde tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Hyundai",
+    model: "Tucson",
+    yearFrom: 2004,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.6 T-GDI DCT",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2015,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "hyundai-tucson-16tgdi-dct",
+            severity: "medium",
+            title: "7DCT kavrama, GDI karbon ve turbo/soğutma kontrolü",
+            detail:
+              "Tucson 1.6 T-GDI'da düşük hız DCT titremesi, GDI karbon, turbo/soğutma ve AWD aktarma kontrol edilmeli.",
+            typicalOnset: "80.000-140.000 km",
+            costLevel: "Orta",
+            sourceNote:
+              "Hyundai 7DCT teknik bülteni, GDI motor kaynakları ve Tucson kullanıcı forumlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.6 CRDi / 2.0 CRDi",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2004,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "hyundai-tucson-crdi-dpf-awd",
+            severity: "medium",
+            title: "DPF/EGR, enjektör ve AWD/otomatik şanzıman kontrolü",
+            detail:
+              "Tucson dizellerde DPF/EGR, enjektör, turbo, otomatik şanzıman ve AWD diferansiyel/aktarma bakımı kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Hyundai CRDi ve Tucson kullanıcı servis kayıtlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Hyundai",
+    model: "Santa Fe",
+    yearFrom: 2000,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "2.0 / 2.2 CRDi",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2000,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "hyundai-santafe-crdi-auto-awd",
+            severity: "medium",
+            title: "CRDi enjektör/turbo, otomatik şanzıman ve AWD aktarma kontrolü",
+            detail:
+              "Santa Fe dizellerde enjektör, turbo, EGR/DPF, otomatik şanzıman yağ bakımı, AWD/diferansiyel ve çekme/yük geçmişi kontrol edilmelidir.",
+            typicalOnset: "150.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Hyundai Santa Fe kullanıcı forumları ve SUV dizel servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Dacia",
+    model: "Logan",
+    yearFrom: 2004,
+    yearTo: 2021,
+    engines: [
+      {
+        engineLabel: "1.4 / 1.6 MPI",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2004,
+        yearTo: 2016,
+        issues: [
+          {
+            id: "dacia-logan-mpi-lpg-uch",
+            severity: "medium",
+            title: "LPG/subap, bobin ve elektrik/UCH kontrolü",
+            detail:
+              "Logan benzinli MPI motorlar basit kabul edilir; LPG montajı, subap/kompresyon, bobin/buji, soğutma sistemi ve UCH/elektrik arızaları kontrol edilmeli.",
+            typicalOnset: "Yaş ve LPG kullanımına bağlı",
+            costLevel: "Orta",
+            sourceNote: "Renault/Dacia K7M-K4M kullanıcı forumları ve LPG servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 dCi K9K",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2005,
+        yearTo: 2021,
+        issues: [
+          {
+            id: "dacia-logan-k9k-injector-egr",
+            severity: "medium",
+            title: "K9K enjektör, EGR ve turbo hortumu kontrolü",
+            detail:
+              "Logan 1.5 dCi'da enjektör düzeltme değerleri, EGR kurumlanması, turbo hortumu ve yağ bakım geçmişi kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Renault/Dacia K9K motor ailesi forumları ve servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Dacia",
+    model: "Sandero",
+    yearFrom: 2008,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.2 / 1.4 / 1.6 MPI",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2008,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "dacia-sandero-mpi-lpg",
+            severity: "medium",
+            title: "LPG/subap, bobin ve soğutma sistemi kontrolü",
+            detail:
+              "Sandero MPI motorlarda LPG montajı, subap/kompresyon, bobin-buji, termostat/su kaçağı ve alt takım kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası veya LPG'li kullanımda",
+            costLevel: "Orta",
+            sourceNote:
+              "Dacia Sandero kullanıcı forumları ve Renault MPI/LPG servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "0.9 / 1.0 TCe",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2013,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "dacia-sandero-tce-turbo-chain",
+            severity: "medium",
+            title: "TCe turbo/yağ bakımı ve zincir sesi kontrolü",
+            detail:
+              "Küçük TCe motorlarda yağ bakımı, turbo sesi, soğukta zincir sesi, bobin/buji ve LPG'li ECO-G versiyonda montaj/sistem kontrol edilmeli.",
+            typicalOnset: "90.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "Renault/Dacia TCe kullanıcı kayıtları ve bağımsız servis kontrol listelerinde tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 dCi K9K",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2008,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "dacia-sandero-k9k-egr-injector",
+            severity: "medium",
+            title: "EGR/enjektör, turbo ve yağ bakım kontrolü",
+            detail:
+              "Sandero 1.5 dCi'da EGR, enjektör, turbo hortumu ve gecikmiş yağ bakımına bağlı yatak/turbo riski kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Renault K9K motor ailesi ve Dacia kullanıcı forumlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Dacia",
+    model: "Sandero Stepway",
+    yearFrom: 2009,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "0.9 / 1.0 TCe ECO-G",
+        fuelType: "LPG",
+        transmission: "Manuel",
+        yearFrom: 2013,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "dacia-stepway-tce-ecog",
+            severity: "medium",
+            title: "TCe turbo, LPG/ECO-G sistem ve bobin kontrolü",
+            detail:
+              "Stepway ECO-G/TCe'de turbo sesi, yağ bakımı, LPG regülatörü/enjektörleri, bobin/buji ve yazılım güncellemeleri kontrol edilmeli.",
+            typicalOnset: "90.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Dacia ECO-G/TCe kullanıcı kayıtları ve LPG servis deneyimlerinde tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 dCi K9K",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2009,
+        yearTo: 2020,
+        issues: [
+          {
+            id: "dacia-stepway-k9k-dpf-egr",
+            severity: "medium",
+            title: "K9K EGR/DPF, enjektör ve turbo hortumu kontrolü",
+            detail: "Stepway dizelde EGR/DPF, enjektör değerleri, turbo hortumu ve yağ bakım geçmişi kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Renault/Dacia K9K kullanıcı forumları ve servis kayıtları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Dacia",
+    model: "Dokker",
+    yearFrom: 2012,
+    yearTo: 2021,
+    engines: [
+      {
+        engineLabel: "1.5 dCi K9K",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2012,
+        yearTo: 2021,
+        issues: [
+          {
+            id: "dacia-dokker-k9k-commercial",
+            severity: "medium",
+            title: "K9K dizel yan sistemleri ve ticari kullanım yıpranması",
+            detail:
+              "Dokker'de ticari kullanım EGR/DPF, enjektör, turbo hortumu, debriyaj/volan ve arka süspansiyon yıpranmasını hızlandırabilir.",
+            typicalOnset: "100.000 km sonrası veya ticari kullanımda",
+            costLevel: "Orta",
+            sourceNote: "Dacia Dokker/K9K kullanıcı forumları ve ticari servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.6 MPI",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2012,
+        yearTo: 2021,
+        issues: [
+          {
+            id: "dacia-dokker-16mpi-lpg",
+            severity: "medium",
+            title: "LPG/subap, bobin ve yük kullanımı kontrolü",
+            detail:
+              "1.6 MPI Dokker'de LPG montajı, subap/kompresyon, bobin/buji, soğutma ve ticari/yük kullanım izleri kontrol edilmeli.",
+            typicalOnset: "LPG'li yüksek km araçlarda",
+            costLevel: "Orta",
+            sourceNote: "Renault/Dacia MPI LPG kullanıcı kayıtları ve Dokker ticari servis deneyimleri.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Dacia",
+    model: "Lodgy",
+    yearFrom: 2012,
+    yearTo: 2021,
+    engines: [
+      {
+        engineLabel: "1.5 dCi K9K",
+        fuelType: "Dizel",
+        transmission: "Manuel",
+        yearFrom: 2012,
+        yearTo: 2021,
+        issues: [
+          {
+            id: "dacia-lodgy-k9k-dpf-dmf",
+            severity: "medium",
+            title: "K9K EGR/DPF, enjektör ve aile/ticari kullanım yıpranması",
+            detail:
+              "Lodgy 1.5 dCi'da EGR/DPF, enjektör, turbo hortumu, debriyaj/volan ve yedi koltuk/yük kullanımından gelen alt takım kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Dacia Lodgy/K9K kullanıcı forumları ve servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.2 TCe H5Ft",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2012,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "dacia-lodgy-12tce-chain-oil",
+            severity: "high",
+            title: "1.2 TCe yağ tüketimi ve zincir riski",
+            detail:
+              "H5Ft 1.2 TCe Lodgy'de yağ tüketimi, zincir uzaması ve turbo riski kontrol edilmeli; yağ eksiltme geçmişi varsa motor hasarı riski büyür.",
+            typicalOnset: "60.000-120.000 km",
+            costLevel: "Yüksek",
+            sourceNote:
+              "Renault/Nissan H5Ft 1.2 TCe teknik kaynakları ve Dacia kullanıcı kayıtlarında tekrar eden risk.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Dacia",
+    model: "Jogger",
+    yearFrom: 2021,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "1.0 TCe ECO-G",
+        fuelType: "LPG",
+        transmission: "Manuel",
+        yearFrom: 2021,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "dacia-jogger-tce-ecog",
+            severity: "medium",
+            title: "ECO-G LPG sistemi, turbo ve yazılım güncellemesi kontrolü",
+            detail:
+              "Jogger ECO-G'de LPG regülatörü/enjektörleri, turbo sesi, bobin/buji, yağ bakımı ve yazılım/garanti kayıtları kontrol edilmeli.",
+            typicalOnset: "Garanti devri ve 80.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Dacia ECO-G kullanıcı deneyimleri ve LPG servis kayıtlarında tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+      {
+        engineLabel: "Hybrid 140",
+        fuelType: "Hibrit",
+        transmission: "Otomatik",
+        yearFrom: 2023,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "dacia-jogger-hybrid-battery",
+            severity: "low",
+            title: "Hibrit batarya, E-Tech şanzıman ve garanti devri kontrolü",
+            detail:
+              "Jogger Hybrid'de batarya sağlığı, E-Tech otomatik sistem davranışı, garanti devri ve yazılım güncellemeleri kontrol edilmeli.",
+            typicalOnset: "Garanti devri öncesi",
+            costLevel: "Orta",
+            sourceNote: "Renault/Dacia E-Tech hibrit kullanıcı deneyimleri ve hibrit alım rehberleri.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Dacia",
+    model: "Spring",
+    yearFrom: 2021,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "Elektrikli güç aktarma",
+        fuelType: "Elektrik",
+        transmission: "Otomatik",
+        yearFrom: 2021,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "dacia-spring-battery-charging",
+            severity: "medium",
+            title: "Batarya sağlığı, şarj portu ve düşük maliyetli donanım yıpranması",
+            detail:
+              "Spring'de batarya sağlık raporu, DC/AC şarj geçmişi, şarj portu, 12V akü, fren/süspansiyon yıpranması ve garanti devri kontrol edilmeli.",
+            typicalOnset: "Garanti devri ve yüksek km öncesi",
+            costLevel: "Orta",
+            sourceNote: "Dacia Spring kullanıcı deneyimleri ve EV alım rehberlerinde tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
 ];
