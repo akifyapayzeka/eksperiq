@@ -463,9 +463,9 @@ describe("findChronicIssues", () => {
       sellerDescription: "T8 plug-in hybrid.",
     });
 
-    expect(seat.issues.some((issue) => issue.id === "seat-arona-tsi-dsg")).toBe(true);
+    expect(seat.issues.some((issue) => issue.id === "seat-arona-10tsi-dq200")).toBe(true);
     expect(tesla.issues.some((issue) => issue.id === "tesla-model-3-ev-battery-software")).toBe(true);
-    expect(volvo.issues.some((issue) => issue.id === "volvo-xc90-petrol-hybrid-electronics")).toBe(true);
+    expect(volvo.issues.some((issue) => issue.id === "volvo-xc90-t8")).toBe(true);
   });
 
   it("matches newly added premium brand engine-specific issues", () => {
