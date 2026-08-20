@@ -292,7 +292,13 @@ async function requestOpenRouterListingImport(input) {
   if (!result.ok) return { error: result.error };
 
   const text = extractText(result.payload);
-  if (!text) return { error: "AI yanıtı okunamadı." };
+  if (!text) {
+    console.error(
+      "[listing-import] extractText found no readable choices[0].message.content. Raw payload (first 500 chars):",
+      JSON.stringify(result.payload).slice(0, 500),
+    );
+    return { error: "AI yanıtı okunamadı." };
+  }
   const parsed = extractJson(text);
   const json = parsed ? normalizeFieldsShape(parsed) : null;
   if (!json || !isRecord(json.fields)) {

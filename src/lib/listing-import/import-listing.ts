@@ -52,12 +52,13 @@ type ListingImportApiResponse = {
  *
  * runNativeImport can run the whole page-open + AI-normalize sequence
  * twice (see the blocked-page retry below), and each pass's own native
- * timeouts can now add up to 90s (35s + 55s) in the worst case — 180s for
- * two, plus overhead. Set with headroom above that rather than tuned to
- * the common case, since the common case finishes in well under a minute
+ * timeouts can now add up to 135s (35s page fetch + 100s AI call, see
+ * EksperIQListingFetchPlugin.swift) in the worst case — 270s for two,
+ * plus overhead. Set with headroom above that rather than tuned to the
+ * common case, since the common case finishes in well under a minute
  * anyway and this is only what bounds the rare worst case.
  */
-const CLIENT_HARD_TIMEOUT_MS = 200_000;
+const CLIENT_HARD_TIMEOUT_MS = 300_000;
 
 /**
  * Loads the URL on the user's own device (WKWebView, not a server fetch —

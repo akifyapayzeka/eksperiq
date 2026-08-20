@@ -180,13 +180,15 @@ private enum ListingImportRequester {
             return Outcome(succeeded: false, httpStatus: 0, responseJson: "")
         }
 
-        // Was 20s — Vercel logs show the free-tier AI model genuinely taking
-        // 20-30+ seconds to respond on some requests, so this was giving up
-        // (returning an empty responseJson, which the JS side then fails to
-        // parse as "Unexpected EOF") before the server had a real chance to
-        // finish. Raised to match the server's own maxDuration (see
-        // vercel.json's api/ai/*.js) with a little headroom under it.
-        var request = URLRequest(url: endpoint, timeoutInterval: 55)
+        // Was 20s, then 55s — each time raised to chase the server's own
+        // ceiling (vercel.json's api/ai/*.js maxDuration), but a client
+        // timeout BELOW the server's meant a slow-but-successful response
+        // got cut off mid-stream instead of ever reaching the server limit —
+        // confirmed live: server maxDuration went 60->90, this stayed at 55,
+        // and the very next slow response was truncated client-side ("raw="
+        // empty, JS parse error) even though the server had logged a clean
+        // 200. Must always stay ABOVE the server's maxDuration, not under it.
+        var request = URLRequest(url: endpoint, timeoutInterval: 100)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         if let installId, !installId.isEmpty {
