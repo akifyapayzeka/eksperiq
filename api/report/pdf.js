@@ -319,6 +319,22 @@ async function buildPdf(payload) {
     );
   }
 
+  const buyerDecisionGuide = Array.isArray(payload.buyerDecisionGuide)
+    ? payload.buyerDecisionGuide.slice(0, 4)
+    : [];
+  if (buyerDecisionGuide.length) {
+    w.sectionTitle("Araçtan anlamayanlar için karar rehberi");
+    w.numberedList(
+      buyerDecisionGuide.map((item) => {
+        const title = asString(item && item.title);
+        const meaning = asString(item && item.meaning);
+        const action = asString(item && item.action);
+        return `${title}: ${meaning} Ne yap: ${action}`;
+      }),
+      { size: 9.8 },
+    );
+  }
+
   const findings = Array.isArray(payload.findings) ? payload.findings.slice(0, 8) : [];
   if (findings.length) {
     w.sectionTitle("Öne çıkan riskler");

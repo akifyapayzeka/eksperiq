@@ -27,7 +27,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { appConfig } from "@/lib/constants/app";
 import { apiFetch } from "@/lib/api/client";
 import { shareReportPdf } from "@/lib/report/pdf-share";
-import { BUYER_EDUCATION_NOTES } from "@/lib/analysis/buyer-education";
+import { BUYER_DECISION_GUIDE, BUYER_EDUCATION_NOTES } from "@/lib/analysis/buyer-education";
 import { SCORE_WEIGHTS } from "@/lib/constants/analysis";
 import { formatAnalysisSummary, formatSellerQuestionMessage } from "@/lib/analysis/report-summary";
 import { buildAiAnalysisNoteInput } from "@/lib/ai/analysis-note";
@@ -128,6 +128,26 @@ function riskToneClass(score: number): string {
 
 function priorityToneClass(severity: string): string {
   return severityClass(severity);
+}
+
+function simpleFindingMeaning(category: string): string {
+  const normalized = category.toLocaleLowerCase("tr-TR");
+  if (normalized.includes("hasar")) {
+    return "Bu başlık aracın güvenliği, ikinci el değeri ve satarken alıcı bulması açısından önemlidir.";
+  }
+  if (normalized.includes("bakım")) {
+    return "Bakım belgesi yoksa küçük ihmal ileride motor, şanzıman veya soğutma masrafına dönüşebilir.";
+  }
+  if (normalized.includes("evrak") || normalized.includes("ekspertiz")) {
+    return "Belgeyle doğrulanmayan bilgi satıcı beyanı olarak kalır; satın almadan önce kanıt görmek gerekir.";
+  }
+  if (normalized.includes("satıcı")) {
+    return "Satıcı açıklaması ne kadar belirsizse, yazılı soru ve bağımsız kontrol o kadar önem kazanır.";
+  }
+  if (normalized.includes("kilometre")) {
+    return "Kilometre, yaş ve kullanım tipi birlikte değerlendirilmezse gerçek yıpranma seviyesi kaçabilir.";
+  }
+  return "Bu bulgu tek başına kesin karar verdirmez; pazarlık, ekspertiz ve belge kontrolünde öncelik verir.";
 }
 
 const SCORE_RING_RADIUS = 16;
@@ -623,6 +643,23 @@ export function ResultClient() {
                 {result.priorityActions[0]?.reason ??
                   "Eksik veya belirsiz bilgileri yazılı belge ve ekspertiz raporuyla netleştirin."}
               </p>
+            </div>
+          </div>
+          <div className="border-t border-border bg-card p-4">
+            <div className="rounded-theme border border-accent/20 bg-accent/10 p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
+                <ShieldQuestion aria-hidden="true" className="h-4 w-4 text-accent" />
+                Araçtan anlamayanlar için karar rehberi
+              </div>
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                {BUYER_DECISION_GUIDE.map((item) => (
+                  <article key={item.title} className="rounded-lg border border-border bg-card p-4">
+                    <h2 className="font-semibold text-foreground">{item.title}</h2>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">Ne demek: {item.meaning}</p>
+                    <p className="mt-2 text-sm font-medium leading-6 text-foreground/90">Ne yap: {item.action}</p>
+                  </article>
+                ))}
+              </div>
             </div>
           </div>
           <div className="grid gap-3 border-t border-border bg-card p-4 md:grid-cols-3">
@@ -1195,6 +1232,9 @@ export function ResultClient() {
                   </p>
                   <h3 className="mt-1 font-semibold">{finding.title}</h3>
                   <p className="mt-2 text-sm leading-6">{finding.explanation}</p>
+                  <p className="mt-2 rounded-theme-sm border border-current/20 bg-white/40 p-3 text-sm leading-6 text-current">
+                    Basit anlamı: {simpleFindingMeaning(finding.category)}
+                  </p>
                   <p className="mt-2 text-sm font-medium">{finding.recommendation}</p>
                 </article>
               ))}

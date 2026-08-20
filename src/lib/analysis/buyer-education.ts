@@ -4,6 +4,35 @@ export type BuyerEducationNote = {
   check: string;
 };
 
+export type BuyerDecisionGuideItem = {
+  title: string;
+  meaning: string;
+  action: string;
+};
+
+export const BUYER_DECISION_GUIDE: BuyerDecisionGuideItem[] = [
+  {
+    title: "Önce belge iste",
+    meaning: "Satıcının 'hatasız, bakımlı, masrafsız' demesi tek başına kanıt değildir.",
+    action: "TRAMER, muayene kilometresi, bakım faturası ve varsa ekspertiz raporunu aynı araçla eşleştir.",
+  },
+  {
+    title: "Sonra pahalı risklere bak",
+    meaning: "Motor, şanzıman, şasi, podye, airbag ve ağır hasar sorunları küçük kozmetik kusurlardan çok daha önemlidir.",
+    action: "Ekspertize bu başlıkları özellikle söyle; yalnızca boya ölçümüyle yetinme.",
+  },
+  {
+    title: "Eksik bilgi varsa acele etme",
+    meaning: "Belirsiz kalan her bilgi satın aldıktan sonra masraf veya değer kaybı olarak dönebilir.",
+    action: "Satıcı cevaplamıyorsa, belge yoksa veya ekspertizden kaçıyorsa aracı beklet.",
+  },
+  {
+    title: "Fiyatı riske göre düşün",
+    meaning: "Ucuz araç her zaman avantaj değildir; yakın masrafı olan araç toplamda pahalıya gelebilir.",
+    action: "Lastik, akü, muayene, ağır bakım, triger ve şanzıman risklerini pazarlığa dahil et.",
+  },
+];
+
 export const BUYER_EDUCATION_NOTES: BuyerEducationNote[] = [
   {
     title: "Triger kayışı veya zinciri",

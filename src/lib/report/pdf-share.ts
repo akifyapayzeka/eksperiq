@@ -5,7 +5,7 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
 import { apiFetch } from "@/lib/api/client";
 import type { AnalysisResult } from "@/lib/analysis/types";
-import { BUYER_EDUCATION_NOTES } from "@/lib/analysis/buyer-education";
+import { BUYER_DECISION_GUIDE, BUYER_EDUCATION_NOTES } from "@/lib/analysis/buyer-education";
 
 export type PdfShareOutcome = "shared" | "downloaded" | "failed";
 
@@ -24,6 +24,7 @@ function buildReportPayload(result: AnalysisResult) {
     findings: result.findings,
     sellerQuestions: result.sellerQuestions,
     inspectionFocus: result.inspectionFocus,
+    buyerDecisionGuide: BUYER_DECISION_GUIDE,
     buyerEducation: BUYER_EDUCATION_NOTES,
   };
 }
