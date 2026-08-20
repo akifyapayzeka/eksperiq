@@ -40,6 +40,7 @@
     "repo:check": "node scripts/check-repo-sync.mjs",
     "privacy:check": "node scripts/check-sensitive-data.mjs",
     "claims:check": "node scripts/check-safe-claims.mjs",
+    "chronic-issues:coverage": "node scripts/report-chronic-issues-coverage.mjs",
     "feedback:outputs-check": "node scripts/check-feedback-output-safety.mjs",
     "feedback:runbook-check": "node scripts/check-feedback-runbook.mjs",
     "form:fields-check": "node scripts/check-form-field-types.mjs",

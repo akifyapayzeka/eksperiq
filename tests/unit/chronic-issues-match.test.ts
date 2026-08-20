@@ -214,6 +214,35 @@ describe("findChronicIssues", () => {
     expect(landRover.issues.some((issue) => issue.id === "landrover-evoque-ingenium-chain-dpf")).toBe(true);
   });
 
+  it("covers every Fiat model listed in the analysis form catalog", () => {
+    const fiatModels = ["500", "Doblo", "Egea", "Egea Cross", "Fiorino", "Linea", "Panda", "Punto", "Tipo"];
+    const coveredFiatModels = new Set(
+      CHRONIC_ISSUES_DB.filter((entry) => entry.brand === "Fiat").map((entry) => entry.model),
+    );
+
+    expect(fiatModels.filter((model) => !coveredFiatModels.has(model))).toEqual([]);
+  });
+
+  it("separates Fiat Egea's main 2000+ market engine variants", () => {
+    const egeaEngines = new Set(
+      CHRONIC_ISSUES_DB.filter((entry) => entry.brand === "Fiat" && entry.model === "Egea").flatMap((entry) =>
+        entry.engines.map((engine) => engine.engineLabel),
+      ),
+    );
+
+    expect([...egeaEngines]).toEqual(
+      expect.arrayContaining([
+        "1.0 FireFly Turbo",
+        "1.3 Multijet",
+        "1.4 Fire",
+        "1.4 T-Jet",
+        "1.5 Hybrid T4 DCT",
+        "1.6 E-torQ",
+        "1.6 Multijet",
+      ]),
+    );
+  });
+
   it("matches newly added premium brand engine-specific issues", () => {
     const bmw = findChronicIssues({
       brand: "BMW",
