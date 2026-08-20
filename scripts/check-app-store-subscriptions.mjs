@@ -108,7 +108,7 @@ function createJwt() {
 async function request(path, token, init = {}) {
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { ...(init.headers ?? {}), Authorization: `Bearer ${token}` },
   });
   const text = await response.text();
   let body;
