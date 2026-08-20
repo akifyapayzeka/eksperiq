@@ -21,6 +21,9 @@ npm run typecheck
 npm run test
 npm run privacy:check
 npm run claims:check
+npm run market-review:check
+npm run storekit:gate-check
+npm run chronic-issues:coverage
 npm run feedback:outputs-check
 npm run feedback:runbook-check
 npm run form:fields-check
@@ -52,6 +55,7 @@ Kontrol edilecekler:
 - Türkçe görünen metinlerde bozuk karakter yok.
 - Eski çalışma adı, secret veya gereksiz env referansı yok.
 - Kesin satın alma, hasarsızlık veya ekspertiz yerine geçme iddiası yok; `npm run claims:check` geçiyor.
+- Pazar yorumu dersleri, StoreKit satın alma flag güvenliği ve kronik sorun kapsamı ayrı kapılardan geçiyor.
 - Satış/App Store öncesi yerel ağır kapı `npm run ship:local-check` ile tek komutta geçiyor.
 - Kullanıcı testi ham notları, triage çıktıları ve issue taslakları `dist` altında kalıyor; repoya eklenmiyor.
 - Gerçek kullanıcı feedback akışı `docs/real-user-feedback-runbook.md` ile takip ediliyor.
