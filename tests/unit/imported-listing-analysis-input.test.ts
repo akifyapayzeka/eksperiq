@@ -71,19 +71,22 @@ describe("buildVehicleInputFromListingImport", () => {
     ]);
   });
 
-  it("reports missing vehicle identity fields when the listing cannot support a reliable analysis", () => {
+  it("keeps analyzing with explicit unknown identity placeholders when the listing identity is missing", () => {
     const result = buildVehicleInputFromListingImport(
       baseImportResult({
         title: "Eksik ilan",
-        fields: { ...baseImportResult().fields, brand: null, model: null, price: null },
+        fields: { ...baseImportResult().fields, brand: null, model: null, year: null, price: null },
       }),
       "https://shbd.io/s/example",
     );
 
-    expect(result.ok).toBe(false);
-    if (result.ok) return;
-    expect(result.missingFields).toEqual(expect.arrayContaining(["brand", "model"]));
-    expect(result.missingFields).not.toContain("price");
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.brand).toBe("Bilinmeyen marka");
+    expect(result.data.model).toBe("Bilinmeyen model");
+    expect(result.data.year).toBe(2005);
+    expect(result.data.sellerDescription).toContain("İlan linkinden marka, model bilgisi net alınamadı");
+    expect(result.warnings).toEqual(["brand", "model"]);
   });
 
   it("keeps analyzing when non-identity listing details are missing", () => {

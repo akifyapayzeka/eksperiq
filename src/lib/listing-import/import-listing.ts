@@ -41,6 +41,63 @@ type ListingImportApiResponse = {
   error?: string;
 };
 
+function textPreview(...values: string[]): string {
+  return values
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .join("\n\n")
+    .slice(0, 4000);
+}
+
+function fallbackResultFromPageData(pageData: ExtractedPageData): ListingImportResult {
+  return {
+    title: textPreview(pageData.title, pageData.ogTitle).slice(0, 300) || "İlan bilgisi",
+    fields: {
+      brand: null,
+      model: null,
+      year: null,
+      trim: null,
+      fuelType: null,
+      transmission: null,
+      mileage: null,
+      price: null,
+      city: null,
+      bodyType: null,
+      engineSize: null,
+      enginePower: null,
+      drivetrain: null,
+      ownerInfo: null,
+      tradeStatus: null,
+      tramerAmount: null,
+      paintedParts: null,
+      replacedParts: null,
+      localPaintedParts: null,
+      airbagStatus: null,
+      lpgStatus: null,
+      hasHeavyDamage: null,
+      hasChassisRepair: null,
+      hasTotalLossHistory: null,
+      hasExpertiseReport: null,
+      lpgRegistered: null,
+      hasSpareKey: null,
+      hasMaintenanceInvoices: null,
+      lastMaintenanceDate: null,
+      timingBeltInfo: null,
+      transmissionMaintenanceInfo: null,
+      batteryStatus: null,
+      tireStatus: null,
+      inspectionEndDate: null,
+      sellerDescription:
+        textPreview(pageData.ogDescription, pageData.bodyText) ||
+        "İlan metni alındı ancak alanlara güvenilir şekilde ayrılamadı.",
+    },
+    lowConfidenceFields: [],
+    missingFields: ["brand", "model", "year", "fuelType", "transmission", "city"],
+    warnings: ["İlan metni alındı ancak araç bilgileri otomatik alanlara güvenilir şekilde ayrılamadı."],
+    images: filterListingImageUrls(pageData.images, 40),
+  };
+}
+
 /**
  * The native side has its own timeouts (50s to open the page, 140s for the
  * AI-normalize call — see EksperIQListingFetchPlugin.swift), but nothing on
@@ -244,14 +301,16 @@ async function attemptNativeImport(
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     trace("js-payload-parse-error", `${detail} | raw=${importResponseJson}`.slice(0, 300));
-    return { ok: false, reason: "ai-failed" };
+    onStage("done");
+    return { ok: true, result: fallbackResultFromPageData(pageData) };
   }
   if (importHttpStatus !== 200 || !payload.result) {
     trace(
       "js-payload-missing-result",
       `status=${importHttpStatus} keys=${Object.keys(payload).join(",")}`.slice(0, 300),
     );
-    return { ok: false, reason: "ai-failed" };
+    onStage("done");
+    return { ok: true, result: fallbackResultFromPageData(pageData) };
   }
 
   onStage("done");

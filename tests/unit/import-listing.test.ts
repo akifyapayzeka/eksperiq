@@ -187,6 +187,35 @@ describe("importListingFromUrl", () => {
     expect(outcome).toEqual({ ok: false, reason: "blocked" });
   });
 
+  it("falls back to a raw listing report when AI normalization returns invalid JSON", async () => {
+    addListener.mockResolvedValue({ remove: vi.fn().mockResolvedValue(undefined) });
+    fetchListingPage.mockResolvedValue({
+      pageDataJson: JSON.stringify({
+        title: "Sahibinden temiz aile aracı",
+        ogTitle: "",
+        ogDescription: "Hatasız boyasız 2. sahibinden temiz lansman renkli aile aracı.",
+        bodyText: "Hatasız boyasız 2. sahibinden temiz lansman renkli aile aracı yeni alıcısına hayırlı olsun.".repeat(
+          2,
+        ),
+        jsonLd: [],
+        images: ["https://i0.shbdn.com/photos/12/34/56/x5_123456789abc.jpg"],
+        finalUrl: SUPPORTED_URL,
+      }),
+      importHttpStatus: 500,
+      importResponseJson: "{bad-json",
+    });
+
+    const { importListingFromUrl } = await import("@/lib/listing-import/import-listing");
+    const outcome = await importListingFromUrl(SUPPORTED_URL);
+
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok) return;
+    expect(outcome.result.fields.brand).toBeNull();
+    expect(outcome.result.fields.sellerDescription).toContain("Hatasız boyasız");
+    expect(outcome.result.missingFields).toEqual(expect.arrayContaining(["brand", "model", "year"]));
+    expect(outcome.result.images).toEqual(["https://i0.shbdn.com/photos/12/34/56/x5_123456789abc.jpg"]);
+  });
+
   it("still attempts fetchListingPage even when addListener() never settles", async () => {
     // The actual production root cause: @capacitor/core's addListenerNative
     // has a real bug where a rejected native addListener() call resolves to

@@ -4,7 +4,7 @@ import type { ListingImportResult } from "./types";
 import { filterListingImageUrls } from "./image-filter";
 
 type ImportedAnalysisInputResult =
-  { ok: true; data: VehicleFormData; images: string[] } | { ok: false; missingFields: string[] };
+  { ok: true; data: VehicleFormData; images: string[]; warnings: string[] } | { ok: false; missingFields: string[] };
 
 function importedString(value: unknown): string | null {
   if (typeof value === "string" && value.trim()) return value.trim();
@@ -30,6 +30,10 @@ function searchText(result: ListingImportResult): string {
 function fallbackYear(result: ListingImportResult): number | null {
   const match = searchText(result).match(/\b(19[8-9]\d|20[0-3]\d)\b/);
   return match ? Number(match[1]) : null;
+}
+
+function fallbackSafeYear(result: ListingImportResult): number {
+  return fallbackYear(result) ?? new Date().getFullYear();
 }
 
 function fallbackFuelType(result: ListingImportResult): string | null {
@@ -85,6 +89,18 @@ function sellerDescriptionFromImport(result: ListingImportResult): string {
   return "İlan açıklaması otomatik analiz için yeterli uzunlukta alınamadı.";
 }
 
+function descriptionWithMissingIdentityNotes(result: ListingImportResult, missingIdentityFields: string[]): string {
+  const base = sellerDescriptionFromImport(result);
+  if (!missingIdentityFields.length) return base;
+  const labelMap: Record<string, string> = {
+    brand: "marka",
+    model: "model",
+    year: "model yılı",
+  };
+  const labels = missingIdentityFields.map((field) => labelMap[field] ?? field).join(", ");
+  return `${base}\n\nEksperIQ notu: İlan linkinden ${labels} bilgisi net alınamadı. Rapor bu eksikleri satıcıya sorulacak kritik bilgi olarak değerlendirir.`;
+}
+
 export function buildVehicleInputFromListingImport(
   result: ListingImportResult,
   listingUrl: string,
@@ -92,10 +108,16 @@ export function buildVehicleInputFromListingImport(
   const fields = result.fields;
   const brand = importedString(fields.brand) ?? fallbackBrand(result);
   const model = importedString(fields.model) ?? fallbackModel(result, brand);
+  const year = importedNumber(fields.year) ?? fallbackYear(result);
+  const missingIdentityFields = [
+    brand ? null : "brand",
+    model ? null : "model",
+    year ? null : "year",
+  ].filter((field): field is string => Boolean(field));
   const input = {
-    brand,
-    model,
-    year: importedNumber(fields.year) ?? fallbackYear(result),
+    brand: brand ?? "Bilinmeyen marka",
+    model: model ?? "Bilinmeyen model",
+    year: year ?? fallbackSafeYear(result),
     trim: importedString(fields.trim) ?? undefined,
     fuelType: importedString(fields.fuelType) ?? fallbackFuelType(result) ?? "Bilinmiyor",
     transmission: importedString(fields.transmission) ?? fallbackTransmission(result) ?? "Bilinmiyor",
@@ -127,13 +149,18 @@ export function buildVehicleInputFromListingImport(
     lpgRegistered: importedBoolean(fields.lpgRegistered),
     hasSpareKey: importedBoolean(fields.hasSpareKey),
     hasMaintenanceInvoices: importedBoolean(fields.hasMaintenanceInvoices),
-    sellerDescription: sellerDescriptionFromImport(result),
+    sellerDescription: descriptionWithMissingIdentityNotes(result, missingIdentityFields),
     listingUrl,
   };
 
   const parsed = vehicleSchema.safeParse(input);
   if (parsed.success) {
-    return { ok: true, data: parsed.data, images: filterListingImageUrls(result.images, 40) };
+    return {
+      ok: true,
+      data: parsed.data,
+      images: filterListingImageUrls(result.images, 40),
+      warnings: missingIdentityFields,
+    };
   }
 
   const missingFields = parsed.error.issues
