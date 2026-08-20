@@ -7,6 +7,23 @@ import type { ImportedListingFields } from "./types";
 
 const setOpts = { shouldDirty: true, shouldTouch: true, shouldValidate: true } as const;
 
+function importedString(value: unknown): string | null {
+  if (typeof value === "string" && value.trim()) return value;
+  if (typeof value !== "object" || value === null) return null;
+  const candidate = value as { value?: unknown; label?: unknown };
+  if (typeof candidate.value === "string" && candidate.value.trim()) return candidate.value;
+  if (typeof candidate.label === "string" && candidate.label.trim()) return candidate.label;
+  return null;
+}
+
+function importedNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function importedBoolean(value: unknown): boolean | null {
+  return typeof value === "boolean" ? value : null;
+}
+
 /**
  * Writes AI-imported listing fields into the analysis form. Every enum-style
  * field (brand, fuelType, city, ...) was already constrained server-side to
@@ -20,33 +37,55 @@ export function applyImportedFieldsToForm(
   fields: ImportedListingFields,
   setValue: UseFormSetValue<VehicleFormInput>,
 ): void {
-  if (fields.brand) setValue("brand", fields.brand, setOpts);
+  const brand = importedString(fields.brand);
+  const model = importedString(fields.model);
+  const year = importedNumber(fields.year);
+  const trim = importedString(fields.trim);
+  const fuelType = importedString(fields.fuelType);
+  const transmission = importedString(fields.transmission);
+  const mileage = importedNumber(fields.mileage);
+  const price = importedNumber(fields.price);
+  const city = importedString(fields.city);
+  const bodyType = importedString(fields.bodyType);
+  const engineSize = importedString(fields.engineSize);
+  const enginePower = importedString(fields.enginePower);
+  const drivetrain = importedString(fields.drivetrain);
+  const ownerInfo = importedString(fields.ownerInfo);
+  const tradeStatus = importedString(fields.tradeStatus);
+  const airbagStatus = importedString(fields.airbagStatus);
+  const lpgStatus = importedString(fields.lpgStatus);
+  const hasHeavyDamage = importedBoolean(fields.hasHeavyDamage);
+  const hasChassisRepair = importedBoolean(fields.hasChassisRepair);
+  const hasSpareKey = importedBoolean(fields.hasSpareKey);
+  const sellerDescription = importedString(fields.sellerDescription);
 
-  if (fields.model && fields.brand) {
-    const modelOptions = modelOptionsForBrand(fields.brand);
+  if (brand) setValue("brand", brand, setOpts);
+
+  if (model && brand) {
+    const modelOptions = modelOptionsForBrand(brand);
     const matched = modelOptions.find(
-      (option) => option.toLocaleLowerCase("tr-TR") === fields.model?.toLocaleLowerCase("tr-TR"),
+      (option) => option.toLocaleLowerCase("tr-TR") === model.toLocaleLowerCase("tr-TR"),
     );
     if (matched) setValue("model", matched, setOpts);
   }
 
-  if (fields.year !== null) setValue("year", fields.year, setOpts);
-  if (fields.trim) setValue("trim", fields.trim, setOpts);
-  if (fields.fuelType) setValue("fuelType", fields.fuelType, setOpts);
-  if (fields.transmission) setValue("transmission", fields.transmission, setOpts);
-  if (fields.mileage !== null) setValue("mileage", fields.mileage, setOpts);
-  if (fields.price !== null) setValue("price", fields.price, setOpts);
-  if (fields.city) setValue("city", fields.city, setOpts);
-  if (fields.bodyType) setValue("bodyType", fields.bodyType, setOpts);
-  if (fields.engineSize) setValue("engineSize", fields.engineSize, setOpts);
-  if (fields.enginePower) setValue("enginePower", fields.enginePower, setOpts);
-  if (fields.drivetrain) setValue("drivetrain", fields.drivetrain, setOpts);
-  if (fields.ownerInfo) setValue("ownerInfo", fields.ownerInfo, setOpts);
-  if (fields.tradeStatus) setValue("tradeStatus", fields.tradeStatus, setOpts);
-  if (fields.airbagStatus) setValue("airbagStatus", fields.airbagStatus, setOpts);
-  if (fields.lpgStatus) setValue("lpgStatus", fields.lpgStatus, setOpts);
-  if (fields.hasHeavyDamage !== null) setValue("hasHeavyDamage", fields.hasHeavyDamage, setOpts);
-  if (fields.hasChassisRepair !== null) setValue("hasChassisRepair", fields.hasChassisRepair, setOpts);
-  if (fields.hasSpareKey !== null) setValue("hasSpareKey", fields.hasSpareKey, setOpts);
-  if (fields.sellerDescription) setValue("sellerDescription", fields.sellerDescription, setOpts);
+  if (year !== null) setValue("year", year, setOpts);
+  if (trim) setValue("trim", trim, setOpts);
+  if (fuelType) setValue("fuelType", fuelType, setOpts);
+  if (transmission) setValue("transmission", transmission, setOpts);
+  if (mileage !== null) setValue("mileage", mileage, setOpts);
+  if (price !== null) setValue("price", price, setOpts);
+  if (city) setValue("city", city, setOpts);
+  if (bodyType) setValue("bodyType", bodyType, setOpts);
+  if (engineSize) setValue("engineSize", engineSize, setOpts);
+  if (enginePower) setValue("enginePower", enginePower, setOpts);
+  if (drivetrain) setValue("drivetrain", drivetrain, setOpts);
+  if (ownerInfo) setValue("ownerInfo", ownerInfo, setOpts);
+  if (tradeStatus) setValue("tradeStatus", tradeStatus, setOpts);
+  if (airbagStatus) setValue("airbagStatus", airbagStatus, setOpts);
+  if (lpgStatus) setValue("lpgStatus", lpgStatus, setOpts);
+  if (hasHeavyDamage !== null) setValue("hasHeavyDamage", hasHeavyDamage, setOpts);
+  if (hasChassisRepair !== null) setValue("hasChassisRepair", hasChassisRepair, setOpts);
+  if (hasSpareKey !== null) setValue("hasSpareKey", hasSpareKey, setOpts);
+  if (sellerDescription) setValue("sellerDescription", sellerDescription, setOpts);
 }
