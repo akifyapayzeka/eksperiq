@@ -20,10 +20,17 @@ Kullanici odeme istemeden en az bir arac fotografi veya ilan metni icin temel ri
 
 Fiyatlar `src/lib/pro/pricing.ts` icinde maliyetin tam 5 kati olarak tutulur; App Store Connect urunleri acilinca ayni tutarlar StoreKit tarafina girilir.
 
+Maliyet hesabi:
+
+- Birincil ilan modeli `openai/gpt-oss-20b:free` oldugu surece AI token maliyeti yoktur; asil risk ucretsiz endpoint kapasite/rate-limit riskidir.
+- Opsiyonel ucretli fallback `openai/gpt-oss-20b` acilirsa guncel referans fiyat yaklasik `$0.03 / 1M input token` ve `$0.13 / 1M output token` seviyesindedir.
+- 2026-08-20 kur varsayimi: `1 USD ~= 48 TL`.
+- Tipik ilan normalize cagrisi cent alti seviyededir; uygulamadaki `monthlyOperatingCostTry` yalniz token maliyeti degil, retry, hatali deneme, Vercel/altyapi payi, Apple kesintisi sonrasi nefes payi ve kotu kullanim tamponudur.
+
 | Plan          | Aylik operasyon maliyeti | Aylik fiyat | Yillik fiyat | Kapsam                         |
 | ------------- | -----------------------: | ----------: | -----------: | ------------------------------ |
-| EksperIQ Pro  |                    44 TL |      220 TL |     2.640 TL | Ayda 20 ilan linki analizi     |
-| EksperIQ Pro+ |                   200 TL |    1.000 TL |    12.000 TL | Sinirsiz ilan linki analizi    |
+| EksperIQ Pro  |                    30 TL |      150 TL |     1.500 TL | Ayda 20 ilan linki analizi     |
+| EksperIQ Pro+ |                    80 TL |      400 TL |     4.000 TL | Sinirsiz ilan linki analizi    |
 
 Fotograf analizi Free, Pro ve Pro+ icin ucretsiz kalir ve ucretsiz gorsel AI modeliyle calisir.
 

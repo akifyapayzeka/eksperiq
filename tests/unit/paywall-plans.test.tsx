@@ -42,6 +42,8 @@ describe("PaywallPlansScreen", () => {
 
     const disabledCtas = screen.getAllByRole("button", { name: /App Store onayı bekleniyor/i });
     expect(disabledCtas).toHaveLength(2);
+    expect(screen.getByText(/150 TL/)).toBeInTheDocument();
+    expect(screen.getByText(/400 TL/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Satın almaları geri yükle/i })).not.toBeInTheDocument();
 
     fireEvent.click(disabledCtas[0]);
