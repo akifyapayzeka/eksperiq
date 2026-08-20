@@ -16,6 +16,11 @@ function normalize(value: string | undefined | null): string {
     .replace(/\p{Diacritic}/gu, "");
 }
 
+function knownFilterValue(value: string | undefined | null): string {
+  const normalized = normalize(value);
+  return normalized === "bilinmiyor" ? "" : normalized;
+}
+
 function parseDisplacement(text: string): number | null {
   const match = text.replace(",", ".").match(/(\d(?:\.\d)?)/);
   if (!match) return null;
@@ -83,9 +88,9 @@ export function findChronicIssues(
   const enginesInYear = entry.engines.filter(
     (engine) => withinYearRange(entry, engine, input.year) && trimMatches(engine, inputTrim),
   );
-  const fuelType = normalize(input.fuelType);
+  const fuelType = knownFilterValue(input.fuelType);
   const byFuel = fuelType ? enginesInYear.filter((engine) => normalize(engine.fuelType) === fuelType) : enginesInYear;
-  const transmission = normalize(input.transmission);
+  const transmission = knownFilterValue(input.transmission);
   const byTransmission = transmission
     ? byFuel.filter((engine) => !engine.transmission || normalize(engine.transmission) === transmission)
     : byFuel;

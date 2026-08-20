@@ -16,7 +16,7 @@ export const vehicleSchema = z.object({
   fuelType: z.string().trim().min(1, "Yakıt türü seçin."),
   transmission: z.string().trim().min(1, "Vites türü seçin."),
   mileage: z.coerce.number().int().min(0, "Kilometre negatif olamaz.").max(2000000, "Kilometre gerçekçi olmalı."),
-  price: z.coerce.number().int().min(1, "İlan fiyatı zorunludur."),
+  price: z.coerce.number().int().min(0, "İlan fiyatı negatif olamaz."),
   city: z.string().trim().min(1, "Şehir zorunludur."),
   bodyType: optionalText,
   engineSize: optionalText,

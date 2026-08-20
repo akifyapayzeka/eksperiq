@@ -51,4 +51,19 @@ describe("data completeness", () => {
       expect.arrayContaining(["Paket", "Ruhsat sahibi bilgisi", "Son bakım tarihi"]),
     );
   });
+
+  it("treats imported unknown placeholders as missing information", () => {
+    const completeness = calculateDataCompleteness({
+      ...sparseInput,
+      fuelType: "Bilinmiyor",
+      transmission: "Bilinmiyor",
+      mileage: 0,
+      price: 0,
+      city: "Bilinmiyor",
+    });
+
+    expect(completeness.missing).toEqual(
+      expect.arrayContaining(["Yakıt türü", "Vites türü", "Kilometre", "İlan fiyatı", "Şehir"]),
+    );
+  });
 });

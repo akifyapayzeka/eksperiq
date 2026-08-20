@@ -45,7 +45,12 @@ function baseImportResult(overrides: Partial<ListingImportResult> = {}): Listing
     lowConfidenceFields: [],
     missingFields: [],
     warnings: [],
-    images: ["https://example.com/car-1.jpg", "https://example.com/car-2.jpg"],
+    images: [
+      "https://i0.shbdn.com/photos/12/34/56/x5_123456789abc.jpg",
+      "https://cdn.example.com/assets/wrench-icon.png",
+      "https://cdn.arabam.com/prod/listing/vehicle-photo.webp",
+      "https://cdn.example.com/logo.png",
+    ],
     ...overrides,
   };
 }
@@ -60,10 +65,13 @@ describe("buildVehicleInputFromListingImport", () => {
     expect(result.data.model).toBe("Albea");
     expect(result.data.lpgRegistered).toBe(true);
     expect(result.data.replacedParts).toBe("Değişen yok");
-    expect(result.images).toEqual(["https://example.com/car-1.jpg", "https://example.com/car-2.jpg"]);
+    expect(result.images).toEqual([
+      "https://i0.shbdn.com/photos/12/34/56/x5_123456789abc.jpg",
+      "https://cdn.arabam.com/prod/listing/vehicle-photo.webp",
+    ]);
   });
 
-  it("reports missing core fields when the listing cannot support a reliable analysis", () => {
+  it("reports missing vehicle identity fields when the listing cannot support a reliable analysis", () => {
     const result = buildVehicleInputFromListingImport(
       baseImportResult({
         title: "Eksik ilan",
@@ -74,7 +82,45 @@ describe("buildVehicleInputFromListingImport", () => {
 
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.missingFields).toEqual(expect.arrayContaining(["brand", "model", "price"]));
+    expect(result.missingFields).toEqual(expect.arrayContaining(["brand", "model"]));
+    expect(result.missingFields).not.toContain("price");
+  });
+
+  it("keeps analyzing when non-identity listing details are missing", () => {
+    const result = buildVehicleInputFromListingImport(
+      baseImportResult({
+        fields: {
+          ...baseImportResult().fields,
+          transmission: null,
+          mileage: null,
+          price: null,
+          city: null,
+        },
+      }),
+      "https://shbd.io/s/example",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.transmission).toBe("Bilinmiyor");
+    expect(result.data.mileage).toBe(0);
+    expect(result.data.price).toBe(0);
+    expect(result.data.city).toBe("Bilinmiyor");
+  });
+
+  it("falls back to the title for brand and model when the AI leaves them null", () => {
+    const result = buildVehicleInputFromListingImport(
+      baseImportResult({
+        title: "2005 Fiat Albea Active LPG'li değişensiz klimalı",
+        fields: { ...baseImportResult().fields, brand: null, model: null },
+      }),
+      "https://shbd.io/s/example",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.brand).toBe("Fiat");
+    expect(result.data.model).toBe("Albea");
   });
 
   it("falls back to title and description for core fields the AI shape omitted", () => {

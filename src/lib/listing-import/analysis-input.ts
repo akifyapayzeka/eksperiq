@@ -1,6 +1,7 @@
 import { vehicleSchema, type VehicleFormData } from "@/lib/schemas/vehicle";
-import { modelOptionsForBrand } from "@/components/forms/analysis-form-sections";
+import { brandOptions, modelOptionsForBrand } from "@/components/forms/analysis-form-sections";
 import type { ListingImportResult } from "./types";
+import { filterListingImageUrls } from "./image-filter";
 
 type ImportedAnalysisInputResult =
   { ok: true; data: VehicleFormData; images: string[] } | { ok: false; missingFields: string[] };
@@ -41,12 +42,25 @@ function fallbackFuelType(result: ListingImportResult): string | null {
   return null;
 }
 
+function fallbackBrand(result: ListingImportResult): string | null {
+  const normalized = searchText(result).toLocaleLowerCase("tr-TR");
+  return (
+    brandOptions.find(
+      (brand) => brand !== "Diğer / listede yok" && normalized.includes(brand.toLocaleLowerCase("tr-TR")),
+    ) ?? null
+  );
+}
+
 function fallbackTransmission(result: ListingImportResult): string | null {
   const normalized = searchText(result).toLocaleLowerCase("tr-TR");
   if (/yar[ıi]\s*otomatik|semi\s*automatic/.test(normalized)) return "Yarı otomatik";
   if (/otomatik|automatic/.test(normalized)) return "Otomatik";
   if (/manuel|manual/.test(normalized)) return "Manuel";
   return null;
+}
+
+function fallbackCity(result: ListingImportResult): string {
+  return importedString(result.fields.city) ?? "Bilinmiyor";
 }
 
 function fallbackModel(result: ListingImportResult, brand: string | null): string | null {
@@ -76,18 +90,18 @@ export function buildVehicleInputFromListingImport(
   listingUrl: string,
 ): ImportedAnalysisInputResult {
   const fields = result.fields;
-  const brand = importedString(fields.brand);
+  const brand = importedString(fields.brand) ?? fallbackBrand(result);
   const model = importedString(fields.model) ?? fallbackModel(result, brand);
   const input = {
     brand,
     model,
     year: importedNumber(fields.year) ?? fallbackYear(result),
     trim: importedString(fields.trim) ?? undefined,
-    fuelType: importedString(fields.fuelType) ?? fallbackFuelType(result),
-    transmission: importedString(fields.transmission) ?? fallbackTransmission(result),
-    mileage: importedNumber(fields.mileage),
-    price: importedNumber(fields.price),
-    city: importedString(fields.city),
+    fuelType: importedString(fields.fuelType) ?? fallbackFuelType(result) ?? "Bilinmiyor",
+    transmission: importedString(fields.transmission) ?? fallbackTransmission(result) ?? "Bilinmiyor",
+    mileage: importedNumber(fields.mileage) ?? 0,
+    price: importedNumber(fields.price) ?? 0,
+    city: fallbackCity(result),
     bodyType: importedString(fields.bodyType) ?? undefined,
     engineSize: importedString(fields.engineSize) ?? undefined,
     enginePower: importedString(fields.enginePower) ?? undefined,
@@ -119,7 +133,7 @@ export function buildVehicleInputFromListingImport(
 
   const parsed = vehicleSchema.safeParse(input);
   if (parsed.success) {
-    return { ok: true, data: parsed.data, images: result.images.slice(0, 30) };
+    return { ok: true, data: parsed.data, images: filterListingImageUrls(result.images, 20) };
   }
 
   const missingFields = parsed.error.issues

@@ -3,6 +3,9 @@ import type { VehicleFormData } from "@/lib/schemas/vehicle";
 import type { AnalysisFinding, MileageEvaluation } from "../types";
 
 export function evaluateMileage(input: VehicleFormData): MileageEvaluation {
+  if (input.mileage <= 0) {
+    return { vehicleAge: Math.max(1, CURRENT_YEAR - input.year + 1), annualMileage: 0, label: "Bilgi yetersiz" };
+  }
   const vehicleAge = Math.max(1, CURRENT_YEAR - input.year + 1);
   const annualMileage = Math.round(input.mileage / vehicleAge);
   let label = "Normal aralık";
@@ -13,6 +16,7 @@ export function evaluateMileage(input: VehicleFormData): MileageEvaluation {
 }
 
 export function mileageRules(input: VehicleFormData): AnalysisFinding[] {
+  if (input.mileage <= 0) return [];
   const mileage = evaluateMileage(input);
   if (mileage.annualMileage < MILEAGE_BANDS.veryLowMax) {
     return [

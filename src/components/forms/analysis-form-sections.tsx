@@ -20,8 +20,8 @@ type CheckboxName =
   | "hasSpareKey"
   | "hasMaintenanceInvoices";
 
-const fuelTypes = ["Benzin", "Dizel", "Hibrit", "Elektrik", "LPG"];
-const transmissions = ["Manuel", "Otomatik", "Yarı otomatik"];
+const fuelTypes = ["Benzin", "Dizel", "Hibrit", "Elektrik", "LPG", "Bilinmiyor"];
+const transmissions = ["Manuel", "Otomatik", "Yarı otomatik", "Bilinmiyor"];
 const brandOptions = [
   "Alfa Romeo",
   "Audi",

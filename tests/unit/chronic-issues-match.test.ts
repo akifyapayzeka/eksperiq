@@ -468,6 +468,22 @@ describe("findChronicIssues", () => {
     expect(volvo.issues.some((issue) => issue.id === "volvo-xc90-t8")).toBe(true);
   });
 
+  it("treats unknown imported fuel or transmission as a broad chronic-issue match", () => {
+    const result = findChronicIssues({
+      brand: "Seat",
+      model: "Arona",
+      year: 2020,
+      fuelType: "Bilinmiyor",
+      transmission: "Bilinmiyor",
+      engineSize: "",
+      trim: "",
+      sellerDescription: "İlan yakıt ve vites bilgisini net göstermiyor.",
+    });
+
+    expect(result.issues.some((issue) => issue.id === "seat-arona-10tsi-dq200")).toBe(true);
+    expect(result.issues.some((issue) => issue.broadMatch)).toBe(true);
+  });
+
   it("matches newly added premium brand engine-specific issues", () => {
     const bmw = findChronicIssues({
       brand: "BMW",

@@ -4,6 +4,7 @@ import { Capacitor } from "@capacitor/core";
 import { apiFetch } from "@/lib/api/client";
 import { getInstallId } from "@/lib/api/install-id";
 import { EksperIQListingFetchPlugin } from "./native-plugin";
+import { filterListingImageUrls } from "./image-filter";
 import { detectListingSource, type ListingSourceCheck } from "./url";
 import type { ListingImportOutcome, ListingImportResult } from "./types";
 
@@ -254,5 +255,5 @@ async function attemptNativeImport(
   }
 
   onStage("done");
-  return { ok: true, result: { ...payload.result, images: pageData.images } };
+  return { ok: true, result: { ...payload.result, images: filterListingImageUrls(pageData.images, 20) } };
 }
