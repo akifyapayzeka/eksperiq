@@ -5,7 +5,7 @@ Bu dosya App Store Connect gizlilik formu doldurulurken kullanılacak cevapları
 ## Veri Toplama
 
 - Kullanıcı hesabı: Yok. Kullanıcı adı, e-posta, telefon, adres: toplanmaz.
-- Konum verisi: Toplanmaz.
+- Konum verisi: Yalnızca kullanıcı "konumuma göre" bir işlem başlatırsa cihazdan anlık alınır; şehir tahmini ve yakındaki ekspertiz, noter veya servisleri bulmak için kullanılır. Kalıcı hesap kaydı olarak saklanmaz, reklam/izleme amacıyla kullanılmaz.
 - Kişiler, mikrofon: Erişim istenmez.
 - Kamera, fotoğraflar: Yalnızca kullanıcı fotoğraf ekleme ekranında kamerayla çekim veya galeriden seçim başlattığı anda, tek bir fotoğraf için erişilir; sürekli veya arka planda erişim yoktur. Fotoğraf, AI'ya gönderilmeden önce cihazda küçültülür/yeniden sıkıştırılır ve EXIF meta verileri (konum, cihaz bilgisi) silinir.
 - Bildirim: Yalnızca kullanıcı Bakım ve Ödeme Takvimi ekranında "Bildirimleri aç" derse istenir. iOS mağaza sürümünde bildirim tamamen cihaz üzerinde planlanır (`@capacitor/local-notifications`), hiçbir kayıt sunucuya gönderilmez. Web/PWA sürümünde Web Push kullanılır; bkz. aşağıdaki "Bakım ve Ödeme Takvimi Bildirimleri" bölümü.

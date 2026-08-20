@@ -64,7 +64,7 @@ Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build App
 - Kullanıcı hesabı yok.
 - Reklam takibi yok.
 - Üçüncü taraf analytics yok.
-- Konum, mikrofon veya rehber izni yok.
+- Konum izni yalnızca kullanıcı "konumuma göre" şehir tahmini veya yakındaki ekspertiz/noter/servis araması başlatırsa istenir; konum kalıcı olarak saklanmaz. Mikrofon veya rehber izni yok.
 - Kamera ve fotoğraf erişimi yalnızca kullanıcının fotoğraf kontrolü ekranında dosya seçmesiyle veya fotoğraf çekmesiyle, o tek fotoğraf için sınırlı.
 - Bildirim izni yalnızca kullanıcı Bakım ve Ödeme Takvimi'nde açıkça isterse, MTV/sigorta/muayene/bakım tarihi hatırlatmaları için istenir; başka amaçla kullanılmaz. iOS mağaza sürümünde bildirim tamamen cihaz üzerinde planlanır (`@capacitor/local-notifications`), sunucuya hiçbir kayıt gitmez — yalnızca Web/PWA sürümü Web Push için sınırlı, TTL'li bir sunucu kopyası tutar (bkz. `docs/app-store-privacy-answers.md`).
 - AI karar destek ve fotoğraf kontrolü OpenRouter üzerinden geçici, veri saklama karşıtı parametreyle işleme yapabilir.
