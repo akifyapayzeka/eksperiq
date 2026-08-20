@@ -255,5 +255,5 @@ async function attemptNativeImport(
   }
 
   onStage("done");
-  return { ok: true, result: { ...payload.result, images: filterListingImageUrls(pageData.images, 20) } };
+  return { ok: true, result: { ...payload.result, images: filterListingImageUrls(pageData.images, 40) } };
 }

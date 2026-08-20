@@ -350,6 +350,112 @@ function normalizeFieldsShape(json) {
   return { ...json, fields };
 }
 
+function cleanListingLine(value) {
+  return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function normalizeTurkish(value) {
+  return cleanListingLine(value)
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+const SELLER_DESCRIPTION_ANCHOR_PATTERN =
+  /açıklama|aciklama|hoş geldiniz|hos geldiniz|yetki belge|ekspertiz|expertiz|ustaya açık|ustaya acik|hatasız|hatasiz|boyasız|boyasiz|hasar kayıtsız|hasar kayitsiz|değişensiz|degisensiz|lokal boya|tramer|airbag|şerit takip|serit takip|car\s*play|cruise|far sensörü|far sensoru|yağmur sensörü|yagmur sensoru|geri görüş|geri gorus/i;
+
+const SELLER_DESCRIPTION_STOP_PATTERN =
+  /^(ilan bilgileri|araç bilgileri|arac bilgileri|özellikler|ozellikler|konum|adres|favori|mesaj gönder|mesaj gonder|benzer ilanlar|arama sonuçları|arama sonuclari)$/i;
+
+function extractSellerDescriptionFromText(text) {
+  const lines = String(text || "")
+    .split(/\r?\n+/)
+    .map(cleanListingLine)
+    .filter((line) => line.length >= 3 && line.length <= 260);
+
+  const explicitLabelIndex = lines.findIndex((line) => /^(ilan\s+)?açıklama(sı)?$|^(ilan\s+)?aciklama(si)?$/i.test(line));
+  if (explicitLabelIndex >= 0) {
+    const collected = [];
+    for (const line of lines.slice(explicitLabelIndex + 1)) {
+      if (SELLER_DESCRIPTION_STOP_PATTERN.test(line)) break;
+      if (/^(paylaş|paylas|facebook|twitter|whatsapp|şikayet et|sikayet et)$/i.test(line)) continue;
+      collected.push(line);
+      if (collected.join("\n").length >= 3500) break;
+    }
+    const candidate = collected.join("\n").trim();
+    if (candidate.length >= 20) return candidate.slice(0, 4000);
+  }
+
+  const anchorIndex = lines.findIndex((line) => SELLER_DESCRIPTION_ANCHOR_PATTERN.test(line));
+  if (anchorIndex < 0) return null;
+
+  const collected = [];
+  for (const line of lines.slice(anchorIndex)) {
+    if (collected.length > 0 && SELLER_DESCRIPTION_STOP_PATTERN.test(line)) break;
+    if (/^(göster|goster|ara|mesaj|favori|paylaş|paylas)$/i.test(line)) continue;
+    collected.push(line);
+    if (collected.join("\n").length >= 3500) break;
+  }
+  const candidate = collected.join("\n").trim();
+  return candidate.length >= 20 ? candidate.slice(0, 4000) : null;
+}
+
+function extractCityFromText(text) {
+  const raw = String(text || "");
+  const normalized = normalizeTurkish(raw);
+  const locationMatch = normalized.match(/(?:konum adaylari|konum|adres|ilçe|ilce|mahalle|semt|şehir|sehir)([\s\S]{0,900})/);
+  const locationWindow = locationMatch?.[1] ?? "";
+  const exactCity = CITY_OPTIONS.find((city) => {
+    const cityKey = normalizeTurkish(city);
+    return new RegExp(`(^|[^\\p{L}])${cityKey}([^\\p{L}]|$)`, "iu").test(locationWindow);
+  });
+  if (exactCity) return exactCity;
+
+  return (
+    CITY_OPTIONS.find((city) => {
+      const cityKey = normalizeTurkish(city);
+      return new RegExp(`(^|[^\\p{L}])${cityKey}([^\\p{L}]|$)`, "iu").test(normalized);
+    }) ?? null
+  );
+}
+
+function extractEnginePowerFromText(text) {
+  const match = String(text || "").match(/\b(\d{2,3})\s*(?:hp|ps|beygir|bg)\b/i);
+  return match ? `${match[1]} HP` : null;
+}
+
+const PART_ALIASES = [
+  ["Ön tampon", /ön\s+tampon|on\s+tampon/i],
+  ["Arka tampon", /arka\s+tampon/i],
+  ["Kaput", /kaput/i],
+  ["Bagaj kapağı", /bagaj\s+kapa[ğıg]ı?/i],
+  ["Tavan", /tavan/i],
+  ["Sağ ön çamurluk", /sa[ğg]\s+ön\s+çamurluk|sag\s+on\s+camurluk/i],
+  ["Sol ön çamurluk", /sol\s+ön\s+çamurluk|sol\s+on\s+camurluk/i],
+  ["Sağ arka çamurluk", /sa[ğg]\s+arka\s+çamurluk|sag\s+arka\s+camurluk/i],
+  ["Sol arka çamurluk", /sol\s+arka\s+çamurluk|sol\s+arka\s+camurluk/i],
+  ["Sağ ön kapı", /sa[ğg]\s+ön\s+kapı|sag\s+on\s+kapi/i],
+  ["Sol ön kapı", /sol\s+ön\s+kapı|sol\s+on\s+kapi/i],
+  ["Sağ arka kapı", /sa[ğg]\s+arka\s+kapı|sag\s+arka\s+kapi/i],
+  ["Sol arka kapı", /sol\s+arka\s+kapı|sol\s+arka\s+kapi/i],
+];
+
+function extractPartsNearKeyword(text, keywordPattern) {
+  const source = String(text || "");
+  const compact = source.replace(/\s+/g, " ");
+  const keywordMatch = compact.match(keywordPattern);
+  if (!keywordMatch) return null;
+  const start = Math.max(0, (keywordMatch.index ?? 0) - 80);
+  const end = Math.min(compact.length, (keywordMatch.index ?? 0) + keywordMatch[0].length + 80);
+  const window = compact.slice(start, end);
+  const parts = PART_ALIASES.filter(([, pattern]) => pattern.test(window)).map(([name]) => name);
+  return parts.length ? Array.from(new Set(parts)).join(", ") : null;
+}
+
+function removeMissingField(missingFields, fieldName) {
+  return Array.isArray(missingFields) ? missingFields.filter((field) => field !== fieldName) : [];
+}
+
 function enumProp(options) {
   return { type: ["string", "null"], enum: [...options, null] };
 }
@@ -430,19 +536,25 @@ function buildMessages(input) {
         "(brand, trim, fuelType, transmission, city, bodyType, drivetrain, ownerInfo, tradeStatus, airbagStatus, " +
         "lpgStatus) SADECE verilen listedeki degerlerden birini sec; listede tam karsiligi yoksa null birak. " +
         "(3) sellerDescription alanina sayfadaki navigasyon/reklam/cerez metnini degil, satici tarafindan " +
-        "yazilmis gercek ilan aciklama metnini koy (temizlenmis, kisaltilmamis). (4) paintedParts, " +
+        "yazilmis gercek ilan aciklama metnini koy (temizlenmis, kisaltilmamis); metinde ilan aciklamasi varsa " +
+        "bu alani null birakma. (4) Dolu bilgi alanlarinda eksik kalan marka/model/yil/yakit/vites/motor gucu/" +
+        "sehir gibi degerleri satici aciklamasindaki net ifadelerden de cikar. Ornegin 'GENERAL MOTOR 145 HP' " +
+        "motor gucu icin, 'SOL ON CAMURLUK LOKAL BOYA' localPaintedParts icin acik kanittir. (5) city alanini " +
+        "ilan konumu/adres/breadcrumb/konum adaylari metninden bul; ilanda sehir yaziyorsa null veya Bilinmiyor " +
+        "donme. (6) paintedParts, " +
         "replacedParts ve localPaintedParts alanlarini yalnizca ilanda acikca yazan parca adlariyla doldur; " +
         "virgulle ayrilmis Turkce parca listesi kullan (orn. 'Kaput, Sol on kapi'). Degisensiz/boyasiz gibi " +
-        "ifade varsa ilgili parca alanlarini null birak. (5) hasHeavyDamage, hasChassisRepair, " +
+        "ifade varsa ilgili parca alanlarini null birak; ama 'lokal boya harici' gibi parca belirtilen ifadeyi " +
+        "localPaintedParts olarak isle. (7) hasHeavyDamage, hasChassisRepair, " +
         "hasTotalLossHistory, hasExpertiseReport, lpgRegistered, hasSpareKey, hasMaintenanceInvoices alanlarini " +
-        "sadece ilan acikca belirtiyorsa true/false yap; yokluk kaniti yoksa null birak. (6) tramerAmount, " +
+        "sadece ilan acikca belirtiyorsa true/false yap; yokluk kaniti yoksa null birak. (8) tramerAmount, " +
         "lastMaintenanceDate ve inspectionEndDate alanlarini yalnizca acik deger varsa doldur. " +
-        "(7) Emin olmadigin ama yine de doldurdugun alanlarin adini lowConfidenceFields dizisine ekle. " +
-        "(8) Sayfa bir arac ilanina benzemiyorsa (kaldirilmis ilan, arama sonuc sayfasi, hata sayfasi) " +
+        "(9) Emin olmadigin ama yine de doldurdugun alanlarin adini lowConfidenceFields dizisine ekle. " +
+        "(10) Sayfa bir arac ilanina benzemiyorsa (kaldirilmis ilan, arama sonuc sayfasi, hata sayfasi) " +
         "warnings dizisine bunu Turkce belirt ve fields'i olabildigince null birak. " +
-        "(9) Fiyati, kilometreyi ve tramer tutarini Turkce bicimden (orn. '1.845.000 TL', '125.000 km') " +
-        "temiz tam sayiya cevir. (10) Tum metin alanlarini SADECE Turkce yaz; baska bir dilden tek kelime " +
-        "bile karistirma. (11) Kesin hukum verme; ilanin kendi beyani oldugunu unutma, dogrulanmis gercek " +
+        "(11) Fiyati, kilometreyi ve tramer tutarini Turkce bicimden (orn. '1.845.000 TL', '125.000 km') " +
+        "temiz tam sayiya cevir. (12) Tum metin alanlarini SADECE Turkce yaz; baska bir dilden tek kelime " +
+        "bile karistirma. (13) Kesin hukum verme; ilanin kendi beyani oldugunu unutma, dogrulanmis gercek " +
         "gibi sunma.",
     },
     {
@@ -503,8 +615,39 @@ async function requestOpenRouterListingImport(input) {
   }
 
   const fields = json.fields;
+  const fallbackText = [input.bodyText, input.ogDescription, input.ogTitle, input.title].filter(Boolean).join("\n");
   if (typeof fields.sellerDescription === "string") {
     fields.sellerDescription = hedgeCertainLanguage(fields.sellerDescription.slice(0, 4000));
+  }
+  const fallbackSellerDescription = extractSellerDescriptionFromText(fallbackText);
+  if ((!fields.sellerDescription || fields.sellerDescription.length < 20) && fallbackSellerDescription) {
+    fields.sellerDescription = hedgeCertainLanguage(fallbackSellerDescription);
+    json.missingFields = removeMissingField(json.missingFields, "sellerDescription");
+  }
+  if (!fields.city) {
+    const fallbackCity = extractCityFromText(fallbackText);
+    if (fallbackCity) {
+      fields.city = fallbackCity;
+      json.missingFields = removeMissingField(json.missingFields, "city");
+    }
+  }
+  if (!fields.enginePower) {
+    const fallbackEnginePower = extractEnginePowerFromText(fallbackText);
+    if (fallbackEnginePower) {
+      fields.enginePower = fallbackEnginePower;
+      json.missingFields = removeMissingField(json.missingFields, "enginePower");
+    }
+  }
+  if (!fields.localPaintedParts) {
+    const fallbackLocalPaintedParts = extractPartsNearKeyword(fallbackText, /lokal\s+boya|lokal\s+boyal[ıi]/i);
+    if (fallbackLocalPaintedParts) {
+      fields.localPaintedParts = fallbackLocalPaintedParts;
+      json.missingFields = removeMissingField(json.missingFields, "localPaintedParts");
+    }
+  }
+  if (fields.hasHeavyDamage === null && /a[ğg][ıi]r\s+hasar\s+kayd[ıi]\s+yok|hasar\s+kay[ıi]ts[ıi]z/i.test(fallbackText)) {
+    fields.hasHeavyDamage = false;
+    json.missingFields = removeMissingField(json.missingFields, "hasHeavyDamage");
   }
 
   return {

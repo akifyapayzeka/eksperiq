@@ -133,7 +133,7 @@ export function buildVehicleInputFromListingImport(
 
   const parsed = vehicleSchema.safeParse(input);
   if (parsed.success) {
-    return { ok: true, data: parsed.data, images: filterListingImageUrls(result.images, 20) };
+    return { ok: true, data: parsed.data, images: filterListingImageUrls(result.images, 40) };
   }
 
   const missingFields = parsed.error.issues

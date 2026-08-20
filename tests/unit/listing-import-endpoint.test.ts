@@ -150,4 +150,87 @@ describe("listing import AI endpoint", () => {
     expect(statusCode).toBe(502);
     expect(body.error).toBe("İlan bilgisi işlenemedi.");
   });
+
+  it("fills seller description, city, engine power and local paint from page text when the model misses them", async () => {
+    const modelResponse = {
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              title: "2020 Opel Astra 1.4",
+              fields: {
+                brand: "Opel",
+                model: "Astra",
+                year: 2020,
+                trim: null,
+                fuelType: "Benzin",
+                transmission: "Otomatik",
+                mileage: 87000,
+                price: 1125000,
+                city: null,
+                bodyType: "Hatchback",
+                engineSize: "1.4",
+                enginePower: null,
+                drivetrain: null,
+                ownerInfo: "Galeriden satış",
+                tradeStatus: null,
+                tramerAmount: null,
+                paintedParts: null,
+                replacedParts: null,
+                localPaintedParts: null,
+                airbagStatus: null,
+                lpgStatus: null,
+                hasHeavyDamage: null,
+                hasChassisRepair: null,
+                hasTotalLossHistory: null,
+                hasExpertiseReport: null,
+                lpgRegistered: null,
+                hasSpareKey: null,
+                hasMaintenanceInvoices: null,
+                lastMaintenanceDate: null,
+                timingBeltInfo: null,
+                transmissionMaintenanceInfo: null,
+                batteryStatus: null,
+                tireStatus: null,
+                inspectionEndDate: null,
+                sellerDescription: null,
+              },
+              lowConfidenceFields: [],
+              missingFields: ["sellerDescription", "city", "enginePower", "localPaintedParts", "hasHeavyDamage"],
+              warnings: [],
+            }),
+          },
+        },
+      ],
+    };
+    const bodyWithDescription = {
+      ...validBody,
+      bodyText: [
+        "İlan Açıklaması",
+        "ŞENTÜRK OTOMOTİV E HOŞ GELDİNİZ",
+        "ARAÇLARIMIZ İSTEDİĞİNİZ EXPERTİZ E USTAYA AÇIKTIR",
+        "SOL ÖN ÇAMURLUK LOKAL BOYA HARİCİ",
+        "HATASIZ BOYASIZ",
+        "HASAR KAYITSIZ",
+        "ARAÇ 2020 ÖZEL SERİ ÜRETİMDİR",
+        "PSA DEĞİL",
+        "GENERAL MOTOR 145 HP DİR",
+        "Konum",
+        "Samsun / İlkadım",
+      ].join("\n"),
+    };
+    const fetchMock = mockFetchAllowingRateLimit(new Response(JSON.stringify(modelResponse), { status: 200 }));
+
+    const { statusCode, body } = await callEndpoint(bodyWithDescription, fetchMock);
+
+    expect(statusCode).toBe(200);
+    const result = body.result as { fields: Record<string, unknown>; missingFields: string[] };
+    expect(result.fields.sellerDescription).toContain("ŞENTÜRK OTOMOTİV");
+    expect(result.fields.city).toBe("Samsun");
+    expect(result.fields.enginePower).toBe("145 HP");
+    expect(result.fields.localPaintedParts).toBe("Sol ön çamurluk");
+    expect(result.fields.hasHeavyDamage).toBe(false);
+    expect(result.missingFields).not.toContain("sellerDescription");
+    expect(result.missingFields).not.toContain("city");
+  });
 });

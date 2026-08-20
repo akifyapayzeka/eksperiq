@@ -24,7 +24,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { appConfig } from "@/lib/constants/app";
 import { apiFetch } from "@/lib/api/client";
 import { shareReportPdf } from "@/lib/report/pdf-share";
-import { RISK_LEVELS, SCORE_WEIGHTS } from "@/lib/constants/analysis";
+import { SCORE_WEIGHTS } from "@/lib/constants/analysis";
 import { formatAnalysisSummary, formatSellerQuestionMessage } from "@/lib/analysis/report-summary";
 import { buildAiAnalysisNoteInput } from "@/lib/ai/analysis-note";
 import {
@@ -1070,40 +1070,6 @@ export function ResultClient() {
                   </div>
                 );
               })}
-            </div>
-          </SectionCard>
-          <SectionCard
-            title="Skor nasıl okunmalı?"
-            description="Skor, kullanıcının girdiği bilgiye göre çalışan kural tabanlı bir karar desteğidir; kesin ekspertiz sonucu değildir."
-          >
-            <div className="grid gap-4 lg:grid-cols-2">
-              <div className="rounded-lg border border-border p-4">
-                <h3 className="font-semibold text-foreground">Risk aralıkları</h3>
-                <ul className="mt-3 grid gap-2 text-sm text-foreground/80">
-                  {RISK_LEVELS.map((level) => (
-                    <li
-                      key={level.label}
-                      className="flex items-center justify-between gap-3 rounded-md bg-muted px-3 py-2"
-                    >
-                      <span>
-                        {level.min}-{level.max}
-                      </span>
-                      <strong className="text-foreground">{level.label}</strong>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="rounded-lg border border-border p-4">
-                <h3 className="font-semibold text-foreground">Kategori ağırlıkları</h3>
-                <ul className="mt-3 grid gap-2 text-sm text-foreground/80">
-                  {Object.entries(SCORE_WEIGHTS).map(([key, value]) => (
-                    <li key={key} className="flex items-center justify-between gap-3 rounded-md bg-muted px-3 py-2">
-                      <span>{scoreLabels[key as keyof typeof scoreLabels]}</span>
-                      <strong className="text-foreground">{value} puan</strong>
-                    </li>
-                  ))}
-                </ul>
-              </div>
             </div>
           </SectionCard>
           <SectionCard

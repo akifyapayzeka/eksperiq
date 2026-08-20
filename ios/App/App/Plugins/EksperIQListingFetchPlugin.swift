@@ -203,7 +203,7 @@ private enum ListingImportRequester {
             "title": pageData.title,
             "ogTitle": pageData.ogTitle,
             "ogDescription": pageData.ogDescription,
-            "bodyText": pageData.bodyText,
+            "bodyText": [pageData.bodyText, pageData.locationText].filter { !$0.isEmpty }.joined(separator: "\n\nKonum adayları:\n"),
             "jsonLd": pageData.jsonLd,
         ]
         guard let httpBody = try? JSONSerialization.data(withJSONObject: body) else {
@@ -227,6 +227,7 @@ private struct ExtractedPageData {
     let ogTitle: String
     let ogDescription: String
     let bodyText: String
+    let locationText: String
     let jsonLd: [String]
     let finalUrl: String
     /// The same fields re-serialized as JSON text, handed back to JS as-is
@@ -356,6 +357,7 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
                 ogTitle: object["ogTitle"] as? String ?? "",
                 ogDescription: object["ogDescription"] as? String ?? "",
                 bodyText: object["bodyText"] as? String ?? "",
+                locationText: object["locationText"] as? String ?? "",
                 jsonLd: object["jsonLd"] as? [String] ?? [],
                 finalUrl: object["finalUrl"] as? String ?? "",
                 rawJson: jsonString
@@ -408,40 +410,104 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
         var match = String(value || '').match(/url\(["']?([^"')]+)["']?\)/i);
         return match ? absolutize(match[1]) : '';
       }
+      function cleanText(value) {
+        return String(value || '').replace(/\s+/g, ' ').trim();
+      }
       var imageCandidates = [];
-      function addImage(src, width, height, trusted) {
-        imageCandidates.push({ src: absolutize(src || ''), width: width || 0, height: height || 0, trusted: !!trusted });
+      function addImage(src, width, height, trusted, context) {
+        var href = absolutize(src || '');
+        if (!href) return;
+        imageCandidates.push({
+          src: href,
+          width: width || 0,
+          height: height || 0,
+          trusted: !!trusted,
+          context: cleanText(context || '')
+        });
+      }
+      function elementContext(el) {
+        if (!el) return '';
+        var parts = [
+          el.getAttribute('alt'),
+          el.getAttribute('title'),
+          el.getAttribute('aria-label'),
+          el.className,
+          el.id,
+          el.closest ? cleanText((el.closest('figure, li, article, section, div') || {}).innerText).slice(0, 180) : ''
+        ];
+        return parts.filter(Boolean).join(' ');
+      }
+      function imageScore(item) {
+        var src = String(item.src || '').toLowerCase();
+        var context = String(item.context || '').toLowerCase();
+        var score = item.trusted ? 20 : 0;
+        if (item.width >= 640 && item.height >= 360) score += 30;
+        else if (item.width >= 320 && item.height >= 200) score += 15;
+        if (/shbdn\.com\/photos|sahibinden|arabam|classified|listing|photo|image|vehicle|car|auto|x5_|big_|large_|original|detail/.test(src)) score += 35;
+        if (/ekspertiz|expertiz|expertise|rapor|report|hasar|tramer|boya|değişen|degisen/.test(src + ' ' + context)) score += 45;
+        if (/vitrin|galeri|gallery|photo-viewer|classifiedDetail/.test(src + ' ' + context)) score += 20;
+        if (/sprite|icon|logo|favicon|avatar|blank|placeholder|missing|badge|category|attribute|emoji|loader|loading|spinner|banner|campaign|advert|ads?|social|facebook|twitter|instagram|whatsapp|app-store|google-play|wrench|sparkle|percent|percentage/.test(src + ' ' + context)) score -= 120;
+        if (/\.svg(?:\?|$)/.test(src)) score -= 120;
+        return score;
       }
       Array.from(document.querySelectorAll('meta[property="og:image"], meta[name="og:image"]'))
-        .forEach(function(meta) { addImage(meta.getAttribute('content') || '', 0, 0, true); });
+        .forEach(function(meta) { addImage(meta.getAttribute('content') || '', 0, 0, true, 'og:image'); });
       Array.from(document.images || []).forEach(function(img) {
         var width = img.naturalWidth || img.width || img.clientWidth || 0;
         var height = img.naturalHeight || img.height || img.clientHeight || 0;
-        addImage(img.currentSrc || img.src || '', width, height, false);
-        ['data-src', 'data-original', 'data-lazy', 'data-url', 'data-full', 'data-zoom-image'].forEach(function(name) {
-          addImage(img.getAttribute(name) || '', width, height, false);
+        var context = elementContext(img);
+        addImage(img.currentSrc || img.src || '', width, height, false, context);
+        [
+          'data-src', 'data-original', 'data-lazy', 'data-url', 'data-full', 'data-zoom-image',
+          'data-img', 'data-image', 'data-thumb', 'data-thumbnail', 'data-large', 'data-big',
+          'data-hq', 'data-highres', 'data-preview', 'data-src-big', 'data-original-src'
+        ].forEach(function(name) {
+          addImage(img.getAttribute(name) || '', width, height, false, context + ' ' + name);
         });
-        srcsetUrls(img.getAttribute('srcset') || '').forEach(function(src) { addImage(src, width, height, false); });
+        srcsetUrls(img.getAttribute('srcset') || '').forEach(function(src) { addImage(src, width, height, false, context + ' srcset'); });
+        srcsetUrls(img.getAttribute('data-srcset') || '').forEach(function(src) { addImage(src, width, height, false, context + ' data-srcset'); });
+      });
+      Array.from(document.querySelectorAll('a[href]')).forEach(function(anchor) {
+        addImage(anchor.getAttribute('href') || '', 0, 0, false, elementContext(anchor));
+        [
+          'data-src', 'data-url', 'data-full', 'data-zoom-image', 'data-image', 'data-large',
+          'data-big', 'data-hq', 'data-preview', 'data-original'
+        ].forEach(function(name) {
+          addImage(anchor.getAttribute(name) || '', 0, 0, false, elementContext(anchor) + ' ' + name);
+        });
+      });
+      Array.from(document.querySelectorAll('[style]')).forEach(function(el) {
+        addImage(backgroundUrl(el.getAttribute('style') || ''), el.clientWidth || 0, el.clientHeight || 0, false, elementContext(el) + ' background');
       });
       var seenImages = new Set();
       var uniqueImages = imageCandidates
+        .map(function(item) { item.score = imageScore(item); return item; })
+        .sort(function(a, b) { return b.score - a.score; })
         .filter(function(item) {
           var src = item.src || '';
           if (seenImages.has(src)) return false;
           seenImages.add(src);
-          var largeEnough = item.trusted || (item.width >= 180 && item.height >= 120);
+          var largeEnough = item.trusted || item.score >= 30 || (item.width >= 180 && item.height >= 120);
           return largeEnough &&
             /^https?:\/\//i.test(src) &&
-            !/sprite|icon|logo|favicon|avatar|blank|placeholder|missing|badge|category|attribute/i.test(src) &&
+            item.score > 0 &&
             /\.(jpe?g|png|webp)(\?|$)|image|photo|sahibinden|arabam/i.test(src);
         })
         .map(function(item) { return item.src; })
-        .slice(0, 30);
+        .slice(0, 60);
+      var locationText = Array.from(document.querySelectorAll('body *'))
+        .map(function(el) { return cleanText(el.innerText || el.textContent || ''); })
+        .filter(function(text) {
+          return text.length >= 3 && text.length <= 220 && /(konum|adres|ilçe|il |mahalle|sokak|cadde|istanbul|ankara|izmir|bursa|antalya|samsun|kocaeli|konya|adana|gaziantep)/i.test(text);
+        })
+        .slice(0, 40)
+        .join('\n');
       return JSON.stringify({
         title: document.title || '',
         ogTitle: attr('meta[property="og:title"]', 'content'),
         ogDescription: attr('meta[property="og:description"]', 'content'),
         bodyText: (document.body ? document.body.innerText : '').slice(0, 20000),
+        locationText: locationText.slice(0, 4000),
         jsonLd: jsonLd,
         images: uniqueImages,
         finalUrl: window.location.href
