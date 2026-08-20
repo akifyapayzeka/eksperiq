@@ -923,6 +923,25 @@ export function ResultClient() {
                 </p>
               ) : null}
             </div>
+            {result.listingImages?.length ? (
+              <div className="mt-4">
+                <p className="text-sm font-semibold text-foreground">İlandan alınan fotoğraflar</p>
+                <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                  {result.listingImages.slice(0, 8).map((imageUrl) => (
+                    <a
+                      key={imageUrl}
+                      href={imageUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block aspect-square overflow-hidden rounded-lg border border-border bg-muted"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element -- Listing image hosts vary by source site. */}
+                      <img src={imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </SectionCard>
           <SectionCard title="Kategori skorları">
             <div className="grid gap-3 md:grid-cols-2">

@@ -1,16 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { UseFormSetValue } from "react-hook-form";
 import { Capacitor } from "@capacitor/core";
 import { Clipboard } from "@capacitor/clipboard";
 import { ClipboardPaste, LinkIcon, X } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Field } from "@/components/ui/field";
-import type { VehicleFormInput } from "@/lib/schemas/vehicle";
-import { detectListingSource } from "@/lib/listing-import/url";
 import { importListingFromUrl, type ImportStage } from "@/lib/listing-import/import-listing";
-import { applyImportedFieldsToForm } from "@/lib/listing-import/apply-to-form";
 import { getImportSession, setImportSession, useImportSession } from "@/lib/listing-import/import-session-store";
 import { computeDisplayPercent } from "@/lib/listing-import/progress";
 import { acceptAiConsent, hasAcceptedAiConsent } from "@/lib/consent/ai-consent";
@@ -34,7 +30,7 @@ const errorMessages: Record<string, string> = {
   "rate-limited": "Çok fazla içe aktarma denemesi yapıldı. Birazdan tekrar deneyin.",
 };
 
-export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<VehicleFormInput> }) {
+export function ListingImportSection() {
   const { url, status, stage, stageStartedAt, errorMessage, errorDetail, result } = useImportSession();
   const [consent, setConsent] = useState(() => hasAcceptedAiConsent());
   const [showConsentPrompt] = useState(() => !hasAcceptedAiConsent());
@@ -56,11 +52,7 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
   useEffect(() => {
     if (status === "success" && result && appliedResultRef.current !== result) {
       appliedResultRef.current = result;
-      applyImportedFieldsToForm(result.fields, setValue);
-      const detected = detectListingSource(url);
-      setValue("listingUrl", detected.ok ? detected.url : url.trim(), { shouldDirty: true, shouldValidate: true });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, result]);
 
   if (!isListingImportEnabled || !Capacitor.isNativePlatform()) return null;
@@ -148,11 +140,11 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
       <div className="flex items-center gap-2">
         <LinkIcon aria-hidden="true" className="h-5 w-5 text-accent" />
         <h2 id="listing-import-title" className="font-semibold text-foreground">
-          İlan linkiyle otomatik doldur
+          İlan linkiyle analiz hazırla
         </h2>
       </div>
       <p className="mt-1 text-sm leading-6 text-muted-foreground">
-        Bir araç ilanının bağlantısını yapıştırın; araç bilgileri otomatik doldurulsun.
+        Bir araç ilanının bağlantısını yapıştırın; EksperIQ bilgileri ve fotoğrafları çekip rapora hazırlar.
       </p>
 
       {showConsentPrompt ? (
@@ -216,7 +208,7 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
         className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-accent px-5 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
       >
         {status === "loading" ? <Spinner /> : <LinkIcon aria-hidden="true" className="h-4 w-4" />}
-        {status === "loading" && stage ? `${stageLabels[stage]} (%${progressPercent})` : "İlanı analiz et"}
+        {status === "loading" && stage ? `${stageLabels[stage]} (%${progressPercent})` : "İlanı hazırla"}
       </button>
 
       {status === "loading" && stage ? (
@@ -229,8 +221,8 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
             Bu işlem sayfayı açıp araç bilgilerini analiz ettiği için genelde 10-30 saniye sürer, bağlantı yavaşsa veya
-            bir kez otomatik tekrar denenirse birkaç dakikaya kadar çıkabilir. Uygulamayı kapatmadan ana ekrana
-            dönebilirsiniz — bittiğinde bildirim gönderilir.
+            otomatik tekrar denenirse birkaç dakikaya kadar çıkabilir. Uygulamayı kapatmadan bekleyin; hedef üst sınır 5
+            dakikadır.
           </p>
         </div>
       ) : null}
@@ -246,8 +238,8 @@ export function ListingImportSection({ setValue }: { setValue: UseFormSetValue<V
         <div className="mt-3 rounded-theme-sm border border-accent/30 bg-accent/10 p-3" role="status">
           <p className="text-sm font-semibold text-foreground">
             {result.missingFields.length > 5
-              ? "İlanın bazı bilgileri alınamadı. Bulunan alanlar dolduruldu; eksik alanları elle tamamlayabilirsiniz."
-              : "İlan bilgileri getirildi. Analizden önce işaretli alanları kontrol edin."}
+              ? "İlanın bazı bilgileri alınamadı. EksperIQ yine de bulunan bilgilerle rapor hazırlamayı deneyecek."
+              : "İlan bilgileri getirildi. Şimdi formu doldurmadan analiz oluşturabilirsiniz."}
           </p>
           {result.warnings.length ? (
             <ul className="mt-2 grid gap-1 text-sm text-warning">

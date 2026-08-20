@@ -47,6 +47,7 @@ export type DataCompleteness = {
 
 export type AnalysisResult = {
   input: VehicleFormData;
+  listingImages?: string[];
   totalScore: number;
   riskLabel: string;
   decision: string;

@@ -10,6 +10,9 @@ import { recordListingAnalysisUsed } from "@/lib/pro/listing-quota";
 import { vehicleSchema, type VehicleFormData, type VehicleFormInput } from "@/lib/schemas/vehicle";
 import { createAnalysis } from "@/lib/services/analysis-service";
 import { appConfig } from "@/lib/constants/app";
+import { buildVehicleInputFromListingImport } from "@/lib/listing-import/analysis-input";
+import { detectListingSource } from "@/lib/listing-import/url";
+import { useImportSession } from "@/lib/listing-import/import-session-store";
 import {
   BooleanInfoSection,
   DamageInfoSection,
@@ -274,6 +277,8 @@ function FormSectionLinks() {
 
 export function AnalysisForm() {
   const router = useRouter();
+  const importSession = useImportSession();
+  const [listingSubmitError, setListingSubmitError] = useState("");
   const {
     register,
     handleSubmit,
@@ -306,6 +311,32 @@ export function AnalysisForm() {
     router.push("/sonuc");
   }
 
+  function submitImportedAnalysis(): boolean {
+    if (importSession.status !== "success" || !importSession.result) return false;
+    const detected = detectListingSource(importSession.url);
+    const listingUrl = detected.ok ? detected.url : importSession.url.trim();
+    const imported = buildVehicleInputFromListingImport(importSession.result, listingUrl);
+
+    if (!imported.ok) {
+      setListingSubmitError(
+        `İlandan rapor oluşturmak için yeterli çekirdek bilgi alınamadı: ${imported.missingFields.join(", ")}.`,
+      );
+      return true;
+    }
+
+    const analysis = createAnalysis(imported.data);
+    saveAnalysis({ ...analysis, listingImages: imported.images });
+    recordListingAnalysisUsed();
+    router.push("/sonuc");
+    return true;
+  }
+
+  function handlePrimarySubmit() {
+    setListingSubmitError("");
+    if (submitImportedAnalysis()) return;
+    void handleSubmit(onSubmit)();
+  }
+
   return (
     <form
       className="grid gap-6"
@@ -325,7 +356,12 @@ export function AnalysisForm() {
         </p>
         <p className="mt-4 text-xs leading-5 text-muted-foreground">{appConfig.privacy}</p>
       </section>
-      <ListingImportSection setValue={setValue} />
+      <ListingImportSection />
+      {listingSubmitError ? (
+        <div className="rounded-theme-sm border border-destructive/30 bg-destructive/10 px-3 py-2" role="status">
+          <p className="text-sm font-medium text-destructive">{listingSubmitError}</p>
+        </div>
+      ) : null}
       <div className="flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
         <span className="h-px flex-1 bg-border" aria-hidden="true" />
         veya bilgileri kendiniz girin
@@ -342,7 +378,7 @@ export function AnalysisForm() {
       <div className="fixed inset-x-0 bottom-24 z-30 border-t border-border bg-card/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_30px_rgba(15,23,42,0.08)] backdrop-blur sm:static sm:inset-auto sm:z-auto sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none sm:dark:bg-transparent">
         <button
           type="button"
-          onClick={() => void handleSubmit(onSubmit)()}
+          onClick={handlePrimarySubmit}
           disabled={isSubmitting}
           className="mx-auto flex min-h-12 w-full max-w-md items-center justify-center gap-2 rounded-full transition active:scale-95 bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60 sm:w-auto"
         >
