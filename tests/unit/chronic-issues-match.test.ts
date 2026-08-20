@@ -255,7 +255,9 @@ describe("findChronicIssues", () => {
     const entriesWithoutEngine = CHRONIC_ISSUES_DB.filter((entry) => entry.engines.length === 0);
     const enginesWithoutYearCoverage = CHRONIC_ISSUES_DB.flatMap((entry) =>
       entry.engines
-        .filter((engine) => Math.min(2026, engine.yearTo ?? entry.yearTo) < Math.max(2000, engine.yearFrom ?? entry.yearFrom))
+        .filter(
+          (engine) => Math.min(2026, engine.yearTo ?? entry.yearTo) < Math.max(2000, engine.yearFrom ?? entry.yearFrom),
+        )
         .map((engine) => `${entry.brand} ${entry.model} ${engine.engineLabel}`),
     );
 

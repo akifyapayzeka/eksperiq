@@ -6,6 +6,8 @@ const steps = [
   { label: "TypeScript", script: "typecheck" },
   { label: "Sensitive data", script: "privacy:check" },
   { label: "Safe claims", script: "claims:check" },
+  { label: "Market review lessons", script: "market-review:check" },
+  { label: "Chronic issues coverage", script: "chronic-issues:coverage" },
   { label: "Feedback output safety", script: "feedback:outputs-check" },
   { label: "Feedback runbook", script: "feedback:runbook-check" },
   { label: "Form field types", script: "form:fields-check" },
