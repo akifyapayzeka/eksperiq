@@ -499,4 +499,544 @@ export const PREMIUM_VOLVO_SUZUKI_ENTRIES: ModelEntry[] = [
       },
     ],
   },
+  {
+    brand: "BMW",
+    model: "1 Serisi",
+    generation: "E87/F20/F40",
+    yearFrom: 2004,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "N47 2.0d",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2007,
+        yearTo: 2015,
+        issues: [
+          {
+            id: "bmw-1-n47-chain",
+            severity: "high",
+            title: "N47 arkadan zincir uzaması/kopması",
+            detail:
+              "116d/118d/120d N47 motorlarda soğuk çalıştırmada zincir sesi, değişim faturası ve yağ bakım aralığı kritik; zincir kopması ağır motor hasarı yaratabilir.",
+            typicalOnset: "120.000-190.000 km",
+            costLevel: "Yüksek",
+            sourceNote:
+              "BMW N47 motor ailesi teknik kaynakları ve 1/3 Serisi kullanıcı forumlarında tekrar eden iyi belgelenmiş risk.",
+          },
+        ],
+      },
+      {
+        engineLabel: "B37/B47 dizel",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2015,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-1-b37-b47-egr",
+            severity: "medium",
+            title: "EGR/DPF/NOx ve otomatik şanzıman bakım kontrolü",
+            detail:
+              "Yeni dizellerde N47 zincir riski azalır; EGR/DPF/NOx, AdBlue varsa emisyon sistemi ve otomatik şanzıman bakım geçmişi kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "BMW B37/B47 kullanıcı servis kayıtları ve dizel emisyon sistemi şikayetlerinde tekrar eden bulgu.",
+          },
+        ],
+      },
+      {
+        engineLabel: "N13/B38/B48 benzin",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2011,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-1-petrol-cooling-valvetronic",
+            severity: "medium",
+            title: "Soğutma, VANOS/Valvetronic ve turbo kontrolü",
+            detail:
+              "Benzinli 1 Serisi'nde N13 döneminde zincir/VANOS/Valvetronic, B38/B48 döneminde su pompası/termostat, bobin ve turbo-soğutma kontrol edilmeli.",
+            typicalOnset: "90.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "BMW N13/B38/B48 motor ailesi kullanıcı forumları ve bağımsız servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "BMW",
+    model: "2 Serisi",
+    generation: "F22/F45/F46/F44",
+    yearFrom: 2014,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "B37/B47 dizel",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2014,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-2-b47-egr-dpf",
+            severity: "medium",
+            title: "EGR/DPF/NOx ve otomatik şanzıman kontrolü",
+            detail:
+              "218d/220d varyantlarında EGR, DPF, NOx/AdBlue ve otomatik şanzıman bakım geçmişi kontrol edilmeli; yüksek km'de turbo ve motor kulağı da izlenmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "BMW B47 dizel servis kayıtları ve 2 Serisi kullanıcı forumlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "B38/B48 benzin",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2014,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-2-b38-b48-cooling",
+            severity: "medium",
+            title: "Soğutma sistemi, bobin ve turbo kontrolü",
+            detail:
+              "B38/B48 motorlarda su pompası/termostat, soğutma kaçakları, bobin/buji ve turbo yağlama kontrol edilmelidir.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "BMW B serisi motor kullanıcı forumları ve bağımsız servis kontrol listelerinde tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "BMW",
+    model: "4 Serisi",
+    generation: "F32/F33/F36/G22",
+    yearFrom: 2013,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "N47/B47 2.0d",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2013,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-4-diesel-chain-egr",
+            severity: "medium",
+            title: "N47 zincir dönemi ve B47 EGR/DPF kontrolü",
+            detail:
+              "Erken 420d N47'de zincir sesi/fatura; B47 döneminde EGR/DPF/NOx ve ZF otomatik bakım geçmişi kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "BMW N47/B47 motor ailesi ve 3/4 Serisi kullanıcı kaynaklarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "N20/B48 benzin",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2013,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-4-n20-b48-chain-cooling",
+            severity: "medium",
+            title: "N20 zincir/yağ kaçağı ve B48 soğutma kontrolü",
+            detail:
+              "N20 döneminde zincir kılavuzu/yağ kaçağı, B48 döneminde soğutma sistemi, turbo ve bobin/buji kontrol edilmelidir.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote:
+              "BMW N20/B48 kullanıcı forumları ve bağımsız servis kayıtlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "BMW",
+    model: "6 Serisi",
+    generation: "E63/F12/F13/F06",
+    yearFrom: 2003,
+    yearTo: 2018,
+    engines: [
+      {
+        engineLabel: "3.0d N57",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2011,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "bmw-6-n57-egr-swirl",
+            severity: "medium",
+            title: "N57 EGR/DPF, swirl flap ve ZF bakım kontrolü",
+            detail:
+              "640d/630d N57'de EGR/DPF, swirl flap, turbo, yağ kaçağı ve ZF otomatik yağ bakım geçmişi kontrol edilmeli.",
+            typicalOnset: "150.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "BMW N57 motor ve 5/6 Serisi kullanıcı servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "V8 benzin N62/N63",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2003,
+        yearTo: 2018,
+        issues: [
+          {
+            id: "bmw-6-v8-valvestem-cooling",
+            severity: "high",
+            title: "V8 supap keçesi, soğutma ve turbo/yağ kaçağı masrafı",
+            detail:
+              "V8 6 Serisi'nde supap keçesi dumanı, soğutma kaçakları, yağ sızıntıları ve N63 turbo/ısı yönetimi yüksek maliyetli kontrol kalemleridir.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote:
+              "BMW N62/N63 motor kullanıcı forumları ve bağımsız servis kayıtlarında tekrar eden pahalı riskler.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "BMW",
+    model: "7 Serisi",
+    generation: "E65/F01/G11",
+    yearFrom: 2001,
+    yearTo: 2022,
+    engines: [
+      {
+        engineLabel: "3.0d N57/B57",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2008,
+        yearTo: 2022,
+        issues: [
+          {
+            id: "bmw-7-diesel-airmatic-electronics",
+            severity: "high",
+            title: "Dizel emisyon, havalı süspansiyon ve elektronik donanım masrafı",
+            detail:
+              "7 Serisi'nde motor kadar havalı süspansiyon, aktif direksiyon, konfor elektronik donanımları, EGR/DPF/AdBlue ve ZF bakım geçmişi kritik.",
+            typicalOnset: "120.000 km sonrası veya yaşa bağlı",
+            costLevel: "Yüksek",
+            sourceNote:
+              "BMW 7 Serisi alım rehberleri ve bağımsız servis kayıtlarında tekrar eden yüksek maliyetli kontrol başlıkları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "V8/V12 benzin",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2001,
+        yearTo: 2022,
+        issues: [
+          {
+            id: "bmw-7-v8-v12-cooling-oil",
+            severity: "high",
+            title: "V8/V12 yağ kaçakları, soğutma ve valf keçesi kontrolü",
+            detail:
+              "V8/V12 7 Serisi'nde yağ kaçakları, supap keçesi dumanı, soğutma sistemi, yakıt sistemi ve elektronik donanım arızaları yüksek maliyetlidir.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote:
+              "BMW V8/V12 motor servis kayıtları ve 7 Serisi kullanıcı forumlarında tekrar eden pahalı riskler.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "BMW",
+    model: "X1",
+    generation: "E84/F48/U11",
+    yearFrom: 2009,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "N47/B47 dizel",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2009,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-x1-diesel-chain-egr-xdrive",
+            severity: "medium",
+            title: "N47 zincir dönemi, B47 EGR/DPF ve xDrive kontrolü",
+            detail:
+              "Erken X1 N47'de zincir; yeni B47'de EGR/DPF/NOx, xDrive varsa transfer kutusu ve otomatik şanzıman bakım geçmişi kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "BMW N47/B47 ve xDrive servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "B38/B48 benzin",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2015,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-x1-petrol-cooling",
+            severity: "medium",
+            title: "Soğutma/turbo ve otomatik şanzıman kontrolü",
+            detail:
+              "Benzinli X1'de soğutma kaçakları, turbo sesi, bobin/buji ve otomatik şanzıman geçişleri kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "BMW B38/B48 kullanıcı forumları ve X1 servis kayıtlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "BMW",
+    model: "X2",
+    yearFrom: 2018,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "B47 dizel",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2018,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-x2-b47-egr-xdrive",
+            severity: "medium",
+            title: "EGR/DPF/NOx, xDrive ve otomatik şanzıman kontrolü",
+            detail:
+              "X2 B47 dizelde EGR/DPF/NOx, AdBlue, xDrive transfer ve otomatik şanzıman bakım kayıtları kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "BMW B47/xDrive servis kayıtları ve X1/X2 kullanıcı deneyimleri.",
+          },
+        ],
+      },
+      {
+        engineLabel: "B38/B48 benzin",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2018,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-x2-petrol-cooling",
+            severity: "medium",
+            title: "Soğutma sistemi, turbo ve bobin kontrolü",
+            detail:
+              "Benzinli X2'de soğutma kaçakları, turbo sesi, bobin/buji ve otomatik şanzıman geçişleri kontrol edilmelidir.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "BMW B serisi motor kullanıcı/servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "BMW",
+    model: "X3",
+    yearFrom: 2003,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "2.0d N47/B47",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2007,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-x3-20d-chain-egr-transfer",
+            severity: "medium",
+            title: "N47 zincir, B47 EGR/DPF ve transfer kutusu kontrolü",
+            detail:
+              "X3 20d'de erken N47 zincir, yeni B47 emisyon sistemi, xDrive transfer kutusu, diferansiyel ve ZF otomatik bakım geçmişi kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "BMW X3/N47-B47 ve xDrive servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "3.0d N57/B57",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2010,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-x3-30d-n57-egr",
+            severity: "medium",
+            title: "N57/B57 EGR/DPF, turbo ve xDrive aktarma kontrolü",
+            detail:
+              "30d X3'te EGR/DPF/AdBlue, turbo, ZF şanzıman ve xDrive transfer/diferansiyel bakım geçmişi kontrol edilmelidir.",
+            typicalOnset: "150.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "BMW N57/B57 ve xDrive SUV kullanıcı/servis kayıtlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "BMW",
+    model: "X4",
+    yearFrom: 2014,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "2.0d / 3.0d",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2014,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-x4-diesel-egr-transfer",
+            severity: "medium",
+            title: "Dizel emisyon sistemi, xDrive ve ZF bakım kontrolü",
+            detail:
+              "X4 dizellerde EGR/DPF/AdBlue, turbo, xDrive transfer kutusu, diferansiyel ve ZF otomatik yağ bakım geçmişi kontrol edilmeli.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "BMW X3/X4 dizel ve xDrive servis kayıtlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "B48/B58 benzin",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2014,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-x4-petrol-cooling",
+            severity: "medium",
+            title: "Soğutma, turbo ve xDrive aktarma kontrolü",
+            detail:
+              "Benzinli X4'te soğutma kaçakları, turbo, bobin/buji, ZF bakım ve xDrive transfer kutusu kontrol edilmeli.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "BMW B48/B58 ve xDrive kullanıcı/servis kayıtları.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "BMW",
+    model: "X5",
+    yearFrom: 2000,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "3.0d M57/N57/B57",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2000,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-x5-30d-air-transfer",
+            severity: "high",
+            title: "Dizel emisyon/turbo, havalı süspansiyon ve xDrive masrafı",
+            detail:
+              "X5'te EGR/DPF/AdBlue, turbo, swirl flap, ZF otomatik, xDrive transfer kutusu ve havalı süspansiyon yüksek maliyetli kontrol kalemleridir.",
+            typicalOnset: "150.000 km sonrası veya yaşa bağlı",
+            costLevel: "Yüksek",
+            sourceNote: "BMW X5 alım rehberleri ve bağımsız servis kayıtlarında tekrar eden pahalı riskler.",
+          },
+        ],
+      },
+      {
+        engineLabel: "V8 benzin N62/N63",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2000,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-x5-v8-cooling-valvestem",
+            severity: "high",
+            title: "V8 soğutma, yağ kaçakları ve supap keçesi/turbo masrafı",
+            detail:
+              "V8 X5'te supap keçesi dumanı, yağ kaçakları, soğutma sistemi, turbo/ısı yönetimi ve havalı süspansiyon yüksek maliyetlidir.",
+            typicalOnset: "120.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "BMW N62/N63 motor ve X5 kullanıcı/servis kayıtlarında tekrar eden pahalı riskler.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "BMW",
+    model: "X6",
+    yearFrom: 2008,
+    yearTo: 2026,
+    engines: [
+      {
+        engineLabel: "3.0d N57/B57",
+        fuelType: "Dizel",
+        transmission: "Otomatik",
+        yearFrom: 2008,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-x6-diesel-air-transfer",
+            severity: "high",
+            title: "Dizel emisyon sistemi, xDrive ve havalı süspansiyon kontrolü",
+            detail:
+              "X6 dizellerde EGR/DPF/AdBlue, turbo, ZF otomatik, xDrive transfer/diferansiyel ve havalı süspansiyon masrafı kontrol edilmelidir.",
+            typicalOnset: "150.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "BMW X5/X6 dizel ve xDrive servis kayıtlarında tekrar eden kontrol başlıkları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "V8 benzin N63",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2008,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "bmw-x6-v8-n63",
+            severity: "high",
+            title: "N63 V8 yağ/soğutma/turbo ve elektronik donanım masrafı",
+            detail:
+              "N63 V8 X6'da turbo/ısı yönetimi, yağ kaçakları, supap keçesi dumanı, soğutma ve aktif süspansiyon/elektronik donanımlar yüksek maliyetlidir.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "BMW N63 ve X6 kullanıcı/servis kayıtlarında tekrar eden pahalı riskler.",
+          },
+        ],
+      },
+    ],
+  },
 ];

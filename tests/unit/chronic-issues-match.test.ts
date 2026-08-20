@@ -377,6 +377,29 @@ describe("findChronicIssues", () => {
     expect(daciaModels.filter((model) => !coveredDaciaModels.has(model))).toEqual([]);
   });
 
+  it("covers every BMW model listed in the analysis form catalog", () => {
+    const bmwModels = [
+      "1 Serisi",
+      "2 Serisi",
+      "3 Serisi",
+      "4 Serisi",
+      "5 Serisi",
+      "6 Serisi",
+      "7 Serisi",
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5",
+      "X6",
+    ];
+    const coveredBmwModels = new Set(
+      CHRONIC_ISSUES_DB.filter((entry) => entry.brand === "BMW").map((entry) => entry.model),
+    );
+
+    expect(bmwModels.filter((model) => !coveredBmwModels.has(model))).toEqual([]);
+  });
+
   it("matches newly added premium brand engine-specific issues", () => {
     const bmw = findChronicIssues({
       brand: "BMW",
