@@ -156,6 +156,37 @@ describe("importListingFromUrl", () => {
     expect(outcome).toEqual({ ok: false, reason: "blocked" });
   });
 
+  it("returns blocked when both attempts read a Cloudflare/security page", async () => {
+    addListener.mockResolvedValue({ remove: vi.fn().mockResolvedValue(undefined) });
+    fetchListingPage.mockResolvedValue({
+      pageDataJson: JSON.stringify({
+        title: "Güvenlik doğrulaması",
+        ogTitle: "",
+        ogDescription: "",
+        bodyText: "Cloudflare güvenlik doğrulaması ".repeat(10),
+        jsonLd: [],
+        images: [],
+        finalUrl: SUPPORTED_URL,
+      }),
+      importHttpStatus: 200,
+      importResponseJson: JSON.stringify({
+        result: {
+          title: "Güvenlik doğrulaması",
+          fields: {},
+          lowConfidenceFields: [],
+          missingFields: [],
+          warnings: ["Sayfa bir araç ilanı değil, Cloudflare güvenlik doğrulaması sayfasıdır."],
+        },
+      }),
+    });
+
+    const { importListingFromUrl } = await import("@/lib/listing-import/import-listing");
+    const outcome = await importListingFromUrl(SUPPORTED_URL);
+
+    expect(fetchListingPage).toHaveBeenCalledTimes(2);
+    expect(outcome).toEqual({ ok: false, reason: "blocked" });
+  });
+
   it("still attempts fetchListingPage even when addListener() never settles", async () => {
     // The actual production root cause: @capacitor/core's addListenerNative
     // has a real bug where a rejected native addListener() call resolves to

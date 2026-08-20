@@ -194,7 +194,9 @@ async function runNativeImport(
   const firstAttempt = await attemptNativeImport(detected, onStage);
   if (!looksLikeBlockedPage(firstAttempt)) return firstAttempt;
   trace("js-retry-after-blocked-page");
-  return attemptNativeImport(detected, onStage);
+  const secondAttempt = await attemptNativeImport(detected, onStage);
+  if (looksLikeBlockedPage(secondAttempt)) return { ok: false, reason: "blocked" };
+  return secondAttempt;
 }
 
 async function attemptNativeImport(
