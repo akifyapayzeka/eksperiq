@@ -50,15 +50,12 @@ type ListingImportApiResponse = {
  * caps the whole operation from the JS side as a backstop, independent of
  * whatever the native timeouts do or don't do.
  *
- * runNativeImport can run the whole page-open + AI-normalize sequence
- * twice (see the blocked-page retry below), and each pass's own native
- * timeouts can now add up to 190s (50s page fetch + 140s AI call, see
- * EksperIQListingFetchPlugin.swift) in the worst case — 380s for two,
- * plus overhead. Set with headroom above that rather than tuned to the
- * common case, since the common case finishes in well under a minute
- * anyway and this is only what bounds the rare worst case.
+ * Product limit: let a real listing take a few minutes when needed, but do
+ * not leave the buyer waiting indefinitely. Native may still finish a late
+ * in-flight request and notify from iOS if the app was backgrounded, but the
+ * visible JS flow stops presenting the job as active after five minutes.
  */
-const CLIENT_HARD_TIMEOUT_MS = 450_000;
+const CLIENT_HARD_TIMEOUT_MS = 300_000;
 
 /**
  * Loads the URL on the user's own device (WKWebView, not a server fetch —

@@ -8,6 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Field } from "@/components/ui/field";
 import { importListingFromUrl, type ImportStage } from "@/lib/listing-import/import-listing";
 import { getImportSession, setImportSession, useImportSession } from "@/lib/listing-import/import-session-store";
+import { prepareListingImportNotifications } from "@/lib/listing-import/notifications";
 import { computeDisplayPercent } from "@/lib/listing-import/progress";
 import { acceptAiConsent, hasAcceptedAiConsent } from "@/lib/consent/ai-consent";
 
@@ -34,6 +35,7 @@ export function ListingImportSection() {
   const { url, status, stage, stageStartedAt, errorMessage, errorDetail, result } = useImportSession();
   const [consent, setConsent] = useState(() => hasAcceptedAiConsent());
   const [showConsentPrompt] = useState(() => !hasAcceptedAiConsent());
+  const [notificationMessage, setNotificationMessage] = useState("");
   const appliedResultRef = useRef<typeof result>(null);
 
   // Ticks while loading so the eased percentage below keeps creeping up
@@ -93,6 +95,19 @@ export function ListingImportSection() {
       stage: "checking-url",
       stageStartedAt: new Date().toISOString(),
     });
+    setNotificationMessage("");
+
+    prepareListingImportNotifications()
+      .then((permission) => {
+        if (permission === "denied") {
+          setNotificationMessage(
+            "Bildirim izni kapalı. İlan analizi devam eder; ancak uygulama arka plandayken biterse bildirim gönderilemeyebilir.",
+          );
+        }
+      })
+      .catch(() => {
+        setNotificationMessage("");
+      });
 
     // Whatever importListingFromUrl does internally, this call must always
     // end in a terminal UI state — an uncaught rejection here (from the
@@ -224,6 +239,7 @@ export function ListingImportSection() {
             otomatik tekrar denenirse birkaç dakikaya kadar çıkabilir. Uygulamayı kapatmadan bekleyin; hedef üst sınır 5
             dakikadır.
           </p>
+          {notificationMessage ? <p className="mt-2 text-xs text-warning">{notificationMessage}</p> : null}
         </div>
       ) : null}
 
