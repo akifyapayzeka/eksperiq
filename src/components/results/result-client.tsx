@@ -1222,7 +1222,30 @@ export function ResultClient() {
                 ))}
               </div>
             </SectionCard>
-          ) : null}
+          ) : (
+            <SectionCard
+              id="rapor-kronik-sorunlar"
+              title="Kronik sorun eşleşmesi"
+              description="Bu bölüm yalnızca EksperIQ veritabanında marka/model/yıl/motor bilgisiyle eşleşen, araştırılmış kayıtları gösterir."
+            >
+              <div className="rounded-lg border border-border bg-muted p-4">
+                <p className="font-semibold text-foreground">Bu araç için eşleşen kronik sorun kaydı gösterilemedi.</p>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  Bu sonuç aracın sorunsuz olduğu anlamına gelmez. Model henüz rehbere eklenmemiş olabilir, ilan motor
+                  kodunu yeterince açık vermemiş olabilir veya sorunlar sadece ekspertiz/servis kontrolünde görülebilir.
+                  Motor hacmi, motor kodu, şanzıman ve paket bilgisini netleştirerek yeniden analiz yapmak listeyi
+                  daraltır.
+                </p>
+                <Link
+                  href="/model-rehberi"
+                  className="mt-3 inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent hover:text-accent"
+                >
+                  Model rehberini aç
+                  <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+                </Link>
+              </div>
+            </SectionCard>
+          )}
           <SectionCard id="rapor-masraflar" title="Yakın zamanda çıkabilecek masraflar">
             <ul className="grid gap-2">
               {result.costs.map((cost) => (

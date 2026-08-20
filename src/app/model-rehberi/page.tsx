@@ -40,6 +40,8 @@ export default function ModelGuidePage() {
     (sum, entry) => sum + entry.engines.reduce((engineSum, engine) => engineSum + engine.issues.length, 0),
     0,
   );
+  const coveredBrandCount = new Set(CHRONIC_ISSUES_DB.map((entry) => entry.brand)).size;
+  const engineVariantCount = CHRONIC_ISSUES_DB.reduce((sum, entry) => sum + entry.engines.length, 0);
 
   return (
     <AppShell>
@@ -65,6 +67,20 @@ export default function ModelGuidePage() {
       </div>
 
       <section className="mt-6">
+        <div className="mb-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-theme border border-border bg-card p-4">
+            <p className="text-sm text-muted-foreground">Kapsanan marka</p>
+            <p className="mt-1 text-2xl font-semibold text-foreground">{coveredBrandCount}</p>
+          </div>
+          <div className="rounded-theme border border-border bg-card p-4">
+            <p className="text-sm text-muted-foreground">Model kaydı</p>
+            <p className="mt-1 text-2xl font-semibold text-foreground">{CHRONIC_ISSUES_DB.length}</p>
+          </div>
+          <div className="rounded-theme border border-border bg-card p-4">
+            <p className="text-sm text-muted-foreground">Motor / şanzıman varyantı</p>
+            <p className="mt-1 text-2xl font-semibold text-foreground">{engineVariantCount}</p>
+          </div>
+        </div>
         <div className="relative">
           <Search
             aria-hidden="true"
