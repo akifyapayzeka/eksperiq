@@ -59,6 +59,18 @@ function mockFetchAllowingRateLimit(openRouterResponse: unknown) {
   });
 }
 
+function mockFetchAllowingRateLimitSequence(openRouterResponses: Response[]) {
+  const remaining = [...openRouterResponses];
+  return vi.fn<(input: unknown, init?: RequestInit) => Promise<unknown>>(async (input) => {
+    if (String(input).includes("upstash.example.com")) {
+      return new Response(UPSTASH_ALLOW_RESPONSE, { status: 200 });
+    }
+    const next = remaining.shift();
+    if (!next) throw new Error("Unexpected OpenRouter request");
+    return next;
+  });
+}
+
 const validBody = {
   aiProviderConsent: true,
   source: "sahibinden",
@@ -70,7 +82,7 @@ const validBody = {
   jsonLd: [],
 };
 
-async function callEndpoint(body: unknown, fetchMock: ReturnType<typeof vi.fn>) {
+async function callEndpoint(body: unknown, fetchMock: ReturnType<typeof vi.fn>, env: Record<string, string> = {}) {
   vi.stubGlobal("fetch", fetchMock);
   const previousEnv = process.env;
   process.env = {
@@ -78,6 +90,7 @@ async function callEndpoint(body: unknown, fetchMock: ReturnType<typeof vi.fn>) 
     ...RATE_LIMIT_TEST_ENV,
     NEXT_PUBLIC_LISTING_IMPORT_ENABLED: "true",
     OPENROUTER_API_KEY: "test-key",
+    ...env,
   };
 
   const response = createResponse();
@@ -232,5 +245,79 @@ describe("listing import AI endpoint", () => {
     expect(result.fields.hasHeavyDamage).toBe(false);
     expect(result.missingFields).not.toContain("sellerDescription");
     expect(result.missingFields).not.toContain("city");
+  });
+
+  it("falls back to the paid listing model when the free model hits OpenRouter capacity", async () => {
+    const fallbackModelResponse = {
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              title: "2020 Toyota Corolla",
+              fields: {
+                brand: "Toyota",
+                model: "Corolla",
+                year: 2020,
+                trim: null,
+                fuelType: "Benzin",
+                transmission: "Otomatik",
+                mileage: 90000,
+                price: 1200000,
+                city: "İstanbul",
+                bodyType: "Sedan",
+                engineSize: "1.6",
+                enginePower: null,
+                drivetrain: null,
+                ownerInfo: null,
+                tradeStatus: null,
+                tramerAmount: null,
+                paintedParts: null,
+                replacedParts: null,
+                localPaintedParts: null,
+                airbagStatus: null,
+                lpgStatus: null,
+                hasHeavyDamage: null,
+                hasChassisRepair: null,
+                hasTotalLossHistory: null,
+                hasExpertiseReport: null,
+                lpgRegistered: null,
+                hasSpareKey: null,
+                hasMaintenanceInvoices: null,
+                lastMaintenanceDate: null,
+                timingBeltInfo: null,
+                transmissionMaintenanceInfo: null,
+                batteryStatus: null,
+                tireStatus: null,
+                inspectionEndDate: null,
+                sellerDescription: "Temiz, bakımlı, otomatik Corolla ilan açıklaması.",
+              },
+              lowConfidenceFields: [],
+              missingFields: [],
+              warnings: [],
+            }),
+          },
+        },
+      ],
+    };
+    const fetchMock = mockFetchAllowingRateLimitSequence([
+      new Response("capacity", { status: 429 }),
+      new Response("capacity", { status: 429 }),
+      new Response(JSON.stringify(fallbackModelResponse), { status: 200 }),
+    ]);
+
+    const { statusCode, body } = await callEndpoint(validBody, fetchMock, {
+      OPENROUTER_MODEL: "openai/gpt-oss-20b:free",
+      OPENROUTER_LISTING_IMPORT_FALLBACK_MODEL: "openai/gpt-oss-20b",
+    });
+
+    expect(statusCode).toBe(200);
+    expect(body.model).toBe("openai/gpt-oss-20b");
+    expect(body.fallbackUsed).toBe(true);
+
+    const openRouterCalls = fetchMock.mock.calls.filter(([input]) => !String(input).includes("upstash.example.com"));
+    expect(openRouterCalls).toHaveLength(3);
+    expect(JSON.parse(String(openRouterCalls[0][1]?.body)).model).toBe("openai/gpt-oss-20b:free");
+    expect(JSON.parse(String(openRouterCalls[1][1]?.body)).model).toBe("openai/gpt-oss-20b:free");
+    expect(JSON.parse(String(openRouterCalls[2][1]?.body)).model).toBe("openai/gpt-oss-20b");
   });
 });

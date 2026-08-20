@@ -9,7 +9,8 @@ EksperIQ'un ana raporu kural tabanlıdır. AI notu ve fotoğraf AI kontrolü yal
 - [ ] `npm run ai:photo-prod-check` production fotoğraf AI flag durumunu doğruluyor.
 - [ ] Vercel Preview/Production env içinde OpenRouter key tanımlı.
 - [ ] `OPENROUTER_MODEL` ücretsiz veya düşük maliyetli model/router değerinde.
-- [ ] `OPENROUTER_VISION_MODEL` vision destekli ücretsiz veya düşük maliyetli model/router değerinde.
+- [ ] Opsiyonel `OPENROUTER_LISTING_IMPORT_FALLBACK_MODEL` düşük maliyetli ücretli ilan modeli olarak tanımlı; boşsa ücretli fallback kapalıdır.
+- [ ] `OPENROUTER_VISION_MODEL` vision destekli ücretsiz `:free` model değerinde.
 - [ ] `OPENROUTER_DAILY_REQUEST_LIMIT` düşük değerle başlıyor: öneri `20`.
 - [ ] `OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT` düşük değerle başlıyor: öneri `10`.
 - [ ] `NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED=false` production için varsayılan.
@@ -47,8 +48,9 @@ Production ortamında AI özellikleri ilk gün sadece düşük limit ile açılm
 
 ```text
 OPENROUTER_API_KEY Vercel secret olarak tanımlı
-OPENROUTER_MODEL=openrouter/free
-OPENROUTER_VISION_MODEL=openrouter/free
+OPENROUTER_MODEL=openai/gpt-oss-20b:free
+OPENROUTER_LISTING_IMPORT_FALLBACK_MODEL=openai/gpt-oss-20b
+OPENROUTER_VISION_MODEL=google/gemma-4-26b-a4b-it:free
 NEXT_PUBLIC_AI_ANALYSIS_NOTE_ENABLED=true
 NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED=true
 OPENROUTER_DAILY_REQUEST_LIMIT=20

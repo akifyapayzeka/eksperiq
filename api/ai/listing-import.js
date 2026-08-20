@@ -8,6 +8,7 @@ const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
 // analysis-note.js; avoid
 // "openrouter/free" which can randomly route to a moderation/safety model.
 const DEFAULT_OPENROUTER_MODEL = "openai/gpt-oss-20b:free";
+const DEFAULT_OPENROUTER_FALLBACK_MODEL = "";
 const DEFAULT_DAILY_LIMIT = 60;
 // TEMPORARY: raised from 10 for this bug-hunt session — this feature's own
 // retry-on-blocked-page logic can burn 2 requests per user attempt, and a
@@ -575,46 +576,17 @@ ${input.bodyText.slice(0, 12000)}`,
   ];
 }
 
-async function requestOpenRouterListingImport(input) {
-  const apiKey = process.env.OPENROUTER_API_KEY?.trim();
-  if (!apiKey) return { error: "OpenRouter API key tanımlı değil." };
+function primaryListingImportModel() {
+  return process.env.OPENROUTER_MODEL?.trim() || DEFAULT_OPENROUTER_MODEL;
+}
 
-  const model = process.env.OPENROUTER_MODEL?.trim() || DEFAULT_OPENROUTER_MODEL;
-  const result = await callOpenRouterChatCompletions({
-    apiKey,
-    model,
-    messages: buildMessages(input),
-    responseFormat: listingImportResponseFormat,
-    temperature: 0.1,
-    // Was 1600 — a real ilan's full field set (title + ~17 fields +
-    // lowConfidenceFields/missingFields/warnings arrays + sellerDescription)
-    // can run longer than that, and a truncated response is invalid JSON,
-    // which extractJson() below can only ever report as a bare "couldn't
-    // parse" — not distinguishable from the model genuinely misbehaving.
-    maxTokens: 3200,
-    refererUrl: productionUrl,
-    appName,
-  });
-  if (!result.ok) return { error: result.error };
+function fallbackListingImportModel(primaryModel) {
+  const fallbackModel = process.env.OPENROUTER_LISTING_IMPORT_FALLBACK_MODEL?.trim() || DEFAULT_OPENROUTER_FALLBACK_MODEL;
+  if (!fallbackModel || fallbackModel === primaryModel) return null;
+  return fallbackModel;
+}
 
-  const text = extractText(result.payload);
-  if (!text) {
-    console.error(
-      "[listing-import] extractText found no readable choices[0].message.content. Raw payload (first 500 chars):",
-      JSON.stringify(result.payload).slice(0, 500),
-    );
-    return { error: "AI yanıtı okunamadı." };
-  }
-  const parsed = extractJson(text);
-  const json = parsed ? normalizeFieldsShape(parsed) : null;
-  if (!json || !isRecord(json.fields)) {
-    console.error(
-      "[listing-import] AI response did not parse to the expected shape. Raw text (first 800 chars):",
-      text.slice(0, 800),
-    );
-    return { error: "İlan bilgisi işlenemedi." };
-  }
-
+function normalizeListingImportJson(json, input, model) {
   const fields = json.fields;
   const fallbackText = [input.bodyText, input.ogDescription, input.ogTitle, input.title].filter(Boolean).join("\n");
   if (typeof fields.sellerDescription === "string") {
@@ -661,6 +633,64 @@ async function requestOpenRouterListingImport(input) {
     },
     model,
   };
+}
+
+async function requestOpenRouterListingImportWithModel(input, apiKey, model) {
+  const result = await callOpenRouterChatCompletions({
+    apiKey,
+    model,
+    messages: buildMessages(input),
+    responseFormat: listingImportResponseFormat,
+    temperature: 0.1,
+    // Was 1600 — a real ilan's full field set (title + ~17 fields +
+    // lowConfidenceFields/missingFields/warnings arrays + sellerDescription)
+    // can run longer than that, and a truncated response is invalid JSON,
+    // which extractJson() below can only ever report as a bare "couldn't
+    // parse" — not distinguishable from the model genuinely misbehaving.
+    maxTokens: 3200,
+    refererUrl: productionUrl,
+    appName,
+  });
+  if (!result.ok) return { error: result.error };
+
+  const text = extractText(result.payload);
+  if (!text) {
+    console.error(
+      "[listing-import] extractText found no readable choices[0].message.content. Raw payload (first 500 chars):",
+      JSON.stringify(result.payload).slice(0, 500),
+    );
+    return { error: "AI yanıtı okunamadı." };
+  }
+  const parsed = extractJson(text);
+  const json = parsed ? normalizeFieldsShape(parsed) : null;
+  if (!json || !isRecord(json.fields)) {
+    console.error(
+      "[listing-import] AI response did not parse to the expected shape. Raw text (first 800 chars):",
+      text.slice(0, 800),
+    );
+    return { error: "İlan bilgisi işlenemedi." };
+  }
+
+  return normalizeListingImportJson(json, input, model);
+}
+
+async function requestOpenRouterListingImport(input) {
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim();
+  if (!apiKey) return { error: "OpenRouter API key tanımlı değil." };
+
+  const primaryModel = primaryListingImportModel();
+  const primaryResult = await requestOpenRouterListingImportWithModel(input, apiKey, primaryModel);
+  if (!("error" in primaryResult)) return primaryResult;
+
+  const fallbackModel = fallbackListingImportModel(primaryModel);
+  if (!fallbackModel) return primaryResult;
+
+  console.warn(
+    "[listing-import] primary OpenRouter model failed; retrying fallback model:",
+    JSON.stringify({ primaryModel, fallbackModel, error: primaryResult.error }),
+  );
+  const fallbackResult = await requestOpenRouterListingImportWithModel(input, apiKey, fallbackModel);
+  return "error" in fallbackResult ? fallbackResult : { ...fallbackResult, fallbackUsed: true };
 }
 
 async function handler(request, response) {
@@ -723,9 +753,15 @@ async function handler(request, response) {
     return;
   }
 
-  sendJson(response, 200, { result: aiResult.result, model: aiResult.model, remaining: rateLimit.remaining });
+  sendJson(response, 200, {
+    result: aiResult.result,
+    model: aiResult.model,
+    fallbackUsed: aiResult.fallbackUsed === true,
+    remaining: rateLimit.remaining,
+  });
 }
 
 module.exports = handler;
 module.exports.DEFAULT_OPENROUTER_MODEL = DEFAULT_OPENROUTER_MODEL;
+module.exports.DEFAULT_OPENROUTER_FALLBACK_MODEL = DEFAULT_OPENROUTER_FALLBACK_MODEL;
 module.exports.BRAND_OPTIONS = BRAND_OPTIONS;
