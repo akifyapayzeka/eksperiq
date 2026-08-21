@@ -261,11 +261,7 @@ export function ListingImportSection({
               {loadingDetail}
             </div>
           ) : null}
-          <p className="mt-2 text-xs text-muted-foreground">
-            Bu işlem sayfayı açıp araç bilgilerini analiz ettiği için genelde 10-30 saniye sürer, bağlantı yavaşsa veya
-            otomatik tekrar denenirse birkaç dakikaya kadar çıkabilir. Uygulamayı kapatmadan bekleyin; hedef üst sınır 5
-            dakikadır.
-          </p>
+          <p className="mt-2 text-xs text-muted-foreground">Bu işlem 1-5 dakika içinde gerçekleşecektir.</p>
           {notificationMessage ? <p className="mt-2 text-xs text-warning">{notificationMessage}</p> : null}
         </div>
       ) : null}

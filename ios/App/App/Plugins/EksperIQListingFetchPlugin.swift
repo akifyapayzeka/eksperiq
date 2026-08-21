@@ -502,6 +502,19 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
         })
         .slice(0, 40)
         .join('\n');
+      // bodyText is capped at 20000 chars downstream, and a nav/link-heavy
+      // page (sahibinden.com's header, category menus, sidebar, "Benzer
+      // İlanlar" recommendations) can easily burn that whole budget before
+      // the actual listing detail table ever appears in DOM order — the
+      // real data gets silently truncated away. This is a one-off,
+      // never-shown-to-the-user webview that's torn down right after this
+      // read, so it's safe to strip known boilerplate straight out of the
+      // live DOM (not a detached clone, so visibility/layout still behaves
+      // normally for innerText) before measuring body text.
+      Array.from(document.querySelectorAll(
+        'nav, header, footer, aside, script, style, noscript, iframe, ' +
+        '[role="navigation"], [role="banner"], [role="contentinfo"]'
+      )).forEach(function(el) { el.remove(); });
       return JSON.stringify({
         title: document.title || '',
         ogTitle: attr('meta[property="og:title"]', 'content'),

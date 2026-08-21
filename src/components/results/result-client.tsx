@@ -2,31 +2,20 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Capacitor } from "@capacitor/core";
 import {
-  AlertTriangle,
   ArrowUpRight,
-  BadgeCheck,
   CheckCircle2,
   ClipboardCopy,
-  FileText,
-  Gauge,
-  GitCompareArrows,
   Minus,
   Plus,
-  RotateCcw,
   Share2,
-  ShieldQuestion,
-  Trash2,
   X,
 } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
 import { shareReportPdf } from "@/lib/report/pdf-share";
-import { BUYER_DECISION_GUIDE, BUYER_EDUCATION_NOTES } from "@/lib/analysis/buyer-education";
+import { BUYER_EDUCATION_NOTES } from "@/lib/analysis/buyer-education";
 import { SCORE_WEIGHTS } from "@/lib/constants/analysis";
-import { formatAnalysisSummary, formatSellerQuestionMessage } from "@/lib/analysis/report-summary";
 import {
-  clearAnalysis,
   loadAnalysis,
   loadChecklist,
   loadFindingFilter,
@@ -34,7 +23,6 @@ import {
   saveFindingFilter,
   type StoredFindingFilter,
 } from "@/lib/storage/analysis-storage";
-import { addToComparison } from "@/lib/storage/comparison-storage";
 import type { AnalysisResult, ScoreCategory } from "@/lib/analysis/types";
 import { riskBucket } from "@/lib/analysis/risk-bucket";
 import { SectionCard } from "@/components/ui/section-card";
@@ -113,10 +101,6 @@ function riskToneClass(score: number): string {
   return "bg-destructive/10 text-destructive ring-destructive/30";
 }
 
-function priorityToneClass(severity: string): string {
-  return severityClass(severity);
-}
-
 function simpleFindingMeaning(category: string): string {
   const normalized = category.toLocaleLowerCase("tr-TR");
   if (normalized.includes("hasar")) {
@@ -180,39 +164,12 @@ ${questions}
 Not: Bu özet kesin ekspertiz sonucu değildir.`;
 }
 
-function reportCorrectionMailto(result: AnalysisResult): string {
-  const subject = `${appConfig.name} - Rapor duzeltme notu`;
-  const body = `Rapor icin duzeltme / eksik bilgi notu
-
-Arac: ${result.input.year} ${result.input.brand} ${result.input.model}
-Bilgi durumu: ${result.completeness.completed}/${result.completeness.total}
-Eksik alanlar: ${result.completeness.missing.join(", ") || "Yok"}
-
-Eksik veya hatali gordugum yer:
-
-Bekledigim satıcı sorusu / kontrol:
-
-Kisisel veri eklemedim: Evet`;
-
-  return `mailto:${appConfig.feedbackEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-}
-
 export function ResultClient() {
   const [isReady, setIsReady] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [copyStatus, setCopyStatus] = useState<
-    | "idle"
-    | "questions-copied"
-    | "seller-message-copied"
-    | "summary-copied"
-    | "shared"
-    | "downloaded"
-    | "print-opened"
-    | "failed"
-    | "comparison-added"
-    | "comparison-full"
+    "idle" | "summary-copied" | "shared" | "downloaded" | "failed"
   >("idle");
-  const [addedToComparison, setAddedToComparison] = useState(false);
   const [findingFilter, setFindingFilter] = useState<FindingFilter>("all");
   const [checkedChecklist, setCheckedChecklist] = useState<Set<string>>(new Set());
   const [scoreRingFilled, setScoreRingFilled] = useState(false);
@@ -288,10 +245,7 @@ export function ResultClient() {
     );
   }
 
-  async function copyText(
-    text: string,
-    successStatus: "questions-copied" | "seller-message-copied" | "summary-copied",
-  ) {
+  async function copyText(text: string, successStatus: "summary-copied") {
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
@@ -325,34 +279,6 @@ export function ResultClient() {
     }
   }
 
-  async function printReport() {
-    if (Capacitor.isNativePlatform()) {
-      // window.print() has no effect inside Capacitor's WKWebView — there is
-      // no native print dialog wired up. Open the OS share sheet instead;
-      // Print (AirPrint) is one of its standard system actions when available.
-      await shareSummary();
-      return;
-    }
-    setCopyStatus("print-opened");
-    window.setTimeout(() => window.print(), 0);
-  }
-
-  async function copyQuestions() {
-    if (!result) return;
-    const text = result.sellerQuestions.map((question, index) => `${index + 1}. ${question}`).join("\n");
-    await copyText(text, "questions-copied");
-  }
-
-  async function copySellerMessage() {
-    if (!result) return;
-    await copyText(formatSellerQuestionMessage(result), "seller-message-copied");
-  }
-
-  async function copySummary() {
-    if (!result) return;
-    await copyText(formatAnalysisSummary(result), "summary-copied");
-  }
-
   async function copyCompactSummary() {
     if (!result) return;
     await copyText(compactShareSummary(result), "summary-copied");
@@ -373,32 +299,11 @@ export function ResultClient() {
   }
 
   function actionStatusMessage() {
-    if (copyStatus === "questions-copied") return "Satıcı soruları panoya kopyalandı.";
-    if (copyStatus === "seller-message-copied") return "Satıcı mesajı panoya kopyalandı.";
     if (copyStatus === "summary-copied") return "Rapor özeti panoya kopyalandı.";
     if (copyStatus === "shared") return "Rapor PDF'i paylaşım paneline gönderildi.";
     if (copyStatus === "downloaded") return "Rapor PDF olarak indirildi.";
-    if (copyStatus === "print-opened")
-      return "Yazdırma penceresi açıldı. Açılmadıysa tarayıcının paylaş menüsünden yazdırmayı deneyin.";
     if (copyStatus === "failed") return "Paylaşma veya kopyalama tarayıcı tarafından engellendi.";
-    if (copyStatus === "comparison-added") return "İlan karşılaştırma listesine eklendi.";
-    if (copyStatus === "comparison-full")
-      return "Karşılaştırma listesi dolu (en fazla 3 ilan). Karşılaştırma sayfasından bir kaydı kaldırın.";
     return "";
-  }
-
-  function addCurrentToComparison() {
-    if (!result || addedToComparison) return;
-    const outcome = addToComparison(result);
-    announceCopyStatus(outcome.ok ? "comparison-added" : "comparison-full");
-    if (outcome.ok) setAddedToComparison(true);
-  }
-
-  function clearCurrentAnalysis() {
-    clearAnalysis();
-    setResult(null);
-    setCheckedChecklist(new Set());
-    setFindingFilter("all");
   }
 
   function selectFindingFilter(filter: FindingFilter) {
@@ -541,205 +446,15 @@ export function ResultClient() {
               </div>
             </div>
           </div>
-          <div className="grid gap-3 border-t border-border bg-card p-4 md:grid-cols-3">
-            <div className="rounded-theme border border-border bg-muted p-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
-                <Gauge aria-hidden="true" className="h-4 w-4 text-accent" />
-                Öncelik
-              </div>
-              <p className="mt-2 text-lg font-semibold leading-snug text-foreground">{result.decision}</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Satın alma kararı vermeden önce bulguları belge ve bağımsız ekspertizle doğrulayın.
-              </p>
-            </div>
-            <div
-              className={`rounded-theme border p-4 ${priorityToneClass(result.findings[0]?.severity ?? "low")}`}
-              aria-label="İlk kontrol edilecek risk"
-            >
-              <div className="flex items-center gap-2 text-sm font-semibold">
-                <AlertTriangle aria-hidden="true" className="h-4 w-4" />
-                İlk kontrol
-              </div>
-              <p className="mt-2 text-lg font-semibold leading-snug">
-                {result.findings[0]?.title ?? "Öncelikli risk bulgusu oluşmadı"}
-              </p>
-              <p className="mt-2 text-sm leading-6">
-                {result.findings[0]?.recommendation ?? "Yine de ekspertiz ve belge kontrolünü tamamlayın."}
-              </p>
-            </div>
-            <div className="rounded-theme border border-accent/20 bg-accent/10 p-4 text-foreground">
-              <div className="flex items-center gap-2 text-sm font-semibold">
-                <BadgeCheck aria-hidden="true" className="h-4 w-4" />
-                Sonraki adım
-              </div>
-              <p className="mt-2 text-lg font-semibold leading-snug">
-                {result.priorityActions[0]?.title ?? "Satıcıdan belge isteyin"}
-              </p>
-              <p className="mt-2 text-sm leading-6">
-                {result.priorityActions[0]?.reason ??
-                  "Eksik veya belirsiz bilgileri yazılı belge ve ekspertiz raporuyla netleştirin."}
-              </p>
-            </div>
-          </div>
-          <div className="border-t border-border bg-card p-4">
-            <div className="rounded-theme border border-accent/20 bg-accent/10 p-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
-                <ShieldQuestion aria-hidden="true" className="h-4 w-4 text-accent" />
-                Araçtan anlamayanlar için karar rehberi
-              </div>
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                {BUYER_DECISION_GUIDE.map((item) => (
-                  <article key={item.title} className="rounded-lg border border-border bg-card p-4">
-                    <h2 className="font-semibold text-foreground">{item.title}</h2>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">Ne demek: {item.meaning}</p>
-                    <p className="mt-2 text-sm font-medium leading-6 text-foreground/90">Ne yap: {item.action}</p>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="grid gap-3 border-t border-border bg-card p-4 md:grid-cols-3">
-            <div className="rounded-theme border border-border bg-muted p-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
-                <ShieldQuestion aria-hidden="true" className="h-4 w-4 text-accent" />
-                Veri kaynağı
-              </div>
-              <p className="mt-2 text-lg font-semibold leading-snug text-foreground">
-                {result.listingImages?.length ? "İlandan alınan bilgilerle oluşturuldu" : "Manuel bilgilerle oluşturuldu"}
-              </p>
-              <p className="mt-2 break-words text-sm leading-6 text-muted-foreground">
-                {result.listingImages?.length
-                  ? "Rapordaki araç bilgileri ilan sayfasından alınan metin ve görsellerle hazırlanır; satıcı iddiaları belge yerine geçmez."
-                  : "Rapordaki araç bilgileri kullanıcının girdiği alanlara göre hazırlanır."}
-              </p>
-            </div>
-            <div className="rounded-theme border border-border bg-muted p-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
-                <CheckCircle2 aria-hidden="true" className="h-4 w-4 text-accent" />
-                Veri durumu
-              </div>
-              <p className="mt-2 text-lg font-semibold leading-snug text-foreground">
-                {result.completeness.completed} / {result.completeness.total} alan dolu
-              </p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {result.completeness.missing.length
-                  ? `Eksik kalanlar: ${result.completeness.missing.slice(0, 5).join(", ")}${
-                      result.completeness.missing.length > 5 ? "..." : ""
-                    }`
-                  : "Çekirdek alanlar rapor için yeterli görünüyor."}
-              </p>
-            </div>
-            <div className="rounded-theme border border-accent/20 bg-accent/10 p-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
-                <BadgeCheck aria-hidden="true" className="h-4 w-4 text-accent" />
-                Düzeltme hattı
-              </div>
-              <p className="mt-2 text-lg font-semibold leading-snug text-foreground">Hatalı veya eksikse bildir</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                EksperIQ yanlış yakaladığı alanları kullanıcı notlarıyla ayırıp kural setine geri besler.
-              </p>
-              <a
-                href={reportCorrectionMailto(result)}
-                className="mt-3 inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-accent px-4 text-sm font-semibold text-accent"
-              >
-                Rapor düzeltmesi gönder
-                <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
-              </a>
-            </div>
-          </div>
-          {result.listingImages?.length ? (
-            <div className="border-t border-border bg-card p-4">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-base font-semibold text-foreground">İlandan alınan araç fotoğrafları</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Yalnızca araç fotoğrafı gibi görünen görseller rapora taşınır; ikon ve site görselleri elenir.
-                  </p>
-                </div>
-                <span className="shrink-0 rounded-full bg-muted px-3 py-1 text-sm font-semibold text-foreground/80">
-                  {result.listingImages.length}
-                </span>
-              </div>
-              <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
-                {result.listingImages.slice(0, 12).map((imageUrl, index) => (
-                  <button
-                    key={imageUrl}
-                    type="button"
-                    onClick={() => openListingImage(index)}
-                    className="block aspect-square overflow-hidden rounded-theme-sm border border-border bg-muted text-left transition hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                    aria-label={`İlan fotoğrafını büyüt: ${index + 1}`}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element -- External listing CDNs are not known at build time. */}
-                    <img src={imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : null}
-          <div className="no-print grid gap-3 border-t border-border bg-card p-4 sm:grid-cols-2 xl:grid-cols-4">
-            <button
-              type="button"
-              onClick={printReport}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
-            >
-              <FileText aria-hidden="true" className="h-4 w-4" />
-              Raporu yazdır
-            </button>
-            <button
-              type="button"
-              onClick={copyQuestions}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent hover:text-accent"
-            >
-              <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
-              Soruları kopyala
-            </button>
-            <button
-              type="button"
-              onClick={copySellerMessage}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent hover:text-accent"
-            >
-              <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
-              Satıcı mesajını kopyala
-            </button>
-            <button
-              type="button"
-              onClick={copySummary}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent hover:text-accent"
-            >
-              <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
-              Rapor özetini kopyala
-            </button>
+          <div className="no-print grid gap-3 border-t border-border bg-card p-4 sm:grid-cols-2">
+            {/* Raporu Aç: kullanıcının göndereceği referans ekran görüntüsü bekleniyor (kart içinde PDF görüntüleyici). */}
             <button
               type="button"
               onClick={shareSummary}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent hover:text-accent"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
             >
               <Share2 aria-hidden="true" className="h-4 w-4" />
               Raporu paylaş
-            </button>
-            <Link
-              href="/"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent hover:text-accent"
-            >
-              <RotateCcw aria-hidden="true" className="h-4 w-4" />
-              Ana sayfa
-            </Link>
-            <button
-              type="button"
-              onClick={addCurrentToComparison}
-              disabled={addedToComparison}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-border px-4 text-sm font-semibold text-foreground/90 hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <GitCompareArrows aria-hidden="true" className="h-4 w-4" />
-              {addedToComparison ? "Karşılaştırmaya eklendi" : "Karşılaştırmaya ekle"}
-            </button>
-            <button
-              type="button"
-              onClick={clearCurrentAnalysis}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full transition active:scale-95 border border-destructive/30 px-4 text-sm font-semibold text-destructive hover:bg-destructive/10"
-            >
-              <Trash2 aria-hidden="true" className="h-4 w-4" />
-              Oturum verisini sil
             </button>
           </div>
           {copyStatus !== "idle" ? (

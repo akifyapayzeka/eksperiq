@@ -202,7 +202,12 @@ export default function MyAnalysesPage() {
               <article key={record.id} className="overflow-hidden rounded-theme border border-border bg-card shadow-sm">
                 <div className="flex gap-4 p-5">
                   <div className="h-16 w-16 shrink-0 overflow-hidden rounded-theme">
-                    <VehiclePlaceholder />
+                    {record.result.listingImages?.[0] ? (
+                      // eslint-disable-next-line @next/next/no-img-element -- External listing CDNs are not known at build time.
+                      <img src={record.result.listingImages[0]} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <VehiclePlaceholder />
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between">

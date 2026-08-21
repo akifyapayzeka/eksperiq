@@ -583,7 +583,11 @@ const listingImportResponseFormat = {
 };
 
 function buildMessages(input) {
-  const jsonLdBlock = input.jsonLd.length ? input.jsonLd.join("\n---\n").slice(0, 6000) : "(yok)";
+  // Was 6000 — jsonLd can hold up to 5 blocks x 8000 chars each (see
+  // parseListingImportInput above), and a page can emit several JSON-LD
+  // blocks (Organization, BreadcrumbList, Product...) before the one that
+  // actually has the vehicle data, silently dropping it past this cutoff.
+  const jsonLdBlock = input.jsonLd.length ? input.jsonLd.join("\n---\n").slice(0, 12000) : "(yok)";
 
   return [
     {
@@ -630,7 +634,7 @@ JSON-LD verisi:
 ${jsonLdBlock}
 
 Sayfa metni (kirpilmis):
-${input.bodyText.slice(0, 12000)}`,
+${input.bodyText.slice(0, 20000)}`,
     },
   ];
 }
