@@ -8,6 +8,7 @@ const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
 // yerine görsel girdiyi ve strict JSON şemasını destekleyen, güvenilir,
 // isimli bir ücretsiz model kullan.
 const DEFAULT_VISION_MODEL = "google/gemma-4-26b-a4b-it:free";
+const FREE_ROUTER_FALLBACK_MODEL = "openrouter/free";
 // A single request still caps at 4 images (Vercel's serverless body-size
 // limit — see MAX_TOTAL_IMAGE_DATA_URL_CHARS below), so the client sends a
 // listing's photos as sequential batches. 3 free listings/day x up to 20
@@ -301,13 +302,22 @@ function resolveVisionModel() {
   return configured && configured.endsWith(":free") ? configured : DEFAULT_VISION_MODEL;
 }
 
+function resolveVisionModelCandidates() {
+  const candidates = [resolveVisionModel()];
+  const fallback = process.env.OPENROUTER_VISION_FALLBACK_MODEL?.trim();
+  if (fallback && fallback.endsWith(":free")) candidates.push(fallback);
+  if (process.env.OPENROUTER_ENABLE_FREE_ROUTER_VISION_FALLBACK !== "false") {
+    candidates.push(FREE_ROUTER_FALLBACK_MODEL);
+  }
+  return [...new Set(candidates)];
+}
+
 async function requestOpenRouterVision(input) {
   const apiKey = process.env.OPENROUTER_API_KEY?.trim();
   if (!apiKey) return { error: "OpenRouter API key tanımlı değil." };
 
-  const model = resolveVisionModel();
   const messages = buildMessages(input);
-  const callVisionModel = (responseFormat) =>
+  const callVisionModel = (model, responseFormat) =>
     callOpenRouterChatCompletions({
       apiKey,
       model,
@@ -319,22 +329,29 @@ async function requestOpenRouterVision(input) {
       appName,
     });
 
-  let result = await callVisionModel(photoDamageResponseFormat);
-  if (!result.ok && /:\s*400\b/.test(result.error)) {
-    // Some free vision models intermittently reject strict JSON schema mode.
-    // Keep the same prompt and retry once without response_format so the
-    // user still gets an analysis instead of a generic "unreliable response"
-    // error. OpenRouter/network retry remains handled inside the shared client.
-    result = await callVisionModel(undefined);
-  }
-  if (!result.ok) return { error: result.error };
+  let lastError = "AI fotoğraf sonucu işlenemedi.";
+  for (const model of resolveVisionModelCandidates()) {
+    const attempts = model === FREE_ROUTER_FALLBACK_MODEL ? [undefined] : [photoDamageResponseFormat, undefined];
+    for (const responseFormat of attempts) {
+      const result = await callVisionModel(model, responseFormat);
+      if (!result.ok) {
+        lastError = result.error;
+        if (responseFormat && /:\s*400\b/.test(result.error)) continue;
+        break;
+      }
 
-  const text = extractText(result.payload);
-  if (!text) return { error: "AI yanıtı okunamadı." };
-  const json = extractJson(text);
-  const analysis = json ? normalizeAnalysis(json) : normalizeTextFallback(text);
-  if (!analysis) return { error: "AI fotoğraf sonucu işlenemedi." };
-  return { analysis, model };
+      const text = extractText(result.payload);
+      if (!text) {
+        lastError = "AI yanıtı okunamadı.";
+        continue;
+      }
+      const json = extractJson(text);
+      const analysis = json ? normalizeAnalysis(json) : normalizeTextFallback(text);
+      if (analysis) return { analysis, model };
+      lastError = "AI fotoğraf sonucu işlenemedi.";
+    }
+  }
+  return { error: lastError };
 }
 
 async function handler(request, response) {
@@ -423,4 +440,6 @@ async function handler(request, response) {
 
 module.exports = handler;
 module.exports.DEFAULT_VISION_MODEL = DEFAULT_VISION_MODEL;
+module.exports.FREE_ROUTER_FALLBACK_MODEL = FREE_ROUTER_FALLBACK_MODEL;
 module.exports.resolveVisionModel = resolveVisionModel;
+module.exports.resolveVisionModelCandidates = resolveVisionModelCandidates;

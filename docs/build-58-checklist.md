@@ -44,6 +44,7 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
   - Kept subscription limits focused on listing-link analysis: Free 3, Pro 20, Pro+ unlimited.
 - [x] Hardened photo analysis against strict JSON schema failures.
   - If the free vision model rejects strict `response_format` mode with HTTP 400, the endpoint retries once without strict schema mode.
+  - If the named free vision model still returns unreadable content, the endpoint falls back to OpenRouter's free router as a last resort.
   - The user-facing error now says the model result could not be read and suggests retry/manual finding instead of the old generic reliability wording.
 
 ## Verified

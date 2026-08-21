@@ -131,6 +131,34 @@ describe("photo damage AI endpoint", () => {
     process.env = previousEnv;
   });
 
+  it("keeps a free-router vision fallback after the named free model", () => {
+    const { resolveVisionModelCandidates, DEFAULT_VISION_MODEL, FREE_ROUTER_FALLBACK_MODEL } = handler as unknown as {
+      resolveVisionModelCandidates: () => string[];
+      DEFAULT_VISION_MODEL: string;
+      FREE_ROUTER_FALLBACK_MODEL: string;
+    };
+    const previousEnv = process.env;
+
+    process.env = { ...previousEnv };
+    delete process.env.OPENROUTER_VISION_MODEL;
+    delete process.env.OPENROUTER_MODEL;
+    delete process.env.OPENROUTER_VISION_FALLBACK_MODEL;
+    expect(resolveVisionModelCandidates()).toEqual([DEFAULT_VISION_MODEL, FREE_ROUTER_FALLBACK_MODEL]);
+
+    process.env = {
+      ...previousEnv,
+      OPENROUTER_VISION_MODEL: "google/gemma-4-26b-a4b-it:free",
+      OPENROUTER_VISION_FALLBACK_MODEL: "qwen/qwen3.6-plus:free",
+    };
+    expect(resolveVisionModelCandidates()).toEqual([
+      "google/gemma-4-26b-a4b-it:free",
+      "qwen/qwen3.6-plus:free",
+      FREE_ROUTER_FALLBACK_MODEL,
+    ]);
+
+    process.env = previousEnv;
+  });
+
   it("rejects an oversized combined image payload with 413 before calling OpenRouter", async () => {
     const oversizedDataUrl = `data:image/jpeg;base64,${"A".repeat(4_300_000)}`;
     const response = await callEndpoint(
@@ -526,6 +554,81 @@ describe("photo damage AI endpoint", () => {
     expect(openRouterCalls[0]?.[1]?.body).toContain("response_format");
     expect(openRouterCalls[1]?.[1]?.body).not.toContain("response_format");
     expect(payload.analysis.isVehiclePhoto).toBe(true);
+    expect(payload.analysis.findings).toHaveLength(1);
+  });
+
+  it("tries the free-router fallback when the named vision model returns unreadable content", async () => {
+    const fetchMock = vi.fn<(input: unknown, init?: RequestInit) => Promise<Response>>(async (input, init) => {
+      if (String(input).includes("upstash.example.com")) {
+        return new Response(UPSTASH_ALLOW_RESPONSE, { status: 200 });
+      }
+      const body = JSON.parse(String(init?.body)) as { model: string };
+      if (body.model !== "openrouter/free") {
+        return new Response(
+          JSON.stringify({
+            choices: [
+              {
+                message: {
+                  content: "Bunu JSON olarak okuyamam.",
+                },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      }
+      return new Response(
+        JSON.stringify({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  isVehiclePhoto: true,
+                  summary: "Fotoğrafta aracın ön bölümünde olası kaza hasarı görünüyor.",
+                  findings: [
+                    {
+                      area: "Ön bölüm",
+                      signal: "Olası kaza hasarı",
+                      confidence: "high",
+                      explanation: "Kaput, tampon ve ön panel hizasında belirgin hasar sinyali olabilir.",
+                      recommendation: "Aracı çekiciyle ekspertize götürün; şasi ucu, podye, radyatör paneli ve airbag kayıtları kontrol edilmeli.",
+                    },
+                  ],
+                }),
+              },
+            },
+          ],
+        }),
+        { status: 200 },
+      );
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const previousEnv = process.env;
+    process.env = {
+      ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+      OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
+    };
+    const response = createResponse();
+
+    await handler(createRequest(validBody), response);
+
+    process.env = previousEnv;
+    vi.unstubAllGlobals();
+    const openRouterBodies = fetchMock.mock.calls
+      .filter(([input]) => !String(input).includes("upstash.example.com"))
+      .map(([, init]) => JSON.parse(String(init?.body)) as { model: string; response_format?: unknown });
+    const payload = JSON.parse(response.body) as { model: string; analysis: { findings: unknown[] } };
+    expect(response.statusCode).toBe(200);
+    expect(openRouterBodies.map((body) => body.model)).toEqual([
+      "google/gemma-4-26b-a4b-it:free",
+      "google/gemma-4-26b-a4b-it:free",
+      "openrouter/free",
+    ]);
+    expect(openRouterBodies[2]?.response_format).toBeUndefined();
+    expect(payload.model).toBe("openrouter/free");
     expect(payload.analysis.findings).toHaveLength(1);
   });
 });
