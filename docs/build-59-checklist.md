@@ -26,6 +26,8 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
   - Removed the old offline/connection-style fifth screenshot.
   - New final set: home, analysis start, risk score, garage, buyer decision.
   - Final App Store outputs are generated at `1320x2868`.
+- [x] Cropped iOS status bar from App Store screenshots.
+  - The screenshot generator now hides the source photo's time, signal, LTE and battery area inside the phone mockup.
 
 ## Verified For New Build 59 Fixes
 

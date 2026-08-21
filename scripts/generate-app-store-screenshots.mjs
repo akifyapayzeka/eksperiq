@@ -132,10 +132,11 @@ function buildHtml(item) {
       }
       img {
         width: 100%;
-        height: 100%;
+        height: calc(100% + 132px);
         object-fit: cover;
         object-position: top center;
         display: block;
+        transform: translateY(-132px);
       }
       .footer {
         width: 100%;
