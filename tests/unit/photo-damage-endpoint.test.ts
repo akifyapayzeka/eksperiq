@@ -256,6 +256,71 @@ describe("photo damage AI endpoint", () => {
     expect(payload.analysis.findings).toEqual([]);
   });
 
+  it("accepts dashboard warning light photos as vehicle-related guidance", async () => {
+    const fetchMock = mockFetchAllowingRateLimit({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                isVehiclePhoto: true,
+                summary: "Gösterge panelinde sarı motor arıza lambası benzeri bir uyarı görünüyor.",
+                findings: [
+                  {
+                    area: "Gösterge paneli",
+                    signal: "Motor arıza lambası",
+                    confidence: "medium",
+                    explanation:
+                      "Sarı motor arıza uyarısı emisyon, ateşleme veya sensör kaynaklı bir kontrol ihtiyacına işaret edebilir.",
+                    recommendation:
+                      "Araç sarsıntılı çalışıyorsa kullanmayın; değilse kısa sürede oto tamirci veya serviste OBD arıza kodu okutun.",
+                  },
+                ],
+              }),
+            },
+          },
+        ],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const previousEnv = process.env;
+    process.env = {
+      ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+      OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
+    };
+    const response = createResponse();
+
+    await handler(createRequest(validBody), response);
+
+    process.env = previousEnv;
+    vi.unstubAllGlobals();
+    const payload = JSON.parse(response.body) as {
+      analysis: {
+        isVehiclePhoto: boolean;
+        disclaimer: string;
+        findings: Array<{ area: string; signal: string; recommendation: string }>;
+      };
+    };
+    const openRouterCall = fetchMock.mock.calls.find(([url]) => String(url).includes("openrouter.ai"));
+    const requestBody = JSON.parse(String((openRouterCall?.[1] as RequestInit | undefined)?.body)) as {
+      messages?: Array<{ content?: string | Array<{ text?: string }> }>;
+    };
+    const promptText = JSON.stringify(requestBody.messages);
+
+    expect(response.statusCode).toBe(200);
+    expect(payload.analysis.isVehiclePhoto).toBe(true);
+    expect(payload.analysis.findings[0].area).toBe("Gösterge paneli");
+    expect(payload.analysis.findings[0].signal).toBe("Motor arıza lambası");
+    expect(payload.analysis.findings[0].recommendation).toContain("OBD");
+    expect(payload.analysis.disclaimer).toContain("arıza tespiti değildir");
+    expect(promptText).toContain("uyarı lambası");
+    expect(promptText).toContain("OBD");
+  });
+
   it("keeps a blurry close-up response low-confidence and hedged instead of a firm damage claim", async () => {
     const fetchMock = mockFetchAllowingRateLimit({
       ok: true,

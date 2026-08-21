@@ -23,6 +23,8 @@ describe("photo damage model", () => {
       "wheels",
       "tires",
       "windows",
+      "dashboard",
+      "instrument-cluster",
     ]);
   });
 
@@ -37,6 +39,14 @@ describe("photo damage model", () => {
       "rust",
       "crack",
       "broken-part",
+      "warning-light",
+      "check-engine-light",
+      "oil-pressure-warning",
+      "temperature-warning",
+      "battery-charge-warning",
+      "brake-abs-warning",
+      "tire-pressure-warning",
+      "airbag-warning",
     ]);
   });
 
@@ -58,7 +68,8 @@ describe("photo damage model", () => {
 
   it("states that photo analysis is not a definitive damage guarantee", () => {
     expect(photoDamageDisclaimer).toContain("kesin hasar");
-    expect(photoDamageDisclaimer).toContain("garanti değildir");
+    expect(photoDamageDisclaimer).toContain("arıza tespiti değildir");
+    expect(photoDamageDisclaimer).toContain("uyarı lambaları");
     expect(photoDamageDisclaimer).toContain("olasılık");
     expect(photoDamageDisclaimer).toContain("güven seviyesi");
   });

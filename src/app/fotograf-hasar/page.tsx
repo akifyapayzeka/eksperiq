@@ -27,9 +27,28 @@ const areas = [
   "Jantlar",
   "Lastikler",
   "Camlar",
+  "Gösterge paneli",
+  "Kadran",
 ];
 
-const findings = ["Çizik", "Göçük", "Boya çatlağı", "Renk farkı", "Panel hizasızlığı", "Pas", "Çatlak", "Kırık"];
+const findings = [
+  "Çizik",
+  "Göçük",
+  "Boya çatlağı",
+  "Renk farkı",
+  "Panel hizasızlığı",
+  "Pas",
+  "Çatlak",
+  "Kırık",
+  "Uyarı ışığı",
+  "Motor arıza lambası",
+  "Yağ basıncı uyarısı",
+  "Hararet uyarısı",
+  "Akü/şarj uyarısı",
+  "Fren/ABS uyarısı",
+  "Lastik basıncı uyarısı",
+  "Airbag uyarısı",
+];
 const confidenceLevels = ["Düşük olasılık", "Orta olasılık", "Yüksek olasılık"];
 const isPhotoAiEnabled = process.env.NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED === "true";
 // A real ilan listing usually has 10-15+ photos. The backend caps a single
@@ -316,8 +335,8 @@ export default function PhotoDamagePage() {
       <div className="max-w-4xl pt-6">
         <HeroCard
           icon={Camera}
-          eyebrow="Fotoğraftan Hasar Analizi"
-          title="Fotoğrafları inceleme notuna çevir"
+          eyebrow="Fotoğraftan Araç Kontrolü"
+          title="Hasar ve uyarı ışıklarını inceleme notuna çevir"
           tone="accent"
         />
 
@@ -386,7 +405,7 @@ export default function PhotoDamagePage() {
                 className="mt-1 h-4 w-4 shrink-0 accent-primary"
               />
               <span>
-                Fotoğraf hasar kontrolü için seçtiğim görsellerin üçüncü taraf bir AI sağlayıcısına geçici olarak
+                Fotoğrafla araç kontrolü için seçtiğim görsellerin üçüncü taraf bir AI sağlayıcısına geçici olarak
                 gönderileceğini anladım ve onaylıyorum.
               </span>
             </label>
@@ -405,7 +424,7 @@ export default function PhotoDamagePage() {
                   : "İnceleniyor"}
               </>
             ) : (
-              "İlanı analiz et"
+              "Fotoğrafları analiz et"
             )}
           </button>
           {aiMessage ? (
@@ -436,7 +455,7 @@ export default function PhotoDamagePage() {
                 ))
               ) : (
                 <p className="rounded-theme-sm border border-border bg-muted p-4 text-sm text-muted-foreground">
-                  Bu fotoğraf için hasar bulgusu üretilmedi.
+                  Bu fotoğraf için hasar veya uyarı bulgusu üretilmedi.
                 </p>
               )}
             </div>
@@ -492,7 +511,7 @@ export default function PhotoDamagePage() {
               value={note}
               onChange={(event) => setNote(event.target.value)}
               className="min-h-24 rounded-theme-sm border border-border px-3 py-3"
-              placeholder="Örn. sağ ön kapıda ışıkta belli olan renk farkı var."
+              placeholder="Örn. sağ ön kapıda renk farkı var veya gösterge panelinde motor arıza lambası yanıyor."
             />
           </label>
           <button
@@ -557,7 +576,9 @@ export default function PhotoDamagePage() {
               {saveMessage}
             </p>
           ) : null}
-          <p className="mt-4 text-sm leading-6 text-muted-foreground">Bu ekran kesin hasar kararı vermez.</p>
+          <p className="mt-4 text-sm leading-6 text-muted-foreground">
+            Bu ekran kesin hasar veya arıza kararı vermez; uyarı ışıkları servis/OBD kontrolüyle doğrulanmalıdır.
+          </p>
         </section>
       </div>
     </AppShell>

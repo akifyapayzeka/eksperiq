@@ -13,7 +13,9 @@ export type VehiclePhotoArea =
   | "tail-lights"
   | "wheels"
   | "tires"
-  | "windows";
+  | "windows"
+  | "dashboard"
+  | "instrument-cluster";
 
 export type PhotoDamageSignal =
   | "dent"
@@ -24,7 +26,15 @@ export type PhotoDamageSignal =
   | "headlight-replacement"
   | "rust"
   | "crack"
-  | "broken-part";
+  | "broken-part"
+  | "warning-light"
+  | "check-engine-light"
+  | "oil-pressure-warning"
+  | "temperature-warning"
+  | "battery-charge-warning"
+  | "brake-abs-warning"
+  | "tire-pressure-warning"
+  | "airbag-warning";
 
 export type ConfidenceLevel = "low" | "medium" | "high";
 

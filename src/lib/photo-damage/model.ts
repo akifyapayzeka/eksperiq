@@ -21,6 +21,8 @@ export const vehiclePhotoAreas: VehiclePhotoArea[] = [
   "wheels",
   "tires",
   "windows",
+  "dashboard",
+  "instrument-cluster",
 ];
 
 export const photoDamageSignals: PhotoDamageSignal[] = [
@@ -33,10 +35,18 @@ export const photoDamageSignals: PhotoDamageSignal[] = [
   "rust",
   "crack",
   "broken-part",
+  "warning-light",
+  "check-engine-light",
+  "oil-pressure-warning",
+  "temperature-warning",
+  "battery-charge-warning",
+  "brake-abs-warning",
+  "tire-pressure-warning",
+  "airbag-warning",
 ];
 
 export const photoDamageDisclaimer =
-  "Fotoğraf analizi kesin hasar tespiti veya garanti değildir; yalnızca olası bulguları olasılık ve güven seviyesiyle karar desteği olarak sunar.";
+  "Fotoğraf analizi kesin hasar veya arıza tespiti değildir; uyarı lambaları dahil tüm bulgular yalnızca olasılık ve güven seviyesiyle karar desteği olarak sunulur.";
 
 export function normalizeProbability(probability: number): number {
   if (!Number.isFinite(probability)) {

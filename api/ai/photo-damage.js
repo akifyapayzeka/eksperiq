@@ -184,7 +184,7 @@ function normalizeAnalysis(value) {
           }))
       : [],
     disclaimer:
-      "Bu AI fotoğraf kontrolü kesin hasar tespiti değildir. Işık, açı, çözünürlük ve kir gibi etkenler sonucu değiştirebilir.",
+      "Bu AI fotoğraf kontrolü kesin hasar veya arıza tespiti değildir. Işık, açı, çözünürlük, kir ve uyarı lambasının gerçek arıza kodu gibi etkenler sonucu değiştirebilir.",
   };
 }
 
@@ -199,6 +199,10 @@ function normalizeTextFallback(text) {
   const saysVehicle =
     normalized.includes("araç") ||
     normalized.includes("araba") ||
+    normalized.includes("gösterge") ||
+    normalized.includes("uyarı ışığı") ||
+    normalized.includes("uyarı lambası") ||
+    normalized.includes("motor arıza") ||
     normalized.includes("car") ||
     normalized.includes("vehicle");
 
@@ -249,14 +253,14 @@ function buildMessages(input) {
     {
       role: "system",
       content:
-        "Sen EksperIQ için çalışan dikkatli bir araç fotoğraf kontrol asistanısın. TÜM metin alanlarını (summary, area, signal, explanation, recommendation) SADECE Türkçe yaz; tek bir İngilizce, Fransızca veya başka dilden kelime bile karıştırma, teknik terimlerin de Türkçe karşılığını kullan. Kesin hasar, kesin parça değişimi veya satın alma kararı verme; her zaman 'olası', 'olabilir', 'kontrol edilmeli' gibi ihtiyatlı ifadeler kullan. Fotoğraf ekran görüntüsü, çizim, doküman, oyuncak veya araçla ilgisiz bir obje ise isVehiclePhoto=false döndür ve bulgu üretme. Fotoğraf bulanık, karanlık, çok yakın çekim veya düşük çözünürlüklüyse ve araç parçası olduğundan emin değilsen isVehiclePhoto=false döndür ya da confidence='low' ile çok sınırlı ve ihtiyatlı bir bulgu ver; asla belirsizliği gizleyip kesin bir hasar iddiası üretme. Fotoğrafta araç yoksa bunu açıkça söyle ve bulgu üretme. Görünür hasar yoksa findings boş dizi olsun. Yanıtı sadece geçerli JSON olarak ver.",
+        "Sen EksperIQ için çalışan dikkatli bir araç fotoğraf ve gösterge paneli kontrol asistanısın. TÜM metin alanlarını (summary, area, signal, explanation, recommendation) SADECE Türkçe yaz; tek bir İngilizce, Fransızca veya başka dilden kelime bile karıştırma, teknik terimlerin de Türkçe karşılığını kullan. Kesin hasar, kesin parça değişimi, kesin arıza teşhisi veya satın alma kararı verme; her zaman 'olası', 'olabilir', 'kontrol edilmeli' gibi ihtiyatlı ifadeler kullan. Araç dış/iç fotoğrafı, araç parçası, gösterge paneli, kadran veya uyarı lambası fotoğrafı araçla ilgilidir ve isVehiclePhoto=true dönebilir. Fotoğraf ekran görüntüsü, çizim, doküman, oyuncak veya araçla ilgisiz bir obje ise isVehiclePhoto=false döndür ve bulgu üretme. Fotoğraf bulanık, karanlık, çok yakın çekim veya düşük çözünürlüklüyse ve araçla ilgili olduğundan emin değilsen isVehiclePhoto=false döndür ya da confidence='low' ile çok sınırlı ve ihtiyatlı bir bulgu ver; asla belirsizliği gizleyip kesin bir hasar veya arıza iddiası üretme. Gösterge panelinde uyarı ışığı varsa area='Gösterge paneli' veya 'Kadran', signal='Uyarı ışığı' ya da görünen uyarının Türkçe adı olsun; explanation uyarının ne anlama gelebileceğini, recommendation ise kullanıcının sürüşe devam edip etmemesi, kendi kontrol edebileceği basit adım, oto tamirci/servis/OBD kontrolü gerekip gerekmediğini söylesin. Kırmızı yağ basıncı, hararet, fren veya akü/şarj uyarısında güvenli yerde durma ve servis/yol yardımı öner; sarı motor arıza, ABS/ESP, airbag veya lastik basıncı uyarısında kontrollü kullanım, basit kontrol ve servis/OBD doğrulaması öner. Fotoğrafta araçla ilgili görsel yoksa bunu açıkça söyle ve bulgu üretme. Görünür hasar veya uyarı yoksa findings boş dizi olsun. Yanıtı sadece geçerli JSON olarak ver.",
     },
     {
       role: "user",
       content: [
         {
           type: "text",
-          text: `Bu görselleri araç dış gövde kontrolü için incele. Kullanıcı notu: ${input.userNote || "Yok"}.
+          text: `Bu görselleri araç dış gövde, araç içi ve gösterge paneli uyarı ışığı kontrolü için incele. Kullanıcı notu: ${input.userNote || "Yok"}.
 
 JSON şeması:
 {
@@ -264,19 +268,20 @@ JSON şeması:
   "summary": "kısa Türkçe özet",
   "findings": [
     {
-      "area": "örn. ön tampon",
-      "signal": "örn. çizik / göçük / renk farkı / panel hizasızlığı",
+      "area": "örn. ön tampon / sağ kapı / gösterge paneli / kadran",
+      "signal": "örn. çizik / göçük / renk farkı / panel hizasızlığı / motor arıza lambası / yağ basıncı uyarısı",
       "confidence": "low" | "medium" | "high",
       "explanation": "neden olası göründüğü",
-      "recommendation": "ekspertizde ne kontrol edilmeli"
+      "recommendation": "ekspertizde, serviste, oto tamircide veya kullanıcının güvenli şekilde neyi kontrol etmesi gerektiği"
     }
   ]
 }
 
-Fotoğrafta araç veya araç parçası yoksa isVehiclePhoto=false ve findings=[] döndür.
+Fotoğrafta araç, araç parçası, gösterge paneli, kadran veya uyarı lambası yoksa isVehiclePhoto=false ve findings=[] döndür.
 Fotoğraf ekran görüntüsü, doküman, çizim ya da araçla ilgisiz bir objeyse isVehiclePhoto=false ve findings=[] döndür.
-Fotoğraf bulanık, karanlık veya çok yakın çekimse ve araç parçası olduğundan emin değilsen isVehiclePhoto=false döndür veya yalnızca confidence="low" ile ihtiyatlı bir bulgu ver.
-Araç varsa ama görünür hasar sinyali yoksa isVehiclePhoto=true ve findings=[] döndür.
+Fotoğraf bulanık, karanlık veya çok yakın çekimse ve araçla ilgili olduğundan emin değilsen isVehiclePhoto=false döndür veya yalnızca confidence="low" ile ihtiyatlı bir bulgu ver.
+Araç varsa ama görünür hasar sinyali veya uyarı lambası yoksa isVehiclePhoto=true ve findings=[] döndür.
+Gösterge panelinde uyarı lambası görünüyorsa bunu hasar gibi değil arıza/uyarı yorumu gibi ele al; kesin arıza teşhisi koyma, OBD/servis doğrulaması gerektiğini belirt.
 "kesin", "kesinlikle", "definitely" gibi kesinlik bildiren kelimeler kullanma; her zaman olasılık dili kullan.
 Tüm metin alanlarını yalnızca Türkçe yaz, başka dilden tek kelime bile ekleme.`,
         },
