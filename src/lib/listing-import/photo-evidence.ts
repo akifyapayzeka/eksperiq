@@ -78,11 +78,85 @@ function mergeString(existing: unknown, incoming: unknown): string | null {
   return `${current}, ${next}`;
 }
 
+function normalizeEvidenceText(value: unknown): string {
+  return String(value ?? "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+const damagePartAliases: Array<[string, RegExp]> = [
+  ["Ön tampon", /on\s+tampon/i],
+  ["Arka tampon", /arka\s+tampon/i],
+  ["Kaput", /kaput/i],
+  ["Bagaj kapağı", /bagaj\s+kapagi/i],
+  ["Tavan", /tavan/i],
+  ["Sağ ön çamurluk", /sag\s+on\s+camurluk/i],
+  ["Sol ön çamurluk", /sol\s+on\s+camurluk/i],
+  ["Sağ arka çamurluk", /sag\s+arka\s+camurluk/i],
+  ["Sol arka çamurluk", /sol\s+arka\s+camurluk/i],
+  ["Sağ ön kapı", /sag\s+on\s+kapi/i],
+  ["Sol ön kapı", /sol\s+on\s+kapi/i],
+  ["Sağ arka kapı", /sag\s+arka\s+kapi/i],
+  ["Sol arka kapı", /sol\s+arka\s+kapi/i],
+];
+
+function extractPartsNearKeyword(text: string, keyword: RegExp): string | null {
+  const normalized = normalizeEvidenceText(text);
+  const match = normalized.match(keyword);
+  if (!match) return null;
+  const start = Math.max(0, (match.index ?? 0) - 90);
+  const end = Math.min(normalized.length, (match.index ?? 0) + match[0].length + 90);
+  const window = normalized.slice(start, end);
+  const parts = damagePartAliases.filter(([, pattern]) => pattern.test(window)).map(([name]) => name);
+  return parts.length ? Array.from(new Set(parts)).join(", ") : null;
+}
+
+function extractQuantifiedPaintedParts(text: string): string | null {
+  const normalized = normalizeEvidenceText(text);
+  if (!/boya|boyali/.test(normalized)) return null;
+
+  const parts: string[] = [];
+  const hasTwo = (word: string) => new RegExp(`(?:\\b2\\b|\\biki\\b)\\s+${word}`, "i").test(normalized);
+  const hasOne = (word: string) => new RegExp(`(?:\\b1\\b|\\bbir\\b|\\btek\\b)\\s+${word}`, "i").test(normalized);
+
+  if (hasTwo("kap[ıi]")) parts.push("İki kapı");
+  else if (hasOne("kap[ıi]")) parts.push("Bir kapı");
+
+  if (hasTwo("camurluk")) parts.push("İki çamurluk");
+  else if (hasOne("camurluk")) parts.push("Bir çamurluk");
+
+  if (hasTwo("parca")) parts.push("İki parça");
+  else if (hasOne("parca")) parts.push("Bir parça");
+
+  return parts.length ? Array.from(new Set(parts)).join(", ") : null;
+}
+
+function inferDamageFieldsFromEvidenceText(evidence: ListingPhotoEvidenceFields): ListingPhotoEvidenceFields {
+  const evidenceText = [evidence.sellerDescriptionAppend, evidence.paintedParts, evidence.replacedParts, evidence.localPaintedParts]
+    .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+    .join(" ");
+  if (!evidenceText) return evidence;
+
+  return {
+    ...evidence,
+    paintedParts:
+      evidence.paintedParts ??
+      extractQuantifiedPaintedParts(evidenceText) ??
+      extractPartsNearKeyword(evidenceText, /\bboyali\b|yuzeysel\s+boya|boya\s+vardir/i),
+    replacedParts: evidence.replacedParts ?? extractPartsNearKeyword(evidenceText, /\bdegisen\b/i),
+    localPaintedParts: evidence.localPaintedParts ?? extractPartsNearKeyword(evidenceText, /lokal\s+boya|lokal\s+boyali/i),
+  };
+}
+
 function mergeFields(fields: ImportedListingFields, evidence: ListingPhotoEvidenceFields): ImportedListingFields {
   const merged: ImportedListingFields = { ...fields };
+  const normalizedEvidence = inferDamageFieldsFromEvidenceText(evidence);
 
   for (const fieldName of MERGEABLE_FIELD_NAMES) {
-    const incoming = evidence[fieldName];
+    const incoming = normalizedEvidence[fieldName];
     if (!hasValue(incoming)) continue;
     const existing = merged[fieldName];
 
@@ -101,7 +175,7 @@ function mergeFields(fields: ImportedListingFields, evidence: ListingPhotoEviden
     }
   }
 
-  const append = evidence.sellerDescriptionAppend?.trim();
+  const append = normalizedEvidence.sellerDescriptionAppend?.trim();
   if (append) {
     const current = fields.sellerDescription?.trim() ?? "";
     merged.sellerDescription = current.includes(append)
@@ -149,7 +223,8 @@ export async function enrichListingImportWithPhotoEvidence(
     const payload = (await response.json()) as ListingPhotoEvidenceResponse;
     if (!response.ok || !payload.analysis?.hasEvidence) return result;
 
-    const fields = mergeFields(result.fields, payload.analysis.fields);
+    const evidenceFields = inferDamageFieldsFromEvidenceText(payload.analysis.fields);
+    const fields = mergeFields(result.fields, evidenceFields);
     const warnings = [
       ...result.warnings,
       payload.analysis.evidenceSummary
@@ -161,7 +236,7 @@ export async function enrichListingImportWithPhotoEvidence(
       ...result,
       fields,
       images: removeDocumentImages(result.images, payload.analysis.documentImageIndexes),
-      missingFields: removeMissingFields(result.missingFields, payload.analysis.fields),
+      missingFields: removeMissingFields(result.missingFields, evidenceFields),
       warnings: Array.from(new Set(warnings)),
     };
   } catch {

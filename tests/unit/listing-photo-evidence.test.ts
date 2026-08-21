@@ -102,4 +102,36 @@ describe("enrichListingImportWithPhotoEvidence", () => {
 
     await expect(enrichListingImportWithPhotoEvidence(original)).resolves.toBe(original);
   });
+
+  it("infers paint and changed fields from OCR evidence text when structured fields are empty", async () => {
+    vi.mocked(apiFetch).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          analysis: {
+            hasEvidence: true,
+            documentImageIndexes: [1],
+            documentTypes: ["İlan açıklaması görseli"],
+            evidenceSummary: "Açıklama görselinde sol ön çamurluk değişen ve iki kapı iki çamurluk yüzeysel boya yazıyor.",
+            fields: {
+              tramerAmount: null,
+              paintedParts: null,
+              replacedParts: null,
+              localPaintedParts: null,
+              hasExpertiseReport: null,
+              sellerDescriptionAppend:
+                "SOL ÖN ÇAMURLUK DEĞİŞEN. İKİ KAPI İKİ ÇAMURLUK YÜZEYSEL BOYA VARDIR.",
+            },
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+
+    const enriched = await enrichListingImportWithPhotoEvidence(baseImportResult());
+
+    expect(enriched.fields.replacedParts).toBe("Sol ön çamurluk");
+    expect(enriched.fields.paintedParts).toBe("İki kapı, İki çamurluk");
+    expect(enriched.missingFields).not.toContain("replacedParts");
+    expect(enriched.missingFields).not.toContain("paintedParts");
+  });
 });

@@ -342,6 +342,84 @@ describe("listing import AI endpoint", () => {
     expect(result.fields.mileage).toBe(115000);
   });
 
+  it("extracts declared changed and surface-painted parts from seller description wording", async () => {
+    const modelResponse = {
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              title: "2024 Opel Corsa 1.2T Edition Otomatik",
+              fields: {
+                brand: "Opel",
+                model: "Corsa",
+                year: 2024,
+                trim: null,
+                fuelType: "Benzin",
+                transmission: "Otomatik",
+                mileage: null,
+                price: null,
+                city: null,
+                bodyType: "Hatchback",
+                engineSize: "1.2",
+                enginePower: "100 HP",
+                drivetrain: null,
+                ownerInfo: "Galeriden satış",
+                tradeStatus: null,
+                tramerAmount: null,
+                paintedParts: null,
+                replacedParts: null,
+                localPaintedParts: null,
+                airbagStatus: null,
+                lpgStatus: null,
+                hasHeavyDamage: null,
+                hasChassisRepair: null,
+                hasTotalLossHistory: null,
+                hasExpertiseReport: null,
+                lpgRegistered: null,
+                hasSpareKey: null,
+                hasMaintenanceInvoices: null,
+                lastMaintenanceDate: null,
+                timingBeltInfo: null,
+                transmissionMaintenanceInfo: null,
+                batteryStatus: null,
+                tireStatus: null,
+                inspectionEndDate: null,
+                sellerDescription: null,
+              },
+              lowConfidenceFields: [],
+              missingFields: ["paintedParts", "replacedParts"],
+              warnings: [],
+            }),
+          },
+        },
+      ],
+    };
+    const fetchMock = mockFetchAllowingRateLimit(new Response(JSON.stringify(modelResponse), { status: 200 }));
+
+    const { statusCode, body } = await callEndpoint(
+      {
+        ...validBody,
+        title: "2024 Opel Corsa 1.2T Edition Otomatik",
+        bodyText: [
+          "İlan Açıklaması",
+          "AYEF AUTO",
+          "2024 MODEL OPEL CORSA 1.2T EDITION OTOMATIK",
+          "SOL ÖN ÇAMURLUK DEĞİŞEN",
+          "İKİ KAPI İKİ ÇAMURLUK YÜZEYSEL BOYA VARDIR.",
+          "ŞERİT TAKİP SİSTEMİ",
+        ].join("\n"),
+      },
+      fetchMock,
+    );
+
+    expect(statusCode).toBe(200);
+    const result = body.result as { fields: Record<string, unknown>; missingFields: string[] };
+    expect(result.fields.replacedParts).toBe("Sol ön çamurluk");
+    expect(result.fields.paintedParts).toBe("İki kapı, İki çamurluk");
+    expect(result.missingFields).not.toContain("replacedParts");
+    expect(result.missingFields).not.toContain("paintedParts");
+  });
+
   it("falls back to the paid listing model when the free model hits OpenRouter capacity", async () => {
     const fallbackModelResponse = {
       choices: [

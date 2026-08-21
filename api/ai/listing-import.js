@@ -485,16 +485,51 @@ const PART_ALIASES = [
   ["Sağ arka kapı", /sa[ğg]\s+arka\s+kapı|sag\s+arka\s+kapi/i],
   ["Sol arka kapı", /sol\s+arka\s+kapı|sol\s+arka\s+kapi/i],
 ];
+const NORMALIZED_PART_ALIASES = [
+  ["Ön tampon", /on\s+tampon/i],
+  ["Arka tampon", /arka\s+tampon/i],
+  ["Kaput", /kaput/i],
+  ["Bagaj kapağı", /bagaj\s+kapagi/i],
+  ["Tavan", /tavan/i],
+  ["Sağ ön çamurluk", /sag\s+on\s+camurluk/i],
+  ["Sol ön çamurluk", /sol\s+on\s+camurluk/i],
+  ["Sağ arka çamurluk", /sag\s+arka\s+camurluk/i],
+  ["Sol arka çamurluk", /sol\s+arka\s+camurluk/i],
+  ["Sağ ön kapı", /sag\s+on\s+kapi/i],
+  ["Sol ön kapı", /sol\s+on\s+kapi/i],
+  ["Sağ arka kapı", /sag\s+arka\s+kapi/i],
+  ["Sol arka kapı", /sol\s+arka\s+kapi/i],
+];
 
 function extractPartsNearKeyword(text, keywordPattern) {
   const source = String(text || "");
-  const compact = source.replace(/\s+/g, " ");
+  const compact = normalizeTurkish(source);
   const keywordMatch = compact.match(keywordPattern);
   if (!keywordMatch) return null;
   const start = Math.max(0, (keywordMatch.index ?? 0) - 80);
   const end = Math.min(compact.length, (keywordMatch.index ?? 0) + keywordMatch[0].length + 80);
   const window = compact.slice(start, end);
-  const parts = PART_ALIASES.filter(([, pattern]) => pattern.test(window)).map(([name]) => name);
+  const parts = NORMALIZED_PART_ALIASES.filter(([, pattern]) => pattern.test(window)).map(([name]) => name);
+  return parts.length ? Array.from(new Set(parts)).join(", ") : null;
+}
+
+function extractQuantifiedPaintedPartsFromText(text) {
+  const normalized = normalizeTurkish(text);
+  if (!/boya|boyali|boyalı/.test(normalized)) return null;
+
+  const parts = [];
+  const hasTwo = (word) => new RegExp(`(?:\\b2\\b|\\biki\\b)\\s+${word}`, "i").test(normalized);
+  const hasOne = (word) => new RegExp(`(?:\\b1\\b|\\bbir\\b|\\btek\\b)\\s+${word}`, "i").test(normalized);
+
+  if (hasTwo("kap[ıi]")) parts.push("İki kapı");
+  else if (hasOne("kap[ıi]")) parts.push("Bir kapı");
+
+  if (hasTwo("camurluk")) parts.push("İki çamurluk");
+  else if (hasOne("camurluk")) parts.push("Bir çamurluk");
+
+  if (hasTwo("parca")) parts.push("İki parça");
+  else if (hasOne("parca")) parts.push("Bir parça");
+
   return parts.length ? Array.from(new Set(parts)).join(", ") : null;
 }
 
@@ -698,7 +733,8 @@ function normalizeListingImportJson(json, input, model) {
   if (!fields.paintedParts) {
     const fallbackPaintedParts =
       extractPartsUnderLabel(fallbackText, /^boyal[ıi]$/i) ||
-      extractPartsNearKeyword(fallbackText, /\bboyal[ıi]\b/i);
+      extractQuantifiedPaintedPartsFromText(fallbackText) ||
+      extractPartsNearKeyword(fallbackText, /\bboyali\b|\bboyal[ıi]\b|yuzeysel\s+boya|y[üu]zeysel\s+boya|boya\s+vardir|boya\s+vard[ıi]r/i);
     if (fallbackPaintedParts) {
       fields.paintedParts = fallbackPaintedParts;
       json.missingFields = removeMissingField(json.missingFields, "paintedParts");
@@ -707,14 +743,17 @@ function normalizeListingImportJson(json, input, model) {
   if (!fields.replacedParts) {
     const fallbackReplacedParts =
       extractPartsUnderLabel(fallbackText, /^de[ğg]i[şs]en$/i) ||
-      extractPartsNearKeyword(fallbackText, /\bde[ğg]i[şs]en\b/i);
+      extractPartsNearKeyword(fallbackText, /\bdegisen\b|\bde[ğg]i[şs]en\b/i);
     if (fallbackReplacedParts) {
       fields.replacedParts = fallbackReplacedParts;
       json.missingFields = removeMissingField(json.missingFields, "replacedParts");
     }
   }
   if (!fields.localPaintedParts) {
-    const fallbackLocalPaintedParts = extractPartsNearKeyword(fallbackText, /lokal\s+boya|lokal\s+boyal[ıi]/i);
+    const fallbackLocalPaintedParts = extractPartsNearKeyword(
+      fallbackText,
+      /lokal\s+boya|lokal\s+boyali|lokal\s+boyal[ıi]/i,
+    );
     if (fallbackLocalPaintedParts) {
       fields.localPaintedParts = fallbackLocalPaintedParts;
       json.missingFields = removeMissingField(json.missingFields, "localPaintedParts");
