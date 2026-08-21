@@ -82,6 +82,243 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
+type SellerQuestionHelp = {
+  why: string;
+  meaning: string;
+};
+
+function sellerQuestionHelp(question: string): SellerQuestionHelp {
+  const text = question.toLocaleLowerCase("tr-TR");
+
+  if (text.includes("ruhsatta") || text.includes("adınıza")) {
+    return {
+      why: "Aracı satan kişinin gerçekten satış yetkisi olup olmadığını anlamak için sorulur.",
+      meaning:
+        "Ruhsat sahibi satıcı değilse vekalet, noter süreci ve para transferi daha dikkatli ilerlemelidir; cevap kaçamaksa resmi kontrol şarttır.",
+    };
+  }
+  if (text.includes("şasi numarası") || text.includes("şasi numarasının")) {
+    return {
+      why: "Tramer, servis, ekspertiz ve parça geçmişini aynı araç üzerinden doğrulamak için gerekir.",
+      meaning:
+        "Şasi bilgisini paylaşmaktan kaçınıyorsa araç geçmişini doğrulamanız zorlaşır; ekspertizde ruhsat ve şasi eşleşmesi mutlaka kontrol edilir.",
+    };
+  }
+  if (text.includes("tramer")) {
+    return {
+      why: "Hasar kaydının sadece tutarı değil, tarihi ve hangi kazadan oluştuğu önemlidir.",
+      meaning:
+        "Eski ve küçük bir hasar ile yakın tarihli ağır hasar aynı risk değildir; tarih, tutar ve parça detayı pazarlık ve ekspertiz odağını belirler.",
+    };
+  }
+  if (text.includes("değişen") || text.includes("boyalı")) {
+    return {
+      why: "Kaporta işleminin kozmetik mi, yapısal riske yakın mı olduğunu ayırmak için sorulur.",
+      meaning:
+        "Tampon gibi sök-tak parçalar genelde daha düşük risklidir; kaput, tavan, direk, podye gibi parçalar daha ciddi inceleme gerektirir.",
+    };
+  }
+  if (text.includes("podye") || text.includes("direk") || text.includes("tavan") || text.includes("şasi,")) {
+    return {
+      why: "Aracın taşıyıcı gövdesinde işlem olup olmadığını anlamak için kritik sorudur.",
+      meaning:
+        "Bu bölgelerde işlem varsa güvenlik, değer kaybı ve satış kolaylığı etkilenebilir; bağımsız ekspertiz raporu olmadan karar verilmemelidir.",
+    };
+  }
+  if (text.includes("airbag")) {
+    return {
+      why: "Airbag açılması genellikle ciddi darbe ihtimalini gösterir ve güvenlik sistemlerinin doğru onarılıp onarılmadığı önemlidir.",
+      meaning:
+        "Airbag değişimi varsa fatura, beyin/kayış/torpido kontrolleri ve arıza lambası taraması istenir; belgesiz onarım yüksek risktir.",
+    };
+  }
+  if (text.includes("son bakım")) {
+    return {
+      why: "Bakımın zamanı ve kilometresi, aracın kısa vadede masraf çıkarma ihtimalini gösterir.",
+      meaning:
+        "Bakım yeni ve belgeli ise risk düşer; bakım tarihi belirsizse yağ, filtre, fren, sıvı ve ağır bakım masrafını satın alma fiyatına katmalısınız.",
+    };
+  }
+  if (text.includes("bakım faturaları")) {
+    return {
+      why: "Satıcının 'bakımlı' iddiasını belgeyle doğrulamak için sorulur.",
+      meaning:
+        "Fatura veya servis kaydı varsa geçmiş daha güvenilir okunur; yoksa ekspertizde mekanik kontrolü geniş tutmak ve pazarlık payı bırakmak gerekir.",
+    };
+  }
+  if (text.includes("triger") || text.includes("zincir")) {
+    return {
+      why: "Triger kayışı veya zincir ihmal edilirse motoru ciddi şekilde bozabilecek pahalı bir kalemdir.",
+      meaning:
+        "Değişim belgeli değilse yaş/km uygun olsa bile kısa vadede ağır bakım masrafı doğabilir; servis geçmişi veya usta kontrolü istenir.",
+    };
+  }
+  if (text.includes("şanzıman yağı")) {
+    return {
+      why: "Otomatik şanzıman bakımı ihmal edilirse vuruntu, geçiş gecikmesi ve yüksek onarım masrafı oluşabilir.",
+      meaning:
+        "Yağ değişimi belgeli ise iyi işarettir; hiç değişmediyse test sürüşünde vites geçişleri ve kaçırma/vuruntu özellikle kontrol edilir.",
+    };
+  }
+  if (text.includes("lastik")) {
+    return {
+      why: "Lastik yaşı ve durumu hem güvenlik hem de yakın masraf için önemlidir.",
+      meaning:
+        "Diş iyi görünse bile eski tarihli lastik sertleşmiş olabilir; dört lastik değişimi pazarlıkta ciddi bir masraf kalemidir.",
+    };
+  }
+  if (text.includes("yedek anahtar")) {
+    return {
+      why: "Yedek anahtar hem kullanım kolaylığı hem de güvenlik ve ilerideki satış değeri için önemlidir.",
+      meaning:
+        "Yoksa yeni anahtar kodlama masrafı çıkabilir; ayrıca kayıp anahtar ihtimali için immobilizer/anahtar kayıt kontrolü istenebilir.",
+    };
+  }
+  if (text.includes("arıza lambası")) {
+    return {
+      why: "Gösterge panelindeki aktif uyarılar görünmeyen motor, emisyon, fren veya güvenlik sistemi sorunlarını işaret edebilir.",
+      meaning:
+        "Lamba yanıyorsa OBD arıza kodu okutulmalı; satıcı 'önemsiz' dese bile kod görülmeden risk düşük kabul edilmemelidir.",
+    };
+  }
+  if (text.includes("soğuk motor")) {
+    return {
+      why: "Bazı motor, enjektör, zincir, turbo ve duman sorunları araç sıcakken gizlenebilir.",
+      meaning:
+        "Soğuk çalıştırmada zor çalışma, ses, duman veya titreme varsa mekanik kontrol derinleşmeli; satıcı izin vermiyorsa dikkatli olunmalıdır.",
+    };
+  }
+  if (text.includes("ekspertiz")) {
+    return {
+      why: "Satıcının aracı bağımsız kontrole açıp açmadığını görmek için sorulur.",
+      meaning:
+        "Kendi seçtiğiniz ekspertize izin veriyorsa iyi işarettir; belirli yere yönlendirme veya kaçınma varsa risk artar.",
+    };
+  }
+  if (text.includes("rehin") || text.includes("haciz") || text.includes("borç")) {
+    return {
+      why: "Noter satışında veya satış sonrasında hukuki/finansal sorun yaşamamak için sorulur.",
+      meaning:
+        "Rehin, haciz, MTV veya ceza borcu varsa satış tamamlanmayabilir ya da ek ödeme çıkabilir; e-Devlet/noter kontrolü yapılmalıdır.",
+    };
+  }
+  if (text.includes("kilometre")) {
+    return {
+      why: "Kilometrenin gerçekçi olup olmadığını TÜVTÜRK, servis ve muayene kayıtlarıyla karşılaştırmak için sorulur.",
+      meaning:
+        "Kayıtlar birbiriyle uyumsuzsa km düşürme veya eksik geçmiş şüphesi doğar; fiyat ve satın alma kararı buna göre yeniden değerlendirilir.",
+    };
+  }
+  if (text.includes("lpg")) {
+    return {
+      why: "LPG ruhsata işli değilse muayene, sigorta ve satış sürecinde problem çıkarabilir.",
+      meaning:
+        "Ruhsata işliyse proje/muayene uyumu kontrol edilir; işli değilse yasal işlem ve dönüşüm masrafı alıcıya kalabilir.",
+    };
+  }
+  if (text.includes("yağ yakma") || text.includes("su eksiltme") || text.includes("hararet")) {
+    return {
+      why: "Bu belirtiler motor içi aşınma, conta, soğutma sistemi veya turbo gibi pahalı sorunlara işaret edebilir.",
+      meaning:
+        "Satıcı kabul ediyorsa masraf büyüyebilir; reddetse bile ekspertizde kompresyon, kaçak, duman ve soğutma testi istenmelidir.",
+    };
+  }
+  if (text.includes("satış sebebi")) {
+    return {
+      why: "Satıcının hikayesindeki tutarlılığı ve acele satış sebebini anlamak için sorulur.",
+      meaning:
+        "Net ve tutarlı cevap güveni artırır; sürekli değişen, baskı kuran veya 'detay telefonda' diyen cevaplarda belgeyle ilerlemek gerekir.",
+    };
+  }
+  if (text.includes("dpf") || text.includes("partikül")) {
+    return {
+      why: "Dizel araçlarda DPF tıkanması performans düşüşü, arıza lambası ve yüksek temizlik/değişim masrafı doğurabilir.",
+      meaning:
+        "Temizlik/değişim belgesi iyi işarettir; iptal edilmiş veya sürekli arıza veren DPF hem yasal hem mekanik risk oluşturur.",
+    };
+  }
+  if (text.includes("turbo")) {
+    return {
+      why: "Turbo arızası yağ tüketimi, çekiş düşüklüğü ve pahalı onarım anlamına gelebilir.",
+      meaning:
+        "Bakım veya değişim belgeli değilse test sürüşünde ıslık sesi, duman, geç dolma ve yağ kaçağı kontrol edilmelidir.",
+    };
+  }
+  if (text.includes("batarya")) {
+    return {
+      why: "Hibrit/elektrikli araçlarda batarya sağlığı aracın değeri ve ilerideki en büyük masraf kalemlerinden biridir.",
+      meaning:
+        "Sağlık raporu ve garanti varsa risk azalır; yoksa menzil düşüşü, hücre dengesi ve garanti şartları kontrol edilmelidir.",
+    };
+  }
+  if (text.includes("aktarma") || text.includes("transfer") || text.includes("diferansiyel")) {
+    return {
+      why: "4x4/AWD sistemlerinde ihmal edilen yağ bakımı ve sert kullanım pahalı aktarma sorunlarına yol açabilir.",
+      meaning:
+        "Bakım kaydı yoksa test sürüşünde uğultu, vuruntu, titreme ve çekiş sistemi uyarıları özellikle kontrol edilir.",
+    };
+  }
+  if (text.includes("süspansiyon") || text.includes("motor takoz")) {
+    return {
+      why: "Yüksek kilometrede yürüyen aksam ve motor bağlantıları konforu, güvenliği ve masrafı doğrudan etkiler.",
+      meaning:
+        "Değişim yoksa rot, burç, amortisör, takoz ve salıncak kontrolleri yapılmalı; ses/titreşim pazarlık kalemi olabilir.",
+    };
+  }
+  if (text.includes("pas") || text.includes("korozyon")) {
+    return {
+      why: "Pas özellikle eski araçlarda gizli yapısal zayıflık ve ileride büyüyen kaporta masrafı anlamına gelebilir.",
+      meaning:
+        "Alt takım, marşpiyel, kapı içleri ve şase noktalarında pas varsa ekspertiz ve lift kontrolü olmadan karar verilmemelidir.",
+    };
+  }
+
+  return {
+    why: "Bu soru, satıcının iddiasını somut bilgi veya belgeyle destekleyip desteklemediğini anlamak için sorulur.",
+    meaning:
+      "Net, yazılı ve belgeye dayalı cevap güveni artırır; belirsiz cevaplarda ekspertiz kapsamını genişletmek ve pazarlık payı bırakmak gerekir.",
+  };
+}
+
+function SellerQuestionCard({ question, index }: { question: string; index: number }) {
+  const help = sellerQuestionHelp(question);
+
+  return (
+    <li className="list-none">
+      <details className="group rounded-theme-sm border border-border bg-card">
+        <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 px-4 py-3 marker:hidden">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent/10 text-sm font-bold text-accent">
+            {index}
+          </span>
+          <span className="min-w-0 flex-1 text-sm font-semibold leading-6 text-foreground">{question}</span>
+          <Plus
+            aria-hidden="true"
+            className="h-4 w-4 shrink-0 text-muted-foreground group-open:hidden"
+            strokeWidth={2.2}
+          />
+          <Minus
+            aria-hidden="true"
+            className="hidden h-4 w-4 shrink-0 text-accent group-open:block"
+            strokeWidth={2.2}
+          />
+        </summary>
+        <div className="border-t border-border bg-muted/60 px-4 py-4">
+          <div className="grid gap-3 text-sm leading-6 sm:grid-cols-2">
+            <div>
+              <p className="font-semibold text-foreground">Neden sorulur?</p>
+              <p className="mt-1 text-muted-foreground">{help.why}</p>
+            </div>
+            <div>
+              <p className="font-semibold text-foreground">Cevap ne anlatır?</p>
+              <p className="mt-1 text-muted-foreground">{help.meaning}</p>
+            </div>
+          </div>
+        </div>
+      </details>
+    </li>
+  );
+}
+
 function formatReportDate(value: string): string {
   return new Intl.DateTimeFormat("tr-TR", {
     dateStyle: "medium",
@@ -976,9 +1213,9 @@ export function ResultClient() {
             </div>
           </SectionCard>
           <SectionCard id="rapor-sorular" title="Satıcıya sorulacak sorular">
-            <ol className="grid list-decimal gap-2 pl-5">
-              {result.sellerQuestions.map((question) => (
-                <li key={question}>{question}</li>
+            <ol className="grid gap-3">
+              {result.sellerQuestions.map((question, index) => (
+                <SellerQuestionCard key={question} question={question} index={index + 1} />
               ))}
             </ol>
           </SectionCard>
