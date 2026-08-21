@@ -28,6 +28,12 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
   - Final App Store outputs are generated at `1320x2868`.
 - [x] Cropped iOS status bar from App Store screenshots.
   - The screenshot generator now hides the source photo's time, signal, LTE and battery area inside the phone mockup.
+- [x] Fixed the listing import foreground/background completion race.
+  - Returning to EksperIQ after the five-minute JS deadline now gives the native WKWebView import a short grace window instead of immediately showing a false failure.
+  - iOS local notifications are only shown while the app is still outside the foreground, so stale failure notifications should not appear on top of a just-finished in-app result.
+- [x] Strengthened listing import fallback extraction for missing report fields.
+  - If the AI model misses explicit Sahibinden table rows, the endpoint now deterministically fills package, fuel, transmission, mileage, price, body type, engine size, owner source, trade status, city, and paint/changed details from the page text.
+  - Added common Turkish-market package options such as Edition, Icon, Feel, Shine, and Titanium so imported package values do not render as blank selects.
 
 ## Verified For New Build 59 Fixes
 
@@ -38,6 +44,8 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
 - [x] `npm run appstore:package`
 - [x] `npm run appstore:screenshots`
 - [x] `npm run appstore:check`
+- [x] `npm test -- tests/unit/import-listing.test.ts`
+- [x] `npm test -- tests/unit/listing-import-endpoint.test.ts`
 
 ## Still Open Before Closing Build 59
 

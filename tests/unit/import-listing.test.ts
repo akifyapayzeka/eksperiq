@@ -81,14 +81,17 @@ describe("importListingFromUrl", () => {
     expect(onStage).not.toHaveBeenCalledWith("opening-page");
   });
 
-  it("recovers via visibilitychange when the timer itself was throttled by backgrounding", async () => {
+  it("gives the native import a short foreground grace window before timing out", async () => {
     // A plain setTimeout can be paused for as long as the WKWebView is
     // backgrounded, which is exactly when a stuck native call is most
     // likely to be waited out. Simulate that: the wall clock jumps past
     // the deadline (vi.setSystemTime, unlike advanceTimersByTime, does not
-    // run any due callbacks), so only the visibilitychange re-check —not
-    // the timer— can end this.
-    addListener.mockReturnValue(new Promise(() => {}));
+    // run any due callbacks), so only the visibilitychange re-check can
+    // notice the passed deadline. The client must not fail immediately on
+    // foreground though, because iOS often resumes the native call at that
+    // same moment.
+    addListener.mockResolvedValue({ remove: vi.fn().mockResolvedValue(undefined) });
+    fetchListingPage.mockReturnValue(new Promise(() => {}));
     const { importListingFromUrl } = await import("@/lib/listing-import/import-listing");
 
     const outcomePromise = importListingFromUrl(SUPPORTED_URL);
@@ -97,8 +100,48 @@ describe("importListingFromUrl", () => {
     Object.defineProperty(document, "visibilityState", { value: "visible", configurable: true });
     document.dispatchEvent(new Event("visibilitychange"));
 
+    let settled = false;
+    void outcomePromise.then(() => {
+      settled = true;
+    });
+    await vi.advanceTimersByTimeAsync(19_999);
+    expect(settled).toBe(false);
+
+    await vi.advanceTimersByTimeAsync(1);
     const outcome = await outcomePromise;
     expect(outcome.ok).toBe(false);
+  });
+
+  it("uses a native result that arrives during the foreground grace window", async () => {
+    const remove = vi.fn().mockResolvedValue(undefined);
+    const nativeResult = {
+      pageDataJson: JSON.stringify({
+        title: "Renault Clio",
+        ogTitle: "",
+        ogDescription: "",
+        bodyText: "Renault Clio 115.000 km 850.000 TL İstanbul".repeat(2),
+        jsonLd: [],
+        images: [],
+        finalUrl: SUPPORTED_URL,
+      }),
+      importHttpStatus: 200,
+      importResponseJson: JSON.stringify({
+        result: { title: "Renault Clio", fields: {}, lowConfidenceFields: [], missingFields: [], warnings: [] },
+      }),
+    };
+    addListener.mockResolvedValue({ remove });
+    fetchListingPage.mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve(nativeResult), 1_000)));
+    const { importListingFromUrl } = await import("@/lib/listing-import/import-listing");
+
+    const outcomePromise = importListingFromUrl(SUPPORTED_URL);
+    await vi.advanceTimersByTimeAsync(0);
+    vi.setSystemTime(Date.now() + 460_000);
+    Object.defineProperty(document, "visibilityState", { value: "visible", configurable: true });
+    document.dispatchEvent(new Event("visibilitychange"));
+
+    await vi.advanceTimersByTimeAsync(1_000);
+    const outcome = await outcomePromise;
+    expect(outcome.ok).toBe(true);
   });
 
   it("retries once when the first attempt reads a Cloudflare/security page, and returns the real result", async () => {

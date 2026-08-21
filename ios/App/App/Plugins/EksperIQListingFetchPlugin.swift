@@ -162,14 +162,14 @@ private actor BackgroundTaskGuard {
     }
 }
 
-/// Fires a local notification when the app isn't in the foreground —
-/// there's no point notifying someone who's already looking at the screen
-/// mid-progress. Permission is requested lazily on first use rather than at
-/// launch, so only people who actually use this feature see the prompt.
+/// Fires a local notification when the app is still outside the foreground.
+/// If the user already returned to EksperIQ while the import is finishing,
+/// the JS UI should show the final state directly instead of also receiving
+/// a stale local notification from the background phase.
 private enum NotificationHelper {
     @MainActor
-    static func notifyIfNeeded(wasBackgroundedDuringCall: Bool, title: String, body: String) async {
-        guard wasBackgroundedDuringCall || UIApplication.shared.applicationState != .active else { return }
+    static func notifyIfNeeded(wasBackgroundedDuringCall _: Bool, title: String, body: String) async {
+        guard UIApplication.shared.applicationState != .active else { return }
 
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()

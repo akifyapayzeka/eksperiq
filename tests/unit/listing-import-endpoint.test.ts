@@ -164,7 +164,7 @@ describe("listing import AI endpoint", () => {
     expect(body.error).toBe("İlan bilgisi işlenemedi.");
   });
 
-  it("fills seller description, city, mileage, price, paint details, engine power and local paint from page text when the model misses them", async () => {
+  it("fills table fields, seller description, city, mileage, price and damage details when the model misses them", async () => {
     const modelResponse = {
       choices: [
         {
@@ -176,16 +176,16 @@ describe("listing import AI endpoint", () => {
                 model: "Astra",
                 year: 2020,
                 trim: null,
-                fuelType: "Benzin",
-                transmission: "Otomatik",
+                fuelType: null,
+                transmission: null,
                 mileage: null,
                 price: null,
                 city: null,
-                bodyType: "Hatchback",
-                engineSize: "1.4",
+                bodyType: null,
+                engineSize: null,
                 enginePower: null,
                 drivetrain: null,
-                ownerInfo: "Galeriden satış",
+                ownerInfo: null,
                 tradeStatus: null,
                 tramerAmount: null,
                 paintedParts: null,
@@ -212,9 +212,16 @@ describe("listing import AI endpoint", () => {
               missingFields: [
                 "sellerDescription",
                 "city",
+                "trim",
+                "fuelType",
+                "transmission",
                 "mileage",
                 "price",
+                "bodyType",
+                "engineSize",
                 "enginePower",
+                "ownerInfo",
+                "tradeStatus",
                 "paintedParts",
                 "replacedParts",
                 "localPaintedParts",
@@ -234,6 +241,20 @@ describe("listing import AI endpoint", () => {
         "1.125.000 TL",
         "Kilometre",
         "87.000 km",
+        "Paket",
+        "Edition",
+        "Yakıt Türü",
+        "Benzin",
+        "Vites",
+        "Otomatik",
+        "Kasa Tipi",
+        "Hatchback",
+        "Motor Hacmi",
+        "1.4 lt",
+        "Kimden",
+        "Galeriden",
+        "Takas",
+        "Yok",
         "BOYA, DEĞİŞEN VE EKSPERTİZ BİLGİSİ",
         "Boyalı",
         "• Sağ Ön Kapı",
@@ -262,7 +283,14 @@ describe("listing import AI endpoint", () => {
     expect(result.fields.city).toBe("Samsun");
     expect(result.fields.mileage).toBe(87000);
     expect(result.fields.price).toBe(1125000);
+    expect(result.fields.trim).toBe("Edition");
+    expect(result.fields.fuelType).toBe("Benzin");
+    expect(result.fields.transmission).toBe("Otomatik");
+    expect(result.fields.bodyType).toBe("Hatchback");
+    expect(result.fields.engineSize).toBe("1.4");
     expect(result.fields.enginePower).toBe("145 HP");
+    expect(result.fields.ownerInfo).toBe("Galeriden satış");
+    expect(result.fields.tradeStatus).toBe("Takas yok");
     expect(result.fields.paintedParts).toBe("Sağ ön kapı");
     expect(result.fields.replacedParts).toBe("Ön tampon");
     expect(result.fields.localPaintedParts).toBe("Sol ön çamurluk");
@@ -271,6 +299,13 @@ describe("listing import AI endpoint", () => {
     expect(result.missingFields).not.toContain("city");
     expect(result.missingFields).not.toContain("mileage");
     expect(result.missingFields).not.toContain("price");
+    expect(result.missingFields).not.toContain("trim");
+    expect(result.missingFields).not.toContain("fuelType");
+    expect(result.missingFields).not.toContain("transmission");
+    expect(result.missingFields).not.toContain("bodyType");
+    expect(result.missingFields).not.toContain("engineSize");
+    expect(result.missingFields).not.toContain("ownerInfo");
+    expect(result.missingFields).not.toContain("tradeStatus");
     expect(result.missingFields).not.toContain("paintedParts");
     expect(result.missingFields).not.toContain("replacedParts");
   });
@@ -354,8 +389,8 @@ describe("listing import AI endpoint", () => {
                 model: "Corsa",
                 year: 2024,
                 trim: null,
-                fuelType: "Benzin",
-                transmission: "Otomatik",
+                fuelType: null,
+                transmission: null,
                 mileage: null,
                 price: null,
                 city: null,
@@ -363,7 +398,7 @@ describe("listing import AI endpoint", () => {
                 engineSize: "1.2",
                 enginePower: "100 HP",
                 drivetrain: null,
-                ownerInfo: "Galeriden satış",
+                ownerInfo: null,
                 tradeStatus: null,
                 tramerAmount: null,
                 paintedParts: null,

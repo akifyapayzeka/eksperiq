@@ -114,6 +114,7 @@ function fallbackResultFromPageData(pageData: ExtractedPageData): ListingImportR
  * visible JS flow stops presenting the job as active after five minutes.
  */
 const CLIENT_HARD_TIMEOUT_MS = 300_000;
+const VISIBILITY_RETURN_GRACE_MS = 20_000;
 
 /**
  * Loads the URL on the user's own device (WKWebView, not a server fetch —
@@ -157,21 +158,26 @@ export async function importListingFromUrl(
   const timeoutPromise = new Promise<ListingImportOutcome>((resolve) => {
     resolveTimeout = resolve;
   });
-  const timer = setTimeout(() => {
-    trace("js-client-timeout", "resolved via setTimeout");
+  const resolveClientTimeout = (trigger: string) => {
+    trace("js-client-timeout", `resolved via ${trigger}`);
     resolveTimeout(timeoutOutcome);
-  }, CLIENT_HARD_TIMEOUT_MS);
+  };
+  const timer = setTimeout(() => resolveClientTimeout("setTimeout"), CLIENT_HARD_TIMEOUT_MS);
+  let visibilityGraceTimer: ReturnType<typeof setTimeout> | null = null;
 
   // A plain setTimeout can be throttled or paused for as long as the
   // WKWebView is backgrounded — exactly the situation most likely to
   // coincide with a slow or stuck native call, since that's often when
   // someone switches away to wait. Re-checking the wall-clock deadline on
   // return-to-foreground means a throttled timer can't leave this hanging
-  // well past when it should already have given up.
+  // well past when it should already have given up. Do not resolve the
+  // timeout immediately on foreground though: iOS often resumes the native
+  // WKWebView/AI call at the same moment, so an immediate JS error can race
+  // a real success that arrives a second later.
   function onVisible() {
-    if (document.visibilityState === "visible" && Date.now() >= deadline) {
-      trace("js-client-timeout", "resolved via visibilitychange");
-      resolveTimeout(timeoutOutcome);
+    if (document.visibilityState === "visible" && Date.now() >= deadline && !visibilityGraceTimer) {
+      trace("js-client-timeout-grace", `visibilitychange grace ${VISIBILITY_RETURN_GRACE_MS}ms`);
+      visibilityGraceTimer = setTimeout(() => resolveClientTimeout("visibilitychange-grace"), VISIBILITY_RETURN_GRACE_MS);
     }
   }
   document.addEventListener("visibilitychange", onVisible);
@@ -182,6 +188,7 @@ export async function importListingFromUrl(
     return outcome;
   } finally {
     clearTimeout(timer);
+    if (visibilityGraceTimer) clearTimeout(visibilityGraceTimer);
     document.removeEventListener("visibilitychange", onVisible);
   }
 }

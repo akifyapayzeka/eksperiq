@@ -67,11 +67,16 @@ const TRIM_OPTIONS = [
   "Dream",
   "Dynamic",
   "Elegance",
+  "Edition",
   "Executive",
+  "Feel",
+  "Icon",
   "Joy",
   "Life",
   "Premium",
+  "Shine",
   "Style",
+  "Titanium",
   "Touch",
   "Trend",
   "Belirtilmemiş",
@@ -470,6 +475,107 @@ function extractPriceFromText(text) {
   return null;
 }
 
+const LISTING_TABLE_LABEL_PATTERN =
+  /^(marka|seri|model|paket|y[ıi]l|model y[ıi]l[ıi]|yak[ıi]t|yak[ıi]t t[üu]r[üu]|vites|vites t[üu]r[üu]|kilometre|km|fiyat|ilan fiyat[ıi]|kasa tipi|motor hacmi|motor g[üu]c[üu]|çekiş|cekis|kimden|takas|airbag|lpg)$/i;
+
+function extractLabeledValueFromText(text, labelPattern) {
+  const lines = String(text || "")
+    .split(/\r?\n+/)
+    .map(cleanListingLine)
+    .filter(Boolean);
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const normalizedLine = normalizeTurkish(line);
+    const match = normalizedLine.match(labelPattern);
+    if (!match) continue;
+
+    const sameLineValue = cleanListingLine(line.slice((match.index ?? 0) + match[0].length).replace(/^[:\s/-]+/, ""));
+    if (sameLineValue && sameLineValue.length <= 90 && !LISTING_TABLE_LABEL_PATTERN.test(normalizeTurkish(sameLineValue))) {
+      return sameLineValue;
+    }
+
+    for (const nextLine of lines.slice(index + 1, index + 4)) {
+      const normalizedNext = normalizeTurkish(nextLine);
+      if (LISTING_TABLE_LABEL_PATTERN.test(normalizedNext)) continue;
+      if (nextLine.length <= 90) return nextLine;
+      break;
+    }
+  }
+  return null;
+}
+
+function selectOptionFromText(value, options) {
+  const normalized = normalizeTurkish(value);
+  return (
+    options.find((option) => {
+      const key = normalizeTurkish(option);
+      return new RegExp(`(^|[^\\p{L}\\p{N}])${key}([^\\p{L}\\p{N}]|$)`, "iu").test(normalized);
+    }) ?? null
+  );
+}
+
+function extractTrimFromText(text) {
+  const explicit = extractLabeledValueFromText(text, /^paket(?:\s+tipi)?\b/i);
+  const haystack = [explicit, text].filter(Boolean).join("\n");
+  return selectOptionFromText(haystack, TRIM_OPTIONS.filter((option) => option !== "Belirtilmemiş"));
+}
+
+function extractFuelTypeFromText(text) {
+  const value = extractLabeledValueFromText(text, /^yak[ıi]t(?:\s+t[üu]r[üu])?\b/i) || text;
+  const normalized = normalizeTurkish(value);
+  if (/elektrik/.test(normalized)) return "Elektrik";
+  if (/hibrit|hybrid/.test(normalized)) return "Hibrit";
+  if (/lpg/.test(normalized)) return "LPG";
+  if (/dizel|diesel/.test(normalized)) return "Dizel";
+  if (/benzin/.test(normalized)) return "Benzin";
+  return null;
+}
+
+function extractTransmissionFromText(text) {
+  const value = extractLabeledValueFromText(text, /^vites(?:\s+t[üu]r[üu])?\b/i) || text;
+  const normalized = normalizeTurkish(value);
+  if (/yar[ıi]\s+otomatik|yari\s+otomatik|easytronic|etg|edc|dsg/.test(normalized)) return "Yarı otomatik";
+  if (/otomatik|automatic|at\b/.test(normalized)) return "Otomatik";
+  if (/manuel|manual|d[üu]z\s+vites|duz\s+vites/.test(normalized)) return "Manuel";
+  return null;
+}
+
+function extractBodyTypeFromText(text) {
+  const value = extractLabeledValueFromText(text, /^kasa\s+tipi\b/i) || text;
+  return selectOptionFromText(value, BODY_TYPES);
+}
+
+function extractEngineSizeFromText(text) {
+  const value = extractLabeledValueFromText(text, /^motor\s+hacmi\b/i) || text;
+  const ccMatch = String(value).match(/\b(\d{3,4})\s*(?:cc|cm3|cm³)\b/i);
+  if (ccMatch) {
+    const cc = Number.parseInt(ccMatch[1], 10);
+    if (Number.isFinite(cc) && cc >= 600 && cc <= 8000) return `${(cc / 1000).toLocaleString("tr-TR", { maximumFractionDigits: 1 })}`;
+  }
+  const literMatch = String(value).match(/\b(\d[.,]\d{1,2})\s*(?:lt|l|litre|t)?\b/i);
+  return literMatch ? literMatch[1].replace(",", ".") : null;
+}
+
+function extractOwnerInfoFromText(text) {
+  const value = extractLabeledValueFromText(text, /^kimden\b/i) || text;
+  const normalized = normalizeTurkish(value);
+  if (/galeri|oto\s+galeri|otomotiv/.test(normalized)) return "Galeriden satış";
+  if (/sahibinden/.test(normalized)) return "Ruhsat sahibi satıcı olduğunu belirtiyor";
+  if (/vekalet|vekaletle/.test(normalized)) return "Vekaletle satış yapılacak";
+  return null;
+}
+
+function extractTradeStatusFromText(text) {
+  const value = extractLabeledValueFromText(text, /^takas\b/i);
+  if (!value) return null;
+  const normalized = normalizeTurkish(value);
+  if (/yok|hay[ıi]r|olmaz/.test(normalized)) return "Takas yok";
+  if (/de[ğg]erlendirilir|olabilir/.test(normalized)) return "Takas değerlendirilebilir";
+  if (/var|evet/.test(normalized)) return "Takas var";
+  return null;
+}
+
 const PART_ALIASES = [
   ["Ön tampon", /ön\s+tampon|on\s+tampon/i],
   ["Arka tampon", /arka\s+tampon/i],
@@ -716,6 +822,55 @@ function normalizeListingImportJson(json, input, model) {
     if (fallbackEnginePower) {
       fields.enginePower = fallbackEnginePower;
       json.missingFields = removeMissingField(json.missingFields, "enginePower");
+    }
+  }
+  if (!fields.trim) {
+    const fallbackTrim = extractTrimFromText(fallbackText);
+    if (fallbackTrim) {
+      fields.trim = fallbackTrim;
+      json.missingFields = removeMissingField(json.missingFields, "trim");
+    }
+  }
+  if (!fields.fuelType) {
+    const fallbackFuelType = extractFuelTypeFromText(fallbackText);
+    if (fallbackFuelType) {
+      fields.fuelType = fallbackFuelType;
+      json.missingFields = removeMissingField(json.missingFields, "fuelType");
+    }
+  }
+  if (!fields.transmission) {
+    const fallbackTransmission = extractTransmissionFromText(fallbackText);
+    if (fallbackTransmission) {
+      fields.transmission = fallbackTransmission;
+      json.missingFields = removeMissingField(json.missingFields, "transmission");
+    }
+  }
+  if (!fields.bodyType) {
+    const fallbackBodyType = extractBodyTypeFromText(fallbackText);
+    if (fallbackBodyType) {
+      fields.bodyType = fallbackBodyType;
+      json.missingFields = removeMissingField(json.missingFields, "bodyType");
+    }
+  }
+  if (!fields.engineSize) {
+    const fallbackEngineSize = extractEngineSizeFromText(fallbackText);
+    if (fallbackEngineSize) {
+      fields.engineSize = fallbackEngineSize;
+      json.missingFields = removeMissingField(json.missingFields, "engineSize");
+    }
+  }
+  if (!fields.ownerInfo) {
+    const fallbackOwnerInfo = extractOwnerInfoFromText(fallbackText);
+    if (fallbackOwnerInfo) {
+      fields.ownerInfo = fallbackOwnerInfo;
+      json.missingFields = removeMissingField(json.missingFields, "ownerInfo");
+    }
+  }
+  if (!fields.tradeStatus) {
+    const fallbackTradeStatus = extractTradeStatusFromText(fallbackText);
+    if (fallbackTradeStatus) {
+      fields.tradeStatus = fallbackTradeStatus;
+      json.missingFields = removeMissingField(json.missingFields, "tradeStatus");
     }
   }
   const fallbackMileage = extractMileageFromText(fallbackText);
