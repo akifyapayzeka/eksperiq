@@ -155,6 +155,9 @@ describe("photo damage AI endpoint", () => {
       "qwen/qwen3.6-plus:free",
       FREE_ROUTER_FALLBACK_MODEL,
     ]);
+    expect(
+      resolveVisionModelCandidates().every((model) => model === FREE_ROUTER_FALLBACK_MODEL || model.endsWith(":free")),
+    ).toBe(true);
 
     process.env = previousEnv;
   });
@@ -257,6 +260,52 @@ describe("photo damage AI endpoint", () => {
                 isVehiclePhoto: false,
                 summary: "Bu bir telefon ekran görüntüsü, araç görünmüyor.",
                 findings: [],
+              }),
+            },
+          },
+        ],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const previousEnv = process.env;
+    process.env = {
+      ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+      OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
+    };
+    const response = createResponse();
+
+    await handler(createRequest(validBody), response);
+
+    process.env = previousEnv;
+    vi.unstubAllGlobals();
+    const payload = JSON.parse(response.body) as { analysis: { isVehiclePhoto: boolean; findings: unknown[] } };
+    expect(response.statusCode).toBe(200);
+    expect(payload.analysis.isVehiclePhoto).toBe(false);
+    expect(payload.analysis.findings).toEqual([]);
+  });
+
+  it("forces contradictory non-vehicle model responses to no findings", async () => {
+    const fetchMock = mockFetchAllowingRateLimit({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                isVehiclePhoto: true,
+                summary: "Bu bir telefon ekran görüntüsü, araç fotoğrafı değil.",
+                findings: [
+                  {
+                    area: "Ön tampon",
+                    signal: "Olası hasar",
+                    confidence: "high",
+                    explanation: "Model hatalı şekilde araç hasarı yorumu üretmiş.",
+                    recommendation: "Ekspertizde kontrol ettirin.",
+                  },
+                ],
               }),
             },
           },

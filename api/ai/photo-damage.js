@@ -152,10 +152,56 @@ function normalizeSignal(finding) {
   return "Olası kontrol notu";
 }
 
+function describesNonVehiclePhoto(text) {
+  const normalized = text.toLocaleLowerCase("tr-TR");
+  const noVehicleSignals = [
+    "araç değil",
+    "arac degil",
+    "araç fotoğrafı değil",
+    "arac fotografi degil",
+    "araç bulunmuyor",
+    "arac bulunmuyor",
+    "araç görünmüyor",
+    "arac gorunmuyor",
+    "araç yok",
+    "arac yok",
+    "araba yok",
+    "otomobil yok",
+    "vehicle is not visible",
+    "no vehicle",
+    "not a vehicle",
+    "not a car",
+  ];
+  const unrelatedContentSignals = [
+    "ekran görüntüsü",
+    "ekran goruntusu",
+    "telefon ekranı",
+    "telefon ekrani",
+    "screenshot",
+    "doküman",
+    "dokuman",
+    "document",
+    "evrak",
+    "çizim",
+    "cizim",
+    "oyuncak",
+    "insan",
+    "kişi",
+    "kisi",
+    "hayvan",
+    "yemek",
+    "mobilya",
+  ];
+  return (
+    noVehicleSignals.some((signal) => normalized.includes(signal)) ||
+    unrelatedContentSignals.some((signal) => normalized.includes(signal))
+  );
+}
+
 function normalizeAnalysis(value) {
   if (!isRecord(value)) return null;
-  const isVehiclePhoto = value.isVehiclePhoto === true;
   const summary = typeof value.summary === "string" ? hedgeCertainLanguage(value.summary.slice(0, 500)) : "";
+  const isVehiclePhoto = value.isVehiclePhoto === true && !describesNonVehiclePhoto(summary);
   const findings = Array.isArray(value.findings) ? value.findings : [];
   return {
     isVehiclePhoto,
@@ -192,6 +238,7 @@ function normalizeAnalysis(value) {
 function normalizeTextFallback(text) {
   const normalized = text.toLocaleLowerCase("tr-TR");
   const saysNoVehicle =
+    describesNonVehiclePhoto(text) ||
     normalized.includes("araç yok") ||
     normalized.includes("araç bulunmamaktadır") ||
     normalized.includes("araç fotoğrafı değil") ||

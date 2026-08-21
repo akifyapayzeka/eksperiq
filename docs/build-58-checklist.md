@@ -46,6 +46,10 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
   - If the free vision model rejects strict `response_format` mode with HTTP 400, the endpoint retries once without strict schema mode.
   - If the named free vision model still returns unreadable content, the endpoint falls back to OpenRouter's free router as a last resort.
   - The user-facing error now says the model result could not be read and suggests retry/manual finding instead of the old generic reliability wording.
+- [x] Kept photo analysis on free AI models while tightening vehicle-photo validation.
+  - Configured vision models and fallback models are accepted only when they are explicitly free OpenRouter models.
+  - If the AI response contradicts itself and says the image is a screenshot, document, toy, person, unrelated object, or not a vehicle, the endpoint forces `isVehiclePhoto=false` and clears findings.
+  - Vehicle exterior/interior, vehicle parts, dashboard, and warning-light photos still stay eligible for analysis.
 
 ## Verified
 
@@ -54,6 +58,7 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
 - [x] `npm test -- tests/unit/report-summary.test.ts tests/unit/analysis.test.ts`
 - [x] `npm test -- tests/unit/analysis.test.ts tests/unit/listing-extraction.test.ts tests/unit/report-summary.test.ts`
 - [x] `npm test -- tests/unit/vehicles-model.test.ts tests/unit/vehicle-switcher.test.tsx tests/unit/mobile-bottom-nav.test.tsx tests/unit/reminders-model.test.ts tests/unit/reminders-storage.test.ts`
+- [x] `npm test -- tests/unit/photo-damage-endpoint.test.ts`
 
 ## Still Open Before Closing Build 58
 
