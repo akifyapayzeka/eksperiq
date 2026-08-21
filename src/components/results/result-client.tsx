@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowUpRight,
   CheckCircle2,
-  ClipboardCopy,
   FileSearch,
   MessageSquareText,
   Minus,
@@ -366,7 +365,18 @@ const SCORE_RING_RADIUS = 16;
 const SCORE_RING_CIRCUMFERENCE = 2 * Math.PI * SCORE_RING_RADIUS;
 const MIN_IMAGE_ZOOM = 1;
 const MAX_IMAGE_ZOOM = 4;
-const IMAGE_ZOOM_STEP = 0.5;
+
+function clampListingImageZoom(value: number): number {
+  return Math.min(MAX_IMAGE_ZOOM, Math.max(MIN_IMAGE_ZOOM, Number(value.toFixed(2))));
+}
+
+function touchDistance(touches: { length: number; item(index: number): { clientX: number; clientY: number } | null }): number | null {
+  if (touches.length < 2) return null;
+  const first = touches.item(0);
+  const second = touches.item(1);
+  if (!first || !second) return null;
+  return Math.hypot(first.clientX - second.clientX, first.clientY - second.clientY);
+}
 
 function scoreRingOffset(score: number): number {
   const clamped = Math.min(100, Math.max(0, score));
@@ -378,31 +388,6 @@ function scoreRingColorClass(score: number): string {
   if (bucket === "low") return "stroke-success";
   if (bucket === "medium") return "stroke-warning";
   return "stroke-destructive";
-}
-
-function compactShareSummary(result: AnalysisResult): string {
-  const vehicle = `${result.input.year} ${result.input.brand} ${result.input.model}`;
-  const topFindings = result.findings
-    .slice(0, 3)
-    .map((finding) => `- ${finding.title}`)
-    .join("\n");
-  const questions = result.sellerQuestions
-    .slice(0, 3)
-    .map((question, index) => `${index + 1}. ${question}`)
-    .join("\n");
-
-  return `${vehicle}
-EksperIQ risk skoru: ${result.totalScore}/100
-Sonuç: ${result.riskLabel}
-Karar özeti: ${result.decision}
-
-Öncelikli bulgular:
-${topFindings}
-
-Satıcıya ilk sorular:
-${questions}
-
-Not: Bu özet kesin ekspertiz sonucu değildir.`;
 }
 
 function buyerDecision(result: AnalysisResult): {
@@ -524,6 +509,8 @@ export function ResultClient() {
   const [activeTab, setActiveTab] = useState<ReportTab>("karar");
   const [selectedListingImageIndex, setSelectedListingImageIndex] = useState<number | null>(null);
   const [listingImageZoom, setListingImageZoom] = useState(MIN_IMAGE_ZOOM);
+  const pinchStartDistanceRef = useRef<number | null>(null);
+  const pinchStartZoomRef = useRef(MIN_IMAGE_ZOOM);
 
   const listingImages = result?.listingImages ?? [];
   const selectedListingImage =
@@ -584,12 +571,36 @@ export function ResultClient() {
   function closeListingImage() {
     setSelectedListingImageIndex(null);
     setListingImageZoom(MIN_IMAGE_ZOOM);
+    pinchStartDistanceRef.current = null;
+    pinchStartZoomRef.current = MIN_IMAGE_ZOOM;
   }
 
-  function changeListingImageZoom(delta: number) {
-    setListingImageZoom((current) =>
-      Math.min(MAX_IMAGE_ZOOM, Math.max(MIN_IMAGE_ZOOM, Number((current + delta).toFixed(1)))),
-    );
+  function handleListingImageTouchStart(event: React.TouchEvent<HTMLDivElement>) {
+    const distance = touchDistance(event.touches);
+    if (!distance) return;
+    pinchStartDistanceRef.current = distance;
+    pinchStartZoomRef.current = listingImageZoom;
+  }
+
+  function handleListingImageTouchMove(event: React.TouchEvent<HTMLDivElement>) {
+    const startDistance = pinchStartDistanceRef.current;
+    const currentDistance = touchDistance(event.touches);
+    if (!startDistance || !currentDistance) return;
+    event.preventDefault();
+    setListingImageZoom(clampListingImageZoom(pinchStartZoomRef.current * (currentDistance / startDistance)));
+  }
+
+  function handleListingImageTouchEnd(event: React.TouchEvent<HTMLDivElement>) {
+    if (event.touches.length >= 2) {
+      const distance = touchDistance(event.touches);
+      if (distance) {
+        pinchStartDistanceRef.current = distance;
+        pinchStartZoomRef.current = listingImageZoom;
+      }
+      return;
+    }
+    pinchStartDistanceRef.current = null;
+    pinchStartZoomRef.current = listingImageZoom;
   }
 
   async function copyText(text: string, successStatus: "summary-copied") {
@@ -624,11 +635,6 @@ export function ResultClient() {
     if (!copied) {
       throw new Error("Copy fallback failed");
     }
-  }
-
-  async function copyCompactSummary() {
-    if (!result) return;
-    await copyText(compactShareSummary(result), "summary-copied");
   }
 
   async function shareSummary() {
@@ -940,14 +946,6 @@ export function ResultClient() {
                   </ol>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={copyCompactSummary}
-                className="no-print mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
-              >
-                <ClipboardCopy aria-hidden="true" className="h-4 w-4" />
-                Kısa özeti kopyala
-              </button>
             </div>
           </SectionCard>
           <SectionCard
@@ -1406,60 +1404,32 @@ export function ResultClient() {
         onClick={closeListingImage}
       >
         <div
-          className="mx-auto flex h-full max-w-5xl flex-col overflow-hidden rounded-theme border border-border bg-card shadow-xl"
+          className="relative mx-auto flex h-full max-w-5xl items-center justify-center overflow-hidden rounded-theme border border-border bg-card shadow-xl"
           onClick={(event) => event.stopPropagation()}
         >
-          <div className="flex min-h-14 items-center justify-between gap-2 border-b border-border px-3 py-2 sm:px-4">
-            <div>
-              <p className="text-sm font-semibold text-foreground">Araç fotoğrafı</p>
-              <p className="text-xs text-muted-foreground">
-                {selectedListingImageIndex !== null ? selectedListingImageIndex + 1 : 1} / {listingImages.length}
-              </p>
-            </div>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => changeListingImageZoom(-IMAGE_ZOOM_STEP)}
-                disabled={listingImageZoom <= MIN_IMAGE_ZOOM}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground/80 disabled:opacity-40"
-                aria-label="Fotoğrafı küçült"
-              >
-                <Minus aria-hidden="true" className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setListingImageZoom(MIN_IMAGE_ZOOM)}
-                className="inline-flex h-10 min-w-14 items-center justify-center rounded-full border border-border px-3 text-xs font-semibold text-foreground/80"
-                aria-label="Yakınlaştırmayı sıfırla"
-              >
-                {Math.round(listingImageZoom * 100)}%
-              </button>
-              <button
-                type="button"
-                onClick={() => changeListingImageZoom(IMAGE_ZOOM_STEP)}
-                disabled={listingImageZoom >= MAX_IMAGE_ZOOM}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground/80 disabled:opacity-40"
-                aria-label="Fotoğrafı büyüt"
-              >
-                <Plus aria-hidden="true" className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={closeListingImage}
-                className="ml-1 inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground"
-                aria-label="Fotoğraf görüntüleyiciyi kapat"
-              >
-                <X aria-hidden="true" className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-          <div className="min-h-0 flex-1 overflow-auto bg-muted p-3">
+          <button
+            type="button"
+            onClick={closeListingImage}
+            className="absolute right-3 top-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg sm:right-4 sm:top-4"
+            aria-label="Fotoğraf görüntüleyiciyi kapat"
+          >
+            <X aria-hidden="true" className="h-5 w-5" />
+          </button>
+          <div
+            className="h-full w-full overflow-auto bg-muted p-3"
+            onTouchStart={handleListingImageTouchStart}
+            onTouchMove={handleListingImageTouchMove}
+            onTouchEnd={handleListingImageTouchEnd}
+            onTouchCancel={handleListingImageTouchEnd}
+            onDoubleClick={() => setListingImageZoom(MIN_IMAGE_ZOOM)}
+            style={{ touchAction: "none" }}
+          >
             <div className="flex min-h-full items-center justify-center">
               {/* eslint-disable-next-line @next/next/no-img-element -- Listing image hosts vary by source site. */}
               <img
                 src={selectedListingImage}
                 alt="İlandan alınan araç fotoğrafı"
-                className="max-h-none max-w-none rounded-theme-sm object-contain shadow-sm"
+                className="max-h-full rounded-theme-sm object-contain shadow-sm"
                 style={{
                   width: `${listingImageZoom * 100}%`,
                   maxWidth: listingImageZoom === MIN_IMAGE_ZOOM ? "100%" : "none",
