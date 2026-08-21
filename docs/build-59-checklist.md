@@ -34,6 +34,8 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
 - [x] Strengthened listing import fallback extraction for missing report fields.
   - If the AI model misses explicit Sahibinden table rows, the endpoint now deterministically fills package, fuel, transmission, mileage, price, body type, engine size, owner source, trade status, city, and paint/changed details from the page text.
   - Added common Turkish-market package options such as Edition, Icon, Feel, Shine, and Titanium so imported package values do not render as blank selects.
+- [x] Updated App Store promotional wording.
+  - Replaced the direct "İlan linkini yapıştırın" phrasing with a broader "Alacağınız aracı detaylı analiz ettirin" message in the short description and promotional text.
 
 ## Verified For New Build 59 Fixes
 

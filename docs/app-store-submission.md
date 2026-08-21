@@ -12,7 +12,7 @@ EksperIQ
 
 ## Kısa Açıklama
 
-İlan linkini yapıştırın; riskleri, kronik sorunları ve satıcı sorularını görün.
+Alacağınız aracı detaylı analiz ettirin; riskleri, kronik sorunları ve satıcı sorularını görün.
 
 ## Uzun Açıklama
 
@@ -32,7 +32,7 @@ ikinci el araç,ekspertiz,tramer,araba alım,araç kontrol,oto rapor,hasar kayd�
 
 ## Promosyon Metni
 
-İlan linkini yapıştırın; riskleri, kronik sorunları, fotoğrafları ve satıcı sorularını tek raporda görün.
+Alacağınız aracı detaylı analiz ettirin; riskleri, kronik sorunları, fotoğrafları ve satıcı sorularını tek raporda görün.
 
 ## Review Note
 
