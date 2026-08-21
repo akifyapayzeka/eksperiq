@@ -97,6 +97,25 @@ describe("analysis engine", () => {
     expect(replaced?.recommendation).toContain("şasi uçları");
   });
 
+  it("does not call damage fields empty when the seller description claims no damage record", () => {
+    const findings = damageRules({
+      ...baseInput,
+      paintedParts: "",
+      replacedParts: "",
+      localPaintedParts: "",
+      tramerAmount: 0,
+      sellerDescription: "Hatasız boyasız, hasar kaydı yoktur, aile aracı.",
+    });
+
+    expect(findings).toContainEqual(
+      expect.objectContaining({
+        id: "seller-clean-damage-claim",
+        title: "Satıcı hasar kaydı olmadığını belirtiyor",
+      }),
+    );
+    expect(findings).not.toContainEqual(expect.objectContaining({ id: "damage-empty" }));
+  });
+
   it("shows chronic issue guidance for 2021 Renault Clio", () => {
     const result = analyzeVehicle({
       ...baseInput,

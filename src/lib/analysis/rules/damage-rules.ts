@@ -99,6 +99,12 @@ function changedPartRecommendation(groups: PartRisk[]): string {
   return groups.map((group) => group.recommendation).join(" ");
 }
 
+function hasSellerCleanDamageClaim(description: string): boolean {
+  return /hasar\s+kayd[ıi]\s*(yok|yoktur|bulunmuyor|bulunmamaktad[ıi]r)|hasar\s+kay[ıi]ts[ıi]z|tramersiz|tramer\s*(yok|yoktur)|ağ[ıi]r\s+hasar\s*(yok|yoktur|bulunmuyor)|pert\s+kayd[ıi]\s*(yok|yoktur)|hatas[ıi]z\s+boyas[ıi]z/i.test(
+    description,
+  );
+}
+
 export function damageRules(input: VehicleFormData): AnalysisFinding[] {
   const findings: AnalysisFinding[] = [];
   if (input.hasHeavyDamage)
@@ -188,15 +194,29 @@ export function damageRules(input: VehicleFormData): AnalysisFinding[] {
       explanation: "Yüksek tramer tutarının hangi parçalarla ilgili olduğu net değil.",
       recommendation: "Tramer detay belgesini ve hasar açıklamasını satıcıdan isteyin.",
     });
-  if (!input.paintedParts && !input.replacedParts && !input.localPaintedParts && !input.tramerAmount)
-    findings.push({
-      id: "damage-empty",
-      category: "Açıklama",
-      severity: "medium",
-      title: "Hasar bilgileri boş bırakılmış",
-      explanation: "Hasar alanlarının boş olması aracın hasarsız olduğunu göstermez.",
-      recommendation: "Boya, değişen ve tramer detaylarını yazılı olarak isteyin.",
-    });
+  if (!input.paintedParts && !input.replacedParts && !input.localPaintedParts && !input.tramerAmount) {
+    if (hasSellerCleanDamageClaim(input.sellerDescription)) {
+      findings.push({
+        id: "seller-clean-damage-claim",
+        category: "Açıklama",
+        severity: "low",
+        title: "Satıcı hasar kaydı olmadığını belirtiyor",
+        explanation:
+          "İlan açıklamasında hasar kaydı olmadığı iddia edilmiş. Bu bilgi faydalıdır ancak tek başına resmi TRAMER, boya ölçümü ve ekspertiz doğrulamasının yerine geçmez.",
+        recommendation:
+          "Satıcıdan TRAMER çıktısı, boya/değişen parça beyanı ve varsa ekspertiz raporu isteyin; raporda bu iddiayı resmi kayıtla karşılaştırın.",
+      });
+    } else {
+      findings.push({
+        id: "damage-empty",
+        category: "Açıklama",
+        severity: "medium",
+        title: "Hasar bilgileri boş bırakılmış",
+        explanation: "Hasar alanlarının boş olması aracın hasarsız olduğunu göstermez.",
+        recommendation: "Boya, değişen ve tramer detaylarını yazılı olarak isteyin.",
+      });
+    }
+  }
   if (/tampon/i.test(input.localPaintedParts ?? "") && !findings.some((finding) => finding.id === "local-painted-parts-declared"))
     findings.push({
       id: "bumper-local-paint",
