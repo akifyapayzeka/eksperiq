@@ -63,19 +63,17 @@ export default function PrivacyPage() {
         işlenebilir. Uygulama bu sağlayıcılar dışında hiçbir üçüncü tarafla veri paylaşmaz ve verinizi satmaz.
       </p>
       <p>
-        <strong>Verilerinizi yönetme ve silme.</strong> Profil &gt; Verilerim bölümünden tüm cihaz verilerinizi
-        (araçlar, hatırlatmalar, giderler, sağlık kayıtları, fotoğraf analizleri, analiz geçmişi) tek bir JSON dosyası
-        olarak dışa aktarabilir, başka bir cihaza aktarabilir veya tek dokunuşla tamamen silebilirsiniz. Tümünü silme
-        işlemi cihazdaki tüm kayıtları, fotoğraf önizlemelerini, önbelleği ve varsa yukarıda açıklanan sunucu tarafı
-        bildirim kopyanızı da kapsar.
+        <strong>Verilerinizi yönetme ve silme.</strong> Analizlerim ekranındaki kayıtları tek tek silebilirsiniz.
+        Araç, hatırlatma, gider ve sağlık karnesi kayıtları bu cihazda tutulur; uygulamayı kaldırdığınızda veya cihazın
+        uygulama verilerini temizlediğinizde yerel kayıtlar da silinir. Varsa yukarıda açıklanan sunucu tarafı bildirim
+        kopyaları, uygulama uzun süre senkronize olmadığında otomatik süre sonunda temizlenir.
       </p>
       <p>
         <strong>KVKK kapsamındaki haklarınız.</strong> 6698 sayılı Kişisel Verilerin Korunması Kanunu&apos;nun 11.
         maddesi uyarınca; verilerinizin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme,
         düzeltilmesini veya silinmesini isteme ve işlemeye itiraz etme haklarına sahipsiniz. Uygulamada hesap
-        olmadığından bu haklar büyük ölçüde yukarıdaki &ldquo;Verilerim&rdquo; bölümünden kendi kendinize
-        kullanılabilir; sunucu tarafında tutulan sınırlı bildirim kopyası için de aynı bölümdeki silme işlemi
-        yeterlidir. Ek bir talebiniz olursa{" "}
+        olmadığından cihazdaki kayıtlar büyük ölçüde cihazınızda kalır; sunucu tarafında tutulan sınırlı bildirim
+        kopyası için ek bir talebiniz olursa{" "}
         <Link href="/geri-bildirim" className="font-medium text-accent underline">
           geri bildirim sayfasından
         </Link>{" "}
@@ -83,8 +81,7 @@ export default function PrivacyPage() {
       </p>
       <p>
         Analiz geçmişiniz (Analizlerim ekranındaki kayıtlar) tarayıcı oturumu kapansa bile bu cihazda saklanır;
-        istediğiniz analizi Analizlerim ekranından tek tek silebilir veya Profil &gt; Verilerim bölümünden tamamını
-        kaldırabilirsiniz.
+        istediğiniz analizi Analizlerim ekranından tek tek silebilirsiniz.
       </p>
     </InfoPage>
   );

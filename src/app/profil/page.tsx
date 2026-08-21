@@ -6,7 +6,6 @@ import { PageHeader } from "@/components/layout/page-header";
 import { AccountSection } from "@/components/profile/account-section";
 import { ProfileWelcomeBanner } from "@/components/profile/welcome-banner";
 import { ProfilePlansPromoSection } from "@/components/profile/plans-promo-section";
-import { DataManagementSection } from "@/components/profile/data-management-section";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { DisclaimerCard } from "@/components/ui/alert";
 
@@ -37,10 +36,6 @@ export default function ProfilePage() {
           <ThemeToggle />
         </div>
       </section>
-
-      <div className="mt-4">
-        <DataManagementSection />
-      </div>
 
       <section className="mt-4 overflow-hidden rounded-theme border border-border bg-card shadow-sm">
         <h2 className="px-5 pt-5 font-heading font-bold text-foreground">Destek ve Yasal</h2>

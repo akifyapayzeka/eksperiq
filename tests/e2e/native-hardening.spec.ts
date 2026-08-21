@@ -66,33 +66,6 @@ async function selectVehiclePhoto(page: Page) {
   throw lastError instanceof Error ? lastError : new Error("Vehicle photo file selection did not reach the UI.");
 }
 
-async function importBackupJson(page: Page, exportedJson: string) {
-  const input = page.getByLabel("Yedek dosyası");
-  const importedMessage = page.getByText(/kayıt türü içe aktarıldı/);
-  await expect(page.getByText("Yedekten içe aktar")).toBeVisible();
-  await expect(input).toBeAttached();
-
-  let lastError: unknown;
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    await input.setInputFiles({
-      name: "eksperiq-yedek.json",
-      mimeType: "application/json",
-      buffer: Buffer.from(exportedJson, "utf8"),
-    });
-
-    try {
-      await expect(importedMessage).toBeVisible({ timeout: 7000 });
-      return;
-    } catch (error) {
-      lastError = error;
-      await input.setInputFiles([]);
-      await page.waitForTimeout(300);
-    }
-  }
-
-  throw lastError instanceof Error ? lastError : new Error("Backup import did not reach the UI.");
-}
-
 test("keeps AI requests same-origin on the web when no native bridge is present", async ({ page, baseURL }) => {
   const seenRequests: string[] = [];
   await page.route("**/api/ai/photo-damage", async (route) => {
@@ -246,44 +219,11 @@ test("keeps the mobile bottom navigation within the safe viewport", async ({ pag
   expect(position).toBe("fixed");
 });
 
-test("exports data, wipes it via delete-all, then restores it from the export file", async ({ page }) => {
-  await page.goto("/arac-saglik-karnesi");
-  // The default vehicle is hydrated asynchronously (a requestAnimationFrame
-  // after mount, to avoid a hydration mismatch) — the "Başlık"/"Kaydı ekle"
-  // fields are already interactive before that finishes, so addRecord()'s
-  // `if (!selectedVehicleId) return;` guard can silently no-op the whole
-  // click if the form is submitted first. Wait for a real vehicle id to
-  // land in the switcher before racing it.
-  await expect(page.getByLabel("Araç seç")).not.toHaveValue("");
-  await page.getByRole("button", { name: "Yeni kayıt" }).click();
-  await page.getByLabel("Başlık").fill("Yedekleme testi kaydı");
-  await page.getByRole("button", { name: "Kaydı ekle" }).click();
-  await expect(page.getByRole("heading", { name: "Yedekleme testi kaydı" })).toBeVisible();
-
+test("does not show the removed profile data-management section", async ({ page }) => {
   await page.goto("/profil");
-  const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Verilerimi dışa aktar" }).click();
-  const download = await downloadPromise;
-  const downloadPath = await download.path();
-  expect(downloadPath).not.toBeNull();
-  const exportedJson = await fs.readFile(downloadPath as string, "utf8");
-  const exportedBundle = JSON.parse(exportedJson) as { data: Record<string, unknown[]> };
-  expect(exportedBundle.data.healthRecords.length).toBeGreaterThan(0);
-
-  await page.getByRole("button", { name: "Tüm verilerimi sil" }).click();
-  // handleConfirmDelete awaits deleteAllLocalData() then calls
-  // window.location.reload() — wait for that reload's load event so the
-  // next navigation doesn't race the in-flight storage wipe.
-  await Promise.all([page.waitForEvent("load"), page.getByRole("button", { name: "Evet, tümünü sil" }).click()]);
-
-  await page.goto("/arac-saglik-karnesi");
-  await expect(page.getByRole("heading", { name: "Yedekleme testi kaydı" })).toHaveCount(0);
-
-  await page.goto("/profil");
-  await importBackupJson(page, exportedJson);
-
-  await page.goto("/arac-saglik-karnesi");
-  await expect(page.getByRole("heading", { name: "Yedekleme testi kaydı" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Verilerim" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Verilerimi dışa aktar" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Tüm verilerimi sil" })).toHaveCount(0);
 });
 
 test("resolves API requests to the production origin under a simulated native iOS bridge", async ({ page }) => {
