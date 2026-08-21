@@ -43,7 +43,7 @@ const errorMessages: Record<string, string> = {
 export function ListingImportSection({
   onAnalyzeImported,
 }: {
-  onAnalyzeImported?: (result: ListingImportResult, rawUrl: string) => void;
+  onAnalyzeImported?: (result: ListingImportResult, rawUrl: string) => void | Promise<void>;
 }) {
   const { url, status, stage, stageStartedAt, errorMessage, errorDetail, result } = useImportSession();
   const [consent, setConsent] = useState(() => hasAcceptedAiConsent());
@@ -142,7 +142,7 @@ export function ListingImportSection({
       }
 
       setImportSession({ status: "success", result: outcome.result, stage: null });
-      onAnalyzeImported?.(outcome.result, currentUrl);
+      await onAnalyzeImported?.(outcome.result, currentUrl);
     } catch (error) {
       const detail = error instanceof Error ? error.message : String(error);
       setImportSession({

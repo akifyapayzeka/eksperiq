@@ -61,7 +61,7 @@ export default function AnalysisPage() {
                 Kendi aracımı analiz edeceğim
               </span>
               <span className="mt-1 block text-sm leading-6 text-muted-foreground">
-                Aracınızın fotoğraflarını yükleyin, çizik/göçük gibi olası hasarları işaretleyelim.
+                Aracınızın fotoğraflarını veya gösterge uyarı ışıklarını yükleyin; olası hasar ve uyarı notlarını çıkaralım.
               </span>
             </span>
             <ArrowUpRight aria-hidden="true" className="mt-1 h-5 w-5 shrink-0 text-muted-foreground" />

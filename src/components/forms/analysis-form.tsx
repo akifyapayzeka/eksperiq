@@ -11,6 +11,7 @@ import { vehicleSchema, type VehicleFormData, type VehicleFormInput } from "@/li
 import { createAnalysis } from "@/lib/services/analysis-service";
 import { appConfig } from "@/lib/constants/app";
 import { buildVehicleInputFromListingImport } from "@/lib/listing-import/analysis-input";
+import { enrichListingImportWithPhotoEvidence } from "@/lib/listing-import/photo-evidence";
 import { detectListingSource } from "@/lib/listing-import/url";
 import type { ListingImportResult } from "@/lib/listing-import/types";
 import {
@@ -310,10 +311,11 @@ export function AnalysisForm() {
     router.push("/sonuc");
   }
 
-  function submitImportedAnalysis(result: ListingImportResult, rawUrl: string): void {
+  async function submitImportedAnalysis(result: ListingImportResult, rawUrl: string): Promise<void> {
     const detected = detectListingSource(rawUrl);
     const listingUrl = detected.ok ? detected.url : rawUrl.trim();
-    const imported = buildVehicleInputFromListingImport(result, listingUrl);
+    const enrichedResult = await enrichListingImportWithPhotoEvidence(result);
+    const imported = buildVehicleInputFromListingImport(enrichedResult, listingUrl);
 
     if (!imported.ok) {
       setListingSubmitError(
@@ -355,7 +357,7 @@ export function AnalysisForm() {
       <ListingImportSection
         onAnalyzeImported={(result, rawUrl) => {
           setListingSubmitError("");
-          submitImportedAnalysis(result, rawUrl);
+          void submitImportedAnalysis(result, rawUrl);
         }}
       />
       {listingSubmitError ? (

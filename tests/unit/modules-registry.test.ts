@@ -6,7 +6,6 @@ describe("product module registry", () => {
     expect(activeModules().map((module) => module.id)).toEqual([
       "listing-analysis",
       "photo-damage-analysis",
-      "expertise-report-analysis",
       "maintenance-payment-calendar",
       "test-drive-checklist",
       "expense-ledger",
@@ -20,7 +19,7 @@ describe("product module registry", () => {
   });
 
   it("keeps all modules independent and routed", () => {
-    expect(productModules).toHaveLength(12);
+    expect(productModules).toHaveLength(11);
     expect(plannedModules()).toEqual([]);
     for (const productModule of productModules) {
       expect(productModule.href).toMatch(/^\//);

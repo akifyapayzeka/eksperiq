@@ -4,7 +4,6 @@ export type ModuleId =
   | "listing-analysis"
   | "photo-damage-analysis"
   | "repair-cost-estimation"
-  | "expertise-report-analysis"
   | "maintenance-tracking"
   | "maintenance-payment-calendar"
   | "test-drive-checklist"

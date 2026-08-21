@@ -3,9 +3,6 @@ import { demoVehicleInput } from "../fixtures/demo-vehicle";
 import { stubClipboard } from "./helpers/clipboard";
 import { gotoAnalysisForm } from "./helpers/analysis-flow";
 
-const MINIMAL_PNG_BASE64 =
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
-
 async function fillRequiredForm(page: Page) {
   await page.getByLabel("Marka").selectOption(demoVehicleInput.brand);
   await page.locator("#model").selectOption(demoVehicleInput.model);
@@ -20,41 +17,6 @@ async function fillRequiredForm(page: Page) {
   await page.getByLabel("Ekspertiz raporu var").check();
   await page.getByLabel("Yedek anahtar var").check();
   await page.getByLabel("Satıcı açıklaması veya araç notu").fill(demoVehicleInput.sellerDescription);
-}
-
-async function setSyntheticFile(
-  page: Page,
-  selector: string,
-  file: { name: string; mimeType: string; base64: string },
-) {
-  const input = page.locator(selector).first();
-  await expect(input).toBeAttached();
-  await input.setInputFiles({
-    name: file.name,
-    mimeType: file.mimeType,
-    buffer: Buffer.from(file.base64, "base64"),
-  });
-}
-
-async function setSyntheticFileUntilLabel(
-  page: Page,
-  selector: string,
-  file: { name: string; mimeType: string; base64: string },
-  label: string,
-) {
-  const selectedLabel = page.getByText(label);
-  let lastError: unknown;
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    await setSyntheticFile(page, selector, file);
-    try {
-      await expect(selectedLabel).toBeVisible({ timeout: 3000 });
-      return;
-    } catch (error) {
-      lastError = error;
-      await page.locator(selector).first().setInputFiles([]);
-    }
-  }
-  throw lastError instanceof Error ? lastError : new Error(`File selection label "${label}" did not appear.`);
 }
 
 test("home to analysis form", async ({ page }) => {
@@ -213,7 +175,7 @@ test("shows product module roadmap", async ({ page }) => {
     page.getByRole("heading", { name: "Sadece ilan analizi değil, araç yolculuğu asistanı." }),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "Tüm modüller" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Modülü aç/ })).toHaveCount(12);
+  await expect(page.getByRole("link", { name: /Modülü aç/ })).toHaveCount(11);
   await expect(page.getByRole("heading", { name: "İlan Analizi", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Fotoğraftan Hasar Analizi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Araç Sağlık Karnesi" })).toBeVisible();
@@ -221,54 +183,7 @@ test("shows product module roadmap", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Test Sürüşü Kontrol Listesi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Gider Defteri" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Karşılaştırmalı İlan Analizi" })).toBeVisible();
-  await expect(page.getByText("Kesinlik sınırı:")).toHaveCount(12);
-});
-
-test("expertise report is fully AI-driven from an uploaded file", async ({ page }) => {
-  await page.route("**/api/ai/expertise-report", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        analysis: {
-          isReportReadable: true,
-          overallRisk: "high",
-          summary: "Raporda şasi ve airbag ile ilgili dikkat çeken maddeler var.",
-          findings: [
-            {
-              id: "report-1",
-              category: "Şasi/Podye",
-              area: "Sağ ön şasi",
-              status: "podye izi var",
-              explanation: "Rapor podye bölgesinde işlem izine değiniyor.",
-              recommendation: "Bağımsız ekspertizde şasi ölçümü isteyin.",
-            },
-          ],
-          disclaimer: "Bu özet raporun AI ile okunmasından oluşur.",
-        },
-        remaining: 9,
-      }),
-    });
-  });
-
-  await page.goto("/ekspertiz-raporu");
-  await expect(page.getByRole("heading", { name: "Ekspertiz raporunu kontrol notuna çevir" })).toBeVisible();
-  await setSyntheticFileUntilLabel(
-    page,
-    'input[type="file"]',
-    {
-      name: "ekspertiz-raporu.png",
-      mimeType: "image/png",
-      base64: MINIMAL_PNG_BASE64,
-    },
-    "ekspertiz-raporu.png",
-  );
-  await page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/).check();
-  await page.getByRole("button", { name: "Analiz et" }).click();
-  await expect(page.getByText("Rapor analizi tamamlandı. Bugün kalan hak: 9")).toBeVisible();
-  await expect(page.getByText("Şasi/Podye · Sağ ön şasi")).toBeVisible();
-  await expect(page.getByText("podye izi var")).toBeVisible();
-  await expect(page.getByText("Yüksek risk")).toBeVisible();
+  await expect(page.getByText("Kesinlik sınırı:")).toHaveCount(11);
 });
 
 test("shows feedback collection flow", async ({ page }) => {

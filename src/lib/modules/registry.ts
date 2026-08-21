@@ -49,21 +49,6 @@ export const productModules: ProductModule[] = [
     certaintyPolicy: "Kesin hasar iddiası veya net fiyat üretmez; olasılık ve aralıklarla konuşur.",
   },
   {
-    id: "expertise-report-analysis",
-    title: "Ekspertiz Raporu Analizi",
-    status: "active",
-    href: "/ekspertiz-raporu",
-    summary: "PDF veya fotoğraf formatındaki ekspertiz raporunu sadeleştirip kritik riskleri özetler.",
-    capabilities: [
-      {
-        title: "Rapor okuma",
-        description: "Rapor maddelerini ayıklar, önemli bulguları öne çıkarır ve teknik ifadeleri sadeleştirir.",
-      },
-    ],
-    dataPolicy: "Yüklenen raporlar için açık onay, geçici işleme ve saklama tercihi gerektirir.",
-    certaintyPolicy: "Raporu yorumlar; resmi kayıt veya ekspertiz doğrulaması yerine geçmez.",
-  },
-  {
     id: "maintenance-payment-calendar",
     title: "Bakım Takibi",
     status: "active",
