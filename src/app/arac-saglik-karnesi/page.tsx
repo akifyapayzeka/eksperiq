@@ -1,7 +1,20 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CarFront, Gauge, HeartPulse, ListChecks, Plus, Sparkles } from "lucide-react";
+import Link from "next/link";
+import {
+  CalendarClock,
+  CarFront,
+  ChevronRight,
+  Gauge,
+  HeartPulse,
+  ListChecks,
+  Plus,
+  ShieldCheck,
+  Sparkles,
+  Wrench,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { loadAnalysis } from "@/lib/storage/analysis-storage";
 import {
   createHealthRecordId,
@@ -19,6 +32,10 @@ import { VehicleCard } from "@/components/cards/vehicle-card";
 import { filterByVehicle, recordVehicleId } from "@/lib/vehicles/model";
 import { createVehicleId, deleteVehicle, loadVehicles, upsertVehicle } from "@/lib/storage/vehicle-storage";
 import type { VehicleProfile } from "@/lib/vehicles/types";
+import { daysUntil, sortByUrgency } from "@/lib/reminders/model";
+import { loadReminders } from "@/lib/storage/reminders-storage";
+import { MAINTENANCE_CATEGORIES, reminderCategoryLabels, TAX_CATEGORIES } from "@/lib/reminders/types";
+import type { ReminderRecord } from "@/lib/reminders/types";
 import { AppShell } from "@/components/layout/app-shell";
 import { HeroCard } from "@/components/cards/hero-card";
 import { RepairCostEstimator } from "@/components/repair-cost/repair-cost-estimator";
@@ -31,6 +48,7 @@ export default function VehicleHealthRecordPage() {
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [score, setScore] = useState("");
   const [records, setRecords] = useState<HealthRecord[]>([]);
+  const [reminders, setReminders] = useState<ReminderRecord[]>([]);
   const [vehicles, setVehicles] = useState<VehicleProfile[]>([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
   const [isVehicleSheetOpen, setIsVehicleSheetOpen] = useState(false);
@@ -44,6 +62,7 @@ export default function VehicleHealthRecordPage() {
       setSelectedVehicleId(loadedVehicles[0]?.id ?? "");
       setAnalysis(loadAnalysis());
       setRecords(loadHealthRecords());
+      setReminders(loadReminders());
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);
@@ -51,6 +70,18 @@ export default function VehicleHealthRecordPage() {
   const recordsForVehicle = useMemo(
     () => filterByVehicle(records, selectedVehicleId, vehicles),
     [records, selectedVehicleId, vehicles],
+  );
+  const remindersForVehicle = useMemo(
+    () => filterByVehicle(reminders, selectedVehicleId, vehicles),
+    [reminders, selectedVehicleId, vehicles],
+  );
+  const maintenanceReminders = useMemo(
+    () => sortByUrgency(remindersForVehicle.filter((item) => MAINTENANCE_CATEGORIES.includes(item.category))).slice(0, 3),
+    [remindersForVehicle],
+  );
+  const taxReminders = useMemo(
+    () => sortByUrgency(remindersForVehicle.filter((item) => TAX_CATEGORIES.has(item.category))).slice(0, 3),
+    [remindersForVehicle],
   );
   const trend = useMemo(() => scoreTrend(recordsForVehicle), [recordsForVehicle]);
   const selectedVehicle = vehicles.find((vehicle) => vehicle.id === selectedVehicleId) ?? null;
@@ -148,6 +179,32 @@ export default function VehicleHealthRecordPage() {
           title="Analiz, bakım ve notları tek ekranda tut"
           description="Bu ekranda eklediğiniz kayıtlar hesaba değil, yalnızca bu cihaza kaydedilir. Araç özeti ise mevcut tarayıcı oturumundaki son analiz raporundan gelir."
         />
+
+        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center gap-2">
+            <CalendarClock aria-hidden="true" className="h-5 w-5 text-accent" />
+            <h2 className="text-xl font-semibold text-foreground">Bakım ve vergi takvimi</h2>
+          </div>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            Bakım, muayene, lastik, akü, MTV, sigorta ve kasko tarihleri seçili araç için burada özetlenir.
+          </p>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <GarageReminderCard
+              href="/bakim-odeme-takvimi/bakim"
+              icon={Wrench}
+              title="Bakım takvimi"
+              description="Bakım, muayene, lastik ve akü"
+              reminders={maintenanceReminders}
+            />
+            <GarageReminderCard
+              href="/bakim-odeme-takvimi/vergi"
+              icon={ShieldCheck}
+              title="Vergi ve ödeme takvimi"
+              description="MTV, trafik sigortası ve kasko"
+              reminders={taxReminders}
+            />
+          </div>
+        </section>
 
         <section className="mt-5" aria-labelledby="vehicle-section-title">
           <div className="flex items-end justify-between gap-3">
@@ -462,5 +519,67 @@ function ScoreTrendChart({ points }: { points: { id: string; date: string; score
         </table>
       </details>
     </div>
+  );
+}
+
+function reminderDueLabel(record: ReminderRecord): string {
+  const days = daysUntil(record.dueDate);
+  if (days < 0) return `${Math.abs(days)} gün gecikti`;
+  if (days === 0) return "Bugün";
+  return `${days} gün kaldı`;
+}
+
+function GarageReminderCard({
+  href,
+  icon: Icon,
+  title,
+  description,
+  reminders,
+}: {
+  href: string;
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  reminders: ReminderRecord[];
+}) {
+  return (
+    <Link
+      href={href}
+      className="group rounded-theme-sm border border-border bg-muted p-4 transition hover:border-accent hover:bg-card"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-start gap-3">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-card text-accent">
+            <Icon aria-hidden="true" className="h-5 w-5" />
+          </span>
+          <div className="min-w-0">
+            <p className="font-semibold text-foreground">{title}</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
+          </div>
+        </div>
+        <ChevronRight aria-hidden="true" className="mt-2 h-5 w-5 shrink-0 text-muted-foreground group-hover:text-accent" />
+      </div>
+      <div className="mt-4 grid gap-2">
+        {reminders.length ? (
+          reminders.map((record) => (
+            <div key={record.id} className="rounded-theme-sm border border-border bg-card px-3 py-2">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-foreground">{record.title}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{reminderCategoryLabels[record.category]}</p>
+                </div>
+                <span className="shrink-0 rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent">
+                  {reminderDueLabel(record)}
+                </span>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="rounded-theme-sm border border-border bg-card px-3 py-2 text-sm text-muted-foreground">
+            Bu araç için yaklaşan kayıt yok.
+          </p>
+        )}
+      </div>
+    </Link>
   );
 }
