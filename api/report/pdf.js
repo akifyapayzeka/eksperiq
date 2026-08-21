@@ -323,7 +323,7 @@ async function buildPdf(payload) {
     ? payload.buyerDecisionGuide.slice(0, 4)
     : [];
   if (buyerDecisionGuide.length) {
-    w.sectionTitle("Araçtan anlamayanlar için karar rehberi");
+    w.sectionTitle("Adım adım karar rehberi");
     w.numberedList(
       buyerDecisionGuide.map((item) => {
         const title = asString(item && item.title);
