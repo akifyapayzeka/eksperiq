@@ -59,7 +59,7 @@ describe("analysis engine", () => {
     expect(findings).toContainEqual(expect.objectContaining({ id: "heavy-damage", severity: "high" }));
   });
 
-  it("comments on declared single paint and replaced-part details", () => {
+  it("comments on declared single paint and low-risk bumper replacement details", () => {
     const findings = damageRules({
       ...baseInput,
       paintedParts: "Sağ ön kapı",
@@ -68,7 +68,33 @@ describe("analysis engine", () => {
     });
 
     expect(findings).toContainEqual(expect.objectContaining({ id: "painted-parts-declared", severity: "low" }));
-    expect(findings).toContainEqual(expect.objectContaining({ id: "single-replaced-part", severity: "medium" }));
+    const replaced = findings.find((finding) => finding.id === "single-replaced-part");
+    expect(replaced).toMatchObject({ severity: "low" });
+    expect(replaced?.explanation).toContain("tek başına ağır kaza göstergesi sayılmaz");
+  });
+
+  it("explains that a replaced door is a medium risk unless structure is affected", () => {
+    const findings = damageRules({
+      ...baseInput,
+      replacedParts: "Sağ ön kapı",
+    });
+
+    const replaced = findings.find((finding) => finding.id === "single-replaced-part");
+    expect(replaced).toMatchObject({ severity: "medium" });
+    expect(replaced?.explanation).toContain("her zaman aracı almaktan vazgeçme sebebi değildir");
+    expect(replaced?.recommendation).toContain("direk-eşik geçişi");
+  });
+
+  it("treats a replaced hood as high-priority front impact evidence", () => {
+    const findings = damageRules({
+      ...baseInput,
+      replacedParts: "Kaput",
+    });
+
+    const replaced = findings.find((finding) => finding.id === "single-replaced-part");
+    expect(replaced).toMatchObject({ severity: "high" });
+    expect(replaced?.explanation).toContain("ön taraftan alınmış darbeyle ilişkili olabilir");
+    expect(replaced?.recommendation).toContain("şasi uçları");
   });
 
   it("shows chronic issue guidance for 2021 Renault Clio", () => {

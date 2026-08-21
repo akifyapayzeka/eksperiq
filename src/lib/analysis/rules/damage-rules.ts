@@ -10,8 +10,93 @@ function partCount(value?: string): number {
     .filter(Boolean).length;
 }
 
-function hasStructuralPart(value?: string): boolean {
-  return /kaput|tavan|direk|şasi|sasi|podye|panel/i.test(value ?? "");
+function splitParts(value?: string): string[] {
+  if (!value) return [];
+  return value
+    .split(/,|\n|;/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+type PartRisk = {
+  level: "low" | "medium" | "high";
+  label: string;
+  parts: string[];
+  explanation: string;
+  recommendation: string;
+};
+
+function classifyChangedParts(value?: string): PartRisk[] {
+  const parts = splitParts(value);
+  const groups: PartRisk[] = [];
+  const add = (risk: PartRisk) => {
+    if (risk.parts.length) groups.push(risk);
+  };
+
+  add({
+    level: "high",
+    label: "Taşıyıcı/kritik gövde parçası",
+    parts: parts.filter((part) => /tavan|direk|şasi|sasi|podye|marşpiyel|marşpiyel|marspiyel|panel/i.test(part)),
+    explanation:
+      "Tavan, direk, şasi, podye, marşpiyel veya panel işlem/değişimi aracın taşıyıcı güvenliği ve ağır kaza geçmişi açısından en hassas gruptur.",
+    recommendation:
+      "Bu parçalarda işlem varsa şasi ölçümü, airbag/emniyet kemeri kontrolü ve eski hasar fotoğrafları olmadan karar vermeyin.",
+  });
+  add({
+    level: "high",
+    label: "Kaput değişen",
+    parts: parts.filter((part) => /kaput/i.test(part)),
+    explanation:
+      "Kaput değişimi ön taraftan alınmış darbeyle ilişkili olabilir; tek başına kesin ağır hasar demek değildir ama radyatör paneli, şasi ucu, far yuvaları ve airbag geçmişiyle birlikte incelenmelidir.",
+    recommendation:
+      "Kaput değişiminde ön panel, şasi uçları, podye, far bağlantıları ve airbag kayıtlarını ekspertizde özellikle kontrol ettirin.",
+  });
+  add({
+    level: "medium",
+    label: "Dış panel değişen",
+    parts: parts.filter((part) => /kapı|kapi|çamurluk|camurluk|bagaj|bagaj kapağı|bagaj kapagi/i.test(part)),
+    explanation:
+      "Kapı, çamurluk veya bagaj kapağı değişimi her zaman aracı almaktan vazgeçme sebebi değildir; risk, direk/eşik/şasiye taşan işlem olup olmadığına bağlıdır.",
+    recommendation:
+      "Değişen dış panelde menteşe/cıvata izleri, direk-eşik geçişi, boya kalınlığı ve panel hizasını kontrol ettirin.",
+  });
+  add({
+    level: "low",
+    label: "Plastik/vida ile bağlı parça",
+    parts: parts.filter((part) => /tampon|panjur|ayna|far|stop/i.test(part)),
+    explanation:
+      "Tampon, panjur, ayna, far veya stop gibi parçalar çoğu zaman plastik ya da vida ile bağlı parçalardır; tek başına ağır kaza göstergesi sayılmaz.",
+    recommendation:
+      "Yine de bağlantı ayakları, far yuvaları, park sensörü ve arka/ön panelde işlem izi olup olmadığını kontrol ettirin.",
+  });
+
+  const known = new Set(groups.flatMap((group) => group.parts));
+  add({
+    level: "medium",
+    label: "Sınıflandırılamayan değişen parça",
+    parts: parts.filter((part) => !known.has(part)),
+    explanation:
+      "Parça adı net sınıflandırılamadığı için risk seviyesi orta tutuldu; parçanın taşıyıcı yapıya yakınlığı belirleyicidir.",
+    recommendation: "Parçanın tam konumunu, eski hasar fotoğrafını ve onarım faturasını satıcıdan isteyin.",
+  });
+
+  return groups;
+}
+
+function highestSeverity(groups: PartRisk[]): AnalysisFinding["severity"] {
+  if (groups.some((group) => group.level === "high")) return "high";
+  if (groups.some((group) => group.level === "medium")) return "medium";
+  return "low";
+}
+
+function changedPartExplanation(groups: PartRisk[]): string {
+  return groups
+    .map((group) => `${group.label}: ${group.parts.join(", ")}. ${group.explanation}`)
+    .join(" ");
+}
+
+function changedPartRecommendation(groups: PartRisk[]): string {
+  return groups.map((group) => group.recommendation).join(" ");
 }
 
 export function damageRules(input: VehicleFormData): AnalysisFinding[] {
@@ -53,6 +138,7 @@ export function damageRules(input: VehicleFormData): AnalysisFinding[] {
       recommendation: "Resmî kayıtları ve onarım kalitesini uzmanla inceleyin.",
     });
   const replacedCount = partCount(input.replacedParts);
+  const replacedGroups = classifyChangedParts(input.replacedParts);
   if (input.paintedParts)
     findings.push({
       id: "painted-parts-declared",
@@ -77,20 +163,21 @@ export function damageRules(input: VehicleFormData): AnalysisFinding[] {
     findings.push({
       id: "single-replaced-part",
       category: "Hasar",
-      severity: hasStructuralPart(input.replacedParts) ? "high" : "medium",
+      severity: highestSeverity(replacedGroups),
       title: "Değişen parça bilgisi var",
-      explanation:
-        `İlanda değişen parça olarak ${input.replacedParts} belirtilmiş. Değişen parçanın tampon/kapı gibi dış panel mi, yoksa taşıyıcı yapıya yakın kritik bir parça mı olduğu alım kararında önemlidir.`,
-      recommendation: "Değişen parçanın neden değiştiğini, eski hasar fotoğraflarını ve onarım faturasını isteyin.",
+      explanation: changedPartExplanation(replacedGroups),
+      recommendation: changedPartRecommendation(replacedGroups),
     });
   if (replacedCount > 1)
     findings.push({
       id: "multiple-replaced",
       category: "Hasar",
-      severity: replacedCount > 3 ? "high" : "medium",
+      severity: replacedCount > 3 ? "high" : highestSeverity(replacedGroups),
       title: "Birden fazla değişen parça var",
-      explanation: "Değişen parça sayısı arttıkça kaza kapsamını anlamak önem kazanır.",
-      recommendation: "Parça listesini, fotoğrafları ve onarım faturasını isteyin.",
+      explanation:
+        `İlanda değişen parçalar ${input.replacedParts} olarak belirtilmiş. ${changedPartExplanation(replacedGroups)}`,
+      recommendation:
+        `${changedPartRecommendation(replacedGroups)} Parça sayısı arttığı için hasarın tek olay mı, farklı zamanlarda küçük işlemler mi olduğunu yazılı sorun.`,
     });
   if (input.tramerAmount >= HIGH_TRAMER_AMOUNT && input.sellerDescription.length < 80)
     findings.push({
