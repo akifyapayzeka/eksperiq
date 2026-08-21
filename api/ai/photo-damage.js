@@ -403,8 +403,15 @@ Tüm metin alanlarını yalnızca Türkçe yaz, başka dilden tek kelime bile ek
 }
 
 function resolveVisionModel() {
-  const configured = process.env.OPENROUTER_VISION_MODEL?.trim() || process.env.OPENROUTER_MODEL?.trim();
-  return configured && configured.endsWith(":free") ? configured : DEFAULT_VISION_MODEL;
+  const explicitVisionModel = process.env.OPENROUTER_VISION_MODEL?.trim();
+  if (explicitVisionModel && explicitVisionModel.endsWith(":free")) return explicitVisionModel;
+
+  const sharedModel = process.env.OPENROUTER_MODEL?.trim();
+  if (sharedModel && sharedModel.endsWith(":free") && /vision|vl|gemma-4|llava|qwen.*vl|pixtral/i.test(sharedModel)) {
+    return sharedModel;
+  }
+
+  return DEFAULT_VISION_MODEL;
 }
 
 function resolveVisionModelCandidates() {

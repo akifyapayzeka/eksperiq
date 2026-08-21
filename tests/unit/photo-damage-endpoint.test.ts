@@ -131,6 +131,24 @@ describe("photo damage AI endpoint", () => {
     process.env = previousEnv;
   });
 
+  it("does not treat the shared text listing model as a vision model", () => {
+    const { resolveVisionModel, DEFAULT_VISION_MODEL } = handler as unknown as {
+      resolveVisionModel: () => string;
+      DEFAULT_VISION_MODEL: string;
+    };
+    const previousEnv = process.env;
+
+    process.env = {
+      ...previousEnv,
+      OPENROUTER_MODEL: "openai/gpt-oss-20b:free",
+    };
+    delete process.env.OPENROUTER_VISION_MODEL;
+
+    expect(resolveVisionModel()).toBe(DEFAULT_VISION_MODEL);
+
+    process.env = previousEnv;
+  });
+
   it("keeps a free-router vision fallback after the named free model", () => {
     const { resolveVisionModelCandidates, DEFAULT_VISION_MODEL, FREE_ROUTER_FALLBACK_MODEL } = handler as unknown as {
       resolveVisionModelCandidates: () => string[];
