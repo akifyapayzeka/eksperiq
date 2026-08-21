@@ -1,10 +1,16 @@
-import { ArrowUpRight, Gauge, Hash } from "lucide-react";
-import type { VehicleProfile } from "@/lib/vehicles/types";
+import { ArrowUpRight, Fuel, Gauge, Hash } from "lucide-react";
+import { VEHICLE_FUEL_LABELS, VEHICLE_TRANSMISSION_LABELS, type VehicleProfile } from "@/lib/vehicles/types";
 import { VehiclePlaceholder } from "@/components/ui/vehicle-placeholder";
 
 function vehicleTitle(vehicle: VehicleProfile): string {
   const parts = [vehicle.modelYear ? String(vehicle.modelYear) : null, vehicle.brand, vehicle.model].filter(Boolean);
   return parts.length ? parts.join(" ") : vehicle.label;
+}
+
+function vehicleSpec(vehicle: VehicleProfile): string {
+  return [vehicle.brand, vehicle.model, vehicle.engineSize, vehicle.trim, vehicle.modelYear ? String(vehicle.modelYear) : null]
+    .filter(Boolean)
+    .join(" ");
 }
 
 export function VehicleCard({
@@ -34,6 +40,9 @@ export function VehicleCard({
           {title !== vehicle.label ? (
             <p className="mt-0.5 truncate text-xs text-muted-foreground">{vehicle.label}</p>
           ) : null}
+          {vehicleSpec(vehicle) ? (
+            <p className="mt-0.5 truncate text-xs font-normal text-muted-foreground">{vehicleSpec(vehicle)}</p>
+          ) : null}
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
             {vehicle.plate ? (
               <span className="flex items-center gap-1">
@@ -45,6 +54,14 @@ export function VehicleCard({
               <span className="flex items-center gap-1">
                 <Gauge aria-hidden="true" className="h-3.5 w-3.5" />
                 {vehicle.mileage.toLocaleString("tr-TR")} km
+              </span>
+            ) : null}
+            {vehicle.fuel ? (
+              <span className="flex items-center gap-1">
+                <Fuel aria-hidden="true" className="h-3.5 w-3.5" />
+                {[VEHICLE_FUEL_LABELS[vehicle.fuel], vehicle.transmission ? VEHICLE_TRANSMISSION_LABELS[vehicle.transmission] : null]
+                  .filter(Boolean)
+                  .join(" / ")}
               </span>
             ) : null}
           </div>

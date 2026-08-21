@@ -15,7 +15,7 @@ import {
 import { sortByUrgency, daysUntil, urgencyOf } from "@/lib/reminders/model";
 import { reminderCategoryLabels, TAX_CATEGORIES } from "@/lib/reminders/types";
 import type { ReminderRecord } from "@/lib/reminders/types";
-import type { VehicleProfile } from "@/lib/vehicles/types";
+import { VEHICLE_FUEL_LABELS, VEHICLE_TRANSMISSION_LABELS, type VehicleProfile } from "@/lib/vehicles/types";
 import { AppShell } from "@/components/layout/app-shell";
 import { SectionHeader } from "@/components/layout/section-header";
 import { HeroCard } from "@/components/cards/hero-card";
@@ -27,6 +27,20 @@ import { DisclaimerCard } from "@/components/ui/alert";
 import { IconButton, PrimaryButton } from "@/components/ui/button";
 
 const MAX_LIST_ITEMS = 4;
+
+function homeVehicleSpec(vehicle: VehicleProfile): string {
+  return [
+    vehicle.brand,
+    vehicle.model,
+    vehicle.engineSize,
+    vehicle.trim,
+    vehicle.modelYear ? String(vehicle.modelYear) : null,
+    vehicle.fuel ? VEHICLE_FUEL_LABELS[vehicle.fuel] : null,
+    vehicle.transmission ? VEHICLE_TRANSMISSION_LABELS[vehicle.transmission] : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
 
 function ReminderList({
   items,
@@ -62,7 +76,7 @@ function ReminderList({
 
 export default function Home() {
   const [isReady, setIsReady] = useState(false);
-  const [vehicle, setVehicle] = useState<VehicleProfile | null>(null);
+  const [vehicles, setVehicles] = useState<VehicleProfile[]>([]);
   const [reminders, setReminders] = useState<ReminderRecord[]>([]);
   const [notificationState, setNotificationState] = useState<NotificationState>("unsubscribed");
   const [notificationBusy, setNotificationBusy] = useState(false);
@@ -70,8 +84,7 @@ export default function Home() {
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-      const vehicles = loadVehicles();
-      setVehicle(vehicles[0] ?? null);
+      setVehicles(loadVehicles());
 
       const sorted = sortByUrgency(loadReminders());
       setReminders(sorted);
@@ -118,6 +131,7 @@ export default function Home() {
     .filter((reminder) => !TAX_CATEGORIES.has(reminder.category))
     .slice(0, MAX_LIST_ITEMS);
   const taxReminders = reminders.filter((reminder) => TAX_CATEGORIES.has(reminder.category)).slice(0, MAX_LIST_ITEMS);
+  const vehicleHeaderSpec = vehicles[0] ? homeVehicleSpec(vehicles[0]) : "";
 
   return (
     <AppShell>
@@ -172,15 +186,28 @@ export default function Home() {
       />
 
       <section className="mt-7">
-        <SectionHeader
-          title="Aracın"
-          description="Kayıtlı araç bilgileri"
-          action={<Link href="/arac-saglik-karnesi">Garajı aç</Link>}
-        />
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <h2 className="font-heading text-lg font-bold text-foreground">Aracım</h2>
+              {vehicleHeaderSpec ? (
+                <span className="truncate text-sm font-normal text-muted-foreground">{vehicleHeaderSpec}</span>
+              ) : null}
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">Kayıtlı tüm araçlar</p>
+          </div>
+          <div className="shrink-0 text-sm font-semibold text-accent">
+            <Link href="/arac-saglik-karnesi">Garajı aç</Link>
+          </div>
+        </div>
         {!isReady ? (
           <LoadingSkeleton />
-        ) : vehicle ? (
-          <VehicleCard vehicle={vehicle} />
+        ) : vehicles.length ? (
+          <div className="grid gap-3">
+            {vehicles.map((vehicle) => (
+              <VehicleCard key={vehicle.id} vehicle={vehicle} />
+            ))}
+          </div>
         ) : (
           <EmptyState
             icon={CarFront}

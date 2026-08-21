@@ -4,14 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   CalendarClock,
-  CarFront,
   ChevronRight,
-  Gauge,
-  HeartPulse,
-  ListChecks,
+  Pencil,
   Plus,
   ShieldCheck,
-  Sparkles,
+  Trash2,
   Wrench,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -26,18 +23,16 @@ import { scoreTrend } from "@/lib/health-record/model";
 import { healthRecordTypes } from "@/lib/health-record/types";
 import type { HealthRecord, HealthRecordType } from "@/lib/health-record/types";
 import type { AnalysisResult } from "@/lib/analysis/types";
-import { VehicleSwitcher } from "@/components/vehicles/vehicle-switcher";
 import { VehicleFormSheet } from "@/components/vehicles/vehicle-form-sheet";
 import { VehicleCard } from "@/components/cards/vehicle-card";
 import { filterByVehicle, recordVehicleId } from "@/lib/vehicles/model";
-import { createVehicleId, deleteVehicle, loadVehicles, upsertVehicle } from "@/lib/storage/vehicle-storage";
+import { deleteVehicle, loadVehicles } from "@/lib/storage/vehicle-storage";
 import type { VehicleProfile } from "@/lib/vehicles/types";
 import { daysUntil, sortByUrgency } from "@/lib/reminders/model";
 import { loadReminders } from "@/lib/storage/reminders-storage";
 import { MAINTENANCE_CATEGORIES, reminderCategoryLabels, TAX_CATEGORIES } from "@/lib/reminders/types";
 import type { ReminderRecord } from "@/lib/reminders/types";
 import { AppShell } from "@/components/layout/app-shell";
-import { HeroCard } from "@/components/cards/hero-card";
 import { RepairCostEstimator } from "@/components/repair-cost/repair-cost-estimator";
 
 export default function VehicleHealthRecordPage() {
@@ -85,6 +80,7 @@ export default function VehicleHealthRecordPage() {
   );
   const trend = useMemo(() => scoreTrend(recordsForVehicle), [recordsForVehicle]);
   const selectedVehicle = vehicles.find((vehicle) => vehicle.id === selectedVehicleId) ?? null;
+  const canDeleteSelectedVehicle = vehicles.length > 1 && Boolean(selectedVehicleId);
 
   function handleVehicleSaved(saved: VehicleProfile) {
     setVehicles((current) => {
@@ -96,18 +92,6 @@ export default function VehicleHealthRecordPage() {
 
   function selectVehicle(id: string) {
     setSelectedVehicleId(id);
-  }
-
-  function addVehicle(label: string) {
-    const vehicle: VehicleProfile = { id: createVehicleId(), label, createdAt: new Date().toISOString() };
-    setVehicles(upsertVehicle(vehicle));
-    setSelectedVehicleId(vehicle.id);
-  }
-
-  function renameVehicle(id: string, label: string) {
-    const existing = vehicles.find((item) => item.id === id);
-    if (!existing) return;
-    setVehicles(upsertVehicle({ ...existing, label }));
   }
 
   function removeVehicle(id: string) {
@@ -174,10 +158,90 @@ export default function VehicleHealthRecordPage() {
   return (
     <AppShell className="pt-6">
       <>
-        <HeroCard
-          icon={HeartPulse}
-          title="Analiz, bakım ve notları tek ekranda tut"
-          description="Bu ekranda eklediğiniz kayıtlar hesaba değil, yalnızca bu cihaza kaydedilir. Araç özeti ise mevcut tarayıcı oturumundaki son analiz raporundan gelir."
+        <section aria-labelledby="vehicle-section-title">
+          <div className="flex items-end justify-between gap-3">
+            <h2 id="vehicle-section-title" className="font-heading text-lg font-bold text-foreground">
+              Aracım
+            </h2>
+            <button
+              type="button"
+              onClick={() => setIsAddVehicleSheetOpen(true)}
+              className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-accent"
+            >
+              <Plus aria-hidden="true" className="h-3.5 w-3.5" />
+              Yeni araç
+            </button>
+          </div>
+
+          {selectedVehicle ? (
+            <div className="mt-3">
+              <VehicleCard
+                vehicle={selectedVehicle}
+                action={
+                  <div className="grid gap-3">
+                    {vehicles.length > 1 ? (
+                      <label className="grid gap-2 text-sm font-medium text-foreground/90">
+                        Araç seç
+                        <select
+                          value={selectedVehicleId}
+                          onChange={(event) => selectVehicle(event.target.value)}
+                          className="min-h-11 rounded-theme-sm border border-border bg-input px-3 text-foreground shadow-sm focus:border-accent focus:ring-4 focus:ring-accent/15"
+                        >
+                          {vehicles.map((vehicle) => (
+                            <option key={vehicle.id} value={vehicle.id}>
+                              {vehicle.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    ) : null}
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsVehicleSheetOpen(true)}
+                        className="inline-flex min-h-11 items-center gap-2 rounded-full border border-accent px-4 text-sm font-semibold text-accent"
+                      >
+                        <Pencil aria-hidden="true" className="h-4 w-4" />
+                        Düzenle
+                      </button>
+                      {canDeleteSelectedVehicle ? (
+                        <button
+                          type="button"
+                          onClick={() => removeVehicle(selectedVehicle.id)}
+                          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-destructive/30 px-4 text-sm font-semibold text-destructive"
+                        >
+                          <Trash2 aria-hidden="true" className="h-4 w-4" />
+                          Sil
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+                }
+              />
+            </div>
+          ) : (
+            <p className="mt-3 rounded-theme-sm bg-muted p-4 text-sm text-muted-foreground">
+              Henüz araç eklenmedi. Yukarıdaki &quot;Araç ekle&quot; ile ilk aracınızı ekleyin.
+            </p>
+          )}
+        </section>
+
+        <VehicleFormSheet
+          open={isVehicleSheetOpen}
+          vehicle={selectedVehicle}
+          vehicleCount={vehicles.length}
+          onClose={() => setIsVehicleSheetOpen(false)}
+          onSaved={handleVehicleSaved}
+        />
+        <VehicleFormSheet
+          open={isAddVehicleSheetOpen}
+          vehicle={null}
+          vehicleCount={vehicles.length}
+          onClose={() => setIsAddVehicleSheetOpen(false)}
+          onSaved={(saved) => {
+            handleVehicleSaved(saved);
+            setIsAddVehicleSheetOpen(false);
+          }}
         />
 
         <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
@@ -204,100 +268,6 @@ export default function VehicleHealthRecordPage() {
               reminders={taxReminders}
             />
           </div>
-        </section>
-
-        <section className="mt-5" aria-labelledby="vehicle-section-title">
-          <div className="flex items-end justify-between gap-3">
-            <h2 id="vehicle-section-title" className="font-heading text-lg font-bold text-foreground">
-              Araç
-            </h2>
-            <button
-              type="button"
-              onClick={() => setIsAddVehicleSheetOpen(true)}
-              className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-accent"
-            >
-              <Plus aria-hidden="true" className="h-3.5 w-3.5" />
-              Araç ekle
-            </button>
-          </div>
-
-          {selectedVehicle ? (
-            <div className="mt-3">
-              <VehicleCard vehicle={selectedVehicle} onOpen={() => setIsVehicleSheetOpen(true)} />
-            </div>
-          ) : (
-            <p className="mt-3 rounded-theme-sm bg-muted p-4 text-sm text-muted-foreground">
-              Henüz araç eklenmedi. Yukarıdaki &quot;Araç ekle&quot; ile ilk aracınızı ekleyin.
-            </p>
-          )}
-
-          <div className="mt-3">
-            <VehicleSwitcher
-              vehicles={vehicles}
-              selectedVehicleId={selectedVehicleId}
-              onSelect={selectVehicle}
-              onAdd={addVehicle}
-              onRename={renameVehicle}
-              onDelete={removeVehicle}
-              hideAddButton
-            />
-          </div>
-        </section>
-
-        <VehicleFormSheet
-          open={isVehicleSheetOpen}
-          vehicle={selectedVehicle}
-          vehicleCount={vehicles.length}
-          onClose={() => setIsVehicleSheetOpen(false)}
-          onSaved={handleVehicleSaved}
-        />
-        <VehicleFormSheet
-          open={isAddVehicleSheetOpen}
-          vehicle={null}
-          vehicleCount={vehicles.length}
-          onClose={() => setIsAddVehicleSheetOpen(false)}
-          onSaved={(saved) => {
-            handleVehicleSaved(saved);
-            setIsAddVehicleSheetOpen(false);
-          }}
-        />
-
-        <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
-          <div className="flex items-center gap-2">
-            <Sparkles aria-hidden="true" className="h-5 w-5 text-accent" />
-            <h2 className="text-xl font-semibold text-foreground">Araç özeti</h2>
-          </div>
-          {analysis ? (
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <div className="flex items-center gap-3 rounded-theme-sm bg-muted p-4">
-                <CarFront aria-hidden="true" className="h-7 w-7 shrink-0 text-accent" />
-                <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">Araç</p>
-                  <p className="mt-0.5 truncate font-semibold text-foreground">
-                    {analysis.input.year} {analysis.input.brand} {analysis.input.model}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 rounded-theme-sm bg-muted p-4">
-                <Gauge aria-hidden="true" className="h-7 w-7 shrink-0 text-accent" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Risk skoru</p>
-                  <p className="mt-0.5 font-semibold text-foreground">{analysis.totalScore}/100</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 rounded-theme-sm bg-muted p-4">
-                <ListChecks aria-hidden="true" className="h-7 w-7 shrink-0 text-accent" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Kontrol başlığı</p>
-                  <p className="mt-0.5 font-semibold text-foreground">{analysis.inspectionFocus.length}</p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <p className="mt-3 rounded-theme-sm bg-muted p-4 text-sm text-muted-foreground">
-              Henüz oturumda analiz yok. Yeni araç analizi oluşturduğunuzda burada araç özeti görünecek.
-            </p>
-          )}
         </section>
 
         {trend.length ? (

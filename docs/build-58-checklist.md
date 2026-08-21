@@ -26,6 +26,18 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
   - If the seller description says `hasar kaydi yoktur`, `hasar kayitsiz`, `tramer yok`, `agir hasar yok`, or `hatasiz boyasiz`, the report no longer says `Hasar bilgileri bos birakilmis`.
   - The report now says the seller claims no damage record and asks the user to verify it with TRAMER, paint measurement, and expertise.
   - Commit: `89f35ac`
+- [x] Reworked Garajim vehicle layout.
+  - `Aracim` card is now the first section.
+  - Maintenance/tax calendar sits directly under the `Aracim` card.
+  - Old `Arac ozeti` section was removed.
+  - The old rename-only vehicle control was removed from Garajim.
+  - `Duzenle` now opens the vehicle edit sheet from inside the `Aracim` card.
+- [x] Expanded vehicle profile details.
+  - Added editable `Motor` and `Paket` fields to the vehicle edit sheet.
+  - Vehicle cards now show brand, model, engine, trim, year, fuel, transmission, plate, and mileage when available.
+- [x] Reworked home page vehicle section.
+  - The home page now lists all saved vehicles under `Aracim`.
+  - The `Aracim` heading shows a light inline summary of the first vehicle's brand/model/engine/trim/year.
 
 ## Verified
 
@@ -33,6 +45,7 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
 - [x] `npm run lint`
 - [x] `npm test -- tests/unit/report-summary.test.ts tests/unit/analysis.test.ts`
 - [x] `npm test -- tests/unit/analysis.test.ts tests/unit/listing-extraction.test.ts tests/unit/report-summary.test.ts`
+- [x] `npm test -- tests/unit/vehicles-model.test.ts tests/unit/vehicle-switcher.test.tsx tests/unit/mobile-bottom-nav.test.tsx tests/unit/reminders-model.test.ts tests/unit/reminders-storage.test.ts`
 
 ## Still Open Before Closing Build 58
 

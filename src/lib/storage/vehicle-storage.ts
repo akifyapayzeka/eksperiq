@@ -14,6 +14,8 @@ function isVehicleProfile(value: unknown): value is VehicleProfile {
   // so records created before these fields existed keep loading unchanged.
   if (record.brand !== undefined && typeof record.brand !== "string") return false;
   if (record.model !== undefined && typeof record.model !== "string") return false;
+  if (record.engineSize !== undefined && typeof record.engineSize !== "string") return false;
+  if (record.trim !== undefined && typeof record.trim !== "string") return false;
   if (record.modelYear !== undefined && typeof record.modelYear !== "number") return false;
   if (record.mileage !== undefined && typeof record.mileage !== "number") return false;
   if (record.fuel !== undefined && typeof record.fuel !== "string") return false;

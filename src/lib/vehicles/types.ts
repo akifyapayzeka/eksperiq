@@ -26,6 +26,8 @@ export type VehicleProfile = {
    */
   brand?: string;
   model?: string;
+  engineSize?: string;
+  trim?: string;
   modelYear?: number;
   mileage?: number;
   fuel?: VehicleFuelType;

@@ -31,6 +31,8 @@ type DraftState = {
   label: string;
   brand: string;
   model: string;
+  engineSize: string;
+  trim: string;
   modelYear: string;
   mileage: string;
   fuel: string;
@@ -44,6 +46,8 @@ function toDraft(vehicle: VehicleProfile | null): DraftState {
     label: vehicle?.label ?? "",
     brand: vehicle?.brand ?? "",
     model: vehicle?.model ?? "",
+    engineSize: vehicle?.engineSize ?? "",
+    trim: vehicle?.trim ?? "",
     modelYear: vehicle?.modelYear ? String(vehicle.modelYear) : "",
     mileage: vehicle?.mileage ? String(vehicle.mileage) : "",
     fuel: vehicle?.fuel ?? "",
@@ -116,6 +120,8 @@ export function VehicleFormSheet({
       createdAt: vehicle?.createdAt ?? new Date().toISOString(),
       brand: draft.brand.trim() || undefined,
       model: draft.model.trim() || undefined,
+      engineSize: draft.engineSize.trim() || undefined,
+      trim: draft.trim.trim() || undefined,
       modelYear: draft.modelYear ? Number(draft.modelYear) : undefined,
       mileage: draft.mileage ? Number(draft.mileage) : undefined,
       fuel: (draft.fuel as VehicleFuelType) || undefined,
@@ -239,6 +245,20 @@ export function VehicleFormSheet({
             options={VEHICLE_YEARS}
             value={draft.modelYear}
             onChange={(event) => update("modelYear", event.target.value)}
+          />
+          <Field
+            id="vehicle-engine-size"
+            label="Motor"
+            placeholder="Örn. 1.2 TSI"
+            value={draft.engineSize}
+            onChange={(event) => update("engineSize", event.target.value)}
+          />
+          <Field
+            id="vehicle-trim"
+            label="Paket"
+            placeholder="Örn. Style, Icon, Titanium"
+            value={draft.trim}
+            onChange={(event) => update("trim", event.target.value)}
           />
           <Field
             id="vehicle-mileage"
