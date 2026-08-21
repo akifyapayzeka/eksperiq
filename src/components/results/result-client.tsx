@@ -5,6 +5,8 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   FileSearch,
   MessageSquareText,
   Minus,
@@ -511,6 +513,8 @@ export function ResultClient() {
   const [listingImageZoom, setListingImageZoom] = useState(MIN_IMAGE_ZOOM);
   const pinchStartDistanceRef = useRef<number | null>(null);
   const pinchStartZoomRef = useRef(MIN_IMAGE_ZOOM);
+  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
+  const pinchActiveRef = useRef(false);
 
   const listingImages = result?.listingImages ?? [];
   const selectedListingImage =
@@ -553,6 +557,18 @@ export function ResultClient() {
     if (selectedListingImageIndex === null) return;
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") setSelectedListingImageIndex(null);
+      if (event.key === "ArrowLeft" && listingImages.length > 1) {
+        setSelectedListingImageIndex((current) =>
+          current === null ? current : (current - 1 + listingImages.length) % listingImages.length,
+        );
+        setListingImageZoom(MIN_IMAGE_ZOOM);
+      }
+      if (event.key === "ArrowRight" && listingImages.length > 1) {
+        setSelectedListingImageIndex((current) =>
+          current === null ? current : (current + 1) % listingImages.length,
+        );
+        setListingImageZoom(MIN_IMAGE_ZOOM);
+      }
     }
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -561,7 +577,7 @@ export function ResultClient() {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [selectedListingImageIndex]);
+  }, [listingImages.length, selectedListingImageIndex]);
 
   function openListingImage(index: number) {
     setSelectedListingImageIndex(index);
@@ -573,13 +589,34 @@ export function ResultClient() {
     setListingImageZoom(MIN_IMAGE_ZOOM);
     pinchStartDistanceRef.current = null;
     pinchStartZoomRef.current = MIN_IMAGE_ZOOM;
+    swipeStartRef.current = null;
+    pinchActiveRef.current = false;
+  }
+
+  function navigateListingImage(delta: number) {
+    if (listingImages.length < 2) return;
+    setSelectedListingImageIndex((current) =>
+      current === null ? current : (current + delta + listingImages.length) % listingImages.length,
+    );
+    setListingImageZoom(MIN_IMAGE_ZOOM);
+    pinchStartDistanceRef.current = null;
+    pinchStartZoomRef.current = MIN_IMAGE_ZOOM;
+    swipeStartRef.current = null;
+    pinchActiveRef.current = false;
   }
 
   function handleListingImageTouchStart(event: React.TouchEvent<HTMLDivElement>) {
     const distance = touchDistance(event.touches);
-    if (!distance) return;
-    pinchStartDistanceRef.current = distance;
-    pinchStartZoomRef.current = listingImageZoom;
+    if (distance) {
+      pinchActiveRef.current = true;
+      swipeStartRef.current = null;
+      pinchStartDistanceRef.current = distance;
+      pinchStartZoomRef.current = listingImageZoom;
+      return;
+    }
+    const touch = event.touches.item(0);
+    swipeStartRef.current = touch && listingImageZoom === MIN_IMAGE_ZOOM ? { x: touch.clientX, y: touch.clientY } : null;
+    pinchActiveRef.current = false;
   }
 
   function handleListingImageTouchMove(event: React.TouchEvent<HTMLDivElement>) {
@@ -599,8 +636,26 @@ export function ResultClient() {
       }
       return;
     }
+    if (pinchActiveRef.current) {
+      pinchStartDistanceRef.current = null;
+      pinchStartZoomRef.current = listingImageZoom;
+      pinchActiveRef.current = false;
+      swipeStartRef.current = null;
+      return;
+    }
+    const start = swipeStartRef.current;
+    const touch = event.changedTouches.item(0);
+    if (start && touch && listingImages.length > 1 && listingImageZoom === MIN_IMAGE_ZOOM) {
+      const deltaX = touch.clientX - start.x;
+      const deltaY = touch.clientY - start.y;
+      if (Math.abs(deltaX) >= 50 && Math.abs(deltaX) > Math.abs(deltaY) * 1.4) {
+        navigateListingImage(deltaX < 0 ? 1 : -1);
+        return;
+      }
+    }
     pinchStartDistanceRef.current = null;
     pinchStartZoomRef.current = listingImageZoom;
+    swipeStartRef.current = null;
   }
 
   async function copyText(text: string, successStatus: "summary-copied") {
@@ -1415,6 +1470,26 @@ export function ResultClient() {
           >
             <X aria-hidden="true" className="h-5 w-5" />
           </button>
+          {listingImages.length > 1 ? (
+            <>
+              <button
+                type="button"
+                onClick={() => navigateListingImage(-1)}
+                className="absolute left-3 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-card/95 text-foreground shadow-lg ring-1 ring-border sm:left-4"
+                aria-label="Önceki fotoğraf"
+              >
+                <ChevronLeft aria-hidden="true" className="h-6 w-6" />
+              </button>
+              <button
+                type="button"
+                onClick={() => navigateListingImage(1)}
+                className="absolute right-3 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-card/95 text-foreground shadow-lg ring-1 ring-border sm:right-4"
+                aria-label="Sonraki fotoğraf"
+              >
+                <ChevronRight aria-hidden="true" className="h-6 w-6" />
+              </button>
+            </>
+          ) : null}
           <div
             className="h-full w-full overflow-auto bg-muted p-3"
             onTouchStart={handleListingImageTouchStart}
