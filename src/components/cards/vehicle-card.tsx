@@ -25,7 +25,8 @@ export function VehicleCard({
   const title = vehicleTitle(vehicle);
 
   return (
-    <article className="overflow-hidden rounded-theme border border-border bg-card shadow-sm">
+    <article className="overflow-hidden rounded-theme border border-success/20 bg-card shadow-sm">
+      <div className="h-1 bg-success/60" />
       <div className="flex items-center gap-4 p-4">
         <div className="h-16 w-16 shrink-0 overflow-hidden rounded-theme">
           {vehicle.photoDataUrl ? (

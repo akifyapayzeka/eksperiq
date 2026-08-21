@@ -64,6 +64,11 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
 - [x] Added explicit research-to-product evidence for the Build 58 buyer journey.
   - `docs/user-research-product-lessons.md` maps used-car buyer research themes to app surfaces.
   - PDF payload is now unit-tested to keep buyer education and decision-guide notes in shared reports.
+- [x] Added a richer but still serious color system pass.
+  - Accent, success, warning, and chart tokens are slightly more vivid while keeping the navy/trust base.
+  - Hero cards support success/warning tones and subtle colored glow accents.
+  - Section cards now have thin color rails for risk, guide, summary, cost, service, and checklist sections.
+  - Home shortcuts, purchase guide steps, repair-cost estimator, report sections, and vehicle cards now use clearer semantic color cues.
 
 ## Verified
 

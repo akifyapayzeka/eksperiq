@@ -242,7 +242,7 @@ export function RepairCostEstimator({ hint }: { hint?: { area: string; signal: s
   }
 
   return (
-    <section className="mt-5 rounded-theme border border-border bg-card p-5 shadow-sm">
+    <section className="mt-5 overflow-hidden rounded-theme border border-warning/25 bg-card p-5 shadow-sm">
       <div className="flex items-center gap-2">
         <Calculator aria-hidden="true" className="h-5 w-5 text-accent" />
         <h2 className="text-xl font-semibold text-foreground">Tahmini onarım maliyeti</h2>
@@ -304,7 +304,7 @@ export function RepairCostEstimator({ hint }: { hint?: { area: string; signal: s
         {locateStatus === "locating" ? "Konum alınıyor..." : "Konumuma göre tahmin et"}
       </button>
       {locateMessage ? <p className="mt-2 text-sm font-medium text-destructive">{locateMessage}</p> : null}
-      <div className="mt-4 rounded-theme-sm border border-accent/20 bg-accent/10 p-4 text-foreground">
+      <div className="mt-4 rounded-theme-sm border border-warning/30 bg-warning/10 p-4 text-foreground">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-sm font-medium">Yaklaşık aralık{city ? ` · ${city}` : ""}</p>
@@ -312,7 +312,7 @@ export function RepairCostEstimator({ hint }: { hint?: { area: string; signal: s
               {estimate.low.toLocaleString("tr-TR")} - {estimate.high.toLocaleString("tr-TR")} TL
             </p>
           </div>
-          <span className="rounded-full bg-card px-3 py-1 text-xs font-semibold text-foreground/80">
+          <span className="rounded-full bg-warning px-3 py-1 text-xs font-semibold text-warning-foreground">
             {selectedRepair.urgency}
           </span>
         </div>
@@ -336,14 +336,14 @@ export function RepairCostEstimator({ hint }: { hint?: { area: string; signal: s
         </p>
       </div>
       <div className="mt-4 grid gap-3">
-        <div className="rounded-theme-sm border border-border bg-muted p-4">
+        <div className="rounded-theme-sm border border-warning/25 bg-warning/5 p-4">
           <div className="flex items-center gap-2">
             <ShieldAlert aria-hidden="true" className="h-4 w-4 text-warning" />
             <p className="text-sm font-semibold text-foreground">Bu kalem neden önemli?</p>
           </div>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">{selectedRepair.note}</p>
         </div>
-        <div className="rounded-theme-sm border border-border bg-muted p-4">
+        <div className="rounded-theme-sm border border-success/25 bg-success/5 p-4">
           <div className="flex items-center gap-2">
             <Wrench aria-hidden="true" className="h-4 w-4 text-accent" />
             <p className="text-sm font-semibold text-foreground">Serviste ne sorulmalı?</p>

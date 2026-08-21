@@ -3,8 +3,26 @@ import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 const TONE_CLASSES = {
-  primary: { surface: "bg-primary text-primary-foreground", ring: "border-primary-foreground/10" },
-  accent: { surface: "bg-accent text-accent-foreground", ring: "border-accent-foreground/10" },
+  primary: {
+    surface: "bg-primary text-primary-foreground",
+    ring: "border-primary-foreground/10",
+    glow: "bg-accent/20",
+  },
+  accent: {
+    surface: "bg-accent text-accent-foreground",
+    ring: "border-accent-foreground/10",
+    glow: "bg-warning/20",
+  },
+  success: {
+    surface: "bg-success text-success-foreground",
+    ring: "border-success-foreground/10",
+    glow: "bg-accent/20",
+  },
+  warning: {
+    surface: "bg-warning text-warning-foreground",
+    ring: "border-warning-foreground/10",
+    glow: "bg-primary/15",
+  },
 } as const;
 
 export function HeroCard({
@@ -28,14 +46,17 @@ export function HeroCard({
   tone?: keyof typeof TONE_CLASSES;
   className?: string;
 }) {
-  const { surface, ring } = TONE_CLASSES[tone];
+  const { surface, ring, glow } = TONE_CLASSES[tone];
   return (
     <section className={cn("relative overflow-hidden rounded-theme px-5 py-5 shadow-sm", surface, className)}>
       {decorative ? (
-        <div
-          aria-hidden="true"
-          className={cn("pointer-events-none absolute -right-6 -top-8 h-28 w-28 rounded-full border", ring)}
-        />
+        <>
+          <div
+            aria-hidden="true"
+            className={cn("pointer-events-none absolute -right-6 -top-8 h-28 w-28 rounded-full border", ring)}
+          />
+          <div aria-hidden="true" className={cn("pointer-events-none absolute -bottom-10 left-8 h-20 w-20 rounded-full blur-2xl", glow)} />
+        </>
       ) : null}
       <div className="relative">
         <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-current/10">

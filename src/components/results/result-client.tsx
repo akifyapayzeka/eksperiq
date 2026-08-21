@@ -941,6 +941,7 @@ export function ResultClient() {
           className={`report-tab-panel ${activeTab === "karar" ? "contents" : "hidden"}`}
         >
           <SectionCard
+            accent={riskBucket(result.totalScore) === "low" ? "success" : riskBucket(result.totalScore) === "medium" ? "warning" : "danger"}
             title="Alıcı kararı"
             description="Google'da aratacağınız ana soruya kısa cevap: bu araç hangi şartlarla değerlendirilmeli?"
           >
@@ -973,6 +974,7 @@ export function ResultClient() {
             </div>
           </SectionCard>
           <SectionCard
+            accent="violet"
             title="EksperIQ hangi soruları cevapladı?"
             description="Araç alacak kişinin Google'da ayrı ayrı aratacağı başlıkları tek yerde toplar."
           >
@@ -986,6 +988,7 @@ export function ResultClient() {
             </div>
           </SectionCard>
           <SectionCard
+            accent="success"
             title="Buradan sonra hangi ekrana gitmeliyim?"
             description="Araştırmalarda en çok aranan konular rapordan sonraki net adımlara bağlandı."
           >
@@ -1006,6 +1009,7 @@ export function ResultClient() {
             </div>
           </SectionCard>
           <SectionCard
+            accent="warning"
             title="Satın alma mantığı"
             description="Önce kanıt, sonra pahalı risk, sonra fiyat ve noter."
           >
@@ -1027,6 +1031,7 @@ export function ResultClient() {
           className={`report-tab-panel ${activeTab === "ozet" ? "contents" : "hidden"}`}
         >
           <SectionCard
+            accent="warning"
             title="Paylaşılabilir kısa özet"
             description="Uzun rapor yerine satıcıya, ekspertize veya kendinize gönderebileceğiniz kısa karar desteği özeti."
           >
@@ -1061,6 +1066,7 @@ export function ResultClient() {
             </div>
           </SectionCard>
           <SectionCard
+            accent="success"
             title="Bilgi doluluğu"
             description="Daha fazla doğrulanabilir bilgi girildikçe raporun karar desteği değeri artar."
           >
@@ -1108,7 +1114,7 @@ export function ResultClient() {
           id="rapor-panel-ozet-devam"
           className={`report-tab-panel ${activeTab === "ozet" ? "contents" : "hidden"}`}
         >
-          <SectionCard title="Kategori skorları">
+          <SectionCard title="Kategori skorları" accent="violet">
             <div className="grid gap-3 md:grid-cols-2">
               {Object.entries(result.breakdown).map(([key, value]) => {
                 const category = key as ScoreCategory;
@@ -1141,6 +1147,7 @@ export function ResultClient() {
             </div>
           </SectionCard>
           <SectionCard
+            accent="success"
             title="Güçlü taraflar"
             description="Bu maddeler girdiğiniz bilgiye dayanır; TRAMER veya e-Devlet'ten doğrulanmadıkça kesin kabul edilmemelidir."
           >
@@ -1154,6 +1161,7 @@ export function ResultClient() {
             </ul>
           </SectionCard>
           <SectionCard
+            accent="warning"
             id="rapor-aksiyonlar"
             title="Öncelikli ilk aksiyonlar"
             description="Satıcıyla görüşmeden veya ekspertize gitmeden önce netleştirmeniz gereken başlıklar."
@@ -1174,7 +1182,7 @@ export function ResultClient() {
           aria-labelledby="rapor-sekme-riskler"
           className={`report-tab-panel ${activeTab === "riskler" ? "contents" : "hidden"}`}
         >
-          <SectionCard id="rapor-bulgular" title="Riskli noktalar">
+          <SectionCard id="rapor-bulgular" title="Riskli noktalar" accent="danger">
             <div className="mb-4 grid gap-3 sm:grid-cols-3" aria-label="Risk bulgusu dağılımı">
               <div className="rounded-theme-sm border border-destructive/30 bg-destructive/10 p-3">
                 <p className="text-sm font-medium text-destructive">Yüksek riskli bulgu</p>
@@ -1234,6 +1242,7 @@ export function ResultClient() {
         >
           {result.knownIssues.length > 0 ? (
             <SectionCard
+              accent="violet"
               id="rapor-kronik-sorunlar"
               title="Bu motor için bilinen kronik sorunlar"
               description="Bu bölüm BU aracın kendi durumuyla değil, aynı marka/model/motoru kullanan araçlarda genel olarak bildirilen sorunlarla ilgilidir — risk skorunu etkilemez, ekspertizde nelere özellikle bakılması gerektiğine dair bir rehberdir."
@@ -1266,6 +1275,7 @@ export function ResultClient() {
             </SectionCard>
           ) : (
             <SectionCard
+              accent="violet"
               id="rapor-kronik-sorunlar"
               title="Kronik sorun eşleşmesi"
               description="Bu bölüm yalnızca EksperIQ veritabanında marka/model/yıl/motor bilgisiyle eşleşen, araştırılmış kayıtları gösterir."
@@ -1288,7 +1298,7 @@ export function ResultClient() {
               </div>
             </SectionCard>
           )}
-          <SectionCard id="rapor-masraflar" title="Yakın zamanda çıkabilecek masraflar">
+          <SectionCard id="rapor-masraflar" title="Yakın zamanda çıkabilecek masraflar" accent="warning">
             <ul className="grid gap-2">
               {result.costs.map((cost) => (
                 <li key={cost.item} className="flex justify-between gap-3 rounded-lg border border-border p-3">
@@ -1306,6 +1316,7 @@ export function ResultClient() {
           className={`report-tab-panel ${activeTab === "plan" ? "contents" : "hidden"}`}
         >
           <SectionCard
+            accent="success"
             id="rapor-satici-mesaji"
             title="Satıcıya gönderilecek hazır mesaj"
             description="İlk görüşmede dağılmadan, kanıt isteyerek ilerlemek için."
@@ -1322,14 +1333,14 @@ export function ResultClient() {
               </button>
             </div>
           </SectionCard>
-          <SectionCard id="rapor-sorular" title="Satıcıya sorulacak sorular">
+          <SectionCard id="rapor-sorular" title="Satıcıya sorulacak sorular" accent="violet">
             <ol className="grid gap-3">
               {result.sellerQuestions.map((question, index) => (
                 <SellerQuestionCard key={question} question={question} index={index + 1} />
               ))}
             </ol>
           </SectionCard>
-          <SectionCard id="rapor-ekspertiz-kontrol" title="Ekspertizde özellikle kontrol edilmesi gerekenler">
+          <SectionCard id="rapor-ekspertiz-kontrol" title="Ekspertizde özellikle kontrol edilmesi gerekenler" accent="success">
             <div className="grid gap-2 sm:grid-cols-2">
               {result.inspectionFocus.map((item) => (
                 <span key={item} className="rounded-lg border border-border bg-card p-3">
@@ -1346,6 +1357,7 @@ export function ResultClient() {
             </Link>
           </SectionCard>
           <SectionCard
+            accent="success"
             id="rapor-hizmet-yonlendirme"
             title="Şehir, servis ve noter yönlendirmesi"
             description="Araç neredeyse, o şehirde önce kontrol noktasını bulun; fiyatı telefonla teyit edin."
@@ -1367,6 +1379,7 @@ export function ResultClient() {
             </div>
           </SectionCard>
           <SectionCard
+            accent="warning"
             id="rapor-pazarlik"
             title="Pazarlık gerekçeleri"
             description="Fiyat konuşurken somut ve ölçülebilir başlıklarla ilerleyin."
@@ -1394,6 +1407,7 @@ export function ResultClient() {
             </Link>
           </SectionCard>
           <SectionCard
+            accent="danger"
             id="rapor-noter-oncesi"
             title="Noter ve ödeme öncesi kontrol"
             description="Aracı beğenseniz bile resmi işlemden önce bu maddeleri tamamlayın."
@@ -1413,6 +1427,7 @@ export function ResultClient() {
           className={`report-tab-panel ${activeTab === "plan" ? "contents" : "hidden"}`}
         >
           <SectionCard
+            accent="violet"
             id="rapor-alim-rehberi"
             title="Araç alırken bunlar neden önemli?"
             description="Kısa açıklamalar raporu okuyan kişinin teknik terimleri ezberlemeden doğru soruyu sormasına yardım eder."
@@ -1434,7 +1449,7 @@ export function ResultClient() {
           aria-labelledby="rapor-sekme-arac"
           className={`report-tab-panel ${activeTab === "arac" ? "contents" : "hidden"}`}
         >
-          <SectionCard title="Araç ve ilan özeti">
+          <SectionCard title="Araç ve ilan özeti" accent="success">
             <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-lg border border-border p-3">
                 <dt className="text-sm text-muted-foreground">Araç</dt>
@@ -1492,6 +1507,7 @@ export function ResultClient() {
           className={`report-tab-panel ${activeTab === "kontrol" ? "contents" : "hidden"}`}
         >
           <SectionCard
+            accent="success"
             id="rapor-kontrol-listesi"
             title="Son kontrol listesi"
             description="Bu liste yalnızca mevcut tarayıcı oturumunda saklanır; oturum verisini silerseniz işaretler de temizlenir."
