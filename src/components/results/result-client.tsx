@@ -51,12 +51,15 @@ const findingFilters: Array<{ value: FindingFilter; label: string }> = [
   { value: "low", label: "Düşük" },
 ];
 
-type ReportTab = "ozet" | "bulgular" | "sorular" | "kontrol";
+type ReportTab = "ozet" | "arac" | "bulgular" | "kronik" | "sorular" | "rehber" | "kontrol";
 
 const reportTabs: Array<{ id: ReportTab; label: string }> = [
   { id: "ozet", label: "Özet" },
+  { id: "arac", label: "Araç" },
   { id: "bulgular", label: "Bulgular" },
+  { id: "kronik", label: "Kronik/Masraf" },
   { id: "sorular", label: "Sorular" },
+  { id: "rehber", label: "Alım Rehberi" },
   { id: "kontrol", label: "Kontrol Listesi" },
 ];
 
@@ -590,6 +593,13 @@ export function ResultClient() {
               )}
             </div>
           </SectionCard>
+        </div>
+        <div
+          role="tabpanel"
+          id="rapor-panel-arac"
+          aria-labelledby="rapor-sekme-arac"
+          className={`report-tab-panel ${activeTab === "arac" ? "contents" : "hidden"}`}
+        >
           <SectionCard title="Araç ve ilan özeti">
             <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-lg border border-border p-3">
@@ -640,6 +650,11 @@ export function ResultClient() {
               </div>
             ) : null}
           </SectionCard>
+        </div>
+        <div
+          id="rapor-panel-ozet-devam"
+          className={`report-tab-panel ${activeTab === "ozet" ? "contents" : "hidden"}`}
+        >
           <SectionCard title="Kategori skorları">
             <div className="grid gap-3 md:grid-cols-2">
               {Object.entries(result.breakdown).map(([key, value]) => {
@@ -759,6 +774,13 @@ export function ResultClient() {
               ))}
             </div>
           </SectionCard>
+        </div>
+        <div
+          role="tabpanel"
+          id="rapor-panel-kronik"
+          aria-labelledby="rapor-sekme-kronik"
+          className={`report-tab-panel ${activeTab === "kronik" ? "contents" : "hidden"}`}
+        >
           {result.knownIssues.length > 0 ? (
             <SectionCard
               id="rapor-kronik-sorunlar"
@@ -855,6 +877,13 @@ export function ResultClient() {
               <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
             </Link>
           </SectionCard>
+        </div>
+        <div
+          role="tabpanel"
+          id="rapor-panel-rehber"
+          aria-labelledby="rapor-sekme-rehber"
+          className={`report-tab-panel ${activeTab === "rehber" ? "contents" : "hidden"}`}
+        >
           <SectionCard
             id="rapor-alim-rehberi"
             title="Araç alırken bunlar neden önemli?"
