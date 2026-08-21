@@ -6,6 +6,8 @@ import {
   ArrowUpRight,
   CheckCircle2,
   ClipboardCopy,
+  FileSearch,
+  MessageSquareText,
   Minus,
   Plus,
   Share2,
@@ -164,6 +166,112 @@ ${questions}
 
 Not: Bu özet kesin ekspertiz sonucu değildir.`;
 }
+
+function buyerDecision(result: AnalysisResult): {
+  label: string;
+  headline: string;
+  reasons: string[];
+  conditions: string[];
+} {
+  const highCount = findingCount(result, "high");
+  const mediumCount = findingCount(result, "medium");
+  const missingCount = result.completeness.missing.length;
+  const topFindings = result.findings.slice(0, 3).map((finding) => finding.title);
+  const topQuestions = result.sellerQuestions.slice(0, 3);
+
+  if (highCount > 0 || result.totalScore < 60) {
+    return {
+      label: "Dikkatli yaklaş",
+      headline: "Bu araç ancak kritik konular doğrulanırsa değerlendirilmeli.",
+      reasons: topFindings.length ? topFindings : ["Risk skoru satın alma öncesi ek doğrulama gerektiriyor."],
+      conditions: topQuestions.length
+        ? topQuestions
+        : ["TRAMER, boya/değişen ve bakım kayıtlarını yazılı kanıtla doğrulayın."],
+    };
+  }
+
+  if (mediumCount > 0 || missingCount > 3 || result.totalScore < 80) {
+    return {
+      label: "Şartlı alınır",
+      headline: "İlan mantıklı olabilir; karar ekspertiz ve belge doğrulamasına bağlı.",
+      reasons: topFindings.length
+        ? topFindings
+        : ["Bazı bilgiler eksik veya orta riskli başlıklar var."],
+      conditions: topQuestions.length
+        ? topQuestions
+        : ["Eksik bilgileri satıcıdan isteyin ve ekspertizde özellikle kontrol ettirin."],
+    };
+  }
+
+  return {
+    label: "Değerlendirilebilir",
+    headline: "Mevcut bilgilerle araç incelenmeye değer görünüyor.",
+    reasons: result.strengths.slice(0, 3),
+    conditions: [
+      "TRAMER ve kilometre kaydını resmi kanaldan doğrulayın.",
+      "Bağımsız ekspertiz raporu almadan kapora veya kesin karar vermeyin.",
+      "Test sürüşünde motor, şanzıman, fren ve yürüyen aksamı özellikle kontrol edin.",
+    ],
+  };
+}
+
+function answeredBuyerQuestions(result: AnalysisResult): Array<{ question: string; answer: string }> {
+  const knownIssueAnswer = result.knownIssues.length
+    ? `${result.knownIssues.length} bilinen model/motor riski eşleşti; en önemlileri Riskler sekmesinde.`
+    : "Bu araç için veritabanında net kronik sorun eşleşmesi bulunamadı; bu, araç sorunsuz demek değildir.";
+  const damageAnswer = result.findings.some((finding) => finding.category.toLocaleLowerCase("tr-TR").includes("hasar"))
+    ? "Hasar/boya/değişen tarafında kontrol edilmesi gereken bulgular var."
+    : "Girilen veriyle ağır hasar tarafında belirgin bulgu az; yine de TRAMER ve boya ölçümü şart.";
+  const priceAnswer =
+    result.input.price > 0
+      ? `İstenen fiyat ${formatCurrency(result.input.price)}; pazarlık gerekçelerini Alım Planı sekmesinde kullanın.`
+      : "İlanda fiyat net alınamadı; fiyat olmadan piyasa karşılaştırması ve pazarlık sağlıklı olmaz.";
+
+  return [
+    { question: "Bu araç alınır mı?", answer: buyerDecision(result).headline },
+    { question: "Kronik sorunu var mı?", answer: knownIssueAnswer },
+    {
+      question: "Km normal mi?",
+      answer: `${result.mileage.label}. Yıllık yaklaşık ${result.mileage.annualMileage.toLocaleString("tr-TR")} km kullanım görünüyor.`,
+    },
+    { question: "Boya/değişen/tramer riskli mi?", answer: damageAnswer },
+    { question: "Fiyat pazarlığı yapılır mı?", answer: priceAnswer },
+  ];
+}
+
+function negotiationReasons(result: AnalysisResult): string[] {
+  const reasons = [
+    ...result.findings
+      .filter((finding) => finding.severity !== "low")
+      .slice(0, 3)
+      .map((finding) => finding.title),
+    ...result.costs
+      .filter((cost) => cost.level !== "Düşük" && cost.level !== "Yakın tarihli")
+      .slice(0, 2)
+      .map((cost) => `${cost.item}: ${cost.level}`),
+  ];
+  if (result.completeness.missing.length) {
+    reasons.push(`Eksik bilgi: ${result.completeness.missing.slice(0, 3).join(", ")}`);
+  }
+  return Array.from(new Set(reasons)).slice(0, 6);
+}
+
+function sellerMessage(result: AnalysisResult): string {
+  const vehicle = `${result.input.year} ${result.input.brand} ${result.input.model}`;
+  const questions = result.sellerQuestions.slice(0, 4).map((question) => `- ${question}`);
+  return `Merhaba, ${vehicle} ilanınızla ilgileniyorum. Aracı görmeden önce şu bilgileri yazılı paylaşabilir misiniz?
+${questions.join("\n")}
+
+Uygunsa aracı bağımsız ekspertize göstermek ve TRAMER/kilometre kayıtlarını doğrulamak istiyorum.`;
+}
+
+const purchaseDocumentChecks = [
+  "Plaka, şasi ve motor numarası ruhsatla eşleşiyor mu kontrol edin.",
+  "TRAMER/hasar kaydı ve kilometre geçmişini resmi kanaldan doğrulayın.",
+  "Rehin, haciz, vergi/ceza borcu ve muayene durumunu noter öncesi netleştirin.",
+  "Kapora verilecekse açıklamaya araç plakası/şasi, tarih ve iade şartını yazın.",
+  "Satıştan hemen sonra trafik sigortası ve ilk bakım planını yapın.",
+];
 
 export function ResultClient() {
   const [isReady, setIsReady] = useState(false);
@@ -357,6 +465,10 @@ export function ResultClient() {
 
   const visibleFindings =
     findingFilter === "all" ? result.findings : result.findings.filter((finding) => finding.severity === findingFilter);
+  const decision = buyerDecision(result);
+  const answeredQuestions = answeredBuyerQuestions(result);
+  const negotiationItems = negotiationReasons(result);
+  const sellerMessageText = sellerMessage(result);
 
   return (
     <>
@@ -506,6 +618,51 @@ export function ResultClient() {
           aria-labelledby="rapor-sekme-ozet"
           className={`report-tab-panel ${activeTab === "ozet" ? "contents" : "hidden"}`}
         >
+          <SectionCard
+            title="Alıcı kararı"
+            description="Google'da aratacağınız ana soruya kısa cevap: bu araç hangi şartlarla değerlendirilmeli?"
+          >
+            <div className="grid gap-4 rounded-theme border border-border bg-muted p-4 lg:grid-cols-[1fr_1fr]">
+              <div>
+                <span className="inline-flex rounded-full bg-primary px-3 py-1 text-sm font-semibold text-primary-foreground">
+                  {decision.label}
+                </span>
+                <p className="mt-3 text-xl font-semibold leading-snug text-foreground">{decision.headline}</p>
+                <div className="mt-4">
+                  <p className="text-sm font-semibold text-foreground">Neden?</p>
+                  <ul className="mt-2 grid gap-2 text-sm leading-6 text-foreground/80">
+                    {decision.reasons.map((reason) => (
+                      <li key={reason} className="flex gap-2">
+                        <CheckCircle2 aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                        {reason}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              <div className="rounded-theme-sm border border-border bg-card p-4">
+                <p className="text-sm font-semibold text-foreground">Almadan önce şartlar</p>
+                <ol className="mt-2 grid list-decimal gap-2 pl-5 text-sm leading-6 text-foreground/80">
+                  {decision.conditions.map((condition) => (
+                    <li key={condition}>{condition}</li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+          </SectionCard>
+          <SectionCard
+            title="EksperIQ hangi soruları cevapladı?"
+            description="Araç alacak kişinin Google'da ayrı ayrı aratacağı başlıkları tek yerde toplar."
+          >
+            <div className="grid gap-3 md:grid-cols-2">
+              {answeredQuestions.map((item) => (
+                <article key={item.question} className="rounded-lg border border-border bg-card p-4">
+                  <p className="font-semibold text-foreground">{item.question}</p>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.answer}</p>
+                </article>
+              ))}
+            </div>
+          </SectionCard>
           <SectionCard
             title="Paylaşılabilir kısa özet"
             description="Uzun rapor yerine satıcıya, ekspertize veya kendinize gönderebileceğiniz kısa karar desteği özeti."
@@ -793,6 +950,23 @@ export function ResultClient() {
           aria-labelledby="rapor-sekme-plan"
           className={`report-tab-panel ${activeTab === "plan" ? "contents" : "hidden"}`}
         >
+          <SectionCard
+            id="rapor-satici-mesaji"
+            title="Satıcıya gönderilecek hazır mesaj"
+            description="İlk görüşmede dağılmadan, kanıt isteyerek ilerlemek için."
+          >
+            <div className="rounded-theme border border-border bg-muted p-4">
+              <pre className="whitespace-pre-wrap font-sans text-sm leading-6 text-foreground/85">{sellerMessageText}</pre>
+              <button
+                type="button"
+                onClick={() => void copyText(sellerMessageText, "summary-copied")}
+                className="no-print mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
+              >
+                <MessageSquareText aria-hidden="true" className="h-4 w-4" />
+                Satıcı mesajını kopyala
+              </button>
+            </div>
+          </SectionCard>
           <SectionCard id="rapor-sorular" title="Satıcıya sorulacak sorular">
             <ol className="grid list-decimal gap-2 pl-5">
               {result.sellerQuestions.map((question) => (
@@ -815,6 +989,40 @@ export function ResultClient() {
               Yakınımdaki ekspertiz ve noter firmalarını bul
               <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
             </Link>
+          </SectionCard>
+          <SectionCard
+            id="rapor-pazarlik"
+            title="Pazarlık gerekçeleri"
+            description="Fiyat konuşurken somut ve ölçülebilir başlıklarla ilerleyin."
+          >
+            {negotiationItems.length ? (
+              <ul className="grid gap-2">
+                {negotiationItems.map((item) => (
+                  <li key={item} className="rounded-lg border border-border bg-card p-3 text-sm leading-6">
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="rounded-lg border border-border bg-muted p-4 text-sm text-muted-foreground">
+                Mevcut bilgilerle güçlü bir pazarlık gerekçesi oluşmadı; yine de ekspertiz ve resmi kayıt sonucuna göre
+                fiyatı tekrar değerlendirin.
+              </p>
+            )}
+          </SectionCard>
+          <SectionCard
+            id="rapor-noter-oncesi"
+            title="Noter ve ödeme öncesi kontrol"
+            description="Aracı beğenseniz bile resmi işlemden önce bu maddeleri tamamlayın."
+          >
+            <div className="grid gap-2">
+              {purchaseDocumentChecks.map((item) => (
+                <div key={item} className="flex gap-2 rounded-lg border border-border bg-card p-3 text-sm leading-6">
+                  <FileSearch aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                  {item}
+                </div>
+              ))}
+            </div>
           </SectionCard>
         </div>
         <div
