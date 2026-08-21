@@ -817,6 +817,26 @@ async function handler(request, response) {
     return;
   }
 
+  // TEMPORARY: real listings are still coming back with most fields
+  // unfilled and there is no way to tell, from this log alone, whether the
+  // client actually captured the vehicle detail table or whether the AI
+  // model just failed to read it out of text that did contain it. No PII
+  // here — url is the public listing link, bodyText is only measured, not
+  // logged in full. Remove once field-extraction quality is confirmed
+  // fixed.
+  console.log(
+    "[listing-import] input sizes:",
+    JSON.stringify({
+      source: parsed.source,
+      url: parsed.url,
+      bodyTextLength: parsed.bodyText.length,
+      jsonLdCount: parsed.jsonLd.length,
+      jsonLdTotalLength: parsed.jsonLd.reduce((sum, item) => sum + item.length, 0),
+      bodyTextHead: parsed.bodyText.slice(0, 200),
+      bodyTextTail: parsed.bodyText.slice(-200),
+    }),
+  );
+
   const rateLimit = await checkRateLimit(request, {
     usageKey: "listing-import",
     burstLimit: parsePositiveInt(process.env.LISTING_IMPORT_BURST_LIMIT, DEFAULT_BURST_LIMIT),
@@ -847,6 +867,21 @@ async function handler(request, response) {
     sendJson(response, 502, { error: aiResult.error });
     return;
   }
+
+  // TEMPORARY: paired with the input-size log above — lets us see whether a
+  // thin missingFields list correlates with a short bodyText (truncation /
+  // capture problem) or shows up even with a full 20000-char body (model
+  // reading problem instead). Remove alongside that log.
+  console.log(
+    "[listing-import] output quality:",
+    JSON.stringify({
+      model: aiResult.model,
+      fallbackUsed: aiResult.fallbackUsed === true,
+      missingFields: aiResult.result.missingFields,
+      lowConfidenceFields: aiResult.result.lowConfidenceFields,
+      warnings: aiResult.result.warnings,
+    }),
+  );
 
   sendJson(response, 200, {
     result: aiResult.result,
