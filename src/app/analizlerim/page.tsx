@@ -34,17 +34,6 @@ const filters: Array<{ id: AnalysisFilter; label: string }> = [
   { id: "low", label: "Düşük Risk" },
 ];
 
-const assistantModules = [
-  ["/fotograf-hasar", "Fotoğraftan Hasar Analizi", "Olası çizik, göçük ve panel uyumsuzluğu işaretleri."],
-  ["/bakim-odeme-takvimi", "Bakım ve Ödeme Takvimi", "MTV, sigorta, muayene ve bakım tarihlerini bildirimle takip et."],
-  ["/arac-saglik-karnesi", "Araç Sağlık Karnesi", "Bakım, ekspertiz ve kontrol geçmişini sade ekranda tut."],
-  [
-    "/arac-deger-takibi",
-    "Araç Değer Takibi",
-    "Kullanıcı girdisine dayalı fiyat aralığını karar desteği olarak takip et.",
-  ],
-] as const;
-
 function normalize(value: string): string {
   return value.toLocaleLowerCase("tr-TR").trim();
 }
@@ -357,27 +346,6 @@ export default function MyAnalysesPage() {
         )}
       </section>
 
-      <section className="mt-6 rounded-theme border border-border bg-card p-5 shadow-sm">
-        <SectionHeader
-          title="EksperIQ araçları"
-          description="Araç yolculuğunu daha şeffaf kılacak ücretsiz karar destek ekranları."
-        />
-        <div className="grid gap-3 sm:grid-cols-2">
-          {assistantModules.map(([href, title, description]) => (
-            <Link
-              key={title}
-              href={href}
-              className="rounded-theme border border-border bg-muted p-4 transition hover:border-accent"
-            >
-              <span className="rounded-full bg-card px-3 py-1 text-xs font-semibold text-accent ring-1 ring-border">
-                Aç
-              </span>
-              <h3 className="mt-4 font-semibold text-foreground">{title}</h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
-            </Link>
-          ))}
-        </div>
-      </section>
     </AppShell>
   );
 }
