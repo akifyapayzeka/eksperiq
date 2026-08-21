@@ -235,7 +235,7 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
         <PlanPaywallDialog
           open
           headline="Pro ile daha güçlü analiz"
-          description="Ücretsiz 3 ilan linki analizinden sonra Pro ile ayda 20, Pro+ ile sınırsız ilan analizi yapın. Fotoğraf analizi ücretsiz kalır."
+          description="Ücretsiz 3 ilan linki analizinden sonra Pro ile ayda 20, Pro+ ile sınırsız ilan analizi yapın."
           dismissLabel="Şimdilik ücretsiz devam et"
           onDismiss={finishOnboarding}
         />

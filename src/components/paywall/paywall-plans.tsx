@@ -119,10 +119,6 @@ export function PaywallPlansScreen({
               <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
               Garajınıza daha fazla araç ekleme imkanı
             </p>
-            <p className="mt-1 flex items-center gap-2 text-sm text-foreground/90">
-              <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
-              Fotoğraf analizi tüm planlarda ücretsiz
-            </p>
             <button
               type="button"
               onClick={() => handlePlanCta(plan)}

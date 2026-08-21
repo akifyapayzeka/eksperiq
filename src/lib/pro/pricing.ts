@@ -44,8 +44,7 @@ export const EKSPERIQ_PLAN_PRICING: Record<EksperIqPaidPlanId, EksperIqPlanPrici
       monthlyProductId: "com.eksperiq.app.pro.monthly",
       yearlyProductId: "com.eksperiq.app.pro.yearly",
       monthlyOperatingCostTry: 30,
-      notes:
-        "Aylik 20 ilan linki analizi, PDF rapor ve kayitli analiz akislari. Fotograf hasar kontrolu tum planlarda ayni ucretsiz gorsel AI modeliyle sunulur.",
+      notes: "Aylik 20 ilan linki analizi, PDF rapor ve kayitli analiz akislari.",
     },
     PRO_COST_MULTIPLE,
   ),
@@ -56,8 +55,7 @@ export const EKSPERIQ_PLAN_PRICING: Record<EksperIqPaidPlanId, EksperIqPlanPrici
       monthlyProductId: "com.eksperiq.app.proplus.monthly",
       yearlyProductId: "com.eksperiq.app.proplus.yearly",
       monthlyOperatingCostTry: 80,
-      notes:
-        "Yogun kullanici icin sinirsiz ilan linki analizi, profesyonel rapor/export payi ve kayitli analiz akislari. Fotograf hasar kontrolu tum planlarda ayni ucretsiz gorsel AI modeliyle sunulur.",
+      notes: "Yogun kullanici icin sinirsiz ilan linki analizi, profesyonel rapor/export payi ve kayitli analiz akislari.",
     },
     PRO_PLUS_COST_MULTIPLE,
   ),

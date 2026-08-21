@@ -38,6 +38,10 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
 - [x] Reworked home page vehicle section.
   - The home page now lists all saved vehicles under `Aracim`.
   - The `Aracim` heading shows a light inline summary of the first vehicle's brand/model/engine/trim/year.
+- [x] Removed photo-analysis-free wording from subscription surfaces.
+  - Removed the `Fotograf analizi tum planlarda ucretsiz` benefit row from the plan cards.
+  - Removed the same wording from Pro/Pro+ promo and onboarding paywall descriptions.
+  - Kept subscription limits focused on listing-link analysis: Free 3, Pro 20, Pro+ unlimited.
 
 ## Verified
 
