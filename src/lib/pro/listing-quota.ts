@@ -8,9 +8,13 @@ const STORAGE_KEY = "eksperiq:listing-quota";
  * Free is a lifetime cap (never resets, so it can't be reset by simply
  * waiting a month) — Pro is a monthly cap, and Pro+ is unlimited. These are
  * the real, enforced numbers shown in the paywall.
+ *
+ * TEMPORARY: free raised well above the real launch value — the app has no
+ * public users yet, only the owner's own device testing against it
+ * repeatedly. Dial back down to the real free cap (3) once the app is live.
  */
 const LISTING_ANALYSIS_LIMIT: Record<SubscriptionTier, number> = {
-  free: 3,
+  free: 1000,
   pro: 20,
   proPlus: Number.POSITIVE_INFINITY,
 };

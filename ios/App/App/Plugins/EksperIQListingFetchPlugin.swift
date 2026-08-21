@@ -515,11 +515,42 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
         'nav, header, footer, aside, script, style, noscript, iframe, ' +
         '[role="navigation"], [role="banner"], [role="contentinfo"]'
       )).forEach(function(el) { el.remove(); });
+      // innerText only returns text that's actually laid out and visible —
+      // it skips anything under display:none. Live testing against a real
+      // sahibinden.com ilan showed bodyText landing at ~4000 chars (well
+      // under the 20000 cap) with the whole "İlan Bilgileri" tab panel
+      // (teknik özellikler, boya/değişen/ekspertiz bilgisi — exactly the
+      // fields users report as missing) absent from it entirely: that panel
+      // is one of several CSS-driven tabs (İlan Bilgileri / Açıklama /
+      // Konumu) and is not necessarily the one left visible before any tab
+      // click happens, so innerText never sees its content even though it's
+      // sitting right there in the DOM. Walk all text nodes directly
+      // instead, ignoring layout/visibility — this reads hidden tab panels,
+      // collapsed accordions ("Tüm Teknik Özellikleri Göster"), etc. the
+      // same as visible text. Block-level tag boundaries are turned into
+      // newlines so labels and values occupying separate elements don't run
+      // together into one unreadable word for the AI to parse.
+      function fullText(root) {
+        if (!root) return '';
+        var BLOCK_TAG = /^(P|DIV|LI|TR|TD|TH|DT|DD|H1|H2|H3|H4|H5|H6|SECTION|ARTICLE|UL|OL|TABLE|BR|HR)$/;
+        var parts = [];
+        var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, null);
+        var node;
+        while ((node = walker.nextNode())) {
+          if (node.nodeType === 3) {
+            var text = node.nodeValue;
+            if (text && text.trim()) parts.push(text.trim());
+          } else if (node.nodeType === 1 && BLOCK_TAG.test(node.tagName)) {
+            parts.push('\n');
+          }
+        }
+        return parts.join(' ').replace(/[ \t]*\n[ \t]*/g, '\n').replace(/\n{2,}/g, '\n').replace(/[ \t]+/g, ' ').trim();
+      }
       return JSON.stringify({
         title: document.title || '',
         ogTitle: attr('meta[property="og:title"]', 'content'),
         ogDescription: attr('meta[property="og:description"]', 'content'),
-        bodyText: (document.body ? document.body.innerText : '').slice(0, 20000),
+        bodyText: fullText(document.body).slice(0, 20000),
         locationText: locationText.slice(0, 4000),
         jsonLd: jsonLd,
         images: uniqueImages,

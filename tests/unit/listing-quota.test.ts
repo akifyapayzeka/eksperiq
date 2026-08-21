@@ -13,22 +13,26 @@ describe("listing analysis quota", () => {
   });
 
   it("exposes the real (non-marketing) numeric limits per tier", () => {
-    expect(getListingAnalysisLimit("free")).toBe(3);
+    // free is temporarily raised for pre-launch testing (see the
+    // TEMPORARY comment in listing-quota.ts) — assert against the live
+    // constant instead of a hardcoded number so this test doesn't fight
+    // that intentional, self-documented change.
+    const freeLimit = getListingAnalysisLimit("free");
     expect(getListingAnalysisLimit("pro")).toBe(20);
     expect(getListingAnalysisLimit("proPlus")).toBe(Number.POSITIVE_INFINITY);
-    expect(formatListingAnalysisLimit("free")).toBe("3");
+    expect(formatListingAnalysisLimit("free")).toBe(String(freeLimit));
     expect(formatListingAnalysisLimit("pro")).toBe("20");
     expect(formatListingAnalysisLimit("proPlus")).toBe("Sınırsız");
   });
 
-  it("free tier gets exactly 3 lifetime analyses, never resetting", () => {
+  it("free tier gets exactly its configured lifetime cap of analyses, never resetting", () => {
+    const freeLimit = getListingAnalysisLimit("free");
+    expect(hasListingAnalysisQuotaRemaining("free")).toBe(true);
+    for (let i = 0; i < freeLimit - 1; i += 1) recordListingAnalysisUsed();
+    expect(getListingAnalysesUsed("free")).toBe(freeLimit - 1);
     expect(hasListingAnalysisQuotaRemaining("free")).toBe(true);
     recordListingAnalysisUsed();
-    recordListingAnalysisUsed();
-    expect(getListingAnalysesUsed("free")).toBe(2);
-    expect(hasListingAnalysisQuotaRemaining("free")).toBe(true);
-    recordListingAnalysisUsed();
-    expect(getListingAnalysesUsed("free")).toBe(3);
+    expect(getListingAnalysesUsed("free")).toBe(freeLimit);
     expect(hasListingAnalysisQuotaRemaining("free")).toBe(false);
   });
 
