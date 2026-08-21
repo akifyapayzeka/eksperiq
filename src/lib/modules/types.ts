@@ -2,6 +2,7 @@ export type ModuleStatus = "active" | "planned";
 
 export type ModuleId =
   | "listing-analysis"
+  | "purchase-guide"
   | "photo-damage-analysis"
   | "repair-cost-estimation"
   | "maintenance-tracking"

@@ -1,20 +1,21 @@
-"use client";
+import { Calculator } from "lucide-react";
+import { AppShell } from "@/components/layout/app-shell";
+import { HeroCard } from "@/components/cards/hero-card";
+import { RepairCostEstimator } from "@/components/repair-cost/repair-cost-estimator";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-
-/**
- * Ayrı bir modül olmaktan çıktı — Tahmini Onarım Maliyeti her zaman
- * Fotoğraftan Hasar Analizi bulgularına bağımlıydı, artık o sayfanın bir
- * bölümü (src/components/repair-cost/repair-cost-estimator.tsx). Bu route
- * eski link/kısayolların kırılmaması için yönlendirme olarak kalır.
- */
-export default function RepairCostRedirectPage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace("/fotograf-hasar");
-  }, [router]);
-
-  return null;
+export default function RepairCostPage() {
+  return (
+    <AppShell>
+      <div className="max-w-4xl pt-6">
+        <HeroCard
+          icon={Calculator}
+          eyebrow="Masraf Tahmini"
+          title="Almadan önce olası masrafı pazarlığa kat"
+          description="Kaporta, boya, far, cam, lastik, akü, fren, triger, turbo, DPF/EGR ve şanzıman gibi kalemlerde yaklaşık aralık görün. Bu fiyat teklifi değildir; servis ve şehir farkı sonucu değiştirir."
+          tone="accent"
+        />
+        <RepairCostEstimator />
+      </div>
+    </AppShell>
+  );
 }

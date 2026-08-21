@@ -54,6 +54,13 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
   - The AI response now includes `photoQuality` with quality status, visible issues, and retake tips.
   - The photo analysis screen shows a capture guide after selecting photos.
   - The result screen shows whether the photo is good, usable, or weak, plus how to retake the same area for scratches, paint mismatch, glare, blur, and close-up problems.
+- [x] Added the user-research purchase flow to the product.
+  - New `Satın Alma Rehberi` module/page connects listing analysis, official checks, nearby expertise/notary/service search, repair-cost estimation, test drive checks, and final checklist.
+  - Home page now surfaces purchase guide and nearby expertise/notary/service shortcuts.
+  - Report now links next steps directly from the buyer decision: guide, official checks, nearby expertise, and repair-cost estimation.
+  - Report `Alım Planı` now includes city/service/notary direction cards and a repair-cost CTA for negotiation.
+  - `/onarim-maliyeti` is now a real repair-cost estimation page instead of redirecting back to photo analysis.
+  - Nearby services accepts `?kategori=ekspertiz|servis|noter`, so report/guide links open the right service type.
 
 ## Verified
 
@@ -63,6 +70,8 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
 - [x] `npm test -- tests/unit/analysis.test.ts tests/unit/listing-extraction.test.ts tests/unit/report-summary.test.ts`
 - [x] `npm test -- tests/unit/vehicles-model.test.ts tests/unit/vehicle-switcher.test.tsx tests/unit/mobile-bottom-nav.test.tsx tests/unit/reminders-model.test.ts tests/unit/reminders-storage.test.ts`
 - [x] `npm test -- tests/unit/photo-damage-endpoint.test.ts`
+- [x] `npm test -- tests/unit/modules-registry.test.ts tests/unit/report-summary.test.ts tests/unit/api-client.test.ts`
+- [x] `npm run build`
 
 ## Still Open Before Closing Build 58
 

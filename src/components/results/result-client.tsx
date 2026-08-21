@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
 import { shareReportPdf } from "@/lib/report/pdf-share";
-import { BUYER_EDUCATION_NOTES } from "@/lib/analysis/buyer-education";
+import { BUYER_DECISION_GUIDE, BUYER_EDUCATION_NOTES } from "@/lib/analysis/buyer-education";
 import { SCORE_WEIGHTS } from "@/lib/constants/analysis";
 import {
   loadAnalysis,
@@ -490,6 +490,29 @@ ${questions.join("\n")}
 Uygunsa aracı bağımsız ekspertize göstermek ve TRAMER/kilometre kayıtlarını doğrulamak istiyorum.`;
 }
 
+const reportActionLinks = [
+  {
+    title: "Satın alma rehberi",
+    description: "İlandan notere kadar adım adım ne yapacağınızı görün.",
+    href: "/satin-alma-rehberi",
+  },
+  {
+    title: "Resmi sorgular",
+    description: "TRAMER, km, ruhsat, şasi, rehin, haciz ve borç kontrollerini sıraya koyun.",
+    href: "/resmi-sorgu-rehberi",
+  },
+  {
+    title: "Yakındaki ekspertiz",
+    description: "Aracı kendi seçeceğiniz ekspertize götürmek için konuma göre firma bulun.",
+    href: "/yakinimdaki-hizmetler?kategori=ekspertiz",
+  },
+  {
+    title: "Masraf tahmini",
+    description: "Çıkabilecek bakım/onarım kalemlerini pazarlık öncesi yaklaşık aralıkla görün.",
+    href: "/onarim-maliyeti",
+  },
+];
+
 const purchaseDocumentChecks = [
   "Plaka, şasi ve motor numarası ruhsatla eşleşiyor mu kontrol edin.",
   "TRAMER/hasar kaydı ve kilometre geçmişini resmi kanaldan doğrulayın.",
@@ -962,6 +985,40 @@ export function ResultClient() {
               ))}
             </div>
           </SectionCard>
+          <SectionCard
+            title="Buradan sonra hangi ekrana gitmeliyim?"
+            description="Araştırmalarda en çok aranan konular rapordan sonraki net adımlara bağlandı."
+          >
+            <div className="grid gap-3 md:grid-cols-2">
+              {reportActionLinks.map((item) => (
+                <Link
+                  key={item.title}
+                  href={item.href}
+                  className="rounded-theme-sm border border-border bg-card p-4 hover:border-accent"
+                >
+                  <h3 className="font-semibold text-foreground">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.description}</p>
+                  <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-accent">
+                    Aç <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </SectionCard>
+          <SectionCard
+            title="Satın alma mantığı"
+            description="Önce kanıt, sonra pahalı risk, sonra fiyat ve noter."
+          >
+            <div className="grid gap-3 md:grid-cols-2">
+              {BUYER_DECISION_GUIDE.map((item) => (
+                <article key={item.title} className="rounded-lg border border-border bg-muted p-4">
+                  <h3 className="font-semibold text-foreground">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.meaning}</p>
+                  <p className="mt-2 text-sm font-medium leading-6 text-foreground/90">{item.action}</p>
+                </article>
+              ))}
+            </div>
+          </SectionCard>
         </div>
         <div
           role="tabpanel"
@@ -1281,12 +1338,33 @@ export function ResultClient() {
               ))}
             </div>
             <Link
-              href="/yakinimdaki-hizmetler"
+              href="/yakinimdaki-hizmetler?kategori=ekspertiz"
               className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-accent px-4 text-sm font-semibold text-accent"
             >
               Yakınımdaki ekspertiz ve noter firmalarını bul
               <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
             </Link>
+          </SectionCard>
+          <SectionCard
+            id="rapor-hizmet-yonlendirme"
+            title="Şehir, servis ve noter yönlendirmesi"
+            description="Araç neredeyse, o şehirde önce kontrol noktasını bulun; fiyatı telefonla teyit edin."
+          >
+            <div className="grid gap-3 md:grid-cols-3">
+              {[
+                ["Ekspertiz", "Kaporta, boya, şasi, podye, airbag, motor ve elektronik kontrol.", "/yakinimdaki-hizmetler?kategori=ekspertiz"],
+                ["Servis", "Triger, şanzıman, turbo, DPF/EGR, uyarı lambası ve bakım geçmişi.", "/yakinimdaki-hizmetler?kategori=servis"],
+                ["Noter", "Satış yetkisi, rehin/haciz, borç ve ödeme öncesi resmi adımlar.", "/yakinimdaki-hizmetler?kategori=noter"],
+              ].map(([title, description, href]) => (
+                <Link key={title} href={href} className="rounded-lg border border-border bg-card p-4 hover:border-accent">
+                  <p className="font-semibold text-foreground">{title}</p>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
+                  <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-accent">
+                    Konuma göre bul <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+                  </span>
+                </Link>
+              ))}
+            </div>
           </SectionCard>
           <SectionCard
             id="rapor-pazarlik"
@@ -1307,6 +1385,13 @@ export function ResultClient() {
                 fiyatı tekrar değerlendirin.
               </p>
             )}
+            <Link
+              href="/onarim-maliyeti"
+              className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-accent px-4 text-sm font-semibold text-accent"
+            >
+              Tahmini masraf aralığını aç
+              <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+            </Link>
           </SectionCard>
           <SectionCard
             id="rapor-noter-oncesi"

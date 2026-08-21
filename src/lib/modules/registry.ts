@@ -25,6 +25,29 @@ export const productModules: ProductModule[] = [
     certaintyPolicy: "Kesin ekspertiz sonucu veya satın alma garantisi vermez.",
   },
   {
+    id: "purchase-guide",
+    title: "Satın Alma Rehberi",
+    status: "active",
+    href: "/satin-alma-rehberi",
+    summary: "İlanı beğenmeden notere gitmeye kadar adım adım satın alma akışını tek sayfada toplar.",
+    capabilities: [
+      {
+        title: "Adım adım akış",
+        description: "İlan, satıcı, belge, ekspertiz, masraf, test sürüşü, noter ve teslim adımlarını sıraya koyar.",
+      },
+      {
+        title: "Doğru ekrana yönlendirme",
+        description: "Resmi sorgu, yakındaki ekspertiz/noter/servis, masraf tahmini ve kontrol listesine bağlanır.",
+      },
+      {
+        title: "Neden önemli açıklaması",
+        description: "Triger, bakım, hasar kaydı, kilometre ve ekspertiz gibi terimlerin alıcı için anlamını açıklar.",
+      },
+    ],
+    dataPolicy: "Rehber kişisel veri toplamaz; bağlantı verdiği ekranlar kendi veri sınırlarıyla çalışır.",
+    certaintyPolicy: "Satın alma garantisi vermez; kullanıcıyı doğru doğrulama ve profesyonel kontrole yönlendirir.",
+  },
+  {
     id: "photo-damage-analysis",
     title: "Fotoğraftan Hasar Analizi",
     status: "active",

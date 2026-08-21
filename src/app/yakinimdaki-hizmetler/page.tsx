@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { MapPinned } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { HeroCard } from "@/components/cards/hero-card";
@@ -9,8 +10,12 @@ import { placeCategoryLabels, type PlaceCategory } from "@/lib/places/types";
 
 const categories: PlaceCategory[] = ["ekspertiz", "noter", "servis"];
 
-export default function NearbyServicesPage() {
-  const [category, setCategory] = useState<PlaceCategory>("ekspertiz");
+function NearbyServicesContent() {
+  const searchParams = useSearchParams();
+  const initialCategory = searchParams.get("kategori");
+  const [category, setCategory] = useState<PlaceCategory>(
+    categories.includes(initialCategory as PlaceCategory) ? (initialCategory as PlaceCategory) : "ekspertiz",
+  );
 
   return (
     <AppShell>
@@ -43,5 +48,13 @@ export default function NearbyServicesPage() {
         <NearbyPlaceFinder key={category} category={category} />
       </div>
     </AppShell>
+  );
+}
+
+export default function NearbyServicesPage() {
+  return (
+    <Suspense fallback={null}>
+      <NearbyServicesContent />
+    </Suspense>
   );
 }

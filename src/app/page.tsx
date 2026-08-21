@@ -2,7 +2,17 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Bell, BellOff, CarFront, ClipboardPaste, ScanSearch, ShieldCheck, UserRound } from "lucide-react";
+import {
+  Bell,
+  BellOff,
+  BookOpenCheck,
+  CarFront,
+  ClipboardPaste,
+  MapPinned,
+  ScanSearch,
+  ShieldCheck,
+  UserRound,
+} from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
 import { loadVehicles } from "@/lib/storage/vehicle-storage";
 import { loadReminders } from "@/lib/storage/reminders-storage";
@@ -184,6 +194,38 @@ export default function Home() {
           </PrimaryButton>
         }
       />
+
+      <section className="mt-5 grid gap-3 sm:grid-cols-2">
+        <Link href="/satin-alma-rehberi" className="rounded-theme border border-border bg-card p-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-accent/10 text-accent">
+              <BookOpenCheck aria-hidden="true" className="h-5 w-5" />
+            </span>
+            <div>
+              <h2 className="font-semibold text-foreground">Satın alma rehberi</h2>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                İlan, satıcı, ekspertiz, masraf, test sürüşü ve noter adımlarını sırayla görün.
+              </p>
+            </div>
+          </div>
+        </Link>
+        <Link
+          href="/yakinimdaki-hizmetler?kategori=ekspertiz"
+          className="rounded-theme border border-border bg-card p-4 shadow-sm"
+        >
+          <div className="flex items-center gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-accent/10 text-accent">
+              <MapPinned aria-hidden="true" className="h-5 w-5" />
+            </span>
+            <div>
+              <h2 className="font-semibold text-foreground">Ekspertiz / noter / servis bul</h2>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                Araç neredeyse o şehirde kontrol noktası bulun, yol tarifiyle gidin.
+              </p>
+            </div>
+          </div>
+        </Link>
+      </section>
 
       <section className="mt-7">
         <div className="mb-3 flex items-end justify-between gap-3">
