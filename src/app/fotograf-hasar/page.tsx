@@ -73,12 +73,25 @@ type AiPhotoFinding = {
   recommendation: string;
 };
 
+type AiPhotoQuality = {
+  status: "good" | "usable" | "poor";
+  issues: string[];
+  retakeTips: string[];
+};
+
 type AiPhotoAnalysis = {
   isVehiclePhoto: boolean;
   summary: string;
   findings: AiPhotoFinding[];
+  photoQuality?: AiPhotoQuality;
   disclaimer: string;
 };
+
+const defaultRetakeTips = [
+  "Aynı bölgeyi bir genel, bir yakın fotoğrafla çekin.",
+  "Çizik için parçayı düz, sağ çapraz ve sol çapraz açıdan tekrar çekin.",
+  "Parlama varsa aracı gölgeye alın veya kamerayı hafif yana kaydırın.",
+];
 
 export default function PhotoDamagePage() {
   const [area, setArea] = useState("");
@@ -247,6 +260,7 @@ export default function PhotoDamagePage() {
       let summary = "";
       let disclaimer = "";
       let remaining: number | undefined;
+      let photoQuality: AiPhotoQuality | null = null;
 
       for (let batchIndex = 0; batchIndex < batches.length; batchIndex += 1) {
         setAiBatchProgress({ done: batchIndex, total: batches.length });
@@ -285,11 +299,22 @@ export default function PhotoDamagePage() {
         summary = payload.analysis.summary || summary;
         disclaimer = payload.analysis.disclaimer || disclaimer;
         remaining = payload.remaining;
+        photoQuality = mergePhotoQuality(photoQuality, payload.analysis.photoQuality);
       }
 
       setAiBatchProgress(null);
       const skippedNote = skippedCount > 0 ? ` ${skippedCount} fotoğraf boyut sınırı nedeniyle dahil edilemedi.` : "";
-      setAiAnalysis({ isVehiclePhoto: anyVehiclePhoto, summary, findings: combinedFindings, disclaimer });
+      setAiAnalysis({
+        isVehiclePhoto: anyVehiclePhoto,
+        summary,
+        findings: combinedFindings,
+        photoQuality: photoQuality ?? {
+          status: anyVehiclePhoto ? "usable" : "poor",
+          issues: anyVehiclePhoto ? [] : ["Araç veya araç parçası güvenle seçilemedi."],
+          retakeTips: anyVehiclePhoto ? defaultRetakeTips.slice(0, 2) : [defaultRetakeTips[0]],
+        },
+        disclaimer,
+      });
       setAiStatus("ready");
       setAiMessage(
         (anyVehiclePhoto
@@ -333,6 +358,24 @@ export default function PhotoDamagePage() {
     if (value === "high") return "Yüksek güven";
     if (value === "medium") return "Orta güven";
     return "Düşük güven";
+  }
+
+  function mergePhotoQuality(current: AiPhotoQuality | null, next: AiPhotoQuality | undefined): AiPhotoQuality | null {
+    if (!next) return current;
+    if (!current) return { status: next.status, issues: next.issues.slice(0, 4), retakeTips: next.retakeTips.slice(0, 4) };
+    const rank = { good: 0, usable: 1, poor: 2 } as const;
+    const status = rank[next.status] > rank[current.status] ? next.status : current.status;
+    return {
+      status,
+      issues: Array.from(new Set([...current.issues, ...next.issues])).slice(0, 4),
+      retakeTips: Array.from(new Set([...current.retakeTips, ...next.retakeTips])).slice(0, 4),
+    };
+  }
+
+  function photoQualityLabel(status: AiPhotoQuality["status"]) {
+    if (status === "good") return "Fotoğraf kalitesi iyi";
+    if (status === "usable") return "Fotoğraf kullanılabilir";
+    return "Fotoğraf netliği zayıf";
   }
 
   return (
@@ -383,6 +426,15 @@ export default function PhotoDamagePage() {
                     className="h-20 w-20 rounded-theme-sm border border-border object-cover"
                   />
                 ))}
+              </div>
+              <div className="mt-4 rounded-theme-sm border border-accent/20 bg-accent/5 p-4">
+                <p className="text-sm font-semibold text-foreground">İnce çizik ve boya farkı için çekim rehberi</p>
+                <ul className="mt-2 grid gap-1.5 text-sm leading-6 text-muted-foreground">
+                  {defaultRetakeTips.map((tip) => (
+                    <li key={tip}>- {tip}</li>
+                  ))}
+                  <li>- Lens temiz olsun; flaş veya güneş parlaması varsa açıyı değiştirin.</li>
+                </ul>
               </div>
             </>
           ) : null}
@@ -447,6 +499,35 @@ export default function PhotoDamagePage() {
               <p className="rounded-theme-sm border border-border bg-muted p-4 text-sm leading-6 text-foreground/80">
                 {aiAnalysis.summary}
               </p>
+              {aiAnalysis.photoQuality ? (
+                <article
+                  className={`rounded-theme-sm border p-4 ${
+                    aiAnalysis.photoQuality.status === "poor"
+                      ? "border-warning/30 bg-warning/10"
+                      : "border-accent/20 bg-accent/5"
+                  }`}
+                >
+                  <p className="text-sm font-semibold text-foreground">
+                    {photoQualityLabel(aiAnalysis.photoQuality.status)}
+                  </p>
+                  {aiAnalysis.photoQuality.issues.length ? (
+                    <ul className="mt-2 grid gap-1 text-sm leading-6 text-muted-foreground">
+                      {aiAnalysis.photoQuality.issues.map((issue) => (
+                        <li key={issue}>- {issue}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  <p className="mt-3 text-sm font-semibold text-foreground/90">Daha net sonuç için</p>
+                  <ul className="mt-1 grid gap-1 text-sm leading-6 text-muted-foreground">
+                    {(aiAnalysis.photoQuality.retakeTips.length
+                      ? aiAnalysis.photoQuality.retakeTips
+                      : defaultRetakeTips
+                    ).map((tip) => (
+                      <li key={tip}>- {tip}</li>
+                    ))}
+                  </ul>
+                </article>
+              ) : null}
               {aiAnalysis.findings.length ? (
                 aiAnalysis.findings.map((item) => (
                   <article key={item.id} className="rounded-theme-sm border border-border bg-card p-4">

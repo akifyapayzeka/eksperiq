@@ -50,6 +50,10 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
   - Configured vision models and fallback models are accepted only when they are explicitly free OpenRouter models.
   - If the AI response contradicts itself and says the image is a screenshot, document, toy, person, unrelated object, or not a vehicle, the endpoint forces `isVehiclePhoto=false` and clears findings.
   - Vehicle exterior/interior, vehicle parts, dashboard, and warning-light photos still stay eligible for analysis.
+- [x] Added photo-quality guidance for hard-to-see scratches.
+  - The AI response now includes `photoQuality` with quality status, visible issues, and retake tips.
+  - The photo analysis screen shows a capture guide after selecting photos.
+  - The result screen shows whether the photo is good, usable, or weak, plus how to retake the same area for scratches, paint mismatch, glare, blur, and close-up problems.
 
 ## Verified
 

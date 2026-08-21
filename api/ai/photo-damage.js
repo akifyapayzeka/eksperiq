@@ -152,6 +152,39 @@ function normalizeSignal(finding) {
   return "Olası kontrol notu";
 }
 
+function normalizeShortTextList(value, fallback) {
+  const list = Array.isArray(value)
+    ? value.filter((item) => typeof item === "string" && item.trim()).map((item) => hedgeCertainLanguage(item.slice(0, 160)))
+    : [];
+  return list.length ? list.slice(0, 4) : fallback;
+}
+
+function normalizePhotoQuality(value, isVehiclePhoto) {
+  if (!isRecord(value)) {
+    return {
+      status: "usable",
+      issues: [],
+      retakeTips: isVehiclePhoto
+        ? [
+            "Aynı bölgeyi düz, sağ çapraz ve sol çapraz açıdan tekrar çekin.",
+            "Çizik veya boya farkı için parlama olmayan homojen ışık kullanın.",
+          ]
+        : ["Araç, araç parçası, gösterge paneli veya uyarı lambası net görünecek şekilde tekrar fotoğraf çekin."],
+    };
+  }
+
+  const rawStatus = typeof value.status === "string" ? value.status : "";
+  const status = ["good", "usable", "poor"].includes(rawStatus) ? rawStatus : "usable";
+  return {
+    status,
+    issues: normalizeShortTextList(value.issues, status === "good" ? [] : ["Fotoğraf kalitesi sınırlı olabilir."]),
+    retakeTips: normalizeShortTextList(value.retakeTips, [
+      "Parça tamamı görünecek şekilde bir genel fotoğraf ve aynı bölgeden bir yakın fotoğraf çekin.",
+      "Yansımayı azaltmak için aracı gölgeye alın veya kamerayı hafif çapraz açıya getirin.",
+    ]),
+  };
+}
+
 function describesNonVehiclePhoto(text) {
   const normalized = text.toLocaleLowerCase("tr-TR");
   const noVehicleSignals = [
@@ -230,6 +263,7 @@ function normalizeAnalysis(value) {
                 : "Bağımsız ekspertizde kontrol ettirin.",
           }))
       : [],
+    photoQuality: normalizePhotoQuality(value.photoQuality, isVehiclePhoto),
     disclaimer:
       "Bu AI fotoğraf kontrolü kesin hasar veya arıza tespiti değildir. Işık, açı, çözünürlük, kir ve uyarı lambasının gerçek arıza kodu gibi etkenler sonucu değiştirebilir.",
   };
@@ -271,10 +305,28 @@ const photoDamageResponseFormat = {
     schema: {
       type: "object",
       additionalProperties: false,
-      required: ["isVehiclePhoto", "summary", "findings"],
+      required: ["isVehiclePhoto", "summary", "photoQuality", "findings"],
       properties: {
         isVehiclePhoto: { type: "boolean" },
         summary: { type: "string" },
+        photoQuality: {
+          type: "object",
+          additionalProperties: false,
+          required: ["status", "issues", "retakeTips"],
+          properties: {
+            status: { type: "string", enum: ["good", "usable", "poor"] },
+            issues: {
+              type: "array",
+              maxItems: 4,
+              items: { type: "string" },
+            },
+            retakeTips: {
+              type: "array",
+              maxItems: 4,
+              items: { type: "string" },
+            },
+          },
+        },
         findings: {
           type: "array",
           maxItems: 8,
@@ -314,6 +366,11 @@ JSON şeması:
 {
   "isVehiclePhoto": true | false,
   "summary": "kısa Türkçe özet",
+  "photoQuality": {
+    "status": "good" | "usable" | "poor",
+    "issues": ["bulanıklık / parlama / karanlık / fazla yakın çekim / kadraj sorunu gibi kısa notlar"],
+    "retakeTips": ["kullanıcının çizik, göçük veya uyarı ışığını daha net göstermek için ne yapması gerektiği"]
+  },
   "findings": [
     {
       "area": "örn. ön tampon / sağ kapı / gösterge paneli / kadran",
@@ -329,6 +386,7 @@ Fotoğrafta araç, araç parçası, gösterge paneli, kadran veya uyarı lambas�
 Fotoğraf ekran görüntüsü, doküman, çizim ya da araçla ilgisiz bir objeyse isVehiclePhoto=false ve findings=[] döndür.
 Fotoğraf bulanık, karanlık veya çok yakın çekimse ve araçla ilgili olduğundan emin değilsen isVehiclePhoto=false döndür veya yalnızca confidence="low" ile ihtiyatlı bir bulgu ver.
 Araç varsa ama görünür hasar sinyali veya uyarı lambası yoksa isVehiclePhoto=true ve findings=[] döndür.
+Çizik, boya farkı veya ince göçük net seçilemiyorsa photoQuality.status="poor" veya "usable" yap; issues içinde sorunu yaz, retakeTips içinde aynı parçayı düz + iki çapraz açıdan, parlama olmadan, bir genel bir yakın fotoğrafla tekrar çekmesini söyle.
 Gösterge panelinde uyarı lambası görünüyorsa bunu hasar gibi değil arıza/uyarı yorumu gibi ele al; kesin arıza teşhisi koyma, OBD/servis doğrulaması gerektiğini belirt.
 "kesin", "kesinlikle", "definitely" gibi kesinlik bildiren kelimeler kullanma; her zaman olasılık dili kullan.
 Tüm metin alanlarını yalnızca Türkçe yaz, başka dilden tek kelime bile ekleme.`,

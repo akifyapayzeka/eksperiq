@@ -408,6 +408,11 @@ describe("photo damage AI endpoint", () => {
               content: JSON.stringify({
                 isVehiclePhoto: true,
                 summary: "Fotoğraf çok yakın çekim ve bulanık, bölge net anlaşılamıyor.",
+                photoQuality: {
+                  status: "poor",
+                  issues: ["Fotoğraf bulanık ve fazla yakın çekilmiş."],
+                  retakeTips: ["Aynı kapı panelini düz, sağ çapraz ve sol çapraz açıdan tekrar çekin."],
+                },
                 findings: [
                   {
                     area: "Kapı paneli",
@@ -439,13 +444,29 @@ describe("photo damage AI endpoint", () => {
     process.env = previousEnv;
     vi.unstubAllGlobals();
     const payload = JSON.parse(response.body) as {
-      analysis: { isVehiclePhoto: boolean; findings: Array<{ confidence: string; explanation: string }> };
+      analysis: {
+        isVehiclePhoto: boolean;
+        photoQuality: { status: string; issues: string[]; retakeTips: string[] };
+        findings: Array<{ confidence: string; explanation: string }>;
+      };
     };
+    const openRouterCall = fetchMock.mock.calls.find(([url]) => String(url).includes("openrouter.ai"));
+    const requestBody = JSON.parse(String((openRouterCall?.[1] as RequestInit | undefined)?.body)) as {
+      response_format?: { json_schema?: { schema?: { required?: string[] } } };
+      messages?: Array<{ content?: string | Array<{ text?: string }> }>;
+    };
+    const promptText = JSON.stringify(requestBody.messages);
     expect(response.statusCode).toBe(200);
     expect(payload.analysis.isVehiclePhoto).toBe(true);
+    expect(payload.analysis.photoQuality.status).toBe("poor");
+    expect(payload.analysis.photoQuality.issues[0]).toContain("bulanık");
+    expect(payload.analysis.photoQuality.retakeTips[0]).toContain("çapraz");
     expect(payload.analysis.findings).toHaveLength(1);
     expect(payload.analysis.findings[0].confidence).toBe("low");
     expect(payload.analysis.findings[0].explanation.toLocaleLowerCase("tr-TR")).not.toContain("kesin");
+    expect(requestBody.response_format?.json_schema?.schema?.required).toContain("photoQuality");
+    expect(promptText).toContain("photoQuality");
+    expect(promptText).toContain("Çizik");
   });
 
   it("softens absolute-certainty damage claims into hedged language", async () => {
