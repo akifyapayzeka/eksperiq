@@ -51,15 +51,13 @@ const findingFilters: Array<{ value: FindingFilter; label: string }> = [
   { value: "low", label: "Düşük" },
 ];
 
-type ReportTab = "ozet" | "arac" | "bulgular" | "kronik" | "sorular" | "rehber" | "kontrol";
+type ReportTab = "ozet" | "riskler" | "plan" | "arac" | "kontrol";
 
 const reportTabs: Array<{ id: ReportTab; label: string }> = [
   { id: "ozet", label: "Özet" },
-  { id: "arac", label: "Araç" },
-  { id: "bulgular", label: "Bulgular" },
-  { id: "kronik", label: "Kronik/Masraf" },
-  { id: "sorular", label: "Sorular" },
-  { id: "rehber", label: "Alım Rehberi" },
+  { id: "riskler", label: "Riskler" },
+  { id: "plan", label: "Alım Planı" },
+  { id: "arac", label: "Araç/Fotolar" },
   { id: "kontrol", label: "Kontrol Listesi" },
 ];
 
@@ -595,63 +593,6 @@ export function ResultClient() {
           </SectionCard>
         </div>
         <div
-          role="tabpanel"
-          id="rapor-panel-arac"
-          aria-labelledby="rapor-sekme-arac"
-          className={`report-tab-panel ${activeTab === "arac" ? "contents" : "hidden"}`}
-        >
-          <SectionCard title="Araç ve ilan özeti">
-            <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-lg border border-border p-3">
-                <dt className="text-sm text-muted-foreground">Araç</dt>
-                <dd className="mt-1 font-semibold text-foreground">
-                  {result.input.brand} {result.input.model}
-                </dd>
-              </div>
-              <div className="rounded-lg border border-border p-3">
-                <dt className="text-sm text-muted-foreground">Yıl / km</dt>
-                <dd className="mt-1 font-semibold text-foreground">
-                  {result.input.year} / {result.input.mileage.toLocaleString("tr-TR")} km
-                </dd>
-              </div>
-              <div className="rounded-lg border border-border p-3">
-                <dt className="text-sm text-muted-foreground">Fiyat</dt>
-                <dd className="mt-1 font-semibold text-foreground">{formatCurrency(result.input.price)}</dd>
-              </div>
-              <div className="rounded-lg border border-border p-3">
-                <dt className="text-sm text-muted-foreground">Şehir</dt>
-                <dd className="mt-1 font-semibold text-foreground">{result.input.city}</dd>
-              </div>
-            </dl>
-            <div className="mt-4 rounded-lg border border-border bg-muted p-4">
-              <p className="font-medium text-foreground">{result.mileage.label}</p>
-              <p className="mt-1 text-sm leading-6 text-foreground/80">
-                Araç yaşı yaklaşık {result.mileage.vehicleAge} yıl, yıllık ortalama kullanım yaklaşık{" "}
-                {result.mileage.annualMileage.toLocaleString("tr-TR")} km. Bu değerler yalnızca genel referanstır.
-              </p>
-            </div>
-            {result.listingImages?.length ? (
-              <div className="mt-4">
-                <p className="text-sm font-semibold text-foreground">İlandan alınan fotoğraflar</p>
-                <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
-                  {result.listingImages.slice(0, 8).map((imageUrl, index) => (
-                    <button
-                      key={imageUrl}
-                      type="button"
-                      onClick={() => openListingImage(index)}
-                      className="block aspect-square overflow-hidden rounded-lg border border-border bg-muted text-left transition hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                      aria-label={`İlan fotoğrafını büyüt: ${index + 1}`}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element -- Listing image hosts vary by source site. */}
-                      <img src={imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </SectionCard>
-        </div>
-        <div
           id="rapor-panel-ozet-devam"
           className={`report-tab-panel ${activeTab === "ozet" ? "contents" : "hidden"}`}
         >
@@ -717,9 +658,9 @@ export function ResultClient() {
         </div>
         <div
           role="tabpanel"
-          id="rapor-panel-bulgular"
-          aria-labelledby="rapor-sekme-bulgular"
-          className={`report-tab-panel ${activeTab === "bulgular" ? "contents" : "hidden"}`}
+          id="rapor-panel-riskler"
+          aria-labelledby="rapor-sekme-riskler"
+          className={`report-tab-panel ${activeTab === "riskler" ? "contents" : "hidden"}`}
         >
           <SectionCard id="rapor-bulgular" title="Riskli noktalar">
             <div className="mb-4 grid gap-3 sm:grid-cols-3" aria-label="Risk bulgusu dağılımı">
@@ -776,10 +717,8 @@ export function ResultClient() {
           </SectionCard>
         </div>
         <div
-          role="tabpanel"
-          id="rapor-panel-kronik"
-          aria-labelledby="rapor-sekme-kronik"
-          className={`report-tab-panel ${activeTab === "kronik" ? "contents" : "hidden"}`}
+          id="rapor-panel-riskler-devam"
+          className={`report-tab-panel ${activeTab === "riskler" ? "contents" : "hidden"}`}
         >
           {result.knownIssues.length > 0 ? (
             <SectionCard
@@ -850,9 +789,9 @@ export function ResultClient() {
         </div>
         <div
           role="tabpanel"
-          id="rapor-panel-sorular"
-          aria-labelledby="rapor-sekme-sorular"
-          className={`report-tab-panel ${activeTab === "sorular" ? "contents" : "hidden"}`}
+          id="rapor-panel-plan"
+          aria-labelledby="rapor-sekme-plan"
+          className={`report-tab-panel ${activeTab === "plan" ? "contents" : "hidden"}`}
         >
           <SectionCard id="rapor-sorular" title="Satıcıya sorulacak sorular">
             <ol className="grid list-decimal gap-2 pl-5">
@@ -879,10 +818,8 @@ export function ResultClient() {
           </SectionCard>
         </div>
         <div
-          role="tabpanel"
-          id="rapor-panel-rehber"
-          aria-labelledby="rapor-sekme-rehber"
-          className={`report-tab-panel ${activeTab === "rehber" ? "contents" : "hidden"}`}
+          id="rapor-panel-plan-devam"
+          className={`report-tab-panel ${activeTab === "plan" ? "contents" : "hidden"}`}
         >
           <SectionCard
             id="rapor-alim-rehberi"
@@ -898,6 +835,63 @@ export function ResultClient() {
                 </article>
               ))}
             </div>
+          </SectionCard>
+        </div>
+        <div
+          role="tabpanel"
+          id="rapor-panel-arac"
+          aria-labelledby="rapor-sekme-arac"
+          className={`report-tab-panel ${activeTab === "arac" ? "contents" : "hidden"}`}
+        >
+          <SectionCard title="Araç ve ilan özeti">
+            <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-lg border border-border p-3">
+                <dt className="text-sm text-muted-foreground">Araç</dt>
+                <dd className="mt-1 font-semibold text-foreground">
+                  {result.input.brand} {result.input.model}
+                </dd>
+              </div>
+              <div className="rounded-lg border border-border p-3">
+                <dt className="text-sm text-muted-foreground">Yıl / km</dt>
+                <dd className="mt-1 font-semibold text-foreground">
+                  {result.input.year} / {result.input.mileage.toLocaleString("tr-TR")} km
+                </dd>
+              </div>
+              <div className="rounded-lg border border-border p-3">
+                <dt className="text-sm text-muted-foreground">Fiyat</dt>
+                <dd className="mt-1 font-semibold text-foreground">{formatCurrency(result.input.price)}</dd>
+              </div>
+              <div className="rounded-lg border border-border p-3">
+                <dt className="text-sm text-muted-foreground">Şehir</dt>
+                <dd className="mt-1 font-semibold text-foreground">{result.input.city}</dd>
+              </div>
+            </dl>
+            <div className="mt-4 rounded-lg border border-border bg-muted p-4">
+              <p className="font-medium text-foreground">{result.mileage.label}</p>
+              <p className="mt-1 text-sm leading-6 text-foreground/80">
+                Araç yaşı yaklaşık {result.mileage.vehicleAge} yıl, yıllık ortalama kullanım yaklaşık{" "}
+                {result.mileage.annualMileage.toLocaleString("tr-TR")} km. Bu değerler yalnızca genel referanstır.
+              </p>
+            </div>
+            {result.listingImages?.length ? (
+              <div className="mt-4">
+                <p className="text-sm font-semibold text-foreground">İlandan alınan fotoğraflar</p>
+                <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                  {result.listingImages.slice(0, 8).map((imageUrl, index) => (
+                    <button
+                      key={imageUrl}
+                      type="button"
+                      onClick={() => openListingImage(index)}
+                      className="block aspect-square overflow-hidden rounded-lg border border-border bg-muted text-left transition hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                      aria-label={`İlan fotoğrafını büyüt: ${index + 1}`}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element -- Listing image hosts vary by source site. */}
+                      <img src={imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </SectionCard>
         </div>
         <div
