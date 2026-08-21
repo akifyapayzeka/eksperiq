@@ -48,11 +48,22 @@ public class EksperIQListingFetchPlugin: CAPPlugin, CAPBridgedPlugin {
         }
         let source = call.getString("source") ?? ""
         let installId = call.getString("installId")
+        let backgroundTracker = BackgroundTransitionTracker()
+        let backgroundObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            Task { await backgroundTracker.markBackgrounded() }
+        }
 
         Task {
             DiagnosticTrace.send("swift-task-started")
             let backgroundTask = await BackgroundTaskGuard.begin(name: "EksperIQListingFetch")
-            defer { Task { await backgroundTask.end() } }
+            defer {
+                NotificationCenter.default.removeObserver(backgroundObserver)
+                Task { await backgroundTask.end() }
+            }
 
             do {
                 self.notifyListeners("progress", data: ["stage": "opening-page"])
@@ -68,7 +79,8 @@ public class EksperIQListingFetchPlugin: CAPPlugin, CAPBridgedPlugin {
                 )
                 self.notifyListeners("progress", data: ["stage": "done"])
                 DiagnosticTrace.send("swift-done")
-                await NotificationHelper.notifyIfBackgrounded(
+                await NotificationHelper.notifyIfNeeded(
+                    wasBackgroundedDuringCall: await backgroundTracker.wasBackgrounded,
                     title: "EksperIQ",
                     body: importOutcome.succeeded
                         ? "İlan analizi tamamlandı. Sonuçları görmek için uygulamaya dönün."
@@ -81,13 +93,26 @@ public class EksperIQListingFetchPlugin: CAPPlugin, CAPBridgedPlugin {
                 ])
             } catch {
                 DiagnosticTrace.send("swift-error", detail: error.localizedDescription)
-                await NotificationHelper.notifyIfBackgrounded(
+                await NotificationHelper.notifyIfNeeded(
+                    wasBackgroundedDuringCall: await backgroundTracker.wasBackgrounded,
                     title: "EksperIQ",
                     body: "İlan analizi tamamlanamadı. Uygulamaya dönüp tekrar deneyebilirsiniz."
                 )
                 call.reject(error.localizedDescription, nil, error)
             }
         }
+    }
+}
+
+/// Records whether the user sent the app to the background during a listing
+/// import. iOS can resume a suspended async task only after the app becomes
+/// active again; checking only the *current* applicationState at completion
+/// then misses the fact that the user had been waiting in another app.
+private actor BackgroundTransitionTracker {
+    private(set) var wasBackgrounded = false
+
+    func markBackgrounded() {
+        wasBackgrounded = true
     }
 }
 
@@ -143,13 +168,17 @@ private actor BackgroundTaskGuard {
 /// launch, so only people who actually use this feature see the prompt.
 private enum NotificationHelper {
     @MainActor
-    static func notifyIfBackgrounded(title: String, body: String) async {
-        guard UIApplication.shared.applicationState != .active else { return }
+    static func notifyIfNeeded(wasBackgroundedDuringCall: Bool, title: String, body: String) async {
+        guard wasBackgroundedDuringCall || UIApplication.shared.applicationState != .active else { return }
 
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()
         if settings.authorizationStatus == .notDetermined {
             _ = try? await center.requestAuthorization(options: [.alert, .sound])
+        }
+        let updatedSettings = await center.notificationSettings()
+        guard isDisplayAuthorized(updatedSettings.authorizationStatus) else {
+            return
         }
 
         let content = UNMutableNotificationContent()
@@ -158,6 +187,16 @@ private enum NotificationHelper {
         content.sound = .default
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
         try? await center.add(request)
+    }
+
+    private static func isDisplayAuthorized(_ status: UNAuthorizationStatus) -> Bool {
+        if status == .authorized || status == .provisional {
+            return true
+        }
+        if #available(iOS 14.0, *) {
+            return status == .ephemeral
+        }
+        return false
     }
 }
 

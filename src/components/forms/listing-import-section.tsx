@@ -110,17 +110,16 @@ export function ListingImportSection({
     });
     setNotificationMessage("");
 
-    prepareListingImportNotifications()
-      .then((permission) => {
-        if (permission === "denied") {
-          setNotificationMessage(
-            "Bildirim izni kapalı. İlan analizi devam eder; ancak uygulama arka plandayken biterse bildirim gönderilemeyebilir.",
-          );
-        }
-      })
-      .catch(() => {
-        setNotificationMessage("");
-      });
+    try {
+      const permission = await prepareListingImportNotifications();
+      if (permission === "denied") {
+        setNotificationMessage(
+          "Bildirim izni kapalı. İlan analizi devam eder; ancak uygulama arka plandayken biterse bildirim gönderilemeyebilir.",
+        );
+      }
+    } catch {
+      setNotificationMessage("");
+    }
 
     // Whatever importListingFromUrl does internally, this call must always
     // end in a terminal UI state — an uncaught rejection here (from the
