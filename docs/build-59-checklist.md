@@ -21,6 +21,11 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
   - If no explicit free vision model is configured, photo analysis falls back to the known free vision default.
   - This targets cases where obvious vehicle damage photos returned `Fotoğraf analizi şu anda tamamlanamadı`.
   - Commit: `4f2af6b`
+- [x] Regenerated the App Store screenshot set from current Build 59 screens.
+  - Removed the old subscription/paywall first screenshot.
+  - Removed the old offline/connection-style fifth screenshot.
+  - New final set: home, analysis start, risk score, garage, buyer decision.
+  - Final App Store outputs are generated at `1320x2868`.
 
 ## Verified For New Build 59 Fixes
 
@@ -28,6 +33,9 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
 - [x] `npm test -- tests/unit/photo-damage-endpoint.test.ts`
 - [x] `npm run typecheck`
 - [x] `npm run lint`
+- [x] `npm run appstore:package`
+- [x] `npm run appstore:screenshots`
+- [x] `npm run appstore:check`
 
 ## Still Open Before Closing Build 59
 

@@ -43,23 +43,23 @@ Bu komut App Store dokümanlarını, mevcut mobil screenshot çıktısını ve i
 
 Apple'ın App Store Connect screenshot referansına göre iPhone 6.9 inç portre setinde 1320 x 2868, 1290 x 2796 veya 1260 x 2736 piksel kabul edilir. EksperIQ ilk paketleme akışı 1320 x 2868 PNG üretir. Apple ayrıca her screenshot seti için 1-10 PNG/JPG/JPEG dosyası kabul eder.
 
-Öncelikli mobil dosyalar:
+Build 59 App Store screenshot kaynakları:
 
 ```text
-test-results/screenshots/mobile-home.png
-test-results/screenshots/mobile-analysis-form.png
-test-results/screenshots/mobile-result.png
-test-results/screenshots/mobile-my-analyses.png
-test-results/screenshots/mobile-offline.png
+docs/app-store-screenshot-sources/build-59/01-home.jpg
+docs/app-store-screenshot-sources/build-59/02-analysis-start.jpg
+docs/app-store-screenshot-sources/build-59/03-risk-score.jpg
+docs/app-store-screenshot-sources/build-59/04-garage.jpg
+docs/app-store-screenshot-sources/build-59/05-buyer-decision.jpg
 ```
 
 App Store ekran görüntüleri için önerilen sıra:
 
-1. Ana ekran: ücretsiz analiz vaadi.
-2. Analiz formu: manuel ve gizlilik odaklı akış.
-3. Sonuç raporu: risk skoru ve satıcı soruları.
-4. Analizlerim: oturum raporu ve gelecek modüller.
-5. Offline ekran: stabil hata durumu.
+1. Ana ekran: yeni analiz, satın alma rehberi ve yakın hizmet yönlendirmesi.
+2. Analiz seçimi: araç satın alma ilanı veya kendi aracını fotoğrafla analiz etme.
+3. Sonuç raporu: risk skoru ve kısa karar özeti.
+4. Garajım: araç kartı, bakım takvimi ve vergi/ödeme takibi.
+5. Alıcı kararı: şartlı alınır kararı ve alınmadan önce sorulacaklar.
 
 ## Store metinleri
 

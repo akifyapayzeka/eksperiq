@@ -34,6 +34,15 @@ npm run screenshots
 - `mobile-result.png`
 - `mobile-offline.png`
 
+App Store Build 59 sunum görselleri E2E çıktılarından değil, kullanıcı tarafından TestFlight'ta seçilen gerçek
+ekranlardan üretilir:
+
+- `docs/app-store-screenshot-sources/build-59/01-home.jpg`
+- `docs/app-store-screenshot-sources/build-59/02-analysis-start.jpg`
+- `docs/app-store-screenshot-sources/build-59/03-risk-score.jpg`
+- `docs/app-store-screenshot-sources/build-59/04-garage.jpg`
+- `docs/app-store-screenshot-sources/build-59/05-buyer-decision.jpg`
+
 ## Çekilecek ekranlar
 
 1. Ana sayfa

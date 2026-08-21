@@ -5,6 +5,7 @@ const outputDir = join(process.cwd(), "dist", "app-store-package");
 const docsDir = join(outputDir, "docs");
 const screenshotsDir = join(outputDir, "screenshots");
 const assetsDir = join(outputDir, "assets");
+const screenshotSourceDir = join(process.cwd(), "docs", "app-store-screenshot-sources", "build-59");
 
 const docs = [
   "docs/app-store-submission.md",
@@ -22,11 +23,11 @@ const docs = [
 ];
 
 const screenshots = [
-  "mobile-home.png",
-  "mobile-analysis-form.png",
-  "mobile-result.png",
-  "mobile-my-analyses.png",
-  "mobile-offline.png",
+  "01-home.jpg",
+  "02-analysis-start.jpg",
+  "03-risk-score.jpg",
+  "04-garage.jpg",
+  "05-buyer-decision.jpg",
 ];
 
 function copyIfExists(source, targetDir) {
@@ -42,7 +43,7 @@ mkdirSync(assetsDir, { recursive: true });
 
 const copiedDocs = docs.filter((doc) => copyIfExists(join(process.cwd(), doc), docsDir));
 const copiedScreenshots = screenshots.filter((file) =>
-  copyIfExists(join(process.cwd(), "test-results", "screenshots", file), screenshotsDir),
+  copyIfExists(join(screenshotSourceDir, file), screenshotsDir),
 );
 const copiedAssets = [
   "public/app-store-icon-source.svg",

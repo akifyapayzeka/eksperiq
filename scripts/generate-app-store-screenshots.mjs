@@ -1,48 +1,51 @@
-import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { chromium } from "@playwright/test";
 
 const outputDir = join(process.cwd(), "dist", "app-store-package", "app-store-screenshots");
-const sourceDir = join(process.cwd(), "test-results", "screenshots");
+const sourceDir = join(process.cwd(), "docs", "app-store-screenshot-sources", "build-59");
 const width = 1320;
 const height = 2868;
 
 const screenshots = [
   {
-    source: "mobile-home.png",
+    source: "01-home.jpg",
     output: "01-home-1320x2868.png",
-    title: "İlanı daha bilinçli değerlendir",
-    subtitle: "Riskli noktaları ve güçlü tarafları tek ekranda gör.",
+    title: "Araç alırken ilk adımı seç",
+    subtitle: "İlan analizi, satın alma rehberi ve yakındaki kontrol noktaları tek yerde.",
   },
   {
-    source: "mobile-analysis-form.png",
-    output: "02-analysis-form-1320x2868.png",
-    title: "Bilgileri manuel gir",
-    subtitle: "İlan sitesi kazımadan, yalnızca verdiğin bilgilerle analiz üret.",
+    source: "02-analysis-start.jpg",
+    output: "02-analysis-start-1320x2868.png",
+    title: "İlanı ya da kendi aracını analiz et",
+    subtitle: "İlan linkiyle satın alma raporu oluşturun veya fotoğrafla ön kontrol yapın.",
   },
   {
-    source: "mobile-result.png",
-    output: "03-result-1320x2868.png",
-    title: "Risk skorunu ve soruları gör",
-    subtitle: "Satıcıya ne soracağını ve ekspertizde neye bakılacağını öğren.",
+    source: "03-risk-score.jpg",
+    output: "03-risk-score-1320x2868.png",
+    title: "Risk skorunu ve özeti gör",
+    subtitle: "Skor, karar özeti ve riskli bulgular satın alma öncesi öncelik verir.",
   },
   {
-    source: "mobile-my-analyses.png",
-    output: "04-analyses-1320x2868.png",
-    title: "Analizlerini oturumda takip et",
-    subtitle: "Karar destek raporlarını sade bir akışta incele.",
+    source: "04-garage.jpg",
+    output: "04-garage-1320x2868.png",
+    title: "Garajında bakım ve ödemeyi takip et",
+    subtitle: "Bakım, muayene, lastik, akü, MTV, sigorta ve kasko tarihlerini düzenli tut.",
   },
   {
-    source: "mobile-offline.png",
-    output: "05-offline-1320x2868.png",
-    title: "Net sınırlar, güvenli kullanım",
-    subtitle: "EksperIQ profesyonel ekspertizin yerine geçmez.",
+    source: "05-buyer-decision.jpg",
+    output: "05-buyer-decision-1320x2868.png",
+    title: "Almadan önce şartları öğren",
+    subtitle: "Ekspertiz, belge ve bakım sorularını gör; kararını kanıtla destekle.",
   },
 ];
 
-function pngDataUrl(filePath) {
+function imageDataUrl(filePath) {
   const base64 = readFileSync(filePath).toString("base64");
-  return `data:image/png;base64,${base64}`;
+  const mimeType = filePath.toLowerCase().endsWith(".jpg") || filePath.toLowerCase().endsWith(".jpeg")
+    ? "image/jpeg"
+    : "image/png";
+  return `data:${mimeType};base64,${base64}`;
 }
 
 function ensureSourcesExist() {
@@ -53,13 +56,13 @@ function ensureSourcesExist() {
   if (missing.length) {
     console.error("App Store screenshot kaynagi eksik:");
     for (const sourcePath of missing) console.error(`- ${sourcePath}`);
-    console.error("Once `npm run screenshots` calistirin.");
+    console.error("Build 59 screenshot kaynaklarini docs/app-store-screenshot-sources/build-59 altina ekleyin.");
     process.exit(1);
   }
 }
 
 function buildHtml(item) {
-  const source = pngDataUrl(join(sourceDir, item.source));
+  const source = imageDataUrl(join(sourceDir, item.source));
   return `<!doctype html>
 <html lang="tr">
   <head>
@@ -72,14 +75,17 @@ function buildHtml(item) {
         width: ${width}px;
         height: ${height}px;
         overflow: hidden;
-        background: #f5f8fb;
-        color: #0a1a2f;
+        background:
+          radial-gradient(circle at 22% 8%, rgba(79, 176, 229, 0.22), transparent 36%),
+          radial-gradient(circle at 88% 3%, rgba(33, 195, 155, 0.12), transparent 32%),
+          #07131d;
+        color: #f8fafc;
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
       .canvas {
         width: ${width}px;
         height: ${height}px;
-        padding: 168px 108px 116px;
+        padding: 128px 104px 104px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -89,39 +95,40 @@ function buildHtml(item) {
         width: 100%;
       }
       .eyebrow {
-        color: #0f766e;
+        color: #53b4f1;
         font-size: 34px;
         font-weight: 800;
-        margin: 0 0 28px;
+        margin: 0 0 24px;
       }
       h1 {
         margin: 0;
-        max-width: 980px;
-        font-size: 88px;
+        max-width: 1020px;
+        font-size: 84px;
         line-height: 1.05;
         letter-spacing: 0;
       }
       .subtitle {
         margin: 34px 0 0;
-        max-width: 940px;
-        color: #475569;
-        font-size: 42px;
+        max-width: 1010px;
+        color: #a8b4c2;
+        font-size: 40px;
         line-height: 1.3;
       }
       .phone {
-        width: 900px;
-        height: 1760px;
-        padding: 22px;
-        border-radius: 102px;
-        background: #0a1a2f;
-        box-shadow: 0 50px 130px rgba(10, 26, 47, 0.28);
+        width: 840px;
+        height: 1822px;
+        padding: 18px;
+        border-radius: 86px;
+        background: linear-gradient(180deg, #1e3447, #06111a);
+        border: 2px solid rgba(142, 197, 234, 0.24);
+        box-shadow: 0 52px 140px rgba(0, 0, 0, 0.48);
       }
       .screen {
         width: 100%;
         height: 100%;
-        border-radius: 80px;
+        border-radius: 68px;
         overflow: hidden;
-        background: white;
+        background: #08141f;
       }
       img {
         width: 100%;
@@ -135,12 +142,12 @@ function buildHtml(item) {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        color: #64748b;
+        color: #8ea0b2;
         font-size: 30px;
         font-weight: 700;
       }
       .brand {
-        color: #0a1a2f;
+        color: #f8fafc;
         font-size: 42px;
         font-weight: 900;
       }
@@ -166,6 +173,7 @@ function buildHtml(item) {
 }
 
 ensureSourcesExist();
+rmSync(outputDir, { recursive: true, force: true });
 mkdirSync(outputDir, { recursive: true });
 
 // Some local sandboxes pre-install a browser at a fixed path whose revision

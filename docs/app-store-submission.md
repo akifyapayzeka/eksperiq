@@ -80,8 +80,8 @@ test-results/screenshots
 
 App Store için önce mobil çıktılar incelenmelidir:
 
-- `mobile-home.png`
-- `mobile-analysis-form.png`
-- `mobile-result.png`
-- `mobile-my-analyses.png`
-- `mobile-offline.png`
+- `01-home-1320x2868.png`
+- `02-analysis-start-1320x2868.png`
+- `03-risk-score-1320x2868.png`
+- `04-garage-1320x2868.png`
+- `05-buyer-decision-1320x2868.png`
