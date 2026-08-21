@@ -61,6 +61,9 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
   - Report `Alım Planı` now includes city/service/notary direction cards and a repair-cost CTA for negotiation.
   - `/onarim-maliyeti` is now a real repair-cost estimation page instead of redirecting back to photo analysis.
   - Nearby services accepts `?kategori=ekspertiz|servis|noter`, so report/guide links open the right service type.
+- [x] Added explicit research-to-product evidence for the Build 58 buyer journey.
+  - `docs/user-research-product-lessons.md` maps used-car buyer research themes to app surfaces.
+  - PDF payload is now unit-tested to keep buyer education and decision-guide notes in shared reports.
 
 ## Verified
 
@@ -71,6 +74,7 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
 - [x] `npm test -- tests/unit/vehicles-model.test.ts tests/unit/vehicle-switcher.test.tsx tests/unit/mobile-bottom-nav.test.tsx tests/unit/reminders-model.test.ts tests/unit/reminders-storage.test.ts`
 - [x] `npm test -- tests/unit/photo-damage-endpoint.test.ts`
 - [x] `npm test -- tests/unit/modules-registry.test.ts tests/unit/report-summary.test.ts tests/unit/api-client.test.ts`
+- [x] `npm test -- tests/unit/report-pdf-payload.test.ts`
 - [x] `npm run build`
 
 ## Still Open Before Closing Build 58

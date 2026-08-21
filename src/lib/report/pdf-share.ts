@@ -9,7 +9,7 @@ import { BUYER_DECISION_GUIDE, BUYER_EDUCATION_NOTES } from "@/lib/analysis/buye
 
 export type PdfShareOutcome = "shared" | "downloaded" | "failed";
 
-function buildReportPayload(result: AnalysisResult) {
+export function buildReportPayload(result: AnalysisResult) {
   return {
     year: result.input.year,
     brand: result.input.brand,
