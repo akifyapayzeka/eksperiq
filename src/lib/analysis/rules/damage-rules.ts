@@ -10,6 +10,10 @@ function partCount(value?: string): number {
     .filter(Boolean).length;
 }
 
+function hasStructuralPart(value?: string): boolean {
+  return /kaput|tavan|direk|şasi|sasi|podye|panel/i.test(value ?? "");
+}
+
 export function damageRules(input: VehicleFormData): AnalysisFinding[] {
   const findings: AnalysisFinding[] = [];
   if (input.hasHeavyDamage)
@@ -49,6 +53,36 @@ export function damageRules(input: VehicleFormData): AnalysisFinding[] {
       recommendation: "Resmî kayıtları ve onarım kalitesini uzmanla inceleyin.",
     });
   const replacedCount = partCount(input.replacedParts);
+  if (input.paintedParts)
+    findings.push({
+      id: "painted-parts-declared",
+      category: "Hasar",
+      severity: "low",
+      title: "Boyalı parça bilgisi var",
+      explanation:
+        `İlanda boyalı parça olarak ${input.paintedParts} belirtilmiş. Boya tek başına ağır hasar anlamına gelmez; parça, ölçüm ve onarım nedeni birlikte değerlendirilmelidir.`,
+      recommendation: "Boya kalınlık ölçümünü tüm panellerde yaptırın ve boya nedenini satıcıdan yazılı sorun.",
+    });
+  if (input.localPaintedParts)
+    findings.push({
+      id: "local-painted-parts-declared",
+      category: "Hasar",
+      severity: "low",
+      title: "Lokal boyalı parça bilgisi var",
+      explanation:
+        `İlanda lokal boyalı parça olarak ${input.localPaintedParts} belirtilmiş. Lokal boya çoğu zaman kozmetik olabilir; yine de darbe izi ve macun kalınlığı kontrol edilmelidir.`,
+      recommendation: "Lokal boya olan bölgede boya kalınlığı, bağlantı vidaları ve panel hizasını kontrol ettirin.",
+    });
+  if (replacedCount === 1)
+    findings.push({
+      id: "single-replaced-part",
+      category: "Hasar",
+      severity: hasStructuralPart(input.replacedParts) ? "high" : "medium",
+      title: "Değişen parça bilgisi var",
+      explanation:
+        `İlanda değişen parça olarak ${input.replacedParts} belirtilmiş. Değişen parçanın tampon/kapı gibi dış panel mi, yoksa taşıyıcı yapıya yakın kritik bir parça mı olduğu alım kararında önemlidir.`,
+      recommendation: "Değişen parçanın neden değiştiğini, eski hasar fotoğraflarını ve onarım faturasını isteyin.",
+    });
   if (replacedCount > 1)
     findings.push({
       id: "multiple-replaced",
@@ -76,7 +110,7 @@ export function damageRules(input: VehicleFormData): AnalysisFinding[] {
       explanation: "Hasar alanlarının boş olması aracın hasarsız olduğunu göstermez.",
       recommendation: "Boya, değişen ve tramer detaylarını yazılı olarak isteyin.",
     });
-  if (/tampon/i.test(input.localPaintedParts ?? "") && findings.length === 0)
+  if (/tampon/i.test(input.localPaintedParts ?? "") && !findings.some((finding) => finding.id === "local-painted-parts-declared"))
     findings.push({
       id: "bumper-local-paint",
       category: "Hasar",

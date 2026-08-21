@@ -77,9 +77,12 @@ export function findChronicIssues(
   const model = normalize(input.model);
   if (!brand || !model) return { entry: null, issues: [] };
 
-  const entry = CHRONIC_ISSUES_DB.find(
+  const modelEntries = CHRONIC_ISSUES_DB.filter(
     (candidate) => normalize(candidate.brand) === brand && normalize(candidate.model) === model,
   );
+  const entry =
+    modelEntries.find((candidate) => input.year >= candidate.yearFrom && input.year <= candidate.yearTo) ??
+    modelEntries[0];
   if (!entry || input.year < entry.yearFrom || input.year > entry.yearTo) {
     return { entry: entry ?? null, issues: [] };
   }

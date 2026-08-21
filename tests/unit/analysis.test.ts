@@ -59,6 +59,34 @@ describe("analysis engine", () => {
     expect(findings).toContainEqual(expect.objectContaining({ id: "heavy-damage", severity: "high" }));
   });
 
+  it("comments on declared single paint and replaced-part details", () => {
+    const findings = damageRules({
+      ...baseInput,
+      paintedParts: "Sağ ön kapı",
+      replacedParts: "Ön tampon",
+      localPaintedParts: "",
+    });
+
+    expect(findings).toContainEqual(expect.objectContaining({ id: "painted-parts-declared", severity: "low" }));
+    expect(findings).toContainEqual(expect.objectContaining({ id: "single-replaced-part", severity: "medium" }));
+  });
+
+  it("shows chronic issue guidance for 2021 Renault Clio", () => {
+    const result = analyzeVehicle({
+      ...baseInput,
+      brand: "Renault",
+      model: "Clio",
+      year: 2021,
+      fuelType: "Benzin",
+      transmission: "Manuel",
+      engineSize: "1.0",
+      mileage: 115000,
+    });
+
+    expect(result.knownIssues.length).toBeGreaterThan(0);
+    expect(result.knownIssues[0].engineLabel).toContain("1.0");
+  });
+
   it("evaluates annual mileage", () => {
     const mileage = evaluateMileage({ ...baseInput, year: 2025, mileage: 120000 });
     expect(mileage.annualMileage).toBeGreaterThan(40000);

@@ -275,6 +275,73 @@ describe("listing import AI endpoint", () => {
     expect(result.missingFields).not.toContain("replacedParts");
   });
 
+  it("prefers explicit kilometre text when the model mistakes the year for mileage", async () => {
+    const modelResponse = {
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              title: "2021 Renault Clio",
+              fields: {
+                brand: "Renault",
+                model: "Clio",
+                year: 2021,
+                trim: null,
+                fuelType: "Benzin",
+                transmission: "Manuel",
+                mileage: 2020,
+                price: null,
+                city: null,
+                bodyType: "Hatchback",
+                engineSize: "1.0",
+                enginePower: null,
+                drivetrain: null,
+                ownerInfo: null,
+                tradeStatus: null,
+                tramerAmount: null,
+                paintedParts: null,
+                replacedParts: null,
+                localPaintedParts: null,
+                airbagStatus: null,
+                lpgStatus: null,
+                hasHeavyDamage: null,
+                hasChassisRepair: null,
+                hasTotalLossHistory: null,
+                hasExpertiseReport: null,
+                lpgRegistered: null,
+                hasSpareKey: null,
+                hasMaintenanceInvoices: null,
+                lastMaintenanceDate: null,
+                timingBeltInfo: null,
+                transmissionMaintenanceInfo: null,
+                batteryStatus: null,
+                tireStatus: null,
+                inspectionEndDate: null,
+                sellerDescription: "Hatasız boyasız aile aracı.",
+              },
+              lowConfidenceFields: [],
+              missingFields: [],
+              warnings: [],
+            }),
+          },
+        },
+      ],
+    };
+    const fetchMock = mockFetchAllowingRateLimit(new Response(JSON.stringify(modelResponse), { status: 200 }));
+
+    const { statusCode, body } = await callEndpoint(
+      {
+        ...validBody,
+        bodyText: ["2021 Renault Clio", "Kilometre", "115.000 km", "İlan Fiyatı", "850.000 TL"].join("\n"),
+      },
+      fetchMock,
+    );
+
+    expect(statusCode).toBe(200);
+    const result = body.result as { fields: Record<string, unknown> };
+    expect(result.fields.mileage).toBe(115000);
+  });
+
   it("falls back to the paid listing model when the free model hits OpenRouter capacity", async () => {
     const fallbackModelResponse = {
       choices: [

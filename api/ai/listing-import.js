@@ -447,6 +447,15 @@ function extractMileageFromText(text) {
   return null;
 }
 
+function shouldPreferFallbackMileage(currentMileage, fallbackMileage) {
+  if (!fallbackMileage) return false;
+  if (!currentMileage) return true;
+  // Free models sometimes pick the model year ("2020") as mileage when the
+  // page also contains an explicit "Kilometre 115.000 km" row. In that case
+  // the deterministic label-based extraction is more trustworthy.
+  return currentMileage < 5_000 && fallbackMileage >= 10_000;
+}
+
 function extractPriceFromText(text) {
   const source = String(text || "");
   const patterns = [
@@ -674,12 +683,10 @@ function normalizeListingImportJson(json, input, model) {
       json.missingFields = removeMissingField(json.missingFields, "enginePower");
     }
   }
-  if (!fields.mileage) {
-    const fallbackMileage = extractMileageFromText(fallbackText);
-    if (fallbackMileage) {
-      fields.mileage = fallbackMileage;
-      json.missingFields = removeMissingField(json.missingFields, "mileage");
-    }
+  const fallbackMileage = extractMileageFromText(fallbackText);
+  if (shouldPreferFallbackMileage(fields.mileage, fallbackMileage)) {
+    fields.mileage = fallbackMileage;
+    json.missingFields = removeMissingField(json.missingFields, "mileage");
   }
   if (!fields.price) {
     const fallbackPrice = extractPriceFromText(fallbackText);

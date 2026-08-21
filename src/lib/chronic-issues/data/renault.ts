@@ -157,6 +157,132 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
   },
   {
     brand: "Renault",
+    model: "Clio",
+    generation: "V (2019-2026)",
+    yearFrom: 2019,
+    yearTo: 2026,
+    generalNote:
+      "Clio V'de motor ailesine ek olarak multimedya/easy link yazılımı, start-stop akü sağlığı, ön takım sesleri ve EDC/X-Tronic şanzıman davranışı alım öncesi özellikle denenmelidir.",
+    engines: [
+      {
+        engineLabel: "1.0 SCe",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2019,
+        yearTo: 2026,
+        reliabilityNote:
+          "Basit atmosferik yapı, turbo ve direkt enjeksiyon risklerini azaltır; asıl kontrol kalemi bakım geçmişi, bobin/buji ve varsa LPG uygulamasıdır.",
+        issues: [
+          {
+            id: "clio5-10sce-bobin-lpg",
+            severity: "low",
+            title: "Bobin/buji teklemesi ve LPG varsa subap kontrolü",
+            detail:
+              "1.0 SCe motorlarda ateşleme bobini/buji kaynaklı tekleme görülebilir. LPG uygulanmış araçlarda montaj kalitesi ve subap sesi ayrıca kontrol edilmelidir.",
+            typicalOnset: "80.000 km sonrası",
+            costLevel: "Düşük",
+            sourceNote: "Renault/Dacia SCe motor ailesi kullanıcı deneyimleri ve bağımsız servis kayıtları.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.0 TCe",
+        fuelType: "Benzin",
+        transmission: "Manuel",
+        yearFrom: 2019,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "clio5-10tce-turbo-yag",
+            severity: "medium",
+            title: "Turbo, yağ bakımı ve soğutma kaçakları kontrolü",
+            detail:
+              "1.0 TCe'de düzenli yağ bakımı kritik; turbo sesi, yağ kaçakları, soğutma suyu eksiltme ve yazılım güncellemeleri test sürüşünde kontrol edilmelidir.",
+            typicalOnset: "Garanti devri ve 80.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Renault TCe kullanıcı kayıtları ve bağımsız servis kontrol listelerinde tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.0 TCe X-Tronic",
+        fuelType: "Benzin",
+        transmission: "Otomatik",
+        yearFrom: 2020,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "clio5-10tce-xtronic",
+            severity: "medium",
+            title: "X-Tronic/CVT kalkış davranışı ve bakım geçmişi",
+            detail:
+              "X-Tronic şanzımanlı Clio'larda kalkışta titreme, uğultu, gecikme ve yağ bakım geçmişi kontrol edilmeli; şehir içi yoğun kullanım şanzıman yükünü artırabilir.",
+            typicalOnset: "80.000-120.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Renault/Nissan CVT alım rehberleri ve kullanıcı deneyimlerinde tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.3 TCe EDC",
+        fuelType: "Benzin",
+        transmission: "Yarı otomatik",
+        yearFrom: 2019,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "clio5-13tce-edc",
+            severity: "medium",
+            title: "EDC kavrama/yazılım ve turbo-soğutma kontrolü",
+            detail:
+              "1.3 TCe genel olarak 1.2 TCe'ye göre daha güvenilir kabul edilir; yine de EDC düşük hız kavrama davranışı, turbo sesi, soğutma kaçakları ve yazılım güncellemeleri kontrol edilmelidir.",
+            typicalOnset: "100.000 km sonrası",
+            costLevel: "Orta",
+            sourceNote: "Renault 1.3 TCe/EDC kullanıcı deneyimleri ve bağımsız servis kayıtlarında tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+      {
+        engineLabel: "1.5 Blue dCi",
+        fuelType: "Dizel",
+        yearFrom: 2019,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "clio5-blue-dci-egr-dpf",
+            severity: "medium",
+            title: "EGR/DPF, enjektör ve AdBlue sistemi kontrolü",
+            detail:
+              "Blue dCi motorlarda kısa mesafe kullanım DPF/EGR tıkanmasını hızlandırabilir; enjektör düzeltme değerleri, turbo sesi ve AdBlue arızaları kontrol edilmelidir.",
+            typicalOnset: "100.000 km sonrası, kısa mesafe kullanımda daha erken",
+            costLevel: "Orta",
+            sourceNote: "Renault K9K/Blue dCi kullanıcı ve servis kayıtlarında tekrar eden bulgular.",
+          },
+        ],
+      },
+      {
+        engineLabel: "E-Tech Hybrid",
+        fuelType: "Hibrit",
+        transmission: "Otomatik",
+        yearFrom: 2020,
+        yearTo: 2026,
+        issues: [
+          {
+            id: "clio5-etech-hybrid",
+            severity: "medium",
+            title: "Hibrit batarya, yazılım ve geçiş davranışı kontrolü",
+            detail:
+              "E-Tech hibritlerde batarya sağlık durumu, elektrik-benzin geçişleri, yazılım güncellemeleri ve soğuk çalıştırma davranışı test edilmelidir.",
+            typicalOnset: "Garanti devri sonrası",
+            costLevel: "Yüksek",
+            sourceNote: "Renault E-Tech kullanıcı deneyimleri ve hibrit alım rehberlerinde tekrar eden kontrol başlığı.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    brand: "Renault",
     model: "Megane",
     generation: "III (2008-2016) ve IV (2016-2020)",
     yearFrom: 2008,
