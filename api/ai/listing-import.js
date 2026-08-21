@@ -9,13 +9,13 @@ const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
 // "openrouter/free" which can randomly route to a moderation/safety model.
 const DEFAULT_OPENROUTER_MODEL = "openai/gpt-oss-20b:free";
 const DEFAULT_OPENROUTER_FALLBACK_MODEL = "";
-const DEFAULT_DAILY_LIMIT = 60;
-// TEMPORARY: raised from 10 for this bug-hunt session — this feature's own
-// retry-on-blocked-page logic can burn 2 requests per user attempt, and a
-// day of build-33-through-40 testing against the same install has likely
-// already exhausted the real (10) limit, which only resets at UTC
-// midnight. Dial back to 10 once the listing-import investigation is done.
-const DEFAULT_DAILY_LIMIT_PER_INSTALL = 40;
+// TEMPORARY: raised well above real launch levels — the app has no public
+// users yet (still in App Store review), only the owner's own device
+// testing against it repeatedly. Dial both back down to sane per-install
+// (~10) and global (~60) values once the app is live and this daily cap
+// needs to mean something again.
+const DEFAULT_DAILY_LIMIT = 600;
+const DEFAULT_DAILY_LIMIT_PER_INSTALL = 500;
 const DEFAULT_BURST_LIMIT = 4;
 const DEFAULT_BURST_WINDOW_SECONDS = 60;
 const productionUrl = "https://eksperiq.vercel.app";
