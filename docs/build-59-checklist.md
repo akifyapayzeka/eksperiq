@@ -1,6 +1,6 @@
 # Build 59 Checklist
 
-Status: open. Do not upload to TestFlight until the user explicitly says to close/upload Build 59.
+Status: closing/upload requested by user. TestFlight upload is allowed for Build 59.
 
 ## Included Changes
 
@@ -49,8 +49,7 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
 - [x] `npm test -- tests/unit/import-listing.test.ts`
 - [x] `npm test -- tests/unit/listing-import-endpoint.test.ts`
 
-## Still Open Before Closing Build 59
+## Closing Status
 
-- [ ] Wait for user real-device feedback.
-- [ ] Add any remaining fixes requested by the user.
-- [ ] Upload Build 59 to TestFlight only after explicit close/upload instruction.
+- [x] User explicitly requested uploading Build 59 to TestFlight.
+- [ ] GitHub Actions TestFlight upload completed successfully.
