@@ -469,4 +469,63 @@ describe("photo damage AI endpoint", () => {
     expect(payload.analysis.isVehiclePhoto).toBe(true);
     expect(payload.analysis.findings).toEqual([]);
   });
+
+  it("retries without strict response_format when a free vision model rejects JSON schema mode", async () => {
+    const fetchMock = vi.fn<(input: unknown, init?: RequestInit) => Promise<Response>>(async (input, init) => {
+      if (String(input).includes("upstash.example.com")) {
+        return new Response(UPSTASH_ALLOW_RESPONSE, { status: 200 });
+      }
+      const body = JSON.parse(String(init?.body)) as { response_format?: unknown };
+      if (body.response_format) {
+        return new Response(JSON.stringify({ error: { message: "response_format unsupported" } }), { status: 400 });
+      }
+      return new Response(
+        JSON.stringify({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  isVehiclePhoto: true,
+                  summary: "Fotoğrafta aracın ön kısmında kontrol gerektiren alanlar görünüyor.",
+                  findings: [
+                    {
+                      area: "Ön bölüm",
+                      signal: "Olası darbe izi",
+                      confidence: "medium",
+                      explanation: "Ön bölümde parça hizası ve yüzey görünümü kontrol gerektirebilir.",
+                      recommendation: "Kaput, tampon ve şasi uçlarını ekspertizde kontrol ettirin.",
+                    },
+                  ],
+                }),
+              },
+            },
+          ],
+        }),
+        { status: 200 },
+      );
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const previousEnv = process.env;
+    process.env = {
+      ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+      OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
+    };
+    const response = createResponse();
+
+    await handler(createRequest(validBody), response);
+
+    process.env = previousEnv;
+    vi.unstubAllGlobals();
+    const openRouterCalls = fetchMock.mock.calls.filter(([input]) => !String(input).includes("upstash.example.com"));
+    const payload = JSON.parse(response.body) as { analysis: { isVehiclePhoto: boolean; findings: unknown[] } };
+    expect(response.statusCode).toBe(200);
+    expect(openRouterCalls).toHaveLength(2);
+    expect(openRouterCalls[0]?.[1]?.body).toContain("response_format");
+    expect(openRouterCalls[1]?.[1]?.body).not.toContain("response_format");
+    expect(payload.analysis.isVehiclePhoto).toBe(true);
+    expect(payload.analysis.findings).toHaveLength(1);
+  });
 });

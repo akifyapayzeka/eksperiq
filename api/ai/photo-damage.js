@@ -306,16 +306,27 @@ async function requestOpenRouterVision(input) {
   if (!apiKey) return { error: "OpenRouter API key tanımlı değil." };
 
   const model = resolveVisionModel();
-  const result = await callOpenRouterChatCompletions({
-    apiKey,
-    model,
-    messages: buildMessages(input),
-    responseFormat: photoDamageResponseFormat,
-    temperature: 0.1,
-    maxTokens: 900,
-    refererUrl: productionUrl,
-    appName,
-  });
+  const messages = buildMessages(input);
+  const callVisionModel = (responseFormat) =>
+    callOpenRouterChatCompletions({
+      apiKey,
+      model,
+      messages,
+      responseFormat,
+      temperature: 0.1,
+      maxTokens: 900,
+      refererUrl: productionUrl,
+      appName,
+    });
+
+  let result = await callVisionModel(photoDamageResponseFormat);
+  if (!result.ok && /:\s*400\b/.test(result.error)) {
+    // Some free vision models intermittently reject strict JSON schema mode.
+    // Keep the same prompt and retry once without response_format so the
+    // user still gets an analysis instead of a generic "unreliable response"
+    // error. OpenRouter/network retry remains handled inside the shared client.
+    result = await callVisionModel(undefined);
+  }
   if (!result.ok) return { error: result.error };
 
   const text = extractText(result.payload);

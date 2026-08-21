@@ -42,6 +42,9 @@ Status: open. Do not upload to TestFlight until the user explicitly says to clos
   - Removed the `Fotograf analizi tum planlarda ucretsiz` benefit row from the plan cards.
   - Removed the same wording from Pro/Pro+ promo and onboarding paywall descriptions.
   - Kept subscription limits focused on listing-link analysis: Free 3, Pro 20, Pro+ unlimited.
+- [x] Hardened photo analysis against strict JSON schema failures.
+  - If the free vision model rejects strict `response_format` mode with HTTP 400, the endpoint retries once without strict schema mode.
+  - The user-facing error now says the model result could not be read and suggests retry/manual finding instead of the old generic reliability wording.
 
 ## Verified
 

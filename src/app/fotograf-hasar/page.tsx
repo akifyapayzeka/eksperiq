@@ -317,8 +317,13 @@ export default function PhotoDamagePage() {
       return "Fotoğraf işlenemedi. Lütfen araç görünen JPG/PNG fotoğraf seçin veya manuel bulgu ekleyin.";
     }
 
-    if (error?.toLocaleLowerCase("tr-TR").includes("openrouter")) {
-      return "Şu anda güvenilir yanıt alınamadı. Manuel bulgu ekleyerek rapora devam edebilirsiniz.";
+    const normalizedError = error?.toLocaleLowerCase("tr-TR") ?? "";
+    if (
+      normalizedError.includes("openrouter") ||
+      normalizedError.includes("ai fotoğraf sonucu işlenemedi") ||
+      normalizedError.includes("ai yanıtı okunamadı")
+    ) {
+      return "Fotoğraf modeli şu anda okunabilir sonuç veremedi. Biraz sonra tekrar deneyebilir veya manuel bulgu ekleyerek rapora devam edebilirsiniz.";
     }
 
     return "Fotoğraf analizi şu anda tamamlanamadı. Manuel bulgu ekleyerek devam edebilirsiniz.";
