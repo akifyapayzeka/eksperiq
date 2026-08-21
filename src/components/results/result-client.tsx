@@ -53,9 +53,10 @@ const findingFilters: Array<{ value: FindingFilter; label: string }> = [
   { value: "low", label: "Düşük" },
 ];
 
-type ReportTab = "ozet" | "riskler" | "plan" | "arac" | "kontrol";
+type ReportTab = "karar" | "ozet" | "riskler" | "plan" | "arac" | "kontrol";
 
 const reportTabs: Array<{ id: ReportTab; label: string }> = [
+  { id: "karar", label: "Alıcı Kararı" },
   { id: "ozet", label: "Özet" },
   { id: "riskler", label: "Riskler" },
   { id: "plan", label: "Alım Planı" },
@@ -283,7 +284,7 @@ export function ResultClient() {
   const [checkedChecklist, setCheckedChecklist] = useState<Set<string>>(new Set());
   const [scoreRingFilled, setScoreRingFilled] = useState(false);
   const [toastNonce, setToastNonce] = useState(0);
-  const [activeTab, setActiveTab] = useState<ReportTab>("ozet");
+  const [activeTab, setActiveTab] = useState<ReportTab>("karar");
   const [selectedListingImageIndex, setSelectedListingImageIndex] = useState<number | null>(null);
   const [listingImageZoom, setListingImageZoom] = useState(MIN_IMAGE_ZOOM);
 
@@ -614,9 +615,9 @@ export function ResultClient() {
         </div>
         <div
           role="tabpanel"
-          id="rapor-panel-ozet"
-          aria-labelledby="rapor-sekme-ozet"
-          className={`report-tab-panel ${activeTab === "ozet" ? "contents" : "hidden"}`}
+          id="rapor-panel-karar"
+          aria-labelledby="rapor-sekme-karar"
+          className={`report-tab-panel ${activeTab === "karar" ? "contents" : "hidden"}`}
         >
           <SectionCard
             title="Alıcı kararı"
@@ -663,6 +664,13 @@ export function ResultClient() {
               ))}
             </div>
           </SectionCard>
+        </div>
+        <div
+          role="tabpanel"
+          id="rapor-panel-ozet"
+          aria-labelledby="rapor-sekme-ozet"
+          className={`report-tab-panel ${activeTab === "ozet" ? "contents" : "hidden"}`}
+        >
           <SectionCard
             title="Paylaşılabilir kısa özet"
             description="Uzun rapor yerine satıcıya, ekspertize veya kendinize gönderebileceğiniz kısa karar desteği özeti."
