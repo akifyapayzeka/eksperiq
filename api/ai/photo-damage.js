@@ -111,12 +111,29 @@ function extractText(payload) {
   const content = message.content;
   if (typeof content === "string") return content;
   if (Array.isArray(content)) {
-    return content
-      .map((part) => (isRecord(part) && typeof part.text === "string" ? part.text : ""))
+    const text = content
+      .map((part) => {
+        if (!isRecord(part)) return "";
+        if (typeof part.text === "string") return part.text;
+        if (typeof part.output_text === "string") return part.output_text;
+        if (isRecord(part.text) && typeof part.text.value === "string") return part.text.value;
+        return "";
+      })
       .join("")
       .trim();
+    if (text) return text;
   }
+  if (typeof message.reasoning === "string") return message.reasoning;
+  if (typeof firstChoice.text === "string") return firstChoice.text;
   return null;
+}
+
+function extractPayloadError(payload) {
+  if (!isRecord(payload) || !isRecord(payload.error)) return null;
+  const { error } = payload;
+  if (typeof error.message === "string" && error.message.trim()) return error.message.slice(0, 240);
+  if (typeof error.code === "string" && error.code.trim()) return error.code.slice(0, 120);
+  return "OpenRouter görsel modeli hata döndürdü.";
 }
 
 function extractJson(text) {
@@ -477,6 +494,13 @@ async function requestOpenRouterVision(input) {
       if (!result.ok) {
         lastError = result.error;
         if (responseFormat && /:\s*400\b/.test(result.error)) continue;
+        break;
+      }
+
+      const payloadError = extractPayloadError(result.payload);
+      if (payloadError) {
+        lastError = payloadError;
+        if (responseFormat && /response_format|schema|structured|json/i.test(payloadError)) continue;
         break;
       }
 

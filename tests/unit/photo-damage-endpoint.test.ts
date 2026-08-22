@@ -765,4 +765,96 @@ describe("photo damage AI endpoint", () => {
     expect(payload.analysis.findings[0].confidence).toBe("low");
     expect(payload.analysis.findings[0].recommendation).toContain("ekspertiz");
   });
+
+  it("reads alternate OpenRouter text block shapes", async () => {
+    const fetchMock = mockFetchAllowingRateLimit({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: [
+                {
+                  type: "output_text",
+                  output_text:
+                    "Ön tampon ve sağ far çevresinde olası darbe izi görünüyor; ekspertizde ön panel ve şasi uçları kontrol edilmeli.",
+                },
+              ],
+            },
+          },
+        ],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const previousEnv = process.env;
+    process.env = {
+      ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+      OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
+    };
+    const response = createResponse();
+
+    await handler(createRequest(validBody), response);
+
+    process.env = previousEnv;
+    vi.unstubAllGlobals();
+    const payload = JSON.parse(response.body) as {
+      analysis: { isVehiclePhoto: boolean; findings: Array<{ signal: string }> };
+    };
+    expect(response.statusCode).toBe(200);
+    expect(payload.analysis.isVehiclePhoto).toBe(true);
+    expect(payload.analysis.findings[0].signal).toContain("hasar");
+  });
+
+  it("retries without response_format when OpenRouter returns a 200 error payload for schema mode", async () => {
+    const fetchMock = vi.fn<(input: unknown, init?: RequestInit) => Promise<Response>>(async (input, init) => {
+      if (String(input).includes("upstash.example.com")) {
+        return new Response(UPSTASH_ALLOW_RESPONSE, { status: 200 });
+      }
+      const body = JSON.parse(String(init?.body)) as { response_format?: unknown };
+      if (body.response_format) {
+        return new Response(JSON.stringify({ error: { message: "response_format schema is not supported" } }), {
+          status: 200,
+        });
+      }
+      return new Response(
+        JSON.stringify({
+          choices: [
+            {
+              message: {
+                content:
+                  "Ön kaput, tampon ve far çevresinde olası kaza hasarı görünüyor; kaporta ve şasi kontrolü yapılmalı.",
+              },
+            },
+          ],
+        }),
+        { status: 200 },
+      );
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const previousEnv = process.env;
+    process.env = {
+      ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+      OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
+    };
+    const response = createResponse();
+
+    await handler(createRequest(validBody), response);
+
+    process.env = previousEnv;
+    vi.unstubAllGlobals();
+    const openRouterBodies = fetchMock.mock.calls
+      .filter(([input]) => !String(input).includes("upstash.example.com"))
+      .map(([, init]) => JSON.parse(String(init?.body)) as { response_format?: unknown });
+    const payload = JSON.parse(response.body) as { analysis: { findings: unknown[] } };
+    expect(response.statusCode).toBe(200);
+    expect(openRouterBodies[0]?.response_format).toBeDefined();
+    expect(openRouterBodies[1]?.response_format).toBeUndefined();
+    expect(payload.analysis.findings).toHaveLength(1);
+  });
 });
