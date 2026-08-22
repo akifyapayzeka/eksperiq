@@ -808,7 +808,15 @@ describe("photo damage AI endpoint", () => {
     expect(payload.analysis.findings[0].signal).toContain("hasar");
   });
 
-  it("does not show model reasoning text when falling back from an unstructured vision response", async () => {
+  it("does not show model reasoning text or a fabricated specific area when falling back from an unstructured vision response", async () => {
+    // Regression test: a real photo of a car with its entire front bumper
+    // torn off was labeled "Ön sol bölüm: Olası uyarı ışığı" (possible
+    // dashboard warning light) because the fallback used to keyword-match
+    // "front-left"/"warning"-ish words straight out of this kind of leaked
+    // reasoning text, producing a confident-sounding but fabricated,
+    // unrelated finding. When the model's text is unusable reasoning/schema
+    // noise like this, the fallback must stay honest about not having a
+    // real localized reading instead of guessing one from stray words.
     const fetchMock = mockFetchAllowingRateLimit({
       ok: true,
       json: async () => ({
@@ -838,11 +846,12 @@ describe("photo damage AI endpoint", () => {
     process.env = previousEnv;
     vi.unstubAllGlobals();
     const payload = JSON.parse(response.body) as {
-      analysis: { summary: string; findings: Array<{ area: string; explanation: string }> };
+      analysis: { summary: string; findings: Array<{ area: string; signal: string; explanation: string }> };
     };
     const combined = `${payload.analysis.summary} ${payload.analysis.findings[0]?.explanation ?? ""}`;
     expect(response.statusCode).toBe(200);
-    expect(payload.analysis.findings[0]?.area).toBe("Ön sol bölüm");
+    expect(payload.analysis.findings[0]?.area).toBe("Görseldeki araç bölgesi");
+    expect(payload.analysis.findings[0]?.signal).not.toBe("Olası uyarı ışığı");
     expect(combined).not.toMatch(/thinking process|strict json|analyze the request/i);
   });
 

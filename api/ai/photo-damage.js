@@ -324,16 +324,24 @@ function normalizeTextFallback(text) {
     .replace(/thinking process:[\s\S]*/i, "")
     .replace(/```[\s\S]*?```/g, "")
     .trim();
-  const safeSummary =
-    cleanText && !looksLikeReasoningLeak
-      ? cleanText.slice(0, 500)
-      : saysNoVehicle
-        ? "Fotoğrafta araç veya araçla ilgili net bir bölüm güvenle tespit edilemedi."
-        : saysDamageOrWarning
-          ? "Fotoğrafta araçla ilgili olası hasar veya kontrol gerektiren bir belirti görülebilir."
-          : "Fotoğrafta araçla ilgili kontrol edilebilecek alanlar var.";
-  const fallbackArea =
-    normalized.includes("front-left") || normalized.includes("ön sol") || normalized.includes("on sol")
+  // Only usable when it's real prose from the model, not schema/reasoning
+  // noise — otherwise any stray English word in that noise (e.g. a leaked
+  // "front-left" or "warning" fragment) ends up keyword-matched into a
+  // confident-sounding but fabricated area+signal below, completely
+  // disconnected from what the photo actually shows (seen live: a photo of
+  // a car with its entire front bumper torn off got labeled "Ön sol bölüm:
+  // Olası uyarı ışığı" — a dashboard-warning-light guess, because the failed
+  // model's leaked text happened to contain those words).
+  const hasUsableText = Boolean(cleanText) && !looksLikeReasoningLeak;
+  const safeSummary = hasUsableText
+    ? cleanText.slice(0, 500)
+    : saysNoVehicle
+      ? "Fotoğrafta araç veya araçla ilgili net bir bölüm güvenle tespit edilemedi."
+      : saysDamageOrWarning
+        ? "Fotoğrafta araçla ilgili olası hasar veya kontrol gerektiren bir belirti görülebilir, ancak AI yapılandırılmış bir sonuç üretemedi."
+        : "Fotoğrafta araçla ilgili kontrol edilebilecek alanlar var.";
+  const fallbackArea = hasUsableText
+    ? normalized.includes("front-left") || normalized.includes("ön sol") || normalized.includes("on sol")
       ? "Ön sol bölüm"
       : normalized.includes("front-right") || normalized.includes("ön sağ") || normalized.includes("on sag")
         ? "Ön sağ bölüm"
@@ -341,24 +349,24 @@ function normalizeTextFallback(text) {
           ? "Ön bölüm"
           : normalized.includes("gösterge") || normalized.includes("kadran") || normalized.includes("uyarı")
             ? "Gösterge paneli"
-            : "Görseldeki araç bölgesi";
-  const fallbackExplanation =
-    cleanText && !looksLikeReasoningLeak
-      ? cleanText.slice(0, 500)
-      : "Model yapılandırılmış JSON döndürmediği için bulgu düşük güvenle yorumlandı; fotoğrafta görünen belirti ekspertizde doğrulanmalıdır.";
+            : "Görseldeki araç bölgesi"
+    : "Görseldeki araç bölgesi";
+  const fallbackExplanation = hasUsableText
+    ? cleanText.slice(0, 500)
+    : "AI modeli bu fotoğraf için yapılandırılmış bir sonuç üretemedi, bu yüzden belirli bir bölge veya belirti güvenle adlandırılamıyor. Fotoğraf gözle görülür bir hasar/arıza gösteriyor olabilir; lütfen görseli kendiniz inceleyip ekspertizde doğrulatın.";
 
   const fallbackFinding =
     !saysNoVehicle && saysDamageOrWarning
       ? [
           {
             area: fallbackArea,
-            signal: normalized.includes("uyarı") || normalized.includes("uyari") || normalized.includes("lamba")
+            signal: hasUsableText && (normalized.includes("uyarı") || normalized.includes("uyari") || normalized.includes("lamba"))
               ? "Olası uyarı ışığı"
-              : "Olası hasar sinyali",
+              : "Olası hasar veya arıza sinyali (AI net sınıflandıramadı)",
             confidence: "low",
             explanation: fallbackExplanation,
             recommendation:
-              "Görsel tek başına kesin sonuç vermez; ilgili bölgeyi ekspertizde, gerekirse kaporta veya servis kontrolünde doğrulatın.",
+              "AI bu görseli net yapılandıramadı; fotoğrafı kendiniz gözle kontrol edin ve ilgili bölgeyi ekspertizde, gerekirse kaporta veya servis kontrolünde doğrulatın.",
           },
         ]
       : [];
@@ -539,6 +547,18 @@ async function requestOpenRouterVision(input) {
         continue;
       }
       const json = extractJson(text);
+      if (!json) {
+        // TEMPORARY: the unstructured-text fallback path has produced
+        // fabricated, unrelated-looking findings (e.g. a heavily damaged
+        // front bumper photo interpreted as a possible dashboard warning
+        // light) — this log captures the actual raw text so a future
+        // misfire can be root-caused instead of guessed at. No PII: this is
+        // model output about an uploaded photo, not user data.
+        console.warn(
+          "[photo-damage] model returned no parseable JSON, using text fallback:",
+          JSON.stringify({ model, textLength: text.length, textHead: text.slice(0, 800) }),
+        );
+      }
       const analysis = json ? normalizeAnalysis(json) : normalizeTextFallback(text);
       if (analysis) return { analysis, model };
       lastError = "AI fotoğraf sonucu işlenemedi.";
