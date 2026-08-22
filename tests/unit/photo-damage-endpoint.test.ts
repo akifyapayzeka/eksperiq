@@ -150,9 +150,13 @@ describe("photo damage AI endpoint", () => {
   });
 
   it("keeps a free-router vision fallback after the named free model", () => {
-    const { resolveVisionModelCandidates, DEFAULT_VISION_MODEL, FREE_ROUTER_FALLBACK_MODEL } = handler as unknown as {
+    const {
+      resolveVisionModelCandidates,
+      DEFAULT_VISION_MODEL_CANDIDATES,
+      FREE_ROUTER_FALLBACK_MODEL,
+    } = handler as unknown as {
       resolveVisionModelCandidates: () => string[];
-      DEFAULT_VISION_MODEL: string;
+      DEFAULT_VISION_MODEL_CANDIDATES: string[];
       FREE_ROUTER_FALLBACK_MODEL: string;
     };
     const previousEnv = process.env;
@@ -161,7 +165,8 @@ describe("photo damage AI endpoint", () => {
     delete process.env.OPENROUTER_VISION_MODEL;
     delete process.env.OPENROUTER_MODEL;
     delete process.env.OPENROUTER_VISION_FALLBACK_MODEL;
-    expect(resolveVisionModelCandidates()).toEqual([DEFAULT_VISION_MODEL, FREE_ROUTER_FALLBACK_MODEL]);
+    expect(resolveVisionModelCandidates()).toEqual([...DEFAULT_VISION_MODEL_CANDIDATES, FREE_ROUTER_FALLBACK_MODEL]);
+    expect(DEFAULT_VISION_MODEL_CANDIDATES.length).toBeGreaterThan(1);
 
     process.env = {
       ...previousEnv,
@@ -171,6 +176,7 @@ describe("photo damage AI endpoint", () => {
     expect(resolveVisionModelCandidates()).toEqual([
       "google/gemma-4-26b-a4b-it:free",
       "qwen/qwen3.6-plus:free",
+      ...DEFAULT_VISION_MODEL_CANDIDATES.filter((model) => model !== "google/gemma-4-26b-a4b-it:free"),
       FREE_ROUTER_FALLBACK_MODEL,
     ]);
     expect(
@@ -710,13 +716,53 @@ describe("photo damage AI endpoint", () => {
       .map(([, init]) => JSON.parse(String(init?.body)) as { model: string; response_format?: unknown });
     const payload = JSON.parse(response.body) as { model: string; analysis: { findings: unknown[] } };
     expect(response.statusCode).toBe(200);
-    expect(openRouterBodies.map((body) => body.model)).toEqual([
+    expect(openRouterBodies.map((body) => body.model)).toContain("openrouter/free");
+    expect(openRouterBodies.slice(0, 2).map((body) => body.model)).toEqual([
       "google/gemma-4-26b-a4b-it:free",
       "google/gemma-4-26b-a4b-it:free",
-      "openrouter/free",
     ]);
-    expect(openRouterBodies[2]?.response_format).toBeUndefined();
+    expect(openRouterBodies.at(-1)?.response_format).toBeUndefined();
     expect(payload.model).toBe("openrouter/free");
     expect(payload.analysis.findings).toHaveLength(1);
+  });
+
+  it("turns useful plain-text vehicle damage responses into a low-confidence finding instead of failing", async () => {
+    const fetchMock = mockFetchAllowingRateLimit({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content:
+                "Ön tampon, sağ far çevresi ve ön panel hizasında olası kaza hasarı görünüyor. Kaput ve şasi uçları ekspertizde kontrol edilmeli.",
+            },
+          },
+        ],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const previousEnv = process.env;
+    process.env = {
+      ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+      OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
+    };
+    const response = createResponse();
+
+    await handler(createRequest(validBody), response);
+
+    process.env = previousEnv;
+    vi.unstubAllGlobals();
+    const payload = JSON.parse(response.body) as {
+      analysis: { isVehiclePhoto: boolean; findings: Array<{ signal: string; confidence: string; recommendation: string }> };
+    };
+    expect(response.statusCode).toBe(200);
+    expect(payload.analysis.isVehiclePhoto).toBe(true);
+    expect(payload.analysis.findings).toHaveLength(1);
+    expect(payload.analysis.findings[0].signal).toContain("hasar");
+    expect(payload.analysis.findings[0].confidence).toBe("low");
+    expect(payload.analysis.findings[0].recommendation).toContain("ekspertiz");
   });
 });

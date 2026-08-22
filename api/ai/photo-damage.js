@@ -5,9 +5,16 @@ const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
 // "openrouter/free" rastgele bir ücretsiz modele yönlendirir; bunların arasında
 // nvidia/nemotron-3.5-content-safety:free gibi moderasyon/güvenlik modelleri de
 // var ve bunlar görsel girdide de strict JSON şemasını desteklemiyor. Bunun
-// yerine görsel girdiyi ve strict JSON şemasını destekleyen, güvenilir,
-// isimli bir ücretsiz model kullan.
-const DEFAULT_VISION_MODEL = "google/gemma-4-26b-a4b-it:free";
+// yerine görsel girdiyi destekleyen isimli ücretsiz modelleri sırayla dene.
+const DEFAULT_VISION_MODEL_CANDIDATES = [
+  "google/gemma-4-26b-a4b-it:free",
+  "google/gemma-4-31b-it:free",
+  "dots-studio/dots-3-note-preview:free",
+  "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+  "nvidia/nemotron-nano-12b-v2-vl:free",
+  "thinkingmachines/inkling-small:free",
+];
+const DEFAULT_VISION_MODEL = DEFAULT_VISION_MODEL_CANDIDATES[0];
 const FREE_ROUTER_FALLBACK_MODEL = "openrouter/free";
 // A single request still caps at 4 images (Vercel's serverless body-size
 // limit — see MAX_TOTAL_IMAGE_DATA_URL_CHARS below), so the client sends a
@@ -287,13 +294,33 @@ function normalizeTextFallback(text) {
     normalized.includes("motor arıza") ||
     normalized.includes("car") ||
     normalized.includes("vehicle");
+  const saysDamageOrWarning =
+    /hasar|kaza|darbe|göçük|gocuk|çizik|cizik|çatlak|catlak|kırık|kirik|tampon|kaput|far|stop|çamurluk|camurluk|kapı|kapi|podye|şasi|sasi|panel|radyatör|radyator|ızgara|izgara|airbag|hava yastığı|uyarı|uyari|arıza|ariza|lamba|kadran/.test(
+      normalized,
+    );
 
-  if (!saysNoVehicle && !saysVehicle) return null;
+  if (!saysNoVehicle && !saysVehicle && !saysDamageOrWarning) return null;
+
+  const fallbackFinding =
+    !saysNoVehicle && saysDamageOrWarning
+      ? [
+          {
+            area: "Görseldeki araç bölgesi",
+            signal: normalized.includes("uyarı") || normalized.includes("uyari") || normalized.includes("lamba")
+              ? "Olası uyarı ışığı"
+              : "Olası hasar sinyali",
+            confidence: "low",
+            explanation: text.slice(0, 500),
+            recommendation:
+              "Görsel tek başına kesin sonuç vermez; ilgili bölgeyi ekspertizde, gerekirse kaporta veya servis kontrolünde doğrulatın.",
+          },
+        ]
+      : [];
 
   return normalizeAnalysis({
     isVehiclePhoto: !saysNoVehicle,
     summary: text.slice(0, 500),
-    findings: [],
+    findings: fallbackFinding,
   });
 }
 
@@ -418,6 +445,7 @@ function resolveVisionModelCandidates() {
   const candidates = [resolveVisionModel()];
   const fallback = process.env.OPENROUTER_VISION_FALLBACK_MODEL?.trim();
   if (fallback && fallback.endsWith(":free")) candidates.push(fallback);
+  candidates.push(...DEFAULT_VISION_MODEL_CANDIDATES);
   if (process.env.OPENROUTER_ENABLE_FREE_ROUTER_VISION_FALLBACK !== "false") {
     candidates.push(FREE_ROUTER_FALLBACK_MODEL);
   }
@@ -552,6 +580,7 @@ async function handler(request, response) {
 
 module.exports = handler;
 module.exports.DEFAULT_VISION_MODEL = DEFAULT_VISION_MODEL;
+module.exports.DEFAULT_VISION_MODEL_CANDIDATES = DEFAULT_VISION_MODEL_CANDIDATES;
 module.exports.FREE_ROUTER_FALLBACK_MODEL = FREE_ROUTER_FALLBACK_MODEL;
 module.exports.resolveVisionModel = resolveVisionModel;
 module.exports.resolveVisionModelCandidates = resolveVisionModelCandidates;
