@@ -5,8 +5,12 @@ import type { ModelEntry } from "../types";
 // (motorreviewer.com, carchecker.pro, autoricambitritella.it,
 // enginescope.gr, automotive24.center) ve şanzıman/servis uzmanlığı
 // kaynakları genelinde tekrar eden bulgular. NOT: aynı marka/model için
-// tek kayıt tutulur (nesiller arası ayrım motor bazında yearFrom/yearTo
-// ile yapılır) — eşleştirme mantığı brand+model başına tek kayıt bulur.
+// birden fazla kayıt olabilir (örn. Clio III/IV vs. Clio V) — eşleştirme
+// mantığı (match.ts) ilanın yılını kapsayan yearFrom/yearTo aralığına sahip
+// kaydı seçer. Yeni nesil eklerken bir önceki kaydın yearTo'suyla
+// ÇAKIŞMAMASINA dikkat et (tek bir yıl üzerinde sınır paylaşmaları sorun
+// değil, örn. 2019 hem eski hem yeni aralığın ucu olabilir) — aralıklar
+// örtüşürse dizideki ilk kayıt her zaman kazanır ve diğeri asla eşleşmez.
 export const RENAULT_ENTRIES: ModelEntry[] = [
   {
     brand: "Renault",

@@ -37,9 +37,14 @@ describe("UI copy guardrails", () => {
   });
 
   it('never shows "Yakında" (coming soon) anywhere in the active app', () => {
+    // Plain substring match false-positives on "Yakındaki" ("nearby", e.g.
+    // "Yakındaki ekspertiz") — an unrelated word that happens to start with
+    // the same letters. Require "Yakında" not be immediately followed by
+    // another letter, so it only catches the standalone "coming soon" word.
+    const yakindaStandalone = /Yakında(?![a-zA-ZçğıöşüÇĞİÖŞÜ])/;
     const offenders = sourceFiles
       .filter((file) => !file.endsWith(".test.ts") && !file.endsWith(".test.tsx"))
-      .filter((file) => readFileSync(file, "utf-8").includes("Yakında"));
+      .filter((file) => yakindaStandalone.test(readFileSync(file, "utf-8")));
     expect(offenders).toEqual([]);
   });
 

@@ -182,15 +182,34 @@ describe("findChronicIssues", () => {
     expect(issues.length).toBeGreaterThan(0);
   });
 
-  it("never has two entries for the same brand+model (findChronicIssues only matches the first)", () => {
-    const seen = new Set<string>();
-    const duplicates: string[] = [];
+  it("allows multiple generation entries per brand+model only when their year ranges don't overlap", () => {
+    // findChronicIssues (see match.ts) picks the ModelEntry whose year range
+    // contains the listing's year, so more than one entry per brand+model
+    // is intentional and required for multi-generation coverage (e.g.
+    // Renault Clio III/IV 2005-2019 vs. Clio V 2019-2026) — it's only a bug
+    // if two entries' ranges overlap, since then the wrong (first-in-array)
+    // one always wins for any year in the overlap and the other becomes
+    // silently unreachable.
+    const groups = new Map<string, Array<{ yearFrom: number; yearTo: number }>>();
     for (const entry of CHRONIC_ISSUES_DB) {
       const key = `${entry.brand.toLocaleLowerCase("tr-TR")}::${entry.model.toLocaleLowerCase("tr-TR")}`;
-      if (seen.has(key)) duplicates.push(key);
-      seen.add(key);
+      const list = groups.get(key) ?? [];
+      list.push({ yearFrom: entry.yearFrom, yearTo: entry.yearTo });
+      groups.set(key, list);
     }
-    expect(duplicates).toEqual([]);
+
+    const overlaps: string[] = [];
+    for (const [key, ranges] of groups) {
+      if (ranges.length < 2) continue;
+      const sorted = [...ranges].sort((a, b) => a.yearFrom - b.yearFrom);
+      for (let i = 1; i < sorted.length; i += 1) {
+        // Touching at a single boundary year (e.g. ...-2019 then 2019-...)
+        // is acceptable; only a real overlap (more than one shared year) is
+        // a bug.
+        if (sorted[i].yearFrom < sorted[i - 1].yearTo) overlaps.push(key);
+      }
+    }
+    expect(overlaps).toEqual([]);
   });
 
   it("covers the 20 priority Turkish used-car market brands with at least one model entry", () => {
