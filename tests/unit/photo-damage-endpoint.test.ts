@@ -808,6 +808,44 @@ describe("photo damage AI endpoint", () => {
     expect(payload.analysis.findings[0].signal).toContain("hasar");
   });
 
+  it("does not show model reasoning text when falling back from an unstructured vision response", async () => {
+    const fetchMock = mockFetchAllowingRateLimit({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content:
+                'Thinking Process:\\nAnalyze the request: image shows significant front-left damage. Strict JSON is required but unavailable.',
+            },
+          },
+        ],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const previousEnv = process.env;
+    process.env = {
+      ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+      OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
+    };
+    const response = createResponse();
+
+    await handler(createRequest(validBody), response);
+
+    process.env = previousEnv;
+    vi.unstubAllGlobals();
+    const payload = JSON.parse(response.body) as {
+      analysis: { summary: string; findings: Array<{ area: string; explanation: string }> };
+    };
+    const combined = `${payload.analysis.summary} ${payload.analysis.findings[0]?.explanation ?? ""}`;
+    expect(response.statusCode).toBe(200);
+    expect(payload.analysis.findings[0]?.area).toBe("Ön sol bölüm");
+    expect(combined).not.toMatch(/thinking process|strict json|analyze the request/i);
+  });
+
   it("retries without response_format when OpenRouter returns a 200 error payload for schema mode", async () => {
     const fetchMock = vi.fn<(input: unknown, init?: RequestInit) => Promise<Response>>(async (input, init) => {
       if (String(input).includes("upstash.example.com")) {

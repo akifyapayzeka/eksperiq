@@ -312,22 +312,51 @@ function normalizeTextFallback(text) {
     normalized.includes("car") ||
     normalized.includes("vehicle");
   const saysDamageOrWarning =
-    /hasar|kaza|darbe|göçük|gocuk|çizik|cizik|çatlak|catlak|kırık|kirik|tampon|kaput|far|stop|çamurluk|camurluk|kapı|kapi|podye|şasi|sasi|panel|radyatör|radyator|ızgara|izgara|airbag|hava yastığı|uyarı|uyari|arıza|ariza|lamba|kadran/.test(
+    /hasar|kaza|darbe|göçük|gocuk|çizik|cizik|çatlak|catlak|kırık|kirik|tampon|kaput|far|stop|çamurluk|camurluk|kapı|kapi|podye|şasi|sasi|panel|radyatör|radyator|ızgara|izgara|airbag|hava yastığı|uyarı|uyari|arıza|ariza|lamba|kadran|damage|collision|accident|bumper|hood|fender|headlight|front/.test(
       normalized,
     );
 
   if (!saysNoVehicle && !saysVehicle && !saysDamageOrWarning) return null;
 
+  const looksLikeReasoningLeak =
+    /thinking process|analyze the request|strict json|provided schema|step\s*\d|chain of thought/i.test(text);
+  const cleanText = text
+    .replace(/thinking process:[\s\S]*/i, "")
+    .replace(/```[\s\S]*?```/g, "")
+    .trim();
+  const safeSummary =
+    cleanText && !looksLikeReasoningLeak
+      ? cleanText.slice(0, 500)
+      : saysNoVehicle
+        ? "Fotoğrafta araç veya araçla ilgili net bir bölüm güvenle tespit edilemedi."
+        : saysDamageOrWarning
+          ? "Fotoğrafta araçla ilgili olası hasar veya kontrol gerektiren bir belirti görülebilir."
+          : "Fotoğrafta araçla ilgili kontrol edilebilecek alanlar var.";
+  const fallbackArea =
+    normalized.includes("front-left") || normalized.includes("ön sol") || normalized.includes("on sol")
+      ? "Ön sol bölüm"
+      : normalized.includes("front-right") || normalized.includes("ön sağ") || normalized.includes("on sag")
+        ? "Ön sağ bölüm"
+        : normalized.includes("front") || normalized.includes("ön ") || normalized.includes("on ")
+          ? "Ön bölüm"
+          : normalized.includes("gösterge") || normalized.includes("kadran") || normalized.includes("uyarı")
+            ? "Gösterge paneli"
+            : "Görseldeki araç bölgesi";
+  const fallbackExplanation =
+    cleanText && !looksLikeReasoningLeak
+      ? cleanText.slice(0, 500)
+      : "Model yapılandırılmış JSON döndürmediği için bulgu düşük güvenle yorumlandı; fotoğrafta görünen belirti ekspertizde doğrulanmalıdır.";
+
   const fallbackFinding =
     !saysNoVehicle && saysDamageOrWarning
       ? [
           {
-            area: "Görseldeki araç bölgesi",
+            area: fallbackArea,
             signal: normalized.includes("uyarı") || normalized.includes("uyari") || normalized.includes("lamba")
               ? "Olası uyarı ışığı"
               : "Olası hasar sinyali",
             confidence: "low",
-            explanation: text.slice(0, 500),
+            explanation: fallbackExplanation,
             recommendation:
               "Görsel tek başına kesin sonuç vermez; ilgili bölgeyi ekspertizde, gerekirse kaporta veya servis kontrolünde doğrulatın.",
           },
@@ -336,7 +365,7 @@ function normalizeTextFallback(text) {
 
   return normalizeAnalysis({
     isVehiclePhoto: !saysNoVehicle,
-    summary: text.slice(0, 500),
+    summary: safeSummary,
     findings: fallbackFinding,
   });
 }
