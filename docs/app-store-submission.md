@@ -47,6 +47,8 @@ Recommended review flow:
 
 The app does not guarantee that a vehicle is safe, undamaged, legally clean or suitable to purchase. It does not replace professional vehicle inspection, service checks, official record checks or legal review. Listing import uses visible listing content from the user's submitted URL and may process text through OpenRouter for temporary normalization. User-entered reports are stored locally on-device unless the user explicitly shares/exports them.
 
+Guideline 2.1 additional information response draft: `docs/app-review-2-1-response.md`
+
 ## Gizlilik Cevap Özeti
 
 - Kullanıcı hesabı: Opsiyonel; yalnızca Pro/Pro+ abonelik ve giriş içindir.
