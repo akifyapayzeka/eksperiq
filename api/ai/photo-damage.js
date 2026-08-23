@@ -761,7 +761,7 @@ async function handler(request, response) {
   }
   const input = parsed.input;
 
-  const rateLimit = await checkRateLimit(request, {
+  const resolvedRateLimitConfig = {
     usageKey: "photo-damage",
     burstLimit: parsePositiveInt(process.env.AI_BURST_LIMIT, DEFAULT_BURST_LIMIT),
     burstWindowSeconds: parsePositiveInt(process.env.AI_BURST_WINDOW_SECONDS, DEFAULT_BURST_WINDOW_SECONDS),
@@ -770,9 +770,18 @@ async function handler(request, response) {
       DEFAULT_PHOTO_DAILY_LIMIT_PER_INSTALL,
     ),
     globalDailyLimit: parsePositiveInt(process.env.OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT, DEFAULT_PHOTO_DAILY_LIMIT),
-  });
+  };
+  const rateLimit = await checkRateLimit(request, resolvedRateLimitConfig);
 
   if (!rateLimit.ok) {
+    // TEMPORARY diagnostic: a 429 kept firing even after both daily/global
+    // limits were raised well above any plausible today's usage — this logs
+    // the *resolved* limits (env var overrides included) and the rejection
+    // reason so the next occurrence is root-caused, not guessed at.
+    console.warn(
+      "[photo-damage] rate limit rejected:",
+      JSON.stringify({ reason: rateLimit.reason, resolvedRateLimitConfig }),
+    );
     if (rateLimit.reason === "unavailable") {
       sendJson(response, 503, {
         error: "AI kullanım limiti şu anda doğrulanamadı. Manuel bulgu ekleyerek devam edebilirsiniz.",
