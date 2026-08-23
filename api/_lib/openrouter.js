@@ -51,6 +51,7 @@ async function callOpenRouterChatCompletions({
   appName,
   timeoutMs = DEFAULT_TIMEOUT_MS,
   maxRetries = DEFAULT_MAX_RETRIES,
+  reasoning,
 }) {
   const provider = { data_collection: "deny" };
   if (requiresZdr()) provider.zdr = true;
@@ -62,6 +63,17 @@ async function callOpenRouterChatCompletions({
     temperature,
     max_tokens: maxTokens,
     provider,
+    // OpenRouter's unified reasoning control — { exclude: true } asks
+    // reasoning-capable models (their name often literally says
+    // "reasoning", e.g. nvidia/nemotron-*-reasoning) to spend the
+    // max_tokens budget on the actual answer instead of a visible
+    // "Thinking Process:" narration. Confirmed live: a call without this
+    // burned the full 900-token budget narrating its reasoning about a
+    // damaged-car photo and never reached the JSON answer at all, so the
+    // caller fell back to parsing that half-finished reasoning text.
+    // Ignored by models that don't support reasoning, so safe to always
+    // send when the caller opts in.
+    ...(reasoning ? { reasoning } : {}),
   });
 
   let lastError = "OpenRouter isteği başarısız oldu.";

@@ -531,9 +531,17 @@ async function requestOpenRouterVision(input) {
       messages,
       responseFormat,
       temperature: 0.1,
-      maxTokens: 900,
+      // Was 900 — confirmed live against a real damaged-car photo that a
+      // reasoning-capable free model can burn the entire budget narrating
+      // its "Thinking Process:" and never reach the actual JSON answer
+      // (raw leaked text alone measured ~3.5k characters, right at that
+      // token ceiling). reasoning:{exclude:true} below should stop that
+      // narration for models that honor it, but this is raised regardless
+      // as a safety margin for models that don't.
+      maxTokens: 2000,
       refererUrl: productionUrl,
       appName,
+      reasoning: { exclude: true },
     });
 
   let lastError = "AI fotoğraf sonucu işlenemedi.";
