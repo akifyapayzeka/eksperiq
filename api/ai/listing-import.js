@@ -4,11 +4,23 @@ const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
 
 // Text-only listing normalization. Photo analysis is a separate, always-free
 // user-owned vehicle flow; paid plan limits apply to listing-link analysis
-// volume, not to a stronger photo model. Same reliable named free model as
-// analysis-note.js; avoid
-// "openrouter/free" which can randomly route to a moderation/safety model.
-const DEFAULT_OPENROUTER_MODEL = "openai/gpt-oss-20b:free";
-const DEFAULT_OPENROUTER_FALLBACK_MODEL = "";
+// volume, not to a stronger photo model. Avoid "openrouter/free" which can
+// randomly route to a moderation/safety model.
+//
+// "openai/gpt-oss-20b:free" (the previous default here and in
+// analysis-note.js) does NOT exist in OpenRouter's real /models catalog —
+// verified directly (curl https://openrouter.ai/api/v1/models, only
+// "openai/gpt-oss-20b" without ":free" is real, and that's a paid model).
+// Every listing-import request was 404ing on this model with no fallback
+// configured (DEFAULT_OPENROUTER_FALLBACK_MODEL was ""), so the feature has
+// been unconditionally broken — confirmed live via Vercel runtime logs
+// showing "OpenRouter isteği başarısız oldu: 404" on every attempt. Replaced
+// with the same free vision-capable models already proven reliable for
+// photo-damage.js's cascade (photo-damage doesn't need text-only, so any
+// text task works fine on a vision model too), plus the same paid
+// last-resort pattern already approved and shipped there.
+const DEFAULT_MODEL_CANDIDATES = ["google/gemma-4-26b-a4b-it:free", "google/gemma-4-31b-it:free"];
+const PAID_FALLBACK_MODEL = "openai/gpt-5-nano";
 // TEMPORARY: raised well above real launch levels — the app has no public
 // users yet (still in App Store review), only the owner's own device
 // testing against it repeatedly. Dial both back down to sane per-install
@@ -789,14 +801,21 @@ ${input.bodyText.slice(0, 20000)}`,
   ];
 }
 
-function primaryListingImportModel() {
-  return process.env.OPENROUTER_MODEL?.trim() || DEFAULT_OPENROUTER_MODEL;
-}
-
-function fallbackListingImportModel(primaryModel) {
-  const fallbackModel = process.env.OPENROUTER_LISTING_IMPORT_FALLBACK_MODEL?.trim() || DEFAULT_OPENROUTER_FALLBACK_MODEL;
-  if (!fallbackModel || fallbackModel === primaryModel) return null;
-  return fallbackModel;
+// Ordered: an explicitly configured OPENROUTER_MODEL first (so an operator
+// can still override), then the verified-real free defaults, then an
+// explicitly configured OPENROUTER_LISTING_IMPORT_FALLBACK_MODEL, then the
+// paid last resort — mirrors photo-damage.js's resolveVisionModelCandidates.
+function resolveListingImportModelCandidates() {
+  const candidates = [];
+  const configuredPrimary = process.env.OPENROUTER_MODEL?.trim();
+  if (configuredPrimary) candidates.push(configuredPrimary);
+  candidates.push(...DEFAULT_MODEL_CANDIDATES);
+  const configuredFallback = process.env.OPENROUTER_LISTING_IMPORT_FALLBACK_MODEL?.trim();
+  if (configuredFallback) candidates.push(configuredFallback);
+  if (process.env.OPENROUTER_DISABLE_PAID_LISTING_IMPORT_FALLBACK !== "true") {
+    candidates.push(PAID_FALLBACK_MODEL);
+  }
+  return [...new Set(candidates)];
 }
 
 function normalizeListingImportJson(json, input, model) {
@@ -974,19 +993,21 @@ async function requestOpenRouterListingImport(input) {
   const apiKey = process.env.OPENROUTER_API_KEY?.trim();
   if (!apiKey) return { error: "OpenRouter API key tanımlı değil." };
 
-  const primaryModel = primaryListingImportModel();
-  const primaryResult = await requestOpenRouterListingImportWithModel(input, apiKey, primaryModel);
-  if (!("error" in primaryResult)) return primaryResult;
-
-  const fallbackModel = fallbackListingImportModel(primaryModel);
-  if (!fallbackModel) return primaryResult;
-
-  console.warn(
-    "[listing-import] primary OpenRouter model failed; retrying fallback model:",
-    JSON.stringify({ primaryModel, fallbackModel, error: primaryResult.error }),
-  );
-  const fallbackResult = await requestOpenRouterListingImportWithModel(input, apiKey, fallbackModel);
-  return "error" in fallbackResult ? fallbackResult : { ...fallbackResult, fallbackUsed: true };
+  const candidates = resolveListingImportModelCandidates();
+  let lastError = "İlan bilgisi işlenemedi.";
+  for (let index = 0; index < candidates.length; index += 1) {
+    const model = candidates[index];
+    const result = await requestOpenRouterListingImportWithModel(input, apiKey, model);
+    if (!("error" in result)) {
+      return index === 0 ? result : { ...result, fallbackUsed: true };
+    }
+    console.warn(
+      "[listing-import] model attempt failed:",
+      JSON.stringify({ model, isLastCandidate: index === candidates.length - 1, error: result.error }),
+    );
+    lastError = result.error;
+  }
+  return { error: lastError };
 }
 
 async function handler(request, response) {
@@ -1093,6 +1114,7 @@ async function handler(request, response) {
 }
 
 module.exports = handler;
-module.exports.DEFAULT_OPENROUTER_MODEL = DEFAULT_OPENROUTER_MODEL;
-module.exports.DEFAULT_OPENROUTER_FALLBACK_MODEL = DEFAULT_OPENROUTER_FALLBACK_MODEL;
+module.exports.DEFAULT_MODEL_CANDIDATES = DEFAULT_MODEL_CANDIDATES;
+module.exports.PAID_FALLBACK_MODEL = PAID_FALLBACK_MODEL;
+module.exports.resolveListingImportModelCandidates = resolveListingImportModelCandidates;
 module.exports.BRAND_OPTIONS = BRAND_OPTIONS;

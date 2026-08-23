@@ -6,7 +6,14 @@ const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
 // nvidia/nemotron-3.5-content-safety:free gibi sohbet için uygun olmayan
 // moderasyon/güvenlik modelleri de var ve bunlar anlamsız çıktı üretebiliyor
 // (örn. "User Safety: safe"). Bunun yerine güvenilir, isimli bir ücretsiz model kullan.
-const DEFAULT_OPENROUTER_MODEL = "openai/gpt-oss-20b:free";
+//
+// "openai/gpt-oss-20b:free" (the previous default) does NOT exist in
+// OpenRouter's real /models catalog — verified directly, only
+// "openai/gpt-oss-20b" (no ":free") is real, and that's a paid model. This
+// endpoint had no fallback at all, so every request 404'd unconditionally.
+// Same root cause and fix as listing-import.js's identical bug.
+const DEFAULT_MODEL_CANDIDATES = ["google/gemma-4-26b-a4b-it:free", "google/gemma-4-31b-it:free"];
+const PAID_FALLBACK_MODEL = "openai/gpt-5-nano";
 const DEFAULT_AI_DAILY_LIMIT = 20;
 const DEFAULT_AI_DAILY_LIMIT_PER_INSTALL = 8;
 const DEFAULT_BURST_LIMIT = 5;
@@ -119,35 +126,58 @@ function extractAssistantContent(payload) {
   return typeof content === "string" && content.trim().length > 0 ? content : null;
 }
 
+// Same ordering rationale as listing-import.js's resolveListingImportModelCandidates.
+function resolveAnalysisNoteModelCandidates() {
+  const candidates = [];
+  const configuredPrimary = process.env.OPENROUTER_MODEL?.trim();
+  if (configuredPrimary) candidates.push(configuredPrimary);
+  candidates.push(...DEFAULT_MODEL_CANDIDATES);
+  if (process.env.OPENROUTER_DISABLE_PAID_NOTE_FALLBACK !== "true") {
+    candidates.push(PAID_FALLBACK_MODEL);
+  }
+  return [...new Set(candidates)];
+}
+
 async function createAnalysisNote(input) {
   const apiKey = process.env.OPENROUTER_API_KEY?.trim();
   if (!apiKey) return { error: "OPENROUTER_API_KEY tanımlı değil; kural tabanlı analiz kullanılmalı." };
 
-  const model = process.env.OPENROUTER_MODEL?.trim() || DEFAULT_OPENROUTER_MODEL;
-  const result = await callOpenRouterChatCompletions({
-    apiKey,
-    model,
-    messages: [
-      {
-        role: "system",
-        content:
-          "Sen EksperIQ için çalışan dikkatli bir ikinci el araç karar destek asistanısın. Kesin ekspertiz, hasarsızlık veya satın alma garantisi verme. Yanıtı sadece Türkçe yaz; başka bir dilden tek kelime bile karıştırma.",
-      },
-      {
-        role: "user",
-        content: buildPrompt(input),
-      },
-    ],
-    temperature: 0.2,
-    maxTokens: 700,
-    refererUrl: productionUrl,
-    appName,
-  });
-  if (!result.ok) return { error: result.error };
+  const messages = [
+    {
+      role: "system",
+      content:
+        "Sen EksperIQ için çalışan dikkatli bir ikinci el araç karar destek asistanısın. Kesin ekspertiz, hasarsızlık veya satın alma garantisi verme. Yanıtı sadece Türkçe yaz; başka bir dilden tek kelime bile karıştırma.",
+    },
+    {
+      role: "user",
+      content: buildPrompt(input),
+    },
+  ];
 
-  const note = extractAssistantContent(result.payload);
-  if (!note) return { error: "OpenRouter yanıtında okunabilir içerik bulunamadı." };
-  return { note: hedgeCertainLanguage(note), model };
+  let lastError = "OpenRouter yanıtı alınamadı.";
+  for (const model of resolveAnalysisNoteModelCandidates()) {
+    const result = await callOpenRouterChatCompletions({
+      apiKey,
+      model,
+      messages,
+      temperature: 0.2,
+      maxTokens: 700,
+      refererUrl: productionUrl,
+      appName,
+    });
+    if (!result.ok) {
+      console.warn("[analysis-note] model attempt failed:", JSON.stringify({ model, error: result.error }));
+      lastError = result.error;
+      continue;
+    }
+    const note = extractAssistantContent(result.payload);
+    if (!note) {
+      lastError = "OpenRouter yanıtında okunabilir içerik bulunamadı.";
+      continue;
+    }
+    return { note: hedgeCertainLanguage(note), model };
+  }
+  return { error: lastError };
 }
 
 async function handler(request, response) {
@@ -236,4 +266,5 @@ async function handler(request, response) {
 }
 
 module.exports = handler;
-module.exports.DEFAULT_OPENROUTER_MODEL = DEFAULT_OPENROUTER_MODEL;
+module.exports.DEFAULT_MODEL_CANDIDATES = DEFAULT_MODEL_CANDIDATES;
+module.exports.PAID_FALLBACK_MODEL = PAID_FALLBACK_MODEL;

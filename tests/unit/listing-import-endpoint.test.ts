@@ -156,7 +156,14 @@ describe("listing import AI endpoint", () => {
     const garbageResponse = {
       choices: [{ message: { content: JSON.stringify({ unrelated: "nonsense" }) } }],
     };
-    const fetchMock = mockFetchAllowingRateLimit(new Response(JSON.stringify(garbageResponse), { status: 200 }));
+    // Every candidate in the cascade (2 free + 1 paid) gets its own fetch
+    // call now, so each needs its own equivalent bad response rather than
+    // one shared Response object (a Response body can only be read once).
+    const fetchMock = mockFetchAllowingRateLimitSequence([
+      new Response(JSON.stringify(garbageResponse), { status: 200 }),
+      new Response(JSON.stringify(garbageResponse), { status: 200 }),
+      new Response(JSON.stringify(garbageResponse), { status: 200 }),
+    ]);
 
     const { statusCode, body } = await callEndpoint(validBody, fetchMock);
 
@@ -455,8 +462,15 @@ describe("listing import AI endpoint", () => {
     expect(result.missingFields).not.toContain("paintedParts");
   });
 
-  it("falls back to the paid listing model when the free model hits OpenRouter capacity", async () => {
-    const fallbackModelResponse = {
+  it("falls back through the free candidates to the paid last-resort model when both free models fail", async () => {
+    // Regression test for a real live incident: the previous default model
+    // ("openai/gpt-oss-20b:free") does not exist in OpenRouter's real
+    // /models catalog at all and 404'd on every single request, with no
+    // fallback configured — the whole feature was unconditionally broken.
+    // Confirms the fixed cascade (2 named free models, then a paid last
+    // resort) actually walks through every candidate instead of giving up
+    // after one failure.
+    const successResponse = {
       choices: [
         {
           message: {
@@ -508,24 +522,35 @@ describe("listing import AI endpoint", () => {
       ],
     };
     const fetchMock = mockFetchAllowingRateLimitSequence([
-      new Response("capacity", { status: 429 }),
-      new Response("capacity", { status: 429 }),
-      new Response(JSON.stringify(fallbackModelResponse), { status: 200 }),
+      new Response("not found", { status: 404 }),
+      new Response("not found", { status: 404 }),
+      new Response(JSON.stringify(successResponse), { status: 200 }),
     ]);
 
-    const { statusCode, body } = await callEndpoint(validBody, fetchMock, {
-      OPENROUTER_MODEL: "openai/gpt-oss-20b:free",
-      OPENROUTER_LISTING_IMPORT_FALLBACK_MODEL: "openai/gpt-oss-20b",
-    });
+    const { statusCode, body } = await callEndpoint(validBody, fetchMock, {});
 
     expect(statusCode).toBe(200);
-    expect(body.model).toBe("openai/gpt-oss-20b");
+    expect(body.model).toBe("openai/gpt-5-nano");
     expect(body.fallbackUsed).toBe(true);
 
     const openRouterCalls = fetchMock.mock.calls.filter(([input]) => !String(input).includes("upstash.example.com"));
     expect(openRouterCalls).toHaveLength(3);
-    expect(JSON.parse(String(openRouterCalls[0][1]?.body)).model).toBe("openai/gpt-oss-20b:free");
-    expect(JSON.parse(String(openRouterCalls[1][1]?.body)).model).toBe("openai/gpt-oss-20b:free");
-    expect(JSON.parse(String(openRouterCalls[2][1]?.body)).model).toBe("openai/gpt-oss-20b");
+    expect(JSON.parse(String(openRouterCalls[0][1]?.body)).model).toBe("google/gemma-4-26b-a4b-it:free");
+    expect(JSON.parse(String(openRouterCalls[1][1]?.body)).model).toBe("google/gemma-4-31b-it:free");
+    expect(JSON.parse(String(openRouterCalls[2][1]?.body)).model).toBe("openai/gpt-5-nano");
+  });
+
+  it("never actually calls the removed openai/gpt-oss-20b:free model, which does not exist in OpenRouter's catalog", () => {
+    const listingImport = require("../../api/ai/listing-import.js") as {
+      DEFAULT_MODEL_CANDIDATES: string[];
+      PAID_FALLBACK_MODEL: string;
+      resolveListingImportModelCandidates: () => string[];
+    };
+    expect(listingImport.DEFAULT_MODEL_CANDIDATES).not.toContain("openai/gpt-oss-20b:free");
+    expect(listingImport.PAID_FALLBACK_MODEL).not.toBe("openai/gpt-oss-20b:free");
+    const previousEnv = process.env;
+    process.env = { ...previousEnv, OPENROUTER_MODEL: "", OPENROUTER_LISTING_IMPORT_FALLBACK_MODEL: "" };
+    expect(listingImport.resolveListingImportModelCandidates()).not.toContain("openai/gpt-oss-20b:free");
+    process.env = previousEnv;
   });
 });
