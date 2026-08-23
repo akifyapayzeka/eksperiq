@@ -206,6 +206,30 @@ function createWriter(doc, fonts, logoImage) {
     state.y -= 4;
   }
 
+  /** Draws embedded images in a 2-column grid, scaling each to fit its cell while preserving aspect ratio. */
+  function imageGrid(images) {
+    const columns = 2;
+    const gap = 10;
+    const cellWidth = (CONTENT_WIDTH - gap * (columns - 1)) / columns;
+    const maxCellHeight = 130;
+    let column = 0;
+    let rowTopY = 0;
+    images.forEach((image) => {
+      const scale = Math.min(cellWidth / image.width, maxCellHeight / image.height, 1);
+      const drawWidth = image.width * scale;
+      const drawHeight = image.height * scale;
+      if (column === 0) {
+        ensureSpace(maxCellHeight + 8);
+        rowTopY = state.y;
+      }
+      const x = MARGIN + column * (cellWidth + gap) + (cellWidth - drawWidth) / 2;
+      state.page.drawImage(image, { x, y: rowTopY - maxCellHeight + (maxCellHeight - drawHeight) / 2, width: drawWidth, height: drawHeight });
+      column = (column + 1) % columns;
+      if (column === 0) state.y = rowTopY - maxCellHeight - 8;
+    });
+    if (column !== 0) state.y = rowTopY - maxCellHeight - 8;
+  }
+
   function finish() {
     if (state.page) drawFooter(state.page);
   }
@@ -215,6 +239,7 @@ function createWriter(doc, fonts, logoImage) {
     sectionTitle,
     paragraph,
     numberedList,
+    imageGrid,
     ensureSpace,
     get page() {
       return state.page;
@@ -227,6 +252,53 @@ function createWriter(doc, fonts, logoImage) {
     },
     finish,
   };
+}
+
+const IMAGE_FETCH_TIMEOUT_MS = 8000;
+const MAX_REPORT_IMAGES = 8;
+
+function looksLikePng(buffer) {
+  return buffer.length > 4 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47;
+}
+
+async function fetchImageBytes(url) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), IMAGE_FETCH_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) return null;
+    return Buffer.from(await response.arrayBuffer());
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Fetches and embeds listing photos so the report matches what the app
+ * already shows (result.listingImages) — the PDF previously had no
+ * pictures at all. Every step is best-effort: a failed fetch, an
+ * unsupported format, or a corrupt file for one photo just skips that
+ * photo rather than failing the whole report, since these are third-party
+ * CDN URLs (sahibinden/arabam) this app doesn't control.
+ */
+async function embedListingImages(doc, urls) {
+  const candidates = Array.isArray(urls)
+    ? urls.filter((url) => typeof url === "string" && url.trim()).slice(0, MAX_REPORT_IMAGES)
+    : [];
+  const buffers = await Promise.all(candidates.map(fetchImageBytes));
+  const embedded = [];
+  for (const buffer of buffers) {
+    if (!buffer) continue;
+    try {
+      const image = looksLikePng(buffer) ? await doc.embedPng(buffer) : await doc.embedJpg(buffer);
+      embedded.push(image);
+    } catch {
+      // Not a JPG/PNG this library can decode — skip it.
+    }
+  }
+  return embedded;
 }
 
 async function buildPdf(payload) {
@@ -307,6 +379,13 @@ async function buildPdf(payload) {
     w.paragraph(vehicleFacts, { size: 10, color: MUTED, gap: 12 });
   }
 
+  const listingImages = await embedListingImages(doc, payload.listingImages);
+  if (listingImages.length) {
+    w.sectionTitle("İlan fotoğrafları");
+    w.imageGrid(listingImages);
+    w.y -= 6;
+  }
+
   const priorityActions = Array.isArray(payload.priorityActions) ? payload.priorityActions.slice(0, 6) : [];
   if (priorityActions.length) {
     w.sectionTitle("Öncelikli aksiyonlar");
@@ -347,6 +426,13 @@ async function buildPdf(payload) {
     );
   }
 
+  const strengths = asStringArray(payload.strengths, 8);
+  if (strengths.length) {
+    w.sectionTitle("Güçlü yönler");
+    strengths.forEach((item) => w.paragraph(`•  ${item}`, { gap: 2 }));
+    w.y -= 6;
+  }
+
   const sellerQuestions = asStringArray(payload.sellerQuestions, 8);
   if (sellerQuestions.length) {
     w.sectionTitle("Satıcıya sorulacak sorular");
@@ -360,6 +446,64 @@ async function buildPdf(payload) {
     w.y -= 6;
   }
 
+  const costs = Array.isArray(payload.costs) ? payload.costs.slice(0, 10) : [];
+  if (costs.length) {
+    w.sectionTitle("Olası maliyet sinyalleri");
+    costs.forEach((cost) => {
+      const item = asString(cost && cost.item);
+      const level = asString(cost && cost.level);
+      w.paragraph(`•  ${item}${level ? ` — ${level}` : ""}`, { gap: 2 });
+    });
+    w.y -= 6;
+  }
+
+  const knownIssues = Array.isArray(payload.knownIssues) ? payload.knownIssues.slice(0, 6) : [];
+  if (knownIssues.length) {
+    w.sectionTitle("Bu marka/model/motor için bilinen kronik sorunlar");
+    w.paragraph(
+      "Bu bulgular ARACIN kendi geçmişiyle ilgili değildir; aynı marka/model/motor ailesinde genel olarak bilinen eğilimlerdir ve risk skorunu etkilemez.",
+      { size: 9, color: MUTED, gap: 8 },
+    );
+    knownIssues.forEach((issue) => {
+      const title = asString(issue && issue.title);
+      const detail = asString(issue && issue.detail);
+      const meta = [asString(issue && issue.typicalOnset), asString(issue && issue.costLevel)]
+        .filter(Boolean)
+        .join(" · ");
+      w.paragraph(`${title}: ${detail}${meta ? ` (${meta})` : ""}`, { size: 9.8, gap: 4 });
+    });
+    w.y -= 4;
+  }
+
+  const completeness = payload.completeness && typeof payload.completeness === "object" ? payload.completeness : null;
+  if (completeness) {
+    w.sectionTitle("Bilgi doluluğu");
+    w.paragraph(
+      `Dolu bilgi alanları: ${completeness.completed ?? "-"} / ${completeness.total ?? "-"} (%${completeness.percentage ?? "-"})`,
+      { size: 10, gap: 4 },
+    );
+    const missing = asStringArray(completeness.missing, 20);
+    if (missing.length) {
+      w.paragraph(`Satıcıdan tamamlanması istenecek bilgiler: ${missing.join(", ")}`, {
+        size: 9.5,
+        color: MUTED,
+        gap: 0,
+      });
+    }
+  }
+
+  w.sectionTitle("Uyarı");
+  w.paragraph(
+    asString(
+      payload.disclaimer,
+      "Bu analiz yalnızca bilgilendirme ve karar desteği amacıyla hazırlanır. Profesyonel araç ekspertizinin, servis kontrolünün, resmî kayıt sorgularının veya hukuki incelemenin yerine geçmez. Son satın alma kararı kullanıcıya aittir.",
+    ),
+    { size: 9.5, color: MUTED, gap: 0 },
+  );
+
+  // Kept as the very last section on purpose (moved from before "Uyarı") —
+  // it's context/explainer material, not a decision input, so it belongs
+  // after everything actionable rather than competing for attention above it.
   const buyerEducation = Array.isArray(payload.buyerEducation) ? payload.buyerEducation.slice(0, 8) : [];
   if (buyerEducation.length) {
     w.sectionTitle("Araç alırken bunlar neden önemli?");
@@ -373,15 +517,6 @@ async function buildPdf(payload) {
       { size: 9.6 },
     );
   }
-
-  w.sectionTitle("Uyarı");
-  w.paragraph(
-    asString(
-      payload.disclaimer,
-      "Bu analiz yalnızca bilgilendirme ve karar desteği amacıyla hazırlanır. Profesyonel araç ekspertizinin, servis kontrolünün, resmî kayıt sorgularının veya hukuki incelemenin yerine geçmez. Son satın alma kararı kullanıcıya aittir.",
-    ),
-    { size: 9.5, color: MUTED, gap: 0 },
-  );
 
   w.finish();
   return doc.save();
@@ -443,7 +578,8 @@ async function handler(request, response) {
     response.setHeader("Cache-Control", "no-store");
     response.setHeader("Content-Disposition", 'inline; filename="eksperiq-rapor.pdf"');
     response.end(Buffer.from(pdfBytes));
-  } catch {
+  } catch (error) {
+    console.error("[report-pdf] PDF generation failed:", error);
     sendJson(response, 500, { error: "Rapor oluşturulamadı." });
   }
 }
