@@ -566,21 +566,19 @@ async function requestOpenRouterVision(input) {
       messages,
       responseFormat,
       temperature: 0.1,
-      // Was 900 — confirmed live against a real damaged-car photo that a
-      // reasoning-capable free model can burn the entire budget narrating
-      // its "Thinking Process:" and never reach the actual JSON answer
-      // (raw leaked text alone measured ~3.5k characters, right at that
-      // token ceiling).
-      maxTokens: 2000,
+      // Was 900, then 2000 — confirmed live, twice, that a fixed 2000-token
+      // ceiling isn't enough even for models with no visible "thinking"
+      // text: openai/gpt-5-nano (a GPT-5-series model, reasoning-capable by
+      // default) returned valid-looking JSON that just stopped after 85
+      // characters. GPT-5-series models spend *hidden* reasoning tokens out
+      // of the same max_tokens budget before ever emitting visible output —
+      // with nothing surfaced in the response text to explain where the
+      // budget went, unlike the free models' visible "Thinking Process:"
+      // narration. The paid model's real per-token cost is negligible
+      // (~$0.00000005), so there's no reason to keep this tight for it.
+      maxTokens: model === PAID_FALLBACK_MODEL ? 8000 : 2000,
       refererUrl: productionUrl,
       appName,
-      // TEMPORARY: reasoning:{exclude:true} was tried here to stop that
-      // narration outright, but every candidate model started failing
-      // immediately afterward (500/502, "AI yanıtı okunamadı." on every
-      // attempt) — reverted until confirmed which of these free models
-      // actually reject an unrecognized `reasoning` field outright versus
-      // silently ignoring it. The per-attempt logging below should show
-      // exactly which one it was on the next real failure.
     });
 
   let lastError = "AI fotoğraf sonucu işlenemedi.";
