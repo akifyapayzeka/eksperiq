@@ -855,6 +855,53 @@ describe("photo damage AI endpoint", () => {
     expect(combined).not.toMatch(/thinking process|strict json|analyze the request/i);
   });
 
+  it("does not mark a photo as isVehiclePhoto=false when leaked reasoning merely recites the prompt's own non-vehicle vocabulary", async () => {
+    // Regression test for a second, related live incident: the exact same
+    // heavily-damaged-car photo, on a retry, came back "no vehicle detected
+    // at all". The model's leaked "thinking" text correctly identified a
+    // car with front-left collision damage, but later recited the system
+    // prompt's own classification rules back to itself — including its
+    // list of non-vehicle categories ("ekran görüntüsü, çizim, doküman,
+    // oyuncak") — and that recitation, not any real judgment about the
+    // photo, used to trip the no-vehicle keyword check.
+    const fetchMock = mockFetchAllowingRateLimit({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content:
+                "Thinking Process:\\n1. Analyze the request: Input is an image of a white car with significant front-left damage (collision damage).\\n" +
+                "Key guidelines: Fotoğraf ekran görüntüsü, çizim, doküman, oyuncak veya araçla ilgisiz bir obje ise isVehiclePhoto=false döndür.\\n" +
+                "Strict JSON is required but I am unable to produce it.",
+            },
+          },
+        ],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const previousEnv = process.env;
+    process.env = {
+      ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+      OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
+    };
+    const response = createResponse();
+
+    await handler(createRequest(validBody), response);
+
+    process.env = previousEnv;
+    vi.unstubAllGlobals();
+    const payload = JSON.parse(response.body) as {
+      analysis: { isVehiclePhoto: boolean; findings: Array<{ area: string }> };
+    };
+    expect(response.statusCode).toBe(200);
+    expect(payload.analysis.isVehiclePhoto).toBe(true);
+    expect(payload.analysis.findings.length).toBeGreaterThan(0);
+  });
+
   it("retries without response_format when OpenRouter returns a 200 error payload for schema mode", async () => {
     const fetchMock = vi.fn<(input: unknown, init?: RequestInit) => Promise<Response>>(async (input, init) => {
       if (String(input).includes("upstash.example.com")) {

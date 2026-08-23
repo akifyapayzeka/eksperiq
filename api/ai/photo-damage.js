@@ -295,13 +295,41 @@ function normalizeAnalysis(value) {
 
 function normalizeTextFallback(text) {
   const normalized = text.toLocaleLowerCase("tr-TR");
+
+  const looksLikeReasoningLeak =
+    /thinking process|analyze the request|strict json|provided schema|step\s*\d|chain of thought/i.test(text);
+  const cleanText = text
+    .replace(/thinking process:[\s\S]*/i, "")
+    .replace(/```[\s\S]*?```/g, "")
+    .trim();
+  // Only usable when it's real prose from the model, not schema/reasoning
+  // noise — otherwise any stray word in that noise ends up keyword-matched
+  // into a confident-sounding but fabricated conclusion, completely
+  // disconnected from what the photo actually shows. Seen live, twice:
+  // (1) a photo of a car with its entire front bumper torn off got labeled
+  // "Ön sol bölüm: Olası uyarı ışığı" (dashboard warning light) because the
+  // leaked text happened to contain "front-left"/"warning"-ish fragments;
+  // (2) the SAME photo, on a retry, came back "no vehicle detected at all"
+  // because the model's leaked reasoning recited the system prompt's own
+  // classification vocabulary back to itself while working through the
+  // schema ("ekran görüntüsü, çizim, doküman, oyuncak" — the prompt's own
+  // list of non-vehicle categories) and that recitation, not any real
+  // judgment about the image, tripped the no-vehicle keyword check.
+  const hasUsableText = Boolean(cleanText) && !looksLikeReasoningLeak;
+  // "No vehicle" is only trustworthy when it's the model's own clean
+  // conclusion — never derived from reasoning/schema noise, for the reason
+  // above. A false "not a vehicle" is worse than a false positive here: it
+  // silently drops a real damage photo instead of just showing an honest
+  // low-confidence note, so this is the one direction that must never be
+  // guessed from unreliable text.
   const saysNoVehicle =
-    describesNonVehiclePhoto(text) ||
-    normalized.includes("araç yok") ||
-    normalized.includes("araç bulunmamaktadır") ||
-    normalized.includes("araç fotoğrafı değil") ||
-    normalized.includes("no vehicle") ||
-    normalized.includes("not a vehicle");
+    hasUsableText &&
+    (describesNonVehiclePhoto(text) ||
+      normalized.includes("araç yok") ||
+      normalized.includes("araç bulunmamaktadır") ||
+      normalized.includes("araç fotoğrafı değil") ||
+      normalized.includes("no vehicle") ||
+      normalized.includes("not a vehicle"));
   const saysVehicle =
     normalized.includes("araç") ||
     normalized.includes("araba") ||
@@ -318,21 +346,6 @@ function normalizeTextFallback(text) {
 
   if (!saysNoVehicle && !saysVehicle && !saysDamageOrWarning) return null;
 
-  const looksLikeReasoningLeak =
-    /thinking process|analyze the request|strict json|provided schema|step\s*\d|chain of thought/i.test(text);
-  const cleanText = text
-    .replace(/thinking process:[\s\S]*/i, "")
-    .replace(/```[\s\S]*?```/g, "")
-    .trim();
-  // Only usable when it's real prose from the model, not schema/reasoning
-  // noise — otherwise any stray English word in that noise (e.g. a leaked
-  // "front-left" or "warning" fragment) ends up keyword-matched into a
-  // confident-sounding but fabricated area+signal below, completely
-  // disconnected from what the photo actually shows (seen live: a photo of
-  // a car with its entire front bumper torn off got labeled "Ön sol bölüm:
-  // Olası uyarı ışığı" — a dashboard-warning-light guess, because the failed
-  // model's leaked text happened to contain those words).
-  const hasUsableText = Boolean(cleanText) && !looksLikeReasoningLeak;
   const safeSummary = hasUsableText
     ? cleanText.slice(0, 500)
     : saysNoVehicle
