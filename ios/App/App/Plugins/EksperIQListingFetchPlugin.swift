@@ -299,6 +299,24 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
     // this must stay comfortably above the network request's own timeout.
     private static let hardTimeoutSeconds: TimeInterval = 50
     private static let settleDelaySeconds: TimeInterval = 2.0
+    // sahibinden.com's own bot-verification interstitial
+    // (/cs/checkLoading?returnUrl=...) polls its backend and only THEN does
+    // a client-side redirect to the real listing — confirmed live via
+    // Vercel logs: extraction ran on this exact page ("Doğrulama başarılı.
+    // ...adresinin yanıt vermesi bekleniyor" — "verification succeeded,
+    // waiting for a response"), because its didFinish fired, the normal 2s
+    // settle window elapsed with no newer didFinish yet, so this interim
+    // page's ~450-char placeholder text got extracted and sent to the AI
+    // instead of the real listing. Give this specific interstitial a much
+    // longer settle window before extracting — still bounded well under
+    // hardTimeoutSeconds so a real listing page load afterward has room —
+    // and still fully preempted by navigationGeneration if the real
+    // redirect happens sooner.
+    private static let checkLoadingSettleDelaySeconds: TimeInterval = 12.0
+
+    private func isCheckLoadingInterstitial(_ url: URL?) -> Bool {
+        url?.path.lowercased().contains("/cs/checkloading") ?? false
+    }
 
     private var continuation: CheckedContinuation<ExtractedPageData, Error>?
     private var webView: WKWebView?
@@ -364,7 +382,8 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
         // latest navigation ever gets read.
         navigationGeneration += 1
         let thisGeneration = navigationGeneration
-        DispatchQueue.main.asyncAfter(deadline: .now() + Self.settleDelaySeconds) { [weak self] in
+        let delay = isCheckLoadingInterstitial(webView.url) ? Self.checkLoadingSettleDelaySeconds : Self.settleDelaySeconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
             guard let self, self.navigationGeneration == thisGeneration else { return }
             self.extract()
         }
