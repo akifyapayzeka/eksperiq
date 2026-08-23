@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Camera, ImageIcon, ImagePlus, Save } from "lucide-react";
+import { Calculator, Camera, ImageIcon, ImagePlus, Save } from "lucide-react";
 import { HeroCard } from "@/components/cards/hero-card";
 import { AppShell } from "@/components/layout/app-shell";
 import { Spinner } from "@/components/ui/spinner";
+import { RepairCostEstimator } from "@/components/repair-cost/repair-cost-estimator";
 import { chooseFromGalleryAsFiles, takePhotoAsFile } from "@/lib/media/pick-photos";
 import { downscaleImage } from "@/lib/photo-analysis/downscale-image";
 import { prepareAiImages } from "@/lib/photo-analysis/prepare-ai-image";
@@ -116,6 +117,9 @@ export default function PhotoDamagePage() {
   const [showConsentPrompt] = useState(() => !hasAcceptedAiConsent());
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [saveMessage, setSaveMessage] = useState("");
+  // Which finding cards (AI-generated, keyed by finding id; manual, keyed
+  // by "manual-{index}") currently show their cost estimator expanded.
+  const [costEstimatorOpenFor, setCostEstimatorOpenFor] = useState<Set<string>>(new Set());
   const canRunAi = isPhotoAiEnabled && Boolean(files.length) && aiConsent && aiStatus !== "loading";
   const canSave = Boolean(fileCount) && (items.length > 0 || Boolean(aiAnalysis)) && saveStatus !== "saving";
 
@@ -378,6 +382,18 @@ export default function PhotoDamagePage() {
     return "Fotoğraf netliği zayıf";
   }
 
+  function toggleCostEstimator(key: string) {
+    setCostEstimatorOpenFor((current) => {
+      const next = new Set(current);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  }
+
   return (
     <AppShell>
       <div className="max-w-4xl pt-6">
@@ -537,6 +553,17 @@ export default function PhotoDamagePage() {
                     </h3>
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.explanation}</p>
                     <p className="mt-2 text-sm font-medium text-foreground/90">{item.recommendation}</p>
+                    <button
+                      type="button"
+                      onClick={() => toggleCostEstimator(item.id)}
+                      className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full border border-accent/40 px-4 text-sm font-semibold text-accent"
+                    >
+                      <Calculator aria-hidden="true" className="h-4 w-4" />
+                      {costEstimatorOpenFor.has(item.id) ? "Maliyet tahminini gizle" : "Bu bulgu için tahmini maliyeti gör"}
+                    </button>
+                    {costEstimatorOpenFor.has(item.id) ? (
+                      <RepairCostEstimator hint={{ area: item.area, signal: item.signal }} />
+                    ) : null}
                   </article>
                 ))
               ) : (
@@ -625,18 +652,29 @@ export default function PhotoDamagePage() {
           <p className="mt-2 text-sm font-medium text-foreground/80">{priority}</p>
           <div className="mt-4 grid gap-3">
             {items.length ? (
-              items.map((item, index) => (
-                <article
-                  key={`${item.area}-${item.finding}-${index}`}
-                  className="rounded-theme-sm border border-border bg-muted p-4"
-                >
-                  <p className="font-semibold text-foreground">
-                    {item.area}: {item.finding}
-                  </p>
-                  <p className="mt-1 text-sm text-foreground/80">{item.confidence}</p>
-                  {item.note ? <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.note}</p> : null}
-                </article>
-              ))
+              items.map((item, index) => {
+                const key = `manual-${index}`;
+                return (
+                  <article key={`${item.area}-${item.finding}-${index}`} className="rounded-theme-sm border border-border bg-muted p-4">
+                    <p className="font-semibold text-foreground">
+                      {item.area}: {item.finding}
+                    </p>
+                    <p className="mt-1 text-sm text-foreground/80">{item.confidence}</p>
+                    {item.note ? <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.note}</p> : null}
+                    <button
+                      type="button"
+                      onClick={() => toggleCostEstimator(key)}
+                      className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full border border-accent/40 px-4 text-sm font-semibold text-accent"
+                    >
+                      <Calculator aria-hidden="true" className="h-4 w-4" />
+                      {costEstimatorOpenFor.has(key) ? "Maliyet tahminini gizle" : "Bu bulgu için tahmini maliyeti gör"}
+                    </button>
+                    {costEstimatorOpenFor.has(key) ? (
+                      <RepairCostEstimator hint={{ area: item.area, signal: item.finding }} />
+                    ) : null}
+                  </article>
+                );
+              })
             ) : (
               <p className="rounded-theme-sm border border-border bg-muted p-4 text-sm text-muted-foreground">
                 Henüz bulgu eklenmedi.
