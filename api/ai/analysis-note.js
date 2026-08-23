@@ -14,6 +14,11 @@ const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
 // Same root cause and fix as listing-import.js's identical bug.
 const DEFAULT_MODEL_CANDIDATES = ["google/gemma-4-26b-a4b-it:free", "google/gemma-4-31b-it:free"];
 const PAID_FALLBACK_MODEL = "openai/gpt-5-nano";
+// Confirmed live (2026-08-23): Vercel's own OPENROUTER_MODEL env var is set
+// to this exact nonexistent ID. Filtered out here too so it can never be
+// used regardless of what's set in Vercel — see listing-import.js's
+// identical constant for the full story.
+const KNOWN_INVALID_MODELS = new Set(["openai/gpt-oss-20b:free"]);
 const DEFAULT_AI_DAILY_LIMIT = 20;
 const DEFAULT_AI_DAILY_LIMIT_PER_INSTALL = 8;
 const DEFAULT_BURST_LIMIT = 5;
@@ -135,7 +140,7 @@ function resolveAnalysisNoteModelCandidates() {
   if (process.env.OPENROUTER_DISABLE_PAID_NOTE_FALLBACK !== "true") {
     candidates.push(PAID_FALLBACK_MODEL);
   }
-  return [...new Set(candidates)];
+  return [...new Set(candidates)].filter((model) => !KNOWN_INVALID_MODELS.has(model));
 }
 
 async function createAnalysisNote(input) {
@@ -161,7 +166,13 @@ async function createAnalysisNote(input) {
       model,
       messages,
       temperature: 0.2,
-      maxTokens: 700,
+      // PAID_FALLBACK_MODEL (gpt-5-nano) needs a much bigger budget than the
+      // free models — same fix as listing-import.js and photo-damage.js:
+      // it's a reasoning model by default and spends hidden reasoning
+      // tokens out of this same max_tokens budget before any visible
+      // output, so a tight budget tuned for a short free-model note leaves
+      // it with content: null. Real cost stays negligible even at 6000.
+      maxTokens: model === PAID_FALLBACK_MODEL ? 6000 : 700,
       refererUrl: productionUrl,
       appName,
     });

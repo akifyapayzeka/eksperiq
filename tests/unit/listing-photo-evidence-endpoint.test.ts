@@ -156,4 +156,93 @@ describe("listing photo evidence endpoint", () => {
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body).error).toContain("onayı zorunludur");
   });
+
+  it("never uses openai/gpt-oss-20b:free, even when an env var points at it", () => {
+    // Regression test for a live incident: Vercel's own OPENROUTER_MODEL is
+    // set to this exact nonexistent model ID, and the old resolveVisionModel()
+    // blindly trusted any ":free"-suffixed env var with zero fallback — this
+    // endpoint was unconditionally broken as a result.
+    const photoEvidence = require("../../api/ai/listing-photo-evidence.js") as {
+      DEFAULT_MODEL_CANDIDATES: string[];
+      PAID_FALLBACK_MODEL: string;
+      resolveVisionModelCandidates: () => string[];
+    };
+    expect(photoEvidence.DEFAULT_MODEL_CANDIDATES).not.toContain("openai/gpt-oss-20b:free");
+    const previousEnv = process.env;
+    process.env = { ...previousEnv, OPENROUTER_MODEL: "openai/gpt-oss-20b:free", OPENROUTER_VISION_MODEL: "" };
+    expect(photoEvidence.resolveVisionModelCandidates()).not.toContain("openai/gpt-oss-20b:free");
+    process.env = previousEnv;
+  });
+
+  it("falls back through the free candidates to the paid last-resort model when both free models fail", async () => {
+    const successResponse = {
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              hasEvidence: false,
+              documentImageIndexes: [],
+              documentTypes: [],
+              evidenceSummary: null,
+              fields: {
+                tramerAmount: null,
+                paintedParts: null,
+                replacedParts: null,
+                localPaintedParts: null,
+                airbagStatus: null,
+                hasHeavyDamage: null,
+                hasChassisRepair: null,
+                hasTotalLossHistory: null,
+                hasExpertiseReport: null,
+                hasMaintenanceInvoices: null,
+                lastMaintenanceDate: null,
+                timingBeltInfo: null,
+                transmissionMaintenanceInfo: null,
+                batteryStatus: null,
+                tireStatus: null,
+                inspectionEndDate: null,
+                sellerDescriptionAppend: null,
+              },
+            }),
+          },
+        },
+      ],
+    };
+    const remaining = [
+      new Response("not found", { status: 404 }),
+      new Response("not found", { status: 404 }),
+      new Response(JSON.stringify(successResponse), { status: 200 }),
+    ];
+    const fetchMock = vi.fn<(input: unknown, init?: RequestInit) => Promise<unknown>>(async (input) => {
+      if (String(input).includes("upstash.example.com")) {
+        return new Response(UPSTASH_ALLOW_RESPONSE, { status: 200 });
+      }
+      const next = remaining.shift();
+      if (!next) throw new Error("Unexpected OpenRouter request");
+      return next;
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const previousEnv = process.env;
+    process.env = {
+      ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
+      NEXT_PUBLIC_LISTING_IMPORT_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+    };
+    const response = createResponse();
+
+    await handler(createRequest(validBody), response);
+
+    process.env = previousEnv;
+    vi.unstubAllGlobals();
+    const payload = JSON.parse(response.body) as { model: string };
+    expect(response.statusCode).toBe(200);
+    expect(payload.model).toBe("openai/gpt-5-nano");
+
+    const openRouterCalls = fetchMock.mock.calls.filter(([input]) => !String(input).includes("upstash.example.com"));
+    expect(openRouterCalls).toHaveLength(3);
+    expect(JSON.parse(String(openRouterCalls[0][1]?.body)).model).toBe("google/gemma-4-26b-a4b-it:free");
+    expect(JSON.parse(String(openRouterCalls[1][1]?.body)).model).toBe("google/gemma-4-31b-it:free");
+    expect(JSON.parse(String(openRouterCalls[2][1]?.body)).model).toBe("openai/gpt-5-nano");
+  });
 });

@@ -21,6 +21,14 @@ const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
 // last-resort pattern already approved and shipped there.
 const DEFAULT_MODEL_CANDIDATES = ["google/gemma-4-26b-a4b-it:free", "google/gemma-4-31b-it:free"];
 const PAID_FALLBACK_MODEL = "openai/gpt-5-nano";
+// Confirmed live (2026-08-23): Vercel's own OPENROUTER_MODEL env var is set
+// to this exact nonexistent ID — an operator apparently copied the old
+// broken default in as an explicit override at some point. Fixing the code
+// default above doesn't help while that env var still wins first in the
+// candidate order below; filter it out here too so this specific known-bad
+// value can never be used regardless of what's set in Vercel, without
+// needing dashboard write access to actually remove it there.
+const KNOWN_INVALID_MODELS = new Set(["openai/gpt-oss-20b:free"]);
 // TEMPORARY: raised well above real launch levels — the app has no public
 // users yet (still in App Store review), only the owner's own device
 // testing against it repeatedly. Dial both back down to sane per-install
@@ -815,7 +823,7 @@ function resolveListingImportModelCandidates() {
   if (process.env.OPENROUTER_DISABLE_PAID_LISTING_IMPORT_FALLBACK !== "true") {
     candidates.push(PAID_FALLBACK_MODEL);
   }
-  return [...new Set(candidates)];
+  return [...new Set(candidates)].filter((model) => !KNOWN_INVALID_MODELS.has(model));
 }
 
 function normalizeListingImportJson(json, input, model) {
@@ -962,7 +970,18 @@ async function requestOpenRouterListingImportWithModel(input, apiKey, model) {
     // can run longer than that, and a truncated response is invalid JSON,
     // which extractJson() below can only ever report as a bare "couldn't
     // parse" — not distinguishable from the model genuinely misbehaving.
-    maxTokens: 3200,
+    //
+    // PAID_FALLBACK_MODEL needs a much bigger budget than that, for the same
+    // reason as photo-damage.js's identical fix: gpt-5-nano is a reasoning
+    // model by default and spends *hidden* reasoning tokens out of this same
+    // max_tokens budget before ever emitting visible output. Confirmed live:
+    // a real request returned finish_reason "length"/"max_output_tokens"
+    // with content: null — the whole 3200-token budget was consumed by
+    // internal reasoning ("Extracting vehicle data..."), none left for the
+    // actual JSON. The paid model's real cost is negligible even at this
+    // budget (~$0.004/request worst case), so there's no reason to keep it
+    // tight for it specifically.
+    maxTokens: model === PAID_FALLBACK_MODEL ? 10000 : 3200,
     refererUrl: productionUrl,
     appName,
   });

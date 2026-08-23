@@ -2,7 +2,17 @@ const { checkRateLimit } = require("../_lib/rate-limit.js");
 const { callOpenRouterChatCompletions, hedgeCertainLanguage } = require("../_lib/openrouter.js");
 const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
 
-const DEFAULT_VISION_MODEL = "google/gemma-4-26b-a4b-it:free";
+// Was a single model with no fallback at all — resolveVisionModel() blindly
+// trusted any OPENROUTER_VISION_MODEL/OPENROUTER_MODEL env var ending in
+// ":free", including Vercel's own OPENROUTER_MODEL which is set (confirmed
+// live) to "openai/gpt-oss-20b:free", a model that does not exist in
+// OpenRouter's real catalog — this endpoint was unconditionally broken
+// whenever that env var was picked up. Now uses the same proven cascade as
+// photo-damage.js/listing-import.js: named free models, then a paid last
+// resort, with the known-bad ID filtered out regardless of env config.
+const DEFAULT_MODEL_CANDIDATES = ["google/gemma-4-26b-a4b-it:free", "google/gemma-4-31b-it:free"];
+const PAID_FALLBACK_MODEL = "openai/gpt-5-nano";
+const KNOWN_INVALID_MODELS = new Set(["openai/gpt-oss-20b:free"]);
 const DEFAULT_DAILY_LIMIT = 120;
 const DEFAULT_DAILY_LIMIT_PER_INSTALL = 8;
 const DEFAULT_BURST_LIMIT = 6;
@@ -253,23 +263,27 @@ JSON disinda metin yazma.`,
   ];
 }
 
-function resolveVisionModel() {
+function resolveVisionModelCandidates() {
+  const candidates = [];
   const configured = process.env.OPENROUTER_VISION_MODEL?.trim() || process.env.OPENROUTER_MODEL?.trim();
-  return configured && configured.endsWith(":free") ? configured : DEFAULT_VISION_MODEL;
+  if (configured && configured.endsWith(":free")) candidates.push(configured);
+  candidates.push(...DEFAULT_MODEL_CANDIDATES);
+  if (process.env.OPENROUTER_DISABLE_PAID_PHOTO_EVIDENCE_FALLBACK !== "true") {
+    candidates.push(PAID_FALLBACK_MODEL);
+  }
+  return [...new Set(candidates)].filter((model) => !KNOWN_INVALID_MODELS.has(model));
 }
 
-async function requestOpenRouterVision(input) {
-  const apiKey = process.env.OPENROUTER_API_KEY?.trim();
-  if (!apiKey) return { error: "OpenRouter API key tanımlı değil." };
-
-  const model = resolveVisionModel();
+async function requestOpenRouterVisionWithModel(input, apiKey, model) {
   const result = await callOpenRouterChatCompletions({
     apiKey,
     model,
     messages: buildMessages(input),
     responseFormat: listingPhotoEvidenceResponseFormat,
     temperature: 0.1,
-    maxTokens: 1800,
+    // PAID_FALLBACK_MODEL needs a much bigger budget — see the identical fix
+    // (and its live-confirmed reason) in listing-import.js/photo-damage.js.
+    maxTokens: model === PAID_FALLBACK_MODEL ? 8000 : 1800,
     refererUrl: productionUrl,
     appName,
   });
@@ -282,6 +296,20 @@ async function requestOpenRouterVision(input) {
   const analysis = normalizeAnalysis(json, input.imageUrls.length);
   if (!analysis) return { error: "AI görsel kanıt sonucu işlenemedi." };
   return { analysis, model };
+}
+
+async function requestOpenRouterVision(input) {
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim();
+  if (!apiKey) return { error: "OpenRouter API key tanımlı değil." };
+
+  let lastError = "AI görsel kanıt sonucu işlenemedi.";
+  for (const model of resolveVisionModelCandidates()) {
+    const result = await requestOpenRouterVisionWithModel(input, apiKey, model);
+    if (!("error" in result)) return result;
+    console.warn("[listing-photo-evidence] model attempt failed:", JSON.stringify({ model, error: result.error }));
+    lastError = result.error;
+  }
+  return { error: lastError };
 }
 
 async function handler(request, response) {
@@ -352,5 +380,6 @@ async function handler(request, response) {
 }
 
 module.exports = handler;
-module.exports.DEFAULT_VISION_MODEL = DEFAULT_VISION_MODEL;
-module.exports.resolveVisionModel = resolveVisionModel;
+module.exports.DEFAULT_MODEL_CANDIDATES = DEFAULT_MODEL_CANDIDATES;
+module.exports.PAID_FALLBACK_MODEL = PAID_FALLBACK_MODEL;
+module.exports.resolveVisionModelCandidates = resolveVisionModelCandidates;
