@@ -13,16 +13,19 @@ const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
 // them returned 404/403 live from this endpoint on every attempt — being
 // catalog-listed doesn't mean actually callable with this API key. Removed.
 //
-// dots-studio/dots-3-note-preview:free genuinely responds but never reaches
-// JSON on a vision+strict-JSON task — it narrates a "Thinking Process:"
-// until the token budget runs out (still mid-narration at max_tokens=2000,
-// ~7700 chars in). Kept as the last free-tier resort anyway (some response
-// beats none), but see PAID_FALLBACK_MODEL below for the real fix.
-const DEFAULT_VISION_MODEL_CANDIDATES = [
-  "google/gemma-4-26b-a4b-it:free",
-  "google/gemma-4-31b-it:free",
-  "dots-studio/dots-3-note-preview:free",
-];
+// dots-studio/dots-3-note-preview:free removed entirely — confirmed live in
+// 4 distinct failure modes across repeated testing: (1) endless "Thinking
+// Process:" narration that never reaches JSON at all, even at
+// max_tokens=2000; (2) that same leaked narration reciting the system
+// prompt's own vocabulary back to itself, causing a false "no vehicle
+// detected"; (3) genuinely good, accurate Turkish content but with the JSON
+// object cut off incomplete before the last field closes; (4) random
+// Chinese characters spliced into the middle of Turkish sentences
+// ("...sistemlerini学习 etmek için..."). Not fixable by prompting or token
+// budget — this model is simply unreliable for a Turkish-only strict-JSON
+// task. PAID_FALLBACK_MODEL below is the real, reliable answer once the
+// named free models are exhausted.
+const DEFAULT_VISION_MODEL_CANDIDATES = ["google/gemma-4-26b-a4b-it:free", "google/gemma-4-31b-it:free"];
 const DEFAULT_VISION_MODEL = DEFAULT_VISION_MODEL_CANDIDATES[0];
 const FREE_ROUTER_FALLBACK_MODEL = "openrouter/free";
 // Confirmed live (2026-08-23): OpenRouter's free vision tier has very thin
@@ -536,14 +539,17 @@ function resolveVisionModelCandidates() {
   const fallback = process.env.OPENROUTER_VISION_FALLBACK_MODEL?.trim();
   if (fallback && fallback.endsWith(":free")) candidates.push(fallback);
   candidates.push(...DEFAULT_VISION_MODEL_CANDIDATES);
-  if (process.env.OPENROUTER_ENABLE_FREE_ROUTER_VISION_FALLBACK !== "false") {
-    candidates.push(FREE_ROUTER_FALLBACK_MODEL);
-  }
-  // Paid, last-resort — see PAID_FALLBACK_MODEL's comment above for why
-  // this exists and what it costs. Always last in the list so it's only
-  // ever reached once every free option has already failed.
+  // Paid fallback comes BEFORE openrouter/free's random routing, not after
+  // — see PAID_FALLBACK_MODEL's comment above for why it exists and what it
+  // costs. openrouter/free can land on an arbitrary free model, including
+  // moderation/safety classifiers unsuited to this task entirely; once the
+  // named free vision models are exhausted, a known-reliable paid model is
+  // a better bet than gambling on that random routing, at negligible cost.
   if (process.env.OPENROUTER_DISABLE_PAID_PHOTO_FALLBACK !== "true") {
     candidates.push(PAID_FALLBACK_MODEL);
+  }
+  if (process.env.OPENROUTER_ENABLE_FREE_ROUTER_VISION_FALLBACK !== "false") {
+    candidates.push(FREE_ROUTER_FALLBACK_MODEL);
   }
   return [...new Set(candidates)];
 }

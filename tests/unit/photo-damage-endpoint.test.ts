@@ -170,8 +170,8 @@ describe("photo damage AI endpoint", () => {
     delete process.env.OPENROUTER_DISABLE_PAID_PHOTO_FALLBACK;
     expect(resolveVisionModelCandidates()).toEqual([
       ...DEFAULT_VISION_MODEL_CANDIDATES,
-      FREE_ROUTER_FALLBACK_MODEL,
       PAID_FALLBACK_MODEL,
+      FREE_ROUTER_FALLBACK_MODEL,
     ]);
     expect(DEFAULT_VISION_MODEL_CANDIDATES.length).toBeGreaterThan(1);
 
@@ -184,8 +184,8 @@ describe("photo damage AI endpoint", () => {
       "google/gemma-4-26b-a4b-it:free",
       "qwen/qwen3.6-plus:free",
       ...DEFAULT_VISION_MODEL_CANDIDATES.filter((model) => model !== "google/gemma-4-26b-a4b-it:free"),
-      FREE_ROUTER_FALLBACK_MODEL,
       PAID_FALLBACK_MODEL,
+      FREE_ROUTER_FALLBACK_MODEL,
     ]);
     expect(
       resolveVisionModelCandidates().every(
