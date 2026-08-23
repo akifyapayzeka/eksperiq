@@ -149,15 +149,17 @@ describe("photo damage AI endpoint", () => {
     process.env = previousEnv;
   });
 
-  it("keeps a free-router vision fallback after the named free model", () => {
+  it("keeps a free-router vision fallback, then a paid last resort, after the named free model", () => {
     const {
       resolveVisionModelCandidates,
       DEFAULT_VISION_MODEL_CANDIDATES,
       FREE_ROUTER_FALLBACK_MODEL,
+      PAID_FALLBACK_MODEL,
     } = handler as unknown as {
       resolveVisionModelCandidates: () => string[];
       DEFAULT_VISION_MODEL_CANDIDATES: string[];
       FREE_ROUTER_FALLBACK_MODEL: string;
+      PAID_FALLBACK_MODEL: string;
     };
     const previousEnv = process.env;
 
@@ -165,7 +167,12 @@ describe("photo damage AI endpoint", () => {
     delete process.env.OPENROUTER_VISION_MODEL;
     delete process.env.OPENROUTER_MODEL;
     delete process.env.OPENROUTER_VISION_FALLBACK_MODEL;
-    expect(resolveVisionModelCandidates()).toEqual([...DEFAULT_VISION_MODEL_CANDIDATES, FREE_ROUTER_FALLBACK_MODEL]);
+    delete process.env.OPENROUTER_DISABLE_PAID_PHOTO_FALLBACK;
+    expect(resolveVisionModelCandidates()).toEqual([
+      ...DEFAULT_VISION_MODEL_CANDIDATES,
+      FREE_ROUTER_FALLBACK_MODEL,
+      PAID_FALLBACK_MODEL,
+    ]);
     expect(DEFAULT_VISION_MODEL_CANDIDATES.length).toBeGreaterThan(1);
 
     process.env = {
@@ -178,10 +185,19 @@ describe("photo damage AI endpoint", () => {
       "qwen/qwen3.6-plus:free",
       ...DEFAULT_VISION_MODEL_CANDIDATES.filter((model) => model !== "google/gemma-4-26b-a4b-it:free"),
       FREE_ROUTER_FALLBACK_MODEL,
+      PAID_FALLBACK_MODEL,
     ]);
     expect(
-      resolveVisionModelCandidates().every((model) => model === FREE_ROUTER_FALLBACK_MODEL || model.endsWith(":free")),
+      resolveVisionModelCandidates().every(
+        (model) => model === FREE_ROUTER_FALLBACK_MODEL || model === PAID_FALLBACK_MODEL || model.endsWith(":free"),
+      ),
     ).toBe(true);
+
+    process.env = {
+      ...previousEnv,
+      OPENROUTER_DISABLE_PAID_PHOTO_FALLBACK: "true",
+    };
+    expect(resolveVisionModelCandidates()).toEqual([...DEFAULT_VISION_MODEL_CANDIDATES, FREE_ROUTER_FALLBACK_MODEL]);
 
     process.env = previousEnv;
   });

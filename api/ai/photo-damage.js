@@ -7,29 +7,38 @@ const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
 // var ve bunlar görsel girdide de strict JSON şemasını desteklemiyor. Bunun
 // yerine görsel girdiyi destekleyen isimli ücretsiz modelleri sırayla dene.
 //
-// nvidia/nemotron-nano-12b-v2-vl:free ve nvidia/nemotron-3-nano-omni-30b-
-// a3b-reasoning:free OpenRouter'ın public /models kataloğunda listeleniyor
-// ama canlıda bu uç noktadan her denemede 404 döndürdüler (var olmayan/
-// devre dışı model gibi davranıyorlar) — kaldırıldı, katalogda görünmek
-// gerçekten çağrılabildiklerini garanti etmiyor. thinkingmachines/inkling-
-// small:free canlıda 403 döndürdü (yetkisiz/engellendi); onun yerine aynı
-// ailenin "-small" olmayan sürümü (thinkingmachines/inkling:free) denendi,
-// henüz canlı kanıt yok.
+// nvidia/nemotron-nano-12b-v2-vl:free, nvidia/nemotron-3-nano-omni-30b-a3b-
+// reasoning:free, and both thinkingmachines/inkling(-small):free variants
+// are all listed in OpenRouter's public /models catalog but every one of
+// them returned 404/403 live from this endpoint on every attempt — being
+// catalog-listed doesn't mean actually callable with this API key. Removed.
 //
-// dots-studio/dots-3-note-preview:free gerçekten cevap veriyor ama vision+
-// strict-JSON görevinde hiçbir zaman JSON'a ulaşmıyor — sürekli "Thinking
-// Process:" anlatımıyla token bütçesini tüketip yarım kalıyor (max_tokens=
-// 2000'de bile ~7700 karakterde hâlâ anlatım ortasında). Yine de bir cevap
-// üretebildiği (yalnızca kalitesiz) için son çare olarak listede tutuldu —
-// hiç cevap alamamaktan iyi.
+// dots-studio/dots-3-note-preview:free genuinely responds but never reaches
+// JSON on a vision+strict-JSON task — it narrates a "Thinking Process:"
+// until the token budget runs out (still mid-narration at max_tokens=2000,
+// ~7700 chars in). Kept as the last free-tier resort anyway (some response
+// beats none), but see PAID_FALLBACK_MODEL below for the real fix.
 const DEFAULT_VISION_MODEL_CANDIDATES = [
   "google/gemma-4-26b-a4b-it:free",
   "google/gemma-4-31b-it:free",
-  "thinkingmachines/inkling:free",
   "dots-studio/dots-3-note-preview:free",
 ];
 const DEFAULT_VISION_MODEL = DEFAULT_VISION_MODEL_CANDIDATES[0];
 const FREE_ROUTER_FALLBACK_MODEL = "openrouter/free";
+// Confirmed live (2026-08-23): OpenRouter's free vision tier has very thin
+// real capacity — at one point every free candidate above AND
+// openrouter/free itself were 429/404/403 in the same request, leaving
+// users with an honest "AI couldn't classify" note instead of a real
+// answer, no matter how the free candidate list is tuned. This is a true
+// last resort, tried only after every free option above has failed:
+// openai/gpt-5-nano, a real paid model (verified against OpenRouter's
+// /models catalog: vision-capable, ~$0.00000005/prompt-token — a few
+// thousandths of a cent per photo), from OpenAI's own infrastructure
+// rather than a small community-hosted free model, so it isn't subject to
+// the same capacity/availability problems. Owner explicitly approved this
+// cost tradeoff (2026-08-23). Set OPENROUTER_DISABLE_PAID_PHOTO_FALLBACK=
+// "true" in Vercel to turn it back off without a code change.
+const PAID_FALLBACK_MODEL = "openai/gpt-5-nano";
 // A single request still caps at 4 images (Vercel's serverless body-size
 // limit — see MAX_TOTAL_IMAGE_DATA_URL_CHARS below), so the client sends a
 // listing's photos as sequential batches. 3 free listings/day x up to 20
@@ -530,6 +539,12 @@ function resolveVisionModelCandidates() {
   if (process.env.OPENROUTER_ENABLE_FREE_ROUTER_VISION_FALLBACK !== "false") {
     candidates.push(FREE_ROUTER_FALLBACK_MODEL);
   }
+  // Paid, last-resort — see PAID_FALLBACK_MODEL's comment above for why
+  // this exists and what it costs. Always last in the list so it's only
+  // ever reached once every free option has already failed.
+  if (process.env.OPENROUTER_DISABLE_PAID_PHOTO_FALLBACK !== "true") {
+    candidates.push(PAID_FALLBACK_MODEL);
+  }
   return [...new Set(candidates)];
 }
 
@@ -712,5 +727,6 @@ module.exports = handler;
 module.exports.DEFAULT_VISION_MODEL = DEFAULT_VISION_MODEL;
 module.exports.DEFAULT_VISION_MODEL_CANDIDATES = DEFAULT_VISION_MODEL_CANDIDATES;
 module.exports.FREE_ROUTER_FALLBACK_MODEL = FREE_ROUTER_FALLBACK_MODEL;
+module.exports.PAID_FALLBACK_MODEL = PAID_FALLBACK_MODEL;
 module.exports.resolveVisionModel = resolveVisionModel;
 module.exports.resolveVisionModelCandidates = resolveVisionModelCandidates;
