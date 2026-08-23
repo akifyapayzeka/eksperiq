@@ -6,21 +6,27 @@ const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
 // nvidia/nemotron-3.5-content-safety:free gibi moderasyon/güvenlik modelleri de
 // var ve bunlar görsel girdide de strict JSON şemasını desteklemiyor. Bunun
 // yerine görsel girdiyi destekleyen isimli ücretsiz modelleri sırayla dene.
-// dots-studio/dots-3-note-preview:free was removed: confirmed live, twice,
-// that it never reaches a JSON answer at all for a vision+strict-schema
-// request — it just monologues a "Thinking Process:" narration until the
-// token budget runs out (still mid-narration even at max_tokens=2000,
-// ~7700 chars in). This isn't a budget problem, the model is structurally
-// unsuited for this task. nvidia/nemotron-3-nano-omni-30b-a3b-reasoning is
-// the same architecture family (also named "-reasoning") so it's kept but
-// moved last, after the models that aren't reasoning-style, since it's the
-// same risk without live evidence yet either way.
+//
+// nvidia/nemotron-nano-12b-v2-vl:free ve nvidia/nemotron-3-nano-omni-30b-
+// a3b-reasoning:free OpenRouter'ın public /models kataloğunda listeleniyor
+// ama canlıda bu uç noktadan her denemede 404 döndürdüler (var olmayan/
+// devre dışı model gibi davranıyorlar) — kaldırıldı, katalogda görünmek
+// gerçekten çağrılabildiklerini garanti etmiyor. thinkingmachines/inkling-
+// small:free canlıda 403 döndürdü (yetkisiz/engellendi); onun yerine aynı
+// ailenin "-small" olmayan sürümü (thinkingmachines/inkling:free) denendi,
+// henüz canlı kanıt yok.
+//
+// dots-studio/dots-3-note-preview:free gerçekten cevap veriyor ama vision+
+// strict-JSON görevinde hiçbir zaman JSON'a ulaşmıyor — sürekli "Thinking
+// Process:" anlatımıyla token bütçesini tüketip yarım kalıyor (max_tokens=
+// 2000'de bile ~7700 karakterde hâlâ anlatım ortasında). Yine de bir cevap
+// üretebildiği (yalnızca kalitesiz) için son çare olarak listede tutuldu —
+// hiç cevap alamamaktan iyi.
 const DEFAULT_VISION_MODEL_CANDIDATES = [
   "google/gemma-4-26b-a4b-it:free",
   "google/gemma-4-31b-it:free",
-  "nvidia/nemotron-nano-12b-v2-vl:free",
-  "thinkingmachines/inkling-small:free",
-  "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+  "thinkingmachines/inkling:free",
+  "dots-studio/dots-3-note-preview:free",
 ];
 const DEFAULT_VISION_MODEL = DEFAULT_VISION_MODEL_CANDIDATES[0];
 const FREE_ROUTER_FALLBACK_MODEL = "openrouter/free";
