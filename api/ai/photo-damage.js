@@ -44,12 +44,21 @@ const FREE_ROUTER_FALLBACK_MODEL = "openrouter/free";
 const PAID_FALLBACK_MODEL = "openai/gpt-5-nano";
 // A single request still caps at 4 images (Vercel's serverless body-size
 // limit — see MAX_TOTAL_IMAGE_DATA_URL_CHARS below), so the client sends a
-// listing's photos as sequential batches. 3 free listings/day x up to 20
-// photos (5 batches of 4) = 15 requests/day per device; the burst window
-// needs enough headroom for one full 5-batch listing analysis to complete
-// without tripping on request #5.
+// listing's photos as sequential batches. The real per-device design cap is
+// 3 free listings/day x up to 20 photos (5 batches of 4) = 15 requests/day;
+// the burst window needs enough headroom for one full 5-batch listing
+// analysis to complete without tripping on request #5.
+//
+// Temporarily raised 15 -> 1000 (2026-08-23), same "no real users yet, drop
+// it back before real launch" reasoning already applied to the listing-
+// import daily limit: the owner's own device was hitting the 15/day cap
+// mid-TestFlight-testing (this endpoint is shared by both listing import
+// AND the standalone /fotograf-hasar page, so repeated manual testing of
+// either burns the same per-install budget fast). This does not touch
+// already-used counts in Redis, it just raises the ceiling those counts are
+// compared against, so today's usage is unblocked immediately on deploy.
 const DEFAULT_PHOTO_DAILY_LIMIT = 300;
-const DEFAULT_PHOTO_DAILY_LIMIT_PER_INSTALL = 15;
+const DEFAULT_PHOTO_DAILY_LIMIT_PER_INSTALL = 1000;
 const DEFAULT_BURST_LIMIT = 8;
 const DEFAULT_BURST_WINDOW_SECONDS = 60;
 // Vercel serverless functions reject request bodies over ~4.5MB before this
