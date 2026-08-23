@@ -235,6 +235,29 @@ function normalizePhotoQuality(value, isVehiclePhoto) {
   };
 }
 
+// "kişi"/"kisi" (a non-vehicle-content signal meaning "person") used to
+// false-match as a raw substring inside unrelated words like "etkisi" ("its
+// effect") — the same class of reasoning-leak-vocabulary false positive
+// already fixed twice elsewhere in this file for isVehiclePhoto/area
+// detection. Checks every occurrence of `phrase` in `normalized` and only
+// counts it when neither adjacent character is a Turkish letter, so it
+// matches "kişi" the standalone word but not "etkisi".
+function isTurkishLetter(ch) {
+  return /[a-zçğıöşü]/.test(ch);
+}
+
+function includesStandalonePhrase(normalized, phrase) {
+  let searchFrom = 0;
+  for (;;) {
+    const idx = normalized.indexOf(phrase, searchFrom);
+    if (idx === -1) return false;
+    const before = idx > 0 ? normalized[idx - 1] : "";
+    const after = idx + phrase.length < normalized.length ? normalized[idx + phrase.length] : "";
+    if (!isTurkishLetter(before) && !isTurkishLetter(after)) return true;
+    searchFrom = idx + 1;
+  }
+}
+
 function describesNonVehiclePhoto(text) {
   const normalized = text.toLocaleLowerCase("tr-TR");
   const noVehicleSignals = [
@@ -276,16 +299,82 @@ function describesNonVehiclePhoto(text) {
     "mobilya",
   ];
   return (
-    noVehicleSignals.some((signal) => normalized.includes(signal)) ||
-    unrelatedContentSignals.some((signal) => normalized.includes(signal))
+    noVehicleSignals.some((signal) => includesStandalonePhrase(normalized, signal)) ||
+    unrelatedContentSignals.some((signal) => includesStandalonePhrase(normalized, signal))
   );
+}
+
+// Positive vehicle/damage vocabulary — shared by normalizeAnalysis (to catch
+// a model contradicting its own isVehiclePhoto=false) and normalizeTextFallback
+// (to decide whether unstructured text is worth showing at all).
+function describesVehicleDamageContent(text) {
+  const normalized = text.toLocaleLowerCase("tr-TR");
+  const saysVehicle =
+    normalized.includes("araç") ||
+    normalized.includes("araba") ||
+    normalized.includes("gösterge") ||
+    normalized.includes("uyarı ışığı") ||
+    normalized.includes("uyarı lambası") ||
+    normalized.includes("motor arıza") ||
+    normalized.includes("car") ||
+    normalized.includes("vehicle");
+  const saysDamageOrWarning =
+    /hasar|kaza|darbe|göçük|gocuk|çizik|cizik|çatlak|catlak|kırık|kirik|tampon|kaput|far|stop|çamurluk|camurluk|kapı|kapi|podye|şasi|sasi|panel|radyatör|radyator|ızgara|izgara|airbag|hava yastığı|uyarı|uyari|arıza|ariza|lamba|kadran|damage|collision|accident|bumper|hood|fender|headlight|front|çarpışma|carpisma|gövde|govde/.test(
+      normalized,
+    );
+  return saysVehicle || saysDamageOrWarning;
 }
 
 function normalizeAnalysis(value) {
   if (!isRecord(value)) return null;
   const summary = typeof value.summary === "string" ? hedgeCertainLanguage(value.summary.slice(0, 500)) : "";
-  const isVehiclePhoto = value.isVehiclePhoto === true && !describesNonVehiclePhoto(summary);
-  const findings = Array.isArray(value.findings) ? value.findings : [];
+  // The model can contradict itself within one response: seen live setting
+  // isVehiclePhoto=false while its own summary clearly describes a damaged
+  // vehicle ("Ön gövdeye ait belirgin hasar mevcut; sağ ön taraf çarpışma
+  // etkisi gözlemleniyor...") and photoQuality gives a retake tip specific
+  // to that damage area. Trust what the model actually wrote about the
+  // photo over a flag that contradicts it.
+  const modelSaysVehicle = value.isVehiclePhoto === true;
+  const summaryContradictsFlag = !modelSaysVehicle && describesVehicleDamageContent(summary);
+  const isVehiclePhoto = (modelSaysVehicle || summaryContradictsFlag) && !describesNonVehiclePhoto(summary);
+  const rawFindings = Array.isArray(value.findings) ? value.findings : [];
+  const normalizedFindings = rawFindings
+    .filter((finding) => !looksLikeNoDamageFinding(finding))
+    .slice(0, 8)
+    .map((finding, index) => ({
+      id: `ai-photo-${index + 1}`,
+      area: isRecord(finding) && typeof finding.area === "string" ? finding.area.slice(0, 80) : "Genel dış gövde",
+      signal: normalizeSignal(finding),
+      confidence:
+        isRecord(finding) && ["low", "medium", "high"].includes(finding.confidence) ? finding.confidence : "low",
+      explanation:
+        isRecord(finding) && typeof finding.explanation === "string"
+          ? hedgeCertainLanguage(finding.explanation.slice(0, 500))
+          : "Görselden kesin hüküm verilemez; ekspertizde doğrulanmalıdır.",
+      recommendation:
+        isRecord(finding) && typeof finding.recommendation === "string" && !looksLikeNoDamageFinding(finding)
+          ? hedgeCertainLanguage(finding.recommendation.slice(0, 300))
+          : "Bağımsız ekspertizde kontrol ettirin.",
+    }));
+  // If the flag was overridden but the model (consistent with its own
+  // wrong isVehiclePhoto=false) never produced any findings either, build
+  // one from the summary itself rather than showing an empty findings list
+  // right under a summary that plainly describes real damage.
+  const findings =
+    isVehiclePhoto && !normalizedFindings.length && summaryContradictsFlag
+      ? [
+          {
+            id: "ai-photo-1",
+            area: "Görseldeki araç bölgesi",
+            signal: "Olası hasar veya arıza sinyali",
+            confidence: "low",
+            explanation: summary,
+            recommendation: "Bağımsız ekspertizde kontrol ettirin.",
+          },
+        ]
+      : isVehiclePhoto
+        ? normalizedFindings
+        : [];
   return {
     isVehiclePhoto,
     summary:
@@ -293,26 +382,7 @@ function normalizeAnalysis(value) {
       (isVehiclePhoto
         ? "Fotoğrafta araçla ilgili kontrol edilebilecek alanlar var."
         : "Fotoğrafta araç veya araç parçası güvenle tespit edilemedi."),
-    findings: isVehiclePhoto
-      ? findings
-          .filter((finding) => !looksLikeNoDamageFinding(finding))
-          .slice(0, 8)
-          .map((finding, index) => ({
-            id: `ai-photo-${index + 1}`,
-            area: isRecord(finding) && typeof finding.area === "string" ? finding.area.slice(0, 80) : "Genel dış gövde",
-            signal: normalizeSignal(finding),
-            confidence:
-              isRecord(finding) && ["low", "medium", "high"].includes(finding.confidence) ? finding.confidence : "low",
-            explanation:
-              isRecord(finding) && typeof finding.explanation === "string"
-                ? hedgeCertainLanguage(finding.explanation.slice(0, 500))
-                : "Görselden kesin hüküm verilemez; ekspertizde doğrulanmalıdır.",
-            recommendation:
-              isRecord(finding) && typeof finding.recommendation === "string" && !looksLikeNoDamageFinding(finding)
-                ? hedgeCertainLanguage(finding.recommendation.slice(0, 300))
-                : "Bağımsız ekspertizde kontrol ettirin.",
-          }))
-      : [],
+    findings,
     photoQuality: normalizePhotoQuality(value.photoQuality, isVehiclePhoto),
     disclaimer:
       "Bu AI fotoğraf kontrolü kesin hasar veya arıza tespiti değildir. Işık, açı, çözünürlük, kir ve uyarı lambasının gerçek arıza kodu gibi etkenler sonucu değiştirebilir.",
@@ -356,21 +426,9 @@ function normalizeTextFallback(text) {
       normalized.includes("araç fotoğrafı değil") ||
       normalized.includes("no vehicle") ||
       normalized.includes("not a vehicle"));
-  const saysVehicle =
-    normalized.includes("araç") ||
-    normalized.includes("araba") ||
-    normalized.includes("gösterge") ||
-    normalized.includes("uyarı ışığı") ||
-    normalized.includes("uyarı lambası") ||
-    normalized.includes("motor arıza") ||
-    normalized.includes("car") ||
-    normalized.includes("vehicle");
-  const saysDamageOrWarning =
-    /hasar|kaza|darbe|göçük|gocuk|çizik|cizik|çatlak|catlak|kırık|kirik|tampon|kaput|far|stop|çamurluk|camurluk|kapı|kapi|podye|şasi|sasi|panel|radyatör|radyator|ızgara|izgara|airbag|hava yastığı|uyarı|uyari|arıza|ariza|lamba|kadran|damage|collision|accident|bumper|hood|fender|headlight|front/.test(
-      normalized,
-    );
+  const saysDamageOrWarning = describesVehicleDamageContent(text);
 
-  if (!saysNoVehicle && !saysVehicle && !saysDamageOrWarning) return null;
+  if (!saysNoVehicle && !saysDamageOrWarning) return null;
 
   const safeSummary = hasUsableText
     ? cleanText.slice(0, 500)

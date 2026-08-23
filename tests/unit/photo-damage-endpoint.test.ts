@@ -918,6 +918,58 @@ describe("photo damage AI endpoint", () => {
     expect(payload.analysis.findings.length).toBeGreaterThan(0);
   });
 
+  it("overrides isVehiclePhoto=false when the model's own summary describes real vehicle damage", async () => {
+    // Regression test for a third live incident: a clean, valid JSON
+    // response (no reasoning leak, no schema failure) where the model set
+    // isVehiclePhoto=false and returned an empty findings array, while its
+    // own summary and photoQuality text clearly and specifically describe
+    // real front-end collision damage on a vehicle. The app used to show
+    // that accurate summary directly under a contradictory "araç tespit
+    // edilemedi" banner with nothing in the findings list.
+    const fetchMock = mockFetchAllowingRateLimit({
+      ok: true,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                isVehiclePhoto: false,
+                summary:
+                  "Ön gövdeye ait belirgin hasar mevcut; sağ ön taraf çarpışma etkisi gözlemleniyor; sürüş güvenliği için profesyonel kontrol ve tamir gerekebilir.",
+                photoQuality: {
+                  isUsable: true,
+                  retakeTip: "Hasarlı ön sağ bölgeye daha yakından ve iyi ışıkta tekrar çekim yapın.",
+                },
+                findings: [],
+              }),
+            },
+          },
+        ],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const previousEnv = process.env;
+    process.env = {
+      ...previousEnv,
+      ...RATE_LIMIT_TEST_ENV,
+      NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED: "true",
+      OPENROUTER_API_KEY: "test-key",
+      OPENROUTER_PHOTO_DAILY_REQUEST_LIMIT: "5",
+    };
+    const response = createResponse();
+
+    await handler(createRequest(validBody), response);
+
+    process.env = previousEnv;
+    vi.unstubAllGlobals();
+    const payload = JSON.parse(response.body) as {
+      analysis: { isVehiclePhoto: boolean; findings: Array<{ area: string; explanation: string }> };
+    };
+    expect(response.statusCode).toBe(200);
+    expect(payload.analysis.isVehiclePhoto).toBe(true);
+    expect(payload.analysis.findings.length).toBeGreaterThan(0);
+  });
+
   it("retries without response_format when OpenRouter returns a 200 error payload for schema mode", async () => {
     const fetchMock = vi.fn<(input: unknown, init?: RequestInit) => Promise<Response>>(async (input, init) => {
       if (String(input).includes("upstash.example.com")) {
