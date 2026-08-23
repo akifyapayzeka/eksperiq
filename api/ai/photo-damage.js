@@ -57,7 +57,14 @@ const PAID_FALLBACK_MODEL = "openai/gpt-5-nano";
 // either burns the same per-install budget fast). This does not touch
 // already-used counts in Redis, it just raises the ceiling those counts are
 // compared against, so today's usage is unblocked immediately on deploy.
-const DEFAULT_PHOTO_DAILY_LIMIT = 300;
+//
+// That per-install bump alone did NOT fix the live 429s (confirmed via
+// Vercel runtime logs: still 429 minutes after that deploy went READY) —
+// the GLOBAL daily budget below, shared across every device, was the real
+// ceiling being hit after a full day of live debugging/testing traffic.
+// Raised for the same reason and with the same "drop back before real
+// launch" caveat.
+const DEFAULT_PHOTO_DAILY_LIMIT = 5000;
 const DEFAULT_PHOTO_DAILY_LIMIT_PER_INSTALL = 1000;
 const DEFAULT_BURST_LIMIT = 8;
 const DEFAULT_BURST_WINDOW_SECONDS = 60;
