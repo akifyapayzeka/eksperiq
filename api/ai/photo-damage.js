@@ -535,13 +535,17 @@ async function requestOpenRouterVision(input) {
       // reasoning-capable free model can burn the entire budget narrating
       // its "Thinking Process:" and never reach the actual JSON answer
       // (raw leaked text alone measured ~3.5k characters, right at that
-      // token ceiling). reasoning:{exclude:true} below should stop that
-      // narration for models that honor it, but this is raised regardless
-      // as a safety margin for models that don't.
+      // token ceiling).
       maxTokens: 2000,
       refererUrl: productionUrl,
       appName,
-      reasoning: { exclude: true },
+      // TEMPORARY: reasoning:{exclude:true} was tried here to stop that
+      // narration outright, but every candidate model started failing
+      // immediately afterward (500/502, "AI yanıtı okunamadı." on every
+      // attempt) — reverted until confirmed which of these free models
+      // actually reject an unrecognized `reasoning` field outright versus
+      // silently ignoring it. The per-attempt logging below should show
+      // exactly which one it was on the next real failure.
     });
 
   let lastError = "AI fotoğraf sonucu işlenemedi.";
@@ -550,6 +554,16 @@ async function requestOpenRouterVision(input) {
     for (const responseFormat of attempts) {
       const result = await callVisionModel(model, responseFormat);
       if (!result.ok) {
+        // TEMPORARY: every candidate model+attempt combination was
+        // exhausted with only the LAST failure's message surfaced to the
+        // user ("AI fotoğraf sonucu işlenemedi." or similar) — this logs
+        // each individual attempt's outcome so a real multi-model cascade
+        // failure can be root-caused instead of guessed at from one final
+        // generic message.
+        console.warn(
+          "[photo-damage] attempt failed:",
+          JSON.stringify({ model, hasResponseFormat: Boolean(responseFormat), error: result.error }),
+        );
         lastError = result.error;
         if (responseFormat && /:\s*400\b/.test(result.error)) continue;
         break;
@@ -557,6 +571,10 @@ async function requestOpenRouterVision(input) {
 
       const payloadError = extractPayloadError(result.payload);
       if (payloadError) {
+        console.warn(
+          "[photo-damage] attempt returned payload error:",
+          JSON.stringify({ model, hasResponseFormat: Boolean(responseFormat), payloadError }),
+        );
         lastError = payloadError;
         if (responseFormat && /response_format|schema|structured|json/i.test(payloadError)) continue;
         break;
@@ -564,6 +582,10 @@ async function requestOpenRouterVision(input) {
 
       const text = extractText(result.payload);
       if (!text) {
+        console.warn(
+          "[photo-damage] attempt had no extractable text:",
+          JSON.stringify({ model, hasResponseFormat: Boolean(responseFormat), payloadKeys: Object.keys(result.payload ?? {}), payloadHead: JSON.stringify(result.payload).slice(0, 600) }),
+        );
         lastError = "AI yanıtı okunamadı.";
         continue;
       }
