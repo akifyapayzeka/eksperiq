@@ -147,6 +147,30 @@ describe("analysis engine", () => {
     expect(findings.some((finding) => finding.id === "full-body-repaint")).toBe(false);
   });
 
+  it("scales severity with painted-part count instead of always scoring 'low'", () => {
+    // Regression test for a real 2026-08-24 listing: "SOL ARKA KAPI BOYALI,
+    // SAĞ ARKA ÇAMURLUK BOYALI" (2 named panels) and another real listing
+    // with 3 separately-named local paint spots — both used to score
+    // identically to a single touched-up bumper (flat "low"), unlike
+    // replacedParts which already scales with count.
+    const single = damageRules({ ...baseInput, paintedParts: "Sol arka kapı" });
+    expect(single).toContainEqual(expect.objectContaining({ id: "painted-parts-declared", severity: "low" }));
+    expect(single.some((finding) => finding.id === "multiple-painted-parts")).toBe(false);
+
+    const twoDoorPanels = damageRules({ ...baseInput, paintedParts: "Sol arka kapı, Sağ arka çamurluk" });
+    expect(twoDoorPanels).toContainEqual(expect.objectContaining({ id: "multiple-painted-parts", severity: "medium" }));
+    expect(twoDoorPanels.some((finding) => finding.id === "painted-parts-declared")).toBe(false);
+
+    const fourPanels = damageRules({
+      ...baseInput,
+      paintedParts: "Sağ ön çamurluk, Sol ön çamurluk, Bagaj kapağı, Ön tampon",
+    });
+    expect(fourPanels).toContainEqual(expect.objectContaining({ id: "multiple-painted-parts", severity: "high" }));
+
+    const paintedHood = damageRules({ ...baseInput, paintedParts: "Kaput, Sağ ön kapı" });
+    expect(paintedHood).toContainEqual(expect.objectContaining({ id: "multiple-painted-parts", severity: "high" }));
+  });
+
   it("does not call damage fields empty when the seller description claims no damage record", () => {
     const findings = damageRules({
       ...baseInput,

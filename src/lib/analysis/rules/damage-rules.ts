@@ -201,7 +201,18 @@ export function damageRules(input: VehicleFormData): AnalysisFinding[] {
   }
   const replacedCount = partCount(input.replacedParts);
   const replacedGroups = classifyChangedParts(input.replacedParts);
-  if (input.paintedParts)
+  // Unlike replacedParts (below), this used to give every non-empty
+  // paintedParts value the same flat "low" severity no matter how many named
+  // panels were painted — a single touched-up door and "sağ ön çamurluk, sol
+  // ön çamurluk, bagaj kapağı" (3 separate panels, from a real 2026-08-24
+  // listing) scored identically. More painted panels is the same kind of
+  // signal replacedParts already accounts for (a wider repair/impact), so
+  // this now mirrors that pattern: 1 part stays "low", 2+ scales with the
+  // panel type (kaput/tavan-direk-şasi still forces "high") and is forced
+  // "high" outright past 3 parts.
+  const paintedCount = partCount(input.paintedParts);
+  const paintedGroups = classifyChangedParts(input.paintedParts);
+  if (paintedCount === 1)
     findings.push({
       id: "painted-parts-declared",
       category: "Hasar",
@@ -210,6 +221,17 @@ export function damageRules(input: VehicleFormData): AnalysisFinding[] {
       explanation:
         `İlanda boyalı parça olarak ${input.paintedParts} belirtilmiş. Boya tek başına ağır hasar anlamına gelmez; parça, ölçüm ve onarım nedeni birlikte değerlendirilmelidir.`,
       recommendation: "Boya kalınlık ölçümünü tüm panellerde yaptırın ve boya nedenini satıcıdan yazılı sorun.",
+    });
+  if (paintedCount > 1)
+    findings.push({
+      id: "multiple-painted-parts",
+      category: "Hasar",
+      severity: paintedCount > 3 ? "high" : highestSeverity(paintedGroups),
+      title: "Birden fazla boyalı parça var",
+      explanation:
+        `İlanda boyalı parçalar ${input.paintedParts} olarak belirtilmiş. ${changedPartExplanation(paintedGroups)} Tek panelden farklı olarak birden fazla parçanın boyalı olması, daha geniş bir onarımın (çarpma, sürtme veya kapsamlı kozmetik iş) izini taşıyabilir.`,
+      recommendation:
+        `${changedPartRecommendation(paintedGroups)} Parçaların aynı olaydan mı yoksa farklı zamanlardan mı kaynaklandığını satıcıdan yazılı isteyin.`,
     });
   if (input.localPaintedParts)
     findings.push({
