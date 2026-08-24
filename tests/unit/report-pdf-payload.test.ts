@@ -53,4 +53,15 @@ describe("report PDF payload", () => {
     expect(payload.sellerQuestions.length).toBeGreaterThan(0);
     expect(payload.inspectionFocus.length).toBeGreaterThan(0);
   });
+
+  it("carries the same sections the app itself shows: strengths, costs, chronic issues, completeness, photos", () => {
+    const result = analyzeVehicle(input);
+    const payload = buildReportPayload({ ...result, listingImages: ["https://example.com/a.jpg"] });
+
+    expect(payload.strengths).toEqual(result.strengths);
+    expect(payload.costs).toEqual(result.costs);
+    expect(payload.knownIssues).toEqual(result.knownIssues);
+    expect(payload.completeness).toEqual(result.completeness);
+    expect(payload.listingImages).toEqual(["https://example.com/a.jpg"]);
+  });
 });

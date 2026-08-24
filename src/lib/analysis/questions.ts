@@ -29,7 +29,19 @@ const OLD_VEHICLE_AGE_YEARS = 10;
 
 export function generateSellerQuestions(input: VehicleFormData, findings: AnalysisFinding[]): string[] {
   const priority = new Set<string>();
-  if (findings.some((finding) => finding.category === "Hasar")) {
+  // Only a real damage signal (medium/high severity — heavy damage, chassis
+  // work, airbag deployment, total loss, an unexplained tramer amount, or a
+  // structurally-relevant replaced part) should push the tramer/şasi/airbag
+  // questions to the top. A routine, low-severity disclosure — e.g. a single
+  // repainted bumper, the most common and least concerning entry in
+  // damage-rules.ts — used to trigger the exact same top-3 questions as an
+  // actual heavy-damage record, which is what made a listing that plainly
+  // states "no damage record" still surface these as the very first
+  // questions with no explanation. Confirmed against a real listing
+  // (2026-08-23): its only "Hasar" finding was a low-severity painted-parts
+  // disclosure, yet it got the same alarming top-3 as a car with real
+  // structural damage.
+  if (findings.some((finding) => finding.category === "Hasar" && finding.severity !== "low")) {
     priority.add("Tramer kaydının tarih ve detaylarını paylaşır mısınız?");
     priority.add("Şasi, podye, direk veya tavan işlem gördü mü?");
     priority.add("Airbag açtı mı veya değişti mi?");

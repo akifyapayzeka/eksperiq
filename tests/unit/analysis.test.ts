@@ -59,6 +59,21 @@ describe("analysis engine", () => {
     expect(findings).toContainEqual(expect.objectContaining({ id: "heavy-damage", severity: "high" }));
   });
 
+  it("does not flag a negated airbag status ('Açmamış') as an intervention", () => {
+    // "Açmamış" means "has NOT deployed" — a naive substring match for "aç"
+    // matched this negated form too, since Turkish negates with a "-ma-"
+    // infix right after the verb stem ("aç" + "ma" + "mış"). This was firing
+    // a high-severity "airbag" finding on baseInput itself, which is meant
+    // to represent a clean vehicle.
+    const findings = damageRules({ ...baseInput, airbagStatus: "Açmamış" });
+    expect(findings.some((finding) => finding.id === "airbag")).toBe(false);
+  });
+
+  it("still flags an affirmative airbag claim ('Açmış')", () => {
+    const findings = damageRules({ ...baseInput, airbagStatus: "Açmış" });
+    expect(findings).toContainEqual(expect.objectContaining({ id: "airbag", severity: "high" }));
+  });
+
   it("comments on declared single paint and low-risk bumper replacement details", () => {
     const findings = damageRules({
       ...baseInput,
@@ -149,6 +164,20 @@ describe("analysis engine", () => {
     const findings = damageRules({ ...baseInput, hasChassisRepair: true });
     const questions = generateSellerQuestions(baseInput, findings);
     expect(questions[0]).toBe("Tramer kaydının tarih ve detaylarını paylaşır mısınız?");
+  });
+
+  it("does not push tramer/şasi/airbag questions to the top for a routine low-severity paint disclosure", () => {
+    // Regression test for a live incident: a listing declaring only a
+    // single repainted bumper (the lowest-severity, most common "Hasar"
+    // finding — see damage-rules.ts) used to trip the exact same top-3
+    // "ilk sorulacak sorular" as a car with real structural damage, even
+    // though the listing itself stated it had no damage record.
+    const inputWithMinorPaint = { ...baseInput, paintedParts: "Ön tampon" };
+    const findings = damageRules(inputWithMinorPaint);
+    expect(findings.every((finding) => finding.category !== "Hasar" || finding.severity === "low")).toBe(true);
+    const questions = generateSellerQuestions(inputWithMinorPaint, findings);
+    expect(questions.slice(0, 3)).not.toContain("Şasi, podye, direk veya tavan işlem gördü mü?");
+    expect(questions.slice(0, 3)).not.toContain("Airbag açtı mı veya değişti mi?");
   });
 
   it("detects claim phrases in seller description", () => {

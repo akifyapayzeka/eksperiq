@@ -99,6 +99,18 @@ function changedPartRecommendation(groups: PartRisk[]): string {
   return groups.map((group) => group.recommendation).join(" ");
 }
 
+// A naive "aç|degis|değiş|patla" substring match also matched the negated
+// Turkish forms ("Açmamış" = has NOT deployed, "Değişmemiş" = has NOT been
+// changed) — Turkish negates a verb with a "-ma-/-me-" infix right after the
+// stem, so "açmamış" literally contains "aç". Check for that negation
+// infix first; if present, this status is NOT an affirmative intervention
+// claim regardless of the base verb it negates.
+function airbagIndicatesIntervention(status: string): boolean {
+  const normalized = status.toLocaleLowerCase("tr-TR");
+  if (/açma|değişme|degisme|patlama/i.test(normalized)) return false;
+  return /aç|degis|değiş|patla/i.test(normalized);
+}
+
 function hasSellerCleanDamageClaim(description: string): boolean {
   return /hasar\s+kayd[ıi]\s*(yok|yoktur|bulunmuyor|bulunmamaktad[ıi]r)|hasar\s+kay[ıi]ts[ıi]z|tramersiz|tramer\s*(yok|yoktur)|ağ[ıi]r\s+hasar\s*(yok|yoktur|bulunmuyor)|pert\s+kayd[ıi]\s*(yok|yoktur)|hatas[ıi]z\s+boyas[ıi]z/i.test(
     description,
@@ -125,7 +137,7 @@ export function damageRules(input: VehicleFormData): AnalysisFinding[] {
       explanation: "Taşıyıcı yapıdaki işlem kritik güvenlik riski doğurabilir.",
       recommendation: "Şasi, podye, direk ve tavanı özellikle kontrol ettirin.",
     });
-  if (/aç|degis|değiş|patla/i.test(input.airbagStatus ?? ""))
+  if (airbagIndicatesIntervention(input.airbagStatus ?? ""))
     findings.push({
       id: "airbag",
       category: "Hasar",
