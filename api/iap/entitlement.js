@@ -34,6 +34,20 @@ function getTokenSecret() {
   return process.env.STOREKIT_ENTITLEMENT_TOKEN_SECRET?.trim() || null;
 }
 
+/**
+ * A Sandbox transaction is real Apple-signed cryptography — anyone can get
+ * one for free with a Sandbox tester Apple ID, no purchase or App Review
+ * involved. TestFlight testing (and App Review, before launch) always runs
+ * in Sandbox, so this can't simply reject Sandbox outright — but it must
+ * default closed, or a Sandbox JWS posted straight to this production
+ * endpoint (bypassing the app entirely) would be granted a genuine "pro"
+ * token via the exact same code path a real paying customer uses. Same
+ * fail-closed pattern as the other flags in this file: explicit opt-in only.
+ */
+function acceptsSandbox() {
+  return process.env.APPLE_IAP_ACCEPT_SANDBOX === "true";
+}
+
 async function readJsonBody(request) {
   const chunks = [];
   for await (const chunk of request) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
@@ -46,6 +60,22 @@ function signToken(secret, payload) {
   const encodedPayload = Buffer.from(JSON.stringify(payload)).toString("base64url");
   const signature = crypto.createHmac("sha256", secret).update(encodedPayload).digest("base64url");
   return `${encodedPayload}.${signature}`;
+}
+
+/**
+ * Pure transform from an already-verified StoreKit transaction to what gets
+ * stored — separated from the handler so it's unit-testable without a real
+ * or synthetic Apple signature (see tests/unit/iap-entitlement-endpoint.test.ts).
+ */
+function buildEntitlementRecord(transactionInfo) {
+  return {
+    state: deriveEntitlementState(transactionInfo, null),
+    productId: transactionInfo.productId,
+    expiresAt:
+      typeof transactionInfo.expiresDate === "number" ? new Date(transactionInfo.expiresDate).toISOString() : null,
+    environment: transactionInfo.environment ?? null,
+    updatedAt: new Date().toISOString(),
+  };
 }
 
 /**
@@ -109,28 +139,25 @@ async function handler(request, response) {
     return;
   }
 
+  if (transactionInfo.environment !== "Production" && !acceptsSandbox()) {
+    sendJson(response, 400, { error: "Only Production transactions are accepted by this endpoint." });
+    return;
+  }
+
   const originalTransactionId = transactionInfo.originalTransactionId;
   if (!originalTransactionId) {
     sendJson(response, 400, { error: "Transaction info is missing originalTransactionId." });
     return;
   }
 
-  const state = deriveEntitlementState(transactionInfo, null);
-  const expiresAt =
-    typeof transactionInfo.expiresDate === "number" ? new Date(transactionInfo.expiresDate).toISOString() : null;
-
-  await saveEntitlementRecord(originalTransactionId, {
-    state,
-    productId: transactionInfo.productId,
-    expiresAt,
-    updatedAt: new Date().toISOString(),
-  });
+  const record = buildEntitlementRecord(transactionInfo);
+  await saveEntitlementRecord(originalTransactionId, record, transactionInfo.environment);
 
   const issuedAt = Date.now();
   const tokenPayload = {
-    state,
-    productId: transactionInfo.productId,
-    expiresAt,
+    state: record.state,
+    productId: record.productId,
+    expiresAt: record.expiresAt,
     issuedAt,
     tokenExpiresAt: issuedAt + TOKEN_TTL_SECONDS * 1000,
   };
@@ -141,4 +168,6 @@ async function handler(request, response) {
 
 module.exports = handler;
 module.exports.isEnabled = isEnabled;
+module.exports.acceptsSandbox = acceptsSandbox;
 module.exports.KNOWN_PRODUCT_IDS = KNOWN_PRODUCT_IDS;
+module.exports.buildEntitlementRecord = buildEntitlementRecord;

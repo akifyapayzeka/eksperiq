@@ -21,6 +21,32 @@ function isEnabled() {
   return process.env.APPLE_APP_STORE_NOTIFICATIONS_ENABLED === "true";
 }
 
+/**
+ * Pure transform from an already-verified notification envelope +
+ * transaction/renewal info to what gets stored — separated from the handler
+ * so it's unit-testable without a real or synthetic Apple signature (see
+ * tests/unit/iap-notifications-endpoint.test.ts). Apple's App Store Server
+ * Notifications V2 legitimately delivers both Sandbox and Production
+ * notifications to the same webhook URL (Sandbox testing, App Review before
+ * launch, and real customers all land here) — environment is recorded on
+ * the record and folded into its storage key (see api/_lib/iap-store.js)
+ * so the two can never collide, but neither is rejected here.
+ */
+function buildEntitlementRecord(notification, transactionInfo, renewalInfo) {
+  const environment = notification?.data?.environment ?? transactionInfo?.environment ?? null;
+  return {
+    state: deriveEntitlementState(transactionInfo, renewalInfo),
+    productId: transactionInfo.productId ?? null,
+    expiresAt:
+      typeof transactionInfo.expiresDate === "number" ? new Date(transactionInfo.expiresDate).toISOString() : null,
+    environment,
+    notificationType: notification.notificationType ?? null,
+    subtype: notification.subtype ?? null,
+    notificationUUID: notification.notificationUUID ?? null,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
 async function readJsonBody(request) {
   const chunks = [];
   for await (const chunk of request) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
@@ -107,19 +133,12 @@ async function handler(request, response) {
     return;
   }
 
-  const state = deriveEntitlementState(transactionInfo, renewalInfo);
-  await saveEntitlementRecord(originalTransactionId, {
-    state,
-    productId: transactionInfo.productId ?? null,
-    expiresAt:
-      typeof transactionInfo.expiresDate === "number" ? new Date(transactionInfo.expiresDate).toISOString() : null,
-    notificationType: notification.notificationType ?? null,
-    subtype: notification.subtype ?? null,
-    updatedAt: new Date().toISOString(),
-  });
+  const record = buildEntitlementRecord(notification, transactionInfo, renewalInfo);
+  await saveEntitlementRecord(originalTransactionId, record, record.environment ?? "Production");
 
   sendJson(response, 200, { received: true });
 }
 
 module.exports = handler;
 module.exports.isEnabled = isEnabled;
+module.exports.buildEntitlementRecord = buildEntitlementRecord;

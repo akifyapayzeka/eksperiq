@@ -12,7 +12,14 @@ type MockResponse = Writable & {
 
 type EndpointHandler = (request: Readable & { method?: string }, response: MockResponse) => Promise<void>;
 
-const notificationsHandler = require("../../api/iap/notifications.js") as EndpointHandler;
+const notificationsModule = require("../../api/iap/notifications.js") as EndpointHandler & {
+  buildEntitlementRecord: (
+    notification: Record<string, unknown>,
+    transactionInfo: Record<string, unknown>,
+    renewalInfo: Record<string, unknown> | null,
+  ) => Record<string, unknown>;
+};
+const notificationsHandler = notificationsModule;
 
 function createRequest(body: unknown, method = "POST") {
   const request = Readable.from([typeof body === "string" ? body : JSON.stringify(body)]) as Readable & {
@@ -95,5 +102,80 @@ describe("iap notifications endpoint", () => {
     expect(response.statusCode).toBe(401);
     const parsed = JSON.parse(response.body) as { error: string };
     expect(parsed.error).toBe("Could not verify signedPayload.");
+  });
+});
+
+/**
+ * buildEntitlementRecord is the pure "what do we store" transform, extracted
+ * specifically so this behavior (environment tagging, refund/expire/renew
+ * state derivation) can be verified without a real or synthetic Apple
+ * signature — the handler-level tests above can only cover the fail-closed
+ * paths for that reason.
+ */
+describe("notifications buildEntitlementRecord", () => {
+  const { buildEntitlementRecord } = notificationsModule;
+
+  it("tags a Production notification's environment from the outer envelope", () => {
+    const record = buildEntitlementRecord(
+      { data: { environment: "Production" }, notificationType: "DID_RENEW", notificationUUID: "uuid-1" },
+      { productId: "com.eksperiq.app.pro.monthly", originalTransactionId: "1", expiresDate: Date.now() + 100_000 },
+      null,
+    );
+    expect(record.environment).toBe("Production");
+    expect(record.state).toBe("pro");
+    expect(record.notificationUUID).toBe("uuid-1");
+  });
+
+  it("tags a Sandbox notification's environment without rejecting it (Apple sends both to the same webhook)", () => {
+    const record = buildEntitlementRecord(
+      { data: { environment: "Sandbox" }, notificationType: "SUBSCRIBED" },
+      { productId: "com.eksperiq.app.pro.monthly", originalTransactionId: "1", expiresDate: Date.now() + 100_000 },
+      null,
+    );
+    expect(record.environment).toBe("Sandbox");
+  });
+
+  it("marks a refunded/revoked transaction as revoked even while still within its paid period", () => {
+    const record = buildEntitlementRecord(
+      { data: { environment: "Production" }, notificationType: "REFUND" },
+      {
+        productId: "com.eksperiq.app.pro.monthly",
+        originalTransactionId: "1",
+        expiresDate: Date.now() + 100_000,
+        revocationDate: Date.now(),
+      },
+      null,
+    );
+    expect(record.state).toBe("revoked");
+  });
+
+  it("resolves gracePeriod from renewalInfo once the transaction itself has expired", () => {
+    const record = buildEntitlementRecord(
+      { data: { environment: "Production" }, notificationType: "DID_FAIL_TO_RENEW", subtype: "GRACE_PERIOD" },
+      { productId: "com.eksperiq.app.pro.monthly", originalTransactionId: "1", expiresDate: Date.now() - 1_000 },
+      { gracePeriodExpiresDate: Date.now() + 100_000 },
+    );
+    expect(record.state).toBe("gracePeriod");
+  });
+
+  it("resolves expired when there is no renewal grace/retry window left", () => {
+    const record = buildEntitlementRecord(
+      { data: { environment: "Production" }, notificationType: "EXPIRED" },
+      { productId: "com.eksperiq.app.pro.monthly", originalTransactionId: "1", expiresDate: Date.now() - 1_000 },
+      { autoRenewStatus: 0 },
+    );
+    expect(record.state).toBe("expired");
+  });
+
+  it("produces the identical record for the same signed payload processed twice (idempotent overwrite)", () => {
+    const notification = { data: { environment: "Production" }, notificationType: "DID_RENEW", notificationUUID: "u" };
+    const transactionInfo = {
+      productId: "com.eksperiq.app.pro.monthly",
+      originalTransactionId: "1",
+      expiresDate: 1_700_000_000_000,
+    };
+    const first = buildEntitlementRecord(notification, transactionInfo, null);
+    const second = buildEntitlementRecord(notification, transactionInfo, null);
+    expect({ ...first, updatedAt: null }).toEqual({ ...second, updatedAt: null });
   });
 });

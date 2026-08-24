@@ -23,9 +23,15 @@ function getUpstashConfig() {
  * a hash of it rather than any account/install id. It is not secret, but
  * it's still hashed (never stored raw) so a leaked Upstash dump can't be
  * directly correlated back to Apple transaction IDs.
+ *
+ * The environment ("Production" | "Sandbox", from Apple's own signed
+ * payload) is mixed into the hash so a Sandbox transaction can never read or
+ * overwrite a Production record for the same conceptual id, or vice versa —
+ * App Store Server Notifications V2 legitimately delivers both environments
+ * to the same webhook URL, and they must never be able to collide.
  */
-function hashOriginalTransactionId(originalTransactionId) {
-  return crypto.createHash("sha256").update(String(originalTransactionId)).digest("hex").slice(0, 32);
+function hashOriginalTransactionId(originalTransactionId, environment = "Production") {
+  return crypto.createHash("sha256").update(`${environment}:${originalTransactionId}`).digest("hex").slice(0, 32);
 }
 
 function recordKey(hash) {
@@ -44,8 +50,8 @@ async function upstashPipeline(config, commands) {
   return payload;
 }
 
-async function saveEntitlementRecord(originalTransactionId, record) {
-  const hash = hashOriginalTransactionId(originalTransactionId);
+async function saveEntitlementRecord(originalTransactionId, record, environment = "Production") {
+  const hash = hashOriginalTransactionId(originalTransactionId, environment);
   const upstash = getUpstashConfig();
   const serialized = JSON.stringify(record);
 
@@ -61,8 +67,8 @@ async function saveEntitlementRecord(originalTransactionId, record) {
   return { hash, store: "upstash" };
 }
 
-async function getEntitlementRecord(originalTransactionId) {
-  const hash = hashOriginalTransactionId(originalTransactionId);
+async function getEntitlementRecord(originalTransactionId, environment = "Production") {
+  const hash = hashOriginalTransactionId(originalTransactionId, environment);
   const upstash = getUpstashConfig();
   if (!upstash) return memoryStore.get(hash) || null;
 

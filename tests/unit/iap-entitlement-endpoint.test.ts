@@ -15,7 +15,11 @@ type EndpointHandler = (
   response: MockResponse,
 ) => Promise<void>;
 
-const entitlementHandler = require("../../api/iap/entitlement.js") as EndpointHandler;
+const entitlementModule = require("../../api/iap/entitlement.js") as EndpointHandler & {
+  buildEntitlementRecord: (transactionInfo: Record<string, unknown>) => Record<string, unknown>;
+  acceptsSandbox: () => boolean;
+};
+const entitlementHandler = entitlementModule;
 
 function createRequest(body: unknown, method = "POST", headers: Record<string, string> = {}) {
   const request = Readable.from([typeof body === "string" ? body : JSON.stringify(body)]) as Readable & {
@@ -123,5 +127,64 @@ describe("iap entitlement endpoint", () => {
     expect(response.statusCode).toBe(401);
     const parsed = JSON.parse(response.body) as { error: string };
     expect(parsed.error).toBe("Could not verify signedTransactionInfo.");
+  });
+});
+
+/**
+ * A Sandbox transaction JWS is real, validly Apple-signed cryptography —
+ * anyone can obtain one for free with a Sandbox tester Apple ID, no purchase
+ * or App Review involved. Before acceptsSandbox()'s fail-closed default,
+ * posting one straight to this endpoint (bypassing the app entirely) would
+ * have been granted a genuine "pro" entitlement token via the exact same
+ * code path a real paying customer uses.
+ */
+describe("iap entitlement endpoint sandbox handling", () => {
+  const originalAcceptSandbox = process.env.APPLE_IAP_ACCEPT_SANDBOX;
+
+  afterEach(() => {
+    if (originalAcceptSandbox === undefined) delete process.env.APPLE_IAP_ACCEPT_SANDBOX;
+    else process.env.APPLE_IAP_ACCEPT_SANDBOX = originalAcceptSandbox;
+  });
+
+  it("defaults to rejecting Sandbox transactions (acceptsSandbox is fail-closed)", () => {
+    delete process.env.APPLE_IAP_ACCEPT_SANDBOX;
+    expect(entitlementModule.acceptsSandbox()).toBe(false);
+  });
+
+  it("only accepts Sandbox once explicitly opted in", () => {
+    process.env.APPLE_IAP_ACCEPT_SANDBOX = "true";
+    expect(entitlementModule.acceptsSandbox()).toBe(true);
+  });
+});
+
+/**
+ * buildEntitlementRecord is the pure "what do we store" transform,
+ * extracted so this can be verified without a real or synthetic Apple
+ * signature — the handler-level tests above can only cover the fail-closed
+ * paths for that reason.
+ */
+describe("entitlement buildEntitlementRecord", () => {
+  const { buildEntitlementRecord } = entitlementModule;
+
+  it("records the transaction's environment", () => {
+    const record = buildEntitlementRecord({
+      productId: "com.eksperiq.app.pro.monthly",
+      originalTransactionId: "1",
+      environment: "Production",
+      expiresDate: Date.now() + 100_000,
+    });
+    expect(record.environment).toBe("Production");
+    expect(record.state).toBe("pro");
+  });
+
+  it("marks a revoked transaction as revoked regardless of expiresDate", () => {
+    const record = buildEntitlementRecord({
+      productId: "com.eksperiq.app.pro.monthly",
+      originalTransactionId: "1",
+      environment: "Production",
+      expiresDate: Date.now() + 100_000,
+      revocationDate: Date.now(),
+    });
+    expect(record.state).toBe("revoked");
   });
 });

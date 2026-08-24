@@ -71,11 +71,12 @@ sabit tabloyu (bir sonraki paragraf) UI'da **göstermiyor** — fiyatlar App Sto
 kendi mağaza/para birimine göre biçimlenmiş olarak (`product.displayPrice`) çekiliyor; ürün henüz yüklenmemişse veya
 App Store Connect'te henüz yoksa nötr bir "—" placeholder gösteriliyor, hiçbir zaman tahmini/sabit bir rakam değil.
 Paywall'a ayrıca bir Ücretsiz plan kartı ile her zaman görünen Gizlilik Politikası / Kullanım Koşulları / Abonelikleri
-Yönet bağlantıları ve otomatik yenileme açıklaması eklendi. **Bu Swift değişikliği de dahil olmak üzere tüm native
-taraf hâlâ Xcode'da hiç derlenmedi** — aşağıdaki madde 2'nin kapsamı bu turda genişledi, henüz kapanmadı.
+Yönet bağlantıları ve otomatik yenileme açıklaması eklendi.
 `tests/unit/subscription-manager.test.ts` ve güncellenen `tests/unit/paywall-plans.test.tsx` bu davranışı (web'de
 no-op, native'de cache, hata durumunda asla sahte "pro" iddiası) mock'lu native plugin'e karşı doğruluyor — gerçek
-cihaz testi değil.
+cihaz testi değil. Bu Swift değişikliği dahil tüm native taraf `ios-xcode-build-check.yml` ile gerçek Xcode 26
+Simulator hedefinde derleme doğrulaması aldı (**BUILD SUCCEEDED**, unsigned) — kod derleniyor, ama satın
+alma/restore davranışı hâlâ gerçek cihazda doğrulanmadı (bkz. aşağıdaki madde 2).
 
 ### Sunucu tarafı (Node) — vitest ile doğrulandı, gerçek Apple trafiğine karşı DEĞİL
 
@@ -98,8 +99,19 @@ cihaz testi değil.
   `verifyAppleSignedPayload` ile doğrular; herhangi biri doğrulanamazsa 401, detay sızdırmaz.
 - Doğrulanan durumu `api/_lib/iap-store.js` üzerinden `originalTransactionId`'nin hash'ine karşılık gelen kayda
   yazar (bu uygulamada kullanıcı hesabı yok — tek stabil kimlik Apple'ın kendi `originalTransactionId`'si).
-- `tests/unit/iap-notifications-endpoint.test.ts`: fail-closed ve reddetme yollarını kapsar (bkz. yukarıdaki not —
-  başarı yolu bu ortamda test edilemez).
+- **Güncelleme (audit turu)**: kayıt artık Apple'ın bildirimdeki `environment` alanını (`Production`/`Sandbox`) da
+  taşıyor ve saklama anahtarı buna göre ayrışıyor (`hashOriginalTransactionId(id, environment)`,
+  `api/_lib/iap-store.js`) — Apple aynı webhook URL'sine hem Sandbox hem Production bildirimlerini gönderdiği için
+  bu iki ortam artık asla aynı kaydı okuyup üzerine yazamıyor. `deriveEntitlementState` refund (`revocationDate`),
+  expire, renew ve grace period durumlarını `notificationType` etiketine değil doğrudan imzalı
+  transaction/renewal alanlarına bakarak çözüyor — daha sağlam bir yaklaşım, ayrıca değiştirilmedi. Aynı bildirim iki
+  kez işlenirse (Apple'ın kendi retry mekanizması) sonuç deterministik üretildiği için kayıt üzerine aynı değerle
+  yazılıyor — ayrı bir idempotency-anahtarı gerekmiyor.
+- `buildEntitlementRecord()` artık ayrı, saf bir fonksiyon olarak dışa açılıyor — gerçek/sentetik Apple imzası
+  olmadan bu mantık (`tests/unit/iap-notifications-endpoint.test.ts`) doğrudan test edilebiliyor: environment
+  etiketleme, refund→revoked, grace period, expired, idempotent-overwrite.
+- `tests/unit/iap-notifications-endpoint.test.ts`: handler seviyesinde fail-closed ve reddetme yollarını kapsar
+  (bkz. yukarıdaki not — başarı yolu bu ortamda gerçek Apple imzasıyla test edilemez).
 
 `api/iap/entitlement.js` — `POST`, istemciye açık (CORS'lu):
 
@@ -107,7 +119,20 @@ cihaz testi değil.
 - İstemcinin kendi StoreKit çağrısından aldığı `signedTransactionInfo` JWS'ini sunucu tarafında bağımsızca yeniden
   doğrular (cihazdaki bir jailbreak/kurcalama tek başına asla yeterli olmasın diye), `productId`'yi kontrol eder,
   kısa ömürlü (15 dk) HMAC imzalı bir entitlement token'ı döner. İstemci bu token'ı yalnızca bellekte tutmalı.
-- `tests/unit/iap-entitlement-endpoint.test.ts`: fail-closed, CORS preflight, ve reddetme yollarını kapsar.
+- **Güvenlik bulgusu ve düzeltme (audit turu)**: bir Sandbox transaction JWS'i gerçek, Apple tarafından geçerli
+  şekilde imzalanmış bir kriptografik nesnedir — herkes ücretsiz bir Sandbox test Apple ID'siyle bunu elde
+  edebilir, satın alma veya App Review gerekmez. Düzeltmeden önce, bu Sandbox JWS'i doğrudan bu endpoint'e POST
+  etmek (uygulamayı tamamen atlayarak) gerçek bir ödeyen müşteriyle birebir aynı kod yolundan geçerli bir "pro"
+  token'ı elde edebiliyordu. Artık `transactionInfo.environment !== "Production"` ise, `APPLE_IAP_ACCEPT_SANDBOX`
+  açıkça `"true"` yapılmadığı sürece 400 ile reddediliyor — bu depodaki diğer flag'lerle aynı fail-closed deseni
+  (varsayılan kapalı). Sandbox'ı tamamen her zaman reddetmemek bilinçli bir tercih: TestFlight testi ve App Review
+  öncesi test her zaman Sandbox ortamında çalışır, bu yüzden ihtiyaç olursa flag ile açılabilir olması gerekiyordu.
+- `buildEntitlementRecord()` de burada ayrı bir saf fonksiyon — environment kaydı ve state türetme
+  `tests/unit/iap-entitlement-endpoint.test.ts`'te gerçek imza gerekmeden test ediliyor.
+- `tests/unit/iap-entitlement-endpoint.test.ts`: fail-closed, CORS preflight, Sandbox reddi (`acceptsSandbox()`), ve
+  reddetme yollarını kapsar.
+- `tests/unit/iap-store.test.ts` (yeni): `hashOriginalTransactionId`'nin aynı id için Production/Sandbox'ta farklı
+  anahtar ürettiğini ve bir ortamdaki kaydın diğerini hiç etkilemediğini doğrudan doğruluyor.
 
 ## Xcode + Apple Developer hesabı gerektiren, bu ortamda tamamlanamayan iş
 
@@ -123,7 +148,7 @@ Developer Program üyeliği + App Store Connect erişimi gerektirir. Sırasıyla
   tanımlanmalı.
 - Sunucu tarafı doğrulama için bir App Store Connect API anahtarı (.p8 dosyası + Key ID + Issuer ID) oluşturulmalı.
 
-### 2. Native Swift — satın alma/restore/currentEntitlements (yazıldı, Xcode'da HİÇ derlenmedi)
+### 2. Native Swift — satın alma/restore/currentEntitlements (yazıldı, gerçek Xcode'da derleniyor, cihazda HİÇ doğrulanmadı)
 
 Artık referans/taslak değil, gerçek kaynak dosyalar olarak var ve `ios/App/App.xcodeproj/project.pbxproj`'a
 kaydedildi (Sources build phase'e eklendi — Xcode açıldığında derleme listesinde görünecek):
@@ -136,9 +161,10 @@ kaydedildi (Sources build phase'e eklendi — Xcode açıldığında derleme lis
   `registerPlugin("EksperIQEntitlement")` ile isim eşleşmesiyle bağlanıyor (derleme zamanı kontrolü yok — bu isim
   eşleşmesi Xcode'da gerçek bir cihazda çalıştırılana kadar doğrulanamaz).
 
-Her iki dosyanın da başında **"hiç derlenmedi/çalıştırılmadı"** uyarısı ve aşağıdaki checklist var — bu depoda
-Xcode/Swift toolchain'i yok, syntax hataları veya Capacitor API uyumsuzlukları ancak gerçek Xcode'da açılınca ortaya
-çıkabilir:
+`ios-xcode-build-check.yml` bu iki dosya dahil tüm native tarafı gerçek Xcode 26'da derliyor ve **BUILD SUCCEEDED**
+sonucunu veriyor (unsigned Simulator, code signing kapalı) — syntax hatası veya Capacitor API uyumsuzluğu yok. Ama
+bu yalnızca derleme; aşağıdaki checklist'in 2. ve 3. maddeleri (gerçek cihazda çalıştırma, sandbox satın alma) hâlâ
+tamamlanmadı:
 
 1. App Store Connect'te dört abonelik ürününü yukarıdaki product ID'leriyle oluştur.
 2. Xcode'da projeyi aç, olası derleme hatalarını düzelt, StoreKit Testing/Sandbox ortamında çalıştır.
@@ -173,11 +199,17 @@ kaydetmek, `APPLE_APP_STORE_NOTIFICATIONS_ENABLED=true` ve `APPLE_IAP_ENTITLEMEN
 `STOREKIT_ENTITLEMENT_TOKEN_SECRET`'i production'da ayarlamak, ve Apple'ın sandbox bildirimleriyle uçtan uca
 doğrulamak.
 
-### 4. PrivacyInfo.xcprivacy güncellemesi — TAMAMLANDI
+### 4. PrivacyInfo.xcprivacy — kontrol edildi, değişiklik gerekmedi
 
-`NSPrivacyCollectedDataTypes` listesine `NSPrivacyCollectedDataTypePurchaseHistory` eklendi (gerçek satın alma kodu
-artık var). Bu bir bildirim güncellemesi — gerçek bir satın alma akışının cihazda doğrulanmasını beklemez, kod
-yazıldığı an doğru beyan budur.
+Önceki bir turda `NSPrivacyCollectedDataTypePurchaseHistory` eklenmişti; gerçek veri akışı denetlendiğinde (istemci
+kodu `/api/iap/entitlement` veya `/api/iap/notifications`'ı hiç çağırmıyor — bkz. `src/lib/pro/subscription-manager.ts`,
+`signedTransactionInfo` alanı native plugin sonucunda hep atılıyor) bu beyanın gerçek davranışı yansıtmadığı görüldü
+ve **geri alındı**. Uygulama satın alma/abonelik durumunu yalnızca cihaz üzerinde StoreKit 2'nin
+`Transaction.currentEntitlements`'ı üzerinden okuyor; hiçbir satın alma/işlem verisi backend'e gönderilmiyor,
+sunucuda saklanmıyor veya kullanıcı/cihaz kimliğiyle ilişkilendirilmiyor. `api/iap/*` uçları (aşağıdaki madde 3) kod
+olarak var ama şu an devre dışı (feature flag kapalı) ve istemciden hiç çağrılmıyor — gelecekte bu uçlar gerçekten
+devreye alınıp istemci onlara `signedTransactionInfo` göndermeye başlarsa, o zaman `NSPrivacyCollectedDataTypePurchaseHistory`
+gerçek hale gelir ve o noktada eklenmelidir.
 
 ## Özet — manuel blocker listesi
 
@@ -189,7 +221,9 @@ yazıldığı an doğru beyan budur.
    ve `APPLE_IAP_ENTITLEMENT_ENABLED` + `STOREKIT_ENTITLEMENT_TOKEN_SECRET`'i ayarlama, Apple'ın sandbox
    bildirimleriyle `/api/iap/notifications` ve `/api/iap/entitlement`'i uçtan uca doğrulama. **Kod yazıldı, yalnızca
    bu doğrulama eksik.**
-4. ~~`PrivacyInfo.xcprivacy`'yi satın alma verisiyle güncelleme.~~ Tamamlandı.
+4. `PrivacyInfo.xcprivacy`: değişiklik gerekmiyor — uygulama bugün purchase history collect etmiyor (kontrol edildi,
+   madde 4'e bak). `/api/iap/*` gerçekten devreye alınıp istemci onlara veri göndermeye başladığında yeniden
+   değerlendirilmeli.
 5. Yukarıdaki hiçbiri tamamlanmadan `isPro()`'nun varsayılan sağlayıcısı (`unavailableEntitlementProvider`)
    değiştirilmemeli, ve hiçbir UI bileşeni `purchasePro()`/`restorePurchases()`/`nativeStoreKitEntitlementProvider`'ı
    çağırmamalı.
