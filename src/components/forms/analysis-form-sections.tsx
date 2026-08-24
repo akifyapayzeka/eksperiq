@@ -15,6 +15,7 @@ type CheckboxName =
   | "hasHeavyDamage"
   | "hasChassisRepair"
   | "hasTotalLossHistory"
+  | "hasCommercialHistory"
   | "hasExpertiseReport"
   | "lpgRegistered"
   | "hasSpareKey"
@@ -337,6 +338,7 @@ const booleanFields: Array<{ name: CheckboxName; label: string }> = [
   { name: "hasHeavyDamage", label: "Ağır hasar kaydı var" },
   { name: "hasChassisRepair", label: "Şasi veya podye işlemi var" },
   { name: "hasTotalLossHistory", label: "Pert geçmişi var" },
+  { name: "hasCommercialHistory", label: "Ticari (taksi/kiralık) geçmişi var" },
   { name: "hasExpertiseReport", label: "Ekspertiz raporu var" },
   { name: "lpgRegistered", label: "LPG ruhsata işli" },
   { name: "hasSpareKey", label: "Yedek anahtar var" },

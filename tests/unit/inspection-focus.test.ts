@@ -26,6 +26,7 @@ const baseInput: VehicleFormData = {
   hasChassisRepair: true,
   airbagStatus: "açmış",
   hasTotalLossHistory: false,
+  hasCommercialHistory: false,
   hasExpertiseReport: false,
   lastMaintenanceDate: "",
   timingBeltInfo: "",

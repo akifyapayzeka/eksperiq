@@ -117,6 +117,25 @@ function hasSellerCleanDamageClaim(description: string): boolean {
   );
 }
 
+// A whole-car repaint ("komple boya", "tüm kaporta yenilendi", "sıfırdan
+// toplandı") is one of the strongest indirect signals of serious prior
+// damage in the Turkish used-car market — sellers of accident-repaired or
+// rebuilt vehicles routinely describe it in exactly this upbeat "hepsi
+// yenilendi/fırın boya/sıfırdan toplandı" language instead of stating a
+// tramer amount. The itemized painted/replaced-parts findings below always
+// score "low" severity because they're built for a single named panel
+// (bumper, door); a car whose ENTIRE body was repainted got the identical
+// "low" treatment as one touched-up bumper, which is the opposite of what
+// the actual risk is. Checked against both the structured paintedParts
+// field and the raw description, since a mediocre free-tier extraction
+// doesn't always map this language into the itemized field.
+const FULL_BODY_REPAINT_PATTERN =
+  /komple\s+boya|t[üu]m\s+kaporta|baştan\s+sona\s+(boya|yenilen)|bastan\s+sona\s+(boya|yenilen)|s[ıi]f[ıi]rdan\s+topla|f[ıi]r[ıi]n\s+boya|her\s+taraf[ıi]\s+boyal[ıi]|tamam[ıi]\s+boyal[ıi]/i;
+
+function looksLikeFullBodyRepaint(paintedParts: string | undefined, sellerDescription: string): boolean {
+  return FULL_BODY_REPAINT_PATTERN.test(paintedParts ?? "") || FULL_BODY_REPAINT_PATTERN.test(sellerDescription);
+}
+
 export function damageRules(input: VehicleFormData): AnalysisFinding[] {
   const findings: AnalysisFinding[] = [];
   if (input.hasHeavyDamage)
@@ -155,6 +174,31 @@ export function damageRules(input: VehicleFormData): AnalysisFinding[] {
       explanation: "Pert geçmişi değer, sigorta ve güvenlik açısından yüksek öncelikli kontroldür.",
       recommendation: "Resmî kayıtları ve onarım kalitesini uzmanla inceleyin.",
     });
+  const isFullBodyRepaint = looksLikeFullBodyRepaint(input.paintedParts, input.sellerDescription);
+  if (isFullBodyRepaint) {
+    findings.push({
+      id: "full-body-repaint",
+      category: "Hasar",
+      severity: "high",
+      title: "Araç komple/kapsamlı boyalı",
+      explanation:
+        "İlanda aracın tamamına yakınının boyandığı belirtilmiş (komple boya, fırın boya, baştan sona yenileme). Tek panel boyasından farklı olarak kapsamlı bir boya, ciddi bir kaza, sel veya kapsamlı bir onarımın izini örtmüş olabilir.",
+      recommendation:
+        "Tüm panellerde boya kalınlık ölçümü yaptırın, hangi olay nedeniyle komple boyandığını satıcıdan yazılı isteyin ve şasi/podye ölçümünü ekspertizde özellikle kontrol ettirin.",
+    });
+    if (hasSellerCleanDamageClaim(input.sellerDescription)) {
+      findings.push({
+        id: "full-body-repaint-clean-claim-conflict",
+        category: "Hasar",
+        severity: "high",
+        title: "İlan hem \"hasar kaydı yok\" hem \"komple boya\" diyor",
+        explanation:
+          "Bu iki ifade birbiriyle çelişmez (kayıt dışı/nakit onarımlarda resmi hasar kaydı hiç oluşmayabilir), ama birlikte göründüklerinde satıcının hangi olayın komple boyayı gerektirdiğini açıklamasını isteme sebebidir.",
+        recommendation:
+          "Satıcıdan komple boyanın nedenini yazılı isteyin; resmi kayıt olmasa bile kaza/sel/çarpma geçmişi olup olmadığını doğrudan sorun.",
+      });
+    }
+  }
   const replacedCount = partCount(input.replacedParts);
   const replacedGroups = classifyChangedParts(input.replacedParts);
   if (input.paintedParts)

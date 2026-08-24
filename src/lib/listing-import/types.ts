@@ -25,6 +25,7 @@ export type ImportedListingFields = {
   hasHeavyDamage: boolean | null;
   hasChassisRepair: boolean | null;
   hasTotalLossHistory: boolean | null;
+  hasCommercialHistory: boolean | null;
   hasExpertiseReport: boolean | null;
   lpgRegistered: boolean | null;
   hasSpareKey: boolean | null;

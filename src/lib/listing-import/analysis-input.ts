@@ -139,6 +139,7 @@ export function buildVehicleInputFromListingImport(
     hasChassisRepair: importedBoolean(fields.hasChassisRepair),
     airbagStatus: importedString(fields.airbagStatus) ?? undefined,
     hasTotalLossHistory: importedBoolean(fields.hasTotalLossHistory),
+    hasCommercialHistory: importedBoolean(fields.hasCommercialHistory),
     hasExpertiseReport: importedBoolean(fields.hasExpertiseReport),
     lastMaintenanceDate: importedString(fields.lastMaintenanceDate) ?? undefined,
     timingBeltInfo: importedString(fields.timingBeltInfo) ?? undefined,

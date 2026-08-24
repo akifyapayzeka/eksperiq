@@ -295,6 +295,7 @@ export function AnalysisForm() {
       hasHeavyDamage: false,
       hasChassisRepair: false,
       hasTotalLossHistory: false,
+      hasCommercialHistory: false,
       hasExpertiseReport: false,
       lpgRegistered: false,
       hasSpareKey: false,

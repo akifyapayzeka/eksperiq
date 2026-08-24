@@ -36,6 +36,7 @@ function baseImportResult(): ListingImportResult {
       hasHeavyDamage: null,
       hasChassisRepair: null,
       hasTotalLossHistory: null,
+      hasCommercialHistory: null,
       hasExpertiseReport: null,
       lpgRegistered: null,
       hasSpareKey: null,

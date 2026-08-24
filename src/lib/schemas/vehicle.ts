@@ -32,6 +32,7 @@ export const vehicleSchema = z.object({
   hasChassisRepair: z.boolean().default(false),
   airbagStatus: optionalText,
   hasTotalLossHistory: z.boolean().default(false),
+  hasCommercialHistory: z.boolean().default(false),
   hasExpertiseReport: z.boolean().default(false),
   lastMaintenanceDate: optionalDate,
   timingBeltInfo: optionalText,

@@ -3,7 +3,7 @@ import { analyzeVehicle } from "@/lib/analysis/engine";
 import { damageRules } from "@/lib/analysis/rules/damage-rules";
 import { missingInformation } from "@/lib/analysis/rules/document-rules";
 import { evaluateMileage } from "@/lib/analysis/rules/mileage-rules";
-import { detectedClaims } from "@/lib/analysis/rules/seller-rules";
+import { detectedClaims, sellerRules } from "@/lib/analysis/rules/seller-rules";
 import { generateSellerQuestions } from "@/lib/analysis/questions";
 import type { VehicleFormData } from "@/lib/schemas/vehicle";
 
@@ -31,6 +31,7 @@ const baseInput: VehicleFormData = {
   hasChassisRepair: false,
   airbagStatus: "Açmamış",
   hasTotalLossHistory: false,
+  hasCommercialHistory: false,
   hasExpertiseReport: true,
   lastMaintenanceDate: "2026-06-01",
   timingBeltInfo: "Zincir kontrol edildi",
@@ -112,6 +113,40 @@ describe("analysis engine", () => {
     expect(replaced?.recommendation).toContain("şasi uçları");
   });
 
+  it("flags a whole-car repaint as high severity instead of the flat 'low' painted-parts treatment", () => {
+    // Regression test for 5 real sahibinden.com listings sent by the owner
+    // (2026-08-24) — every one described a full-body repaint using this
+    // kind of language ("komple boyalı", "TEMİZLİK BOYASI VARDIR" across
+    // most panels, "YENİ FIRIN BOYADIR", "SIFIRDAN TOPLANMIŞTIR"), and the
+    // existing paintedParts handling scored it identically to a single
+    // touched-up bumper (severity "low") — the opposite of the real risk.
+    const findings = damageRules({
+      ...baseInput,
+      sellerDescription: "Araç komple boyalıdır, aksi halde tertemizdir.",
+    });
+    expect(findings).toContainEqual(expect.objectContaining({ id: "full-body-repaint", severity: "high" }));
+  });
+
+  it("also flags a whole-car repaint declared only in paintedParts, not the description", () => {
+    const findings = damageRules({ ...baseInput, paintedParts: "Tüm kaporta baştan sona boyalı" });
+    expect(findings).toContainEqual(expect.objectContaining({ id: "full-body-repaint", severity: "high" }));
+  });
+
+  it("calls out the contradiction when a listing claims both 'no damage record' and a full repaint", () => {
+    const findings = damageRules({
+      ...baseInput,
+      sellerDescription: "Hasar kaydı yok, komple boyalıdır, çok bakımlı bir araçtır.",
+    });
+    expect(findings).toContainEqual(
+      expect.objectContaining({ id: "full-body-repaint-clean-claim-conflict", severity: "high" }),
+    );
+  });
+
+  it("does not flag an ordinary description mentioning paint just once as a full-body repaint", () => {
+    const findings = damageRules({ ...baseInput, paintedParts: "Sağ ön kapı" });
+    expect(findings.some((finding) => finding.id === "full-body-repaint")).toBe(false);
+  });
+
   it("does not call damage fields empty when the seller description claims no damage record", () => {
     const findings = damageRules({
       ...baseInput,
@@ -178,6 +213,24 @@ describe("analysis engine", () => {
     const questions = generateSellerQuestions(inputWithMinorPaint, findings);
     expect(questions.slice(0, 3)).not.toContain("Şasi, podye, direk veya tavan işlem gördü mü?");
     expect(questions.slice(0, 3)).not.toContain("Airbag açtı mı veya değişti mi?");
+  });
+
+  it("flags a declared commercial/taxi history as a high-severity seller finding", () => {
+    // Regression test for 4 of 5 real sahibinden.com listings sent by the
+    // owner (2026-08-24) that raised ex-taxi/commercial history unprompted —
+    // there was no field, extraction, or rule anywhere for it before this.
+    const findings = sellerRules({ ...baseInput, hasCommercialHistory: true });
+    expect(findings).toContainEqual(expect.objectContaining({ id: "commercial-history", severity: "high" }));
+  });
+
+  it("does not flag commercial history when it was not declared", () => {
+    const findings = sellerRules({ ...baseInput, hasCommercialHistory: false });
+    expect(findings.some((finding) => finding.id === "commercial-history")).toBe(false);
+  });
+
+  it("prioritizes the commercial-history question when it is declared", () => {
+    const questions = generateSellerQuestions({ ...baseInput, hasCommercialHistory: true }, []);
+    expect(questions[0]).toBe("Aracın ticari (taksi/kiralık) geçmişi var mı, varsa ne kadar süre bu şekilde kullanıldı?");
   });
 
   it("detects claim phrases in seller description", () => {

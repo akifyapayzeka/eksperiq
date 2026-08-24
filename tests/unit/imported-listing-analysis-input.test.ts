@@ -30,6 +30,7 @@ function baseImportResult(overrides: Partial<ListingImportResult> = {}): Listing
       hasHeavyDamage: false,
       hasChassisRepair: false,
       hasTotalLossHistory: false,
+      hasCommercialHistory: null,
       hasExpertiseReport: null,
       lpgRegistered: true,
       hasSpareKey: null,

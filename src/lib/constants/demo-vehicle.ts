@@ -24,6 +24,7 @@ export const demoVehicleInput: VehicleFormData = {
   hasChassisRepair: false,
   airbagStatus: "Açmamış",
   hasTotalLossHistory: false,
+  hasCommercialHistory: false,
   hasExpertiseReport: true,
   lastMaintenanceDate: "2026-03-15",
   timingBeltInfo: "Bilinmiyor",

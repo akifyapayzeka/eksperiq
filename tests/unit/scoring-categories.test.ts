@@ -28,6 +28,7 @@ const inputWithAllCategorySignals: VehicleFormData = {
   hasChassisRepair: true,
   airbagStatus: "acmis",
   hasTotalLossHistory: true,
+  hasCommercialHistory: false,
   hasExpertiseReport: false,
   lastMaintenanceDate: "",
   timingBeltInfo: "",

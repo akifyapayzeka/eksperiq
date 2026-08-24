@@ -253,6 +253,7 @@ const FIELD_NAMES = [
   "hasHeavyDamage",
   "hasChassisRepair",
   "hasTotalLossHistory",
+  "hasCommercialHistory",
   "hasExpertiseReport",
   "lpgRegistered",
   "hasSpareKey",
@@ -731,6 +732,7 @@ const listingImportResponseFormat = {
             hasHeavyDamage: { type: ["boolean", "null"] },
             hasChassisRepair: { type: ["boolean", "null"] },
             hasTotalLossHistory: { type: ["boolean", "null"] },
+            hasCommercialHistory: { type: ["boolean", "null"] },
             hasExpertiseReport: { type: ["boolean", "null"] },
             lpgRegistered: { type: ["boolean", "null"] },
             hasSpareKey: { type: ["boolean", "null"] },
@@ -781,8 +783,11 @@ function buildMessages(input) {
         "virgulle ayrilmis Turkce parca listesi kullan (orn. 'Kaput, Sol on kapi'). Degisensiz/boyasiz gibi " +
         "ifade varsa ilgili parca alanlarini null birak; ama 'lokal boya harici' gibi parca belirtilen ifadeyi " +
         "localPaintedParts olarak isle. (7) hasHeavyDamage, hasChassisRepair, " +
-        "hasTotalLossHistory, hasExpertiseReport, lpgRegistered, hasSpareKey, hasMaintenanceInvoices alanlarini " +
-        "sadece ilan acikca belirtiyorsa true/false yap; yokluk kaniti yoksa null birak. (8) tramerAmount, " +
+        "hasTotalLossHistory, hasCommercialHistory, hasExpertiseReport, lpgRegistered, hasSpareKey, " +
+        "hasMaintenanceInvoices alanlarini sadece ilan acikca belirtiyorsa true/false yap; yokluk kaniti yoksa " +
+        "null birak. hasCommercialHistory icin 'ticari', 'taksi', 'kiralik filo', 'firma araci' gibi acik " +
+        "ifadeler true; 'hususi', 'ticari degil' gibi acik olumsuzlama false; hicbir sey yazmiyorsa null. " +
+        "(8) tramerAmount, " +
         "lastMaintenanceDate ve inspectionEndDate alanlarini yalnizca acik deger varsa doldur. " +
         "(9) Emin olmadigin ama yine de doldurdugun alanlarin adini lowConfidenceFields dizisine ekle. " +
         "(10) Sayfa bir arac ilanina benzemiyorsa (kaldirilmis ilan, arama sonuc sayfasi, hata sayfasi) " +

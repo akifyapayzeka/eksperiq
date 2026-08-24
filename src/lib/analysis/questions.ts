@@ -20,6 +20,7 @@ const BASE_QUESTIONS = [
   "Araç üzerinde rehin, haciz veya borç var mı?",
   "Kilometre kayıtları TÜVTÜRK ve servis geçmişiyle uyumlu mu?",
   "LPG varsa ruhsata işli mi?",
+  "Aracın ticari (taksi/kiralık) geçmişi var mı, varsa ne kadar süre bu şekilde kullanıldı?",
   "Araçta yağ yakma, su eksiltme veya hararet geçmişi var mı?",
   "Satış sebebiniz nedir?",
 ];
@@ -45,6 +46,9 @@ export function generateSellerQuestions(input: VehicleFormData, findings: Analys
     priority.add("Tramer kaydının tarih ve detaylarını paylaşır mısınız?");
     priority.add("Şasi, podye, direk veya tavan işlem gördü mü?");
     priority.add("Airbag açtı mı veya değişti mi?");
+  }
+  if (input.hasCommercialHistory) {
+    priority.add("Aracın ticari (taksi/kiralık) geçmişi var mı, varsa ne kadar süre bu şekilde kullanıldı?");
   }
   if (!input.hasMaintenanceInvoices || !input.lastMaintenanceDate) {
     priority.add("Son bakım ne zaman ve kaç kilometrede yapıldı?");

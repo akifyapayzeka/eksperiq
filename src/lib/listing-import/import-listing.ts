@@ -77,6 +77,7 @@ function fallbackResultFromPageData(pageData: ExtractedPageData): ListingImportR
       hasHeavyDamage: null,
       hasChassisRepair: null,
       hasTotalLossHistory: null,
+      hasCommercialHistory: null,
       hasExpertiseReport: null,
       lpgRegistered: null,
       hasSpareKey: null,

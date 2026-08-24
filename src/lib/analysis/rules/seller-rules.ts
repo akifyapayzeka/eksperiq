@@ -59,7 +59,22 @@ export function detectedAmbiguousPhrases(description: string): string[] {
 }
 
 export function sellerRules(input: VehicleFormData): AnalysisFinding[] {
-  const findings = detectedClaims(input.sellerDescription).map<AnalysisFinding>((claim) => ({
+  const findings: AnalysisFinding[] = [];
+
+  if (input.hasCommercialHistory) {
+    findings.push({
+      id: "commercial-history",
+      category: "Satıcı",
+      severity: "high",
+      title: "Aracın ticari (taksi/kiralık) geçmişi var",
+      explanation:
+        "Ticari veya kiralık kullanım, hususi kullanıma göre çok daha yüksek yıllık kilometre, ağır kullanım ve düzensiz bakım anlamına gelebilir; km ve yıpranma tutarsızlığı riski artar.",
+      recommendation:
+        "Ruhsat geçmişini (ticari plaka/taksi kaydı) ve servis geçmişini isteyin; km ile yaş/kullanım öyküsünün tutarlı olduğunu ekspertizle doğrulayın.",
+    });
+  }
+
+  findings.push(...detectedClaims(input.sellerDescription).map<AnalysisFinding>((claim) => ({
     id: `claim-${normalize(claim).replaceAll(" ", "-")}`,
     category: "Satıcı",
     severity: claim === "Ekspertize açık" ? "low" : "medium",
@@ -67,7 +82,7 @@ export function sellerRules(input: VehicleFormData): AnalysisFinding[] {
     explanation:
       "Bu ifade tek başına olumsuzluk veya dolandırıcılık anlamına gelmez; yine de belge ve ekspertizle teyit edilmelidir.",
     recommendation: "İddiayı yazılı detay, fotoğraf, kayıt veya bağımsız ekspertizle doğrulayın.",
-  }));
+  })));
 
   if (detectsGarageClaim(input.sellerDescription)) {
     findings.push({
