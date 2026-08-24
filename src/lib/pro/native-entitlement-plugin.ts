@@ -18,10 +18,26 @@ export type NativeEntitlementResult = {
 
 export type NativePurchaseResult = NativeEntitlementResult & { cancelled?: boolean };
 
+/**
+ * A real, localized App Store Connect product — always sourced from
+ * `Product.products(for:)` on-device (see EksperIQEntitlementStore.swift's
+ * `products(for:)`). `displayPrice` is pre-formatted by StoreKit for the
+ * user's own storefront/currency; never construct a price string manually
+ * from this.
+ */
+export type NativeProductInfo = {
+  productId: string;
+  displayName: string;
+  displayPrice: string;
+  periodUnit?: "day" | "week" | "month" | "year" | "unknown";
+  periodValue?: number;
+};
+
 export interface EksperIQEntitlementPluginInterface {
   currentEntitlement(options: { productId: string }): Promise<NativeEntitlementResult>;
   purchase(options: { productId: string }): Promise<NativePurchaseResult>;
   restore(): Promise<{ restored: boolean }>;
+  fetchProducts(options: { productIds: string[] }): Promise<{ products: NativeProductInfo[] }>;
 }
 
 /**

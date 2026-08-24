@@ -18,7 +18,8 @@ public class EksperIQEntitlementPlugin: CAPPlugin, CAPBridgedPlugin {
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "currentEntitlement", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "purchase", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "restore", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "restore", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "fetchProducts", returnType: CAPPluginReturnPromise)
     ]
 
     override public func load() {
@@ -63,6 +64,39 @@ public class EksperIQEntitlementPlugin: CAPPlugin, CAPBridgedPlugin {
                 var result = Self.resultDict(from: snapshot)
                 result["cancelled"] = cancelled
                 call.resolve(result)
+            } catch {
+                call.reject(error.localizedDescription, nil, error)
+            }
+        }
+    }
+
+    @objc func fetchProducts(_ call: CAPPluginCall) {
+        guard #available(iOS 15.0, *) else {
+            call.reject("StoreKit 2 requires iOS 15 or later.")
+            return
+        }
+        guard let productIds = call.getArray("productIds", String.self), !productIds.isEmpty else {
+            call.reject("Must provide a non-empty productIds array")
+            return
+        }
+        Task {
+            do {
+                let products = try await EksperIQEntitlementStore.shared.products(for: productIds)
+                let productList = products.map { product -> JSObject in
+                    var entry: JSObject = [
+                        "productId": product.productId,
+                        "displayName": product.displayName,
+                        "displayPrice": product.displayPrice
+                    ]
+                    if let periodUnit = product.periodUnit {
+                        entry["periodUnit"] = periodUnit
+                    }
+                    if let periodValue = product.periodValue {
+                        entry["periodValue"] = periodValue
+                    }
+                    return entry
+                }
+                call.resolve(["products": productList])
             } catch {
                 call.reject(error.localizedDescription, nil, error)
             }

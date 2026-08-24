@@ -61,6 +61,22 @@ edildiği ve ne edilmediği her madde için açıkça belirtiliyor.
 Bu mimari, gerçek bir StoreKit 2 sağlayıcısı doğrulandığında `isPro(nativeStoreKitEntitlementProvider)` şeklinde
 takılabilecek şekilde tasarlandı — çağıran kodun değişmesi gerekmez.
 
+**Güncelleme (bu turda)**: `src/lib/pro/subscription-manager.ts` eklendi — `entitlement.ts` (durum) ve `tier.ts`
+(Pro/Pro+ ayrımı) daha önce native plugin'i birbirinden bağımsız iki kez çağırıyordu; artık ikisi de tek bir
+`SubscriptionManager`'a delege ediyor (`getSnapshot()`), StoreKit okuması tek yerde. Aynı modül artık gerçek App
+Store Connect ürün kataloğunu da çekiyor: `SubscriptionManager.getProducts()` → Swift tarafında yeni
+`EksperIQEntitlementStore.products(for:)` (native `Product.products(for:)` sarmalayıcı) →
+`EksperIQEntitlementPlugin.fetchProducts` → `native-entitlement-plugin.ts`. `paywall-plans.tsx` artık aşağıdaki
+sabit tabloyu (bir sonraki paragraf) UI'da **göstermiyor** — fiyatlar App Store'dan gerçek zamanlı, kullanıcının
+kendi mağaza/para birimine göre biçimlenmiş olarak (`product.displayPrice`) çekiliyor; ürün henüz yüklenmemişse veya
+App Store Connect'te henüz yoksa nötr bir "—" placeholder gösteriliyor, hiçbir zaman tahmini/sabit bir rakam değil.
+Paywall'a ayrıca bir Ücretsiz plan kartı ile her zaman görünen Gizlilik Politikası / Kullanım Koşulları / Abonelikleri
+Yönet bağlantıları ve otomatik yenileme açıklaması eklendi. **Bu Swift değişikliği de dahil olmak üzere tüm native
+taraf hâlâ Xcode'da hiç derlenmedi** — aşağıdaki madde 2'nin kapsamı bu turda genişledi, henüz kapanmadı.
+`tests/unit/subscription-manager.test.ts` ve güncellenen `tests/unit/paywall-plans.test.tsx` bu davranışı (web'de
+no-op, native'de cache, hata durumunda asla sahte "pro" iddiası) mock'lu native plugin'e karşı doğruluyor — gerçek
+cihaz testi değil.
+
 ### Sunucu tarafı (Node) — vitest ile doğrulandı, gerçek Apple trafiğine karşı DEĞİL
 
 `api/_lib/apple-jws.js`:
@@ -157,11 +173,11 @@ kaydetmek, `APPLE_APP_STORE_NOTIFICATIONS_ENABLED=true` ve `APPLE_IAP_ENTITLEMEN
 `STOREKIT_ENTITLEMENT_TOKEN_SECRET`'i production'da ayarlamak, ve Apple'ın sandbox bildirimleriyle uçtan uca
 doğrulamak.
 
-### 4. PrivacyInfo.xcprivacy güncellemesi
+### 4. PrivacyInfo.xcprivacy güncellemesi — TAMAMLANDI
 
-Gerçek satın alma eklendiğinde `NSPrivacyCollectedDataTypes` listesine "Purchase History" eklenmeli ve Apple'ın
-`NSPrivacyAccessedAPICategoryUserDefaults` gerekçesi güncellenmeli (bkz. `docs/ios-privacy-manifest.md`). Bu, ürün
-App Store Connect'te oluşup gerçek bir satın alma akışı cihazda doğrulanana kadar yapılmadı.
+`NSPrivacyCollectedDataTypes` listesine `NSPrivacyCollectedDataTypePurchaseHistory` eklendi (gerçek satın alma kodu
+artık var). Bu bir bildirim güncellemesi — gerçek bir satın alma akışının cihazda doğrulanmasını beklemez, kod
+yazıldığı an doğru beyan budur.
 
 ## Özet — manuel blocker listesi
 
@@ -173,7 +189,7 @@ App Store Connect'te oluşup gerçek bir satın alma akışı cihazda doğrulana
    ve `APPLE_IAP_ENTITLEMENT_ENABLED` + `STOREKIT_ENTITLEMENT_TOKEN_SECRET`'i ayarlama, Apple'ın sandbox
    bildirimleriyle `/api/iap/notifications` ve `/api/iap/entitlement`'i uçtan uca doğrulama. **Kod yazıldı, yalnızca
    bu doğrulama eksik.**
-4. `PrivacyInfo.xcprivacy`'yi satın alma verisiyle güncelleme.
+4. ~~`PrivacyInfo.xcprivacy`'yi satın alma verisiyle güncelleme.~~ Tamamlandı.
 5. Yukarıdaki hiçbiri tamamlanmadan `isPro()`'nun varsayılan sağlayıcısı (`unavailableEntitlementProvider`)
    değiştirilmemeli, ve hiçbir UI bileşeni `purchasePro()`/`restorePurchases()`/`nativeStoreKitEntitlementProvider`'ı
    çağırmamalı.

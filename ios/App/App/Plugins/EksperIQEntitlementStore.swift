@@ -51,6 +51,49 @@ actor EksperIQEntitlementStore {
         let signedTransactionInfo: String?
     }
 
+    /// One App Store Connect subscription product's real, localized
+    /// storefront info — never hard-coded on the client. `displayPrice` is
+    /// already formatted for the user's storefront/currency by StoreKit
+    /// (e.g. "₺149,99"); `periodUnit`/`periodValue` describe the billing
+    /// interval (e.g. unit "month", value 1) so the caller can label it
+    /// without guessing from the product id.
+    struct ProductInfo {
+        let productId: String
+        let displayName: String
+        let displayPrice: String
+        let periodUnit: String?
+        let periodValue: Int?
+    }
+
+    private func periodUnitString(_ unit: Product.SubscriptionPeriod.Unit) -> String {
+        switch unit {
+        case .day: return "day"
+        case .week: return "week"
+        case .month: return "month"
+        case .year: return "year"
+        @unknown default: return "unknown"
+        }
+    }
+
+    /// Fetches real, localized product info for the given product ids via
+    /// `Product.products(for:)` — the only source of truth for what to show
+    /// on the paywall. Products that don't exist yet in App Store Connect
+    /// (or haven't propagated) are simply absent from the result; callers
+    /// must not synthesize a price for a missing product.
+    func products(for productIds: [String]) async throws -> [ProductInfo] {
+        let products = try await Product.products(for: productIds)
+        return products.map { product in
+            let period = product.subscription?.subscriptionPeriod
+            return ProductInfo(
+                productId: product.id,
+                displayName: product.displayName,
+                displayPrice: product.displayPrice,
+                periodUnit: period.map { periodUnitString($0.unit) },
+                periodValue: period?.value
+            )
+        }
+    }
+
     private static let isoFormatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]

@@ -1,35 +1,18 @@
 "use client";
 
-import { Capacitor } from "@capacitor/core";
-import { EksperIQEntitlementPlugin } from "./native-entitlement-plugin";
+import { SubscriptionManager, PRO_MONTHLY_PRODUCT_ID, type EntitlementState } from "./subscription-manager";
 
-/**
- * StoreKit 2 subscription status values (Apple's model): a real purchase can
- * be in any of these states, not just "on"/"off". See
- * docs/ios-storekit-integration.md for the full integration plan and its
- * remaining Apple Developer/App Store Connect account and Xcode-build
- * manual blockers.
- */
-export type EntitlementState = "free" | "pro" | "expired" | "billingRetry" | "gracePeriod" | "revoked" | "unknown";
-
-/**
- * The App Store Connect subscription product id this app expects. Must
- * match exactly what's created in App Store Connect (see
- * docs/ios-storekit-integration.md) — that product does not exist yet, so
- * this id is a placeholder until it's created there.
- */
-export const PRO_MONTHLY_PRODUCT_ID = "com.eksperiq.app.pro.monthly";
-export const PRO_YEARLY_PRODUCT_ID = "com.eksperiq.app.pro.yearly";
-export const PRO_PLUS_MONTHLY_PRODUCT_ID = "com.eksperiq.app.proplus.monthly";
-export const PRO_PLUS_YEARLY_PRODUCT_ID = "com.eksperiq.app.proplus.yearly";
-
-/** Every subscription product id this app can sell — checked as a group when resolving entitlement. */
-export const ALL_PRODUCT_IDS = [
+// Re-exported for backward compatibility — subscription-manager.ts is now
+// the canonical source (entitlement.ts depends on it, not the other way
+// around, so there's no import cycle between the two).
+export {
   PRO_MONTHLY_PRODUCT_ID,
   PRO_YEARLY_PRODUCT_ID,
   PRO_PLUS_MONTHLY_PRODUCT_ID,
   PRO_PLUS_YEARLY_PRODUCT_ID,
-];
+  ALL_PRODUCT_IDS,
+  type EntitlementState,
+} from "./subscription-manager";
 
 export type EntitlementSnapshot = {
   state: EntitlementState;
@@ -65,58 +48,18 @@ export const unavailableEntitlementProvider: EntitlementProvider = {
 };
 
 /**
- * Reads the real on-device StoreKit 2 entitlement via the native plugin
- * (ios/App/App/Plugins/EksperIQEntitlementPlugin.swift). Written and wired
- * up, but **not** the default provider anywhere in the app yet — see
- * docs/ios-storekit-integration.md for the remaining Apple Developer
- * account, App Store Connect product, and Xcode-build steps required before
- * this can safely replace unavailableEntitlementProvider. Until then, the
- * Swift plugin has never been compiled into a real build, so any call here
- * would reject with "not implemented" — handled below by resolving to
- * "unknown" rather than ever claiming "pro" on a failure.
+ * Reads the real on-device StoreKit 2 entitlement via
+ * SubscriptionManager (ios/App/App/Plugins/EksperIQEntitlementPlugin.swift
+ * underneath). Written and wired up, but **not** the default provider
+ * anywhere in the app yet — see docs/ios-storekit-integration.md for the
+ * remaining Apple Developer account, App Store Connect product, and
+ * Xcode-build steps required before this can safely replace
+ * unavailableEntitlementProvider.
  */
-// A user may hold any one of the four Pro/Pro+ x monthly/yearly products —
-// StoreKit only reports status per product id, so every known id is checked
-// and the first non-"free" result wins.
-const ENTITLEMENT_STATE_PRIORITY: EntitlementState[] = [
-  "pro",
-  "gracePeriod",
-  "billingRetry",
-  "revoked",
-  "expired",
-  "unknown",
-  "free",
-];
-
-function pickBestSnapshot(snapshots: Array<{ state: EntitlementState; expiresAt?: string }>): {
-  state: EntitlementState;
-  expiresAt?: string;
-} {
-  for (const wanted of ENTITLEMENT_STATE_PRIORITY) {
-    const match = snapshots.find((snapshot) => snapshot.state === wanted);
-    if (match) return match;
-  }
-  return { state: "free" };
-}
-
 export const nativeStoreKitEntitlementProvider: EntitlementProvider = {
   async getEntitlement(): Promise<EntitlementSnapshot> {
-    if (!Capacitor.isNativePlatform()) {
-      return { state: "free", checkedAt: new Date().toISOString() };
-    }
-    try {
-      const results = await Promise.all(
-        ALL_PRODUCT_IDS.map((productId) =>
-          EksperIQEntitlementPlugin.currentEntitlement({ productId }).catch(() => ({
-            state: "unknown" as EntitlementState,
-          })),
-        ),
-      );
-      const best = pickBestSnapshot(results);
-      return { state: best.state, expiresAt: best.expiresAt, checkedAt: new Date().toISOString() };
-    } catch {
-      return { state: "unknown", checkedAt: new Date().toISOString() };
-    }
+    const snapshot = await SubscriptionManager.getSnapshot();
+    return { state: snapshot.state, expiresAt: snapshot.expiresAt, checkedAt: snapshot.checkedAt };
   },
 };
 
@@ -130,14 +73,11 @@ export const nativeStoreKitEntitlementProvider: EntitlementProvider = {
  * been verified working on a real device.
  */
 export async function purchasePlan(productId: string): Promise<EntitlementSnapshot & { cancelled?: boolean }> {
-  if (!Capacitor.isNativePlatform()) {
-    throw new Error("Satın alma yalnızca mağaza sürümünde kullanılabilir.");
-  }
-  const result = await EksperIQEntitlementPlugin.purchase({ productId });
+  const result = await SubscriptionManager.purchase(productId);
   return {
     state: result.state,
     expiresAt: result.expiresAt,
-    checkedAt: new Date().toISOString(),
+    checkedAt: result.checkedAt,
     cancelled: result.cancelled,
   };
 }
@@ -149,10 +89,7 @@ export async function purchasePro(): Promise<EntitlementSnapshot> {
 
 /** Restores previous purchases via StoreKit 2's AppStore.sync(). No-op on web. */
 export async function restorePurchases(): Promise<{ restored: boolean }> {
-  if (!Capacitor.isNativePlatform()) {
-    return { restored: false };
-  }
-  return EksperIQEntitlementPlugin.restore();
+  return SubscriptionManager.restore();
 }
 
 const PRO_STATES: ReadonlySet<EntitlementState> = new Set(["pro", "gracePeriod"]);

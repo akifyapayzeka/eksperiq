@@ -1,13 +1,53 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Clock, RotateCcw, Sparkles } from "lucide-react";
-import { EKSPERIQ_PLAN_PRICING, formatTry, type EksperIqPlanPricing } from "@/lib/pro/pricing";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Check, Clock, ExternalLink, RotateCcw, Sparkles } from "lucide-react";
+import { EKSPERIQ_PLAN_PRICING, type EksperIqPlanPricing } from "@/lib/pro/pricing";
 import { formatListingAnalysisLimit } from "@/lib/pro/listing-quota";
 import { purchasePlan, restorePurchases } from "@/lib/pro/entitlement";
+import { SubscriptionManager } from "@/lib/pro/subscription-manager";
+import type { NativeProductInfo } from "@/lib/pro/native-entitlement-plugin";
 import { Spinner } from "@/components/ui/spinner";
 
 const isStoreKitPurchasesEnabled = process.env.NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED === "true";
+
+/** Apple's "Manage Subscriptions" universal link — works from any platform, no app scheme needed. */
+const MANAGE_SUBSCRIPTIONS_URL = "https://apps.apple.com/account/subscriptions";
+
+const PERIOD_LABEL: Record<string, string> = {
+  day: "gün",
+  week: "hafta",
+  month: "ay",
+  year: "yıl",
+};
+
+function findProduct(products: NativeProductInfo[], productId: string): NativeProductInfo | undefined {
+  return products.find((product) => product.productId === productId);
+}
+
+/**
+ * Renders a real App Store product's price, never a hard-coded estimate.
+ * When the product hasn't loaded (still fetching, StoreKit unavailable, or
+ * the product doesn't exist yet in App Store Connect), shows a neutral
+ * placeholder instead of any number — never a guessed/fallback price.
+ */
+function PriceDisplay({ product, loading }: { product: NativeProductInfo | undefined; loading: boolean }) {
+  if (product) {
+    const periodLabel = product.periodUnit ? PERIOD_LABEL[product.periodUnit] : undefined;
+    return (
+      <p className="text-lg font-bold text-foreground">
+        {product.displayPrice}
+        {periodLabel ? <span className="text-xs font-medium text-muted-foreground">/{periodLabel}</span> : null}
+      </p>
+    );
+  }
+  return (
+    <p className="text-lg font-bold text-muted-foreground">
+      {loading ? <Spinner /> : "—"}
+    </p>
+  );
+}
 
 export function PaywallPlansScreen({
   headline,
@@ -24,6 +64,22 @@ export function PaywallPlansScreen({
   const [purchaseMessage, setPurchaseMessage] = useState<string | null>(null);
   const [purchasingPlanId, setPurchasingPlanId] = useState<string | null>(null);
   const [isRestoring, setIsRestoring] = useState(false);
+  const [products, setProducts] = useState<NativeProductInfo[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    SubscriptionManager.getProducts()
+      .then((result) => {
+        if (!cancelled) setProducts(result);
+      })
+      .finally(() => {
+        if (!cancelled) setProductsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const plans = Object.values(EKSPERIQ_PLAN_PRICING);
 
@@ -100,45 +156,59 @@ export function PaywallPlansScreen({
       </div>
 
       <div className="grid gap-3">
-        {plans.map((plan) => (
-          <div key={plan.id} className="rounded-theme border border-border bg-card p-4 shadow-sm">
-            <div className="flex items-baseline justify-between gap-2">
-              <h2 className="font-heading font-bold text-foreground">{plan.name}</h2>
-              <p className="text-lg font-bold text-foreground">
-                {formatTry(billing === "monthly" ? plan.monthlyPriceTry : plan.yearlyPriceTry)}
-                <span className="text-xs font-medium text-muted-foreground">
-                  {billing === "monthly" ? "/ay" : "/yıl"}
-                </span>
-              </p>
-            </div>
-            <p className="mt-2 flex items-center gap-2 text-sm text-foreground/90">
-              <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
-              {formatListingAnalysisLimit(plan.id)} ilan linki analizi
-            </p>
-            <p className="mt-1 flex items-center gap-2 text-sm text-foreground/90">
-              <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
-              Garajınıza daha fazla araç ekleme imkanı
-            </p>
-            <button
-              type="button"
-              onClick={() => handlePlanCta(plan)}
-              disabled={!isStoreKitPurchasesEnabled || purchasingPlanId !== null}
-              className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-accent px-5 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {purchasingPlanId === plan.id ? <Spinner /> : null}
-              {!isStoreKitPurchasesEnabled ? (
-                <>
-                  <Clock aria-hidden="true" className="h-4 w-4" />
-                  App Store onayı bekleniyor
-                </>
-              ) : purchasingPlanId === plan.id ? (
-                "İşleniyor..."
-              ) : (
-                `${plan.name}'a geç`
-              )}
-            </button>
+        <div className="rounded-theme border border-dashed border-border bg-muted/40 p-4">
+          <div className="flex items-baseline justify-between gap-2">
+            <h2 className="font-heading font-bold text-foreground">Ücretsiz</h2>
+            <p className="text-lg font-bold text-foreground">₺0</p>
           </div>
-        ))}
+          <p className="mt-2 flex items-center gap-2 text-sm text-foreground/90">
+            <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
+            {formatListingAnalysisLimit("free")} ilan linki analizi
+          </p>
+          <p className="mt-1 flex items-center gap-2 text-sm text-foreground/90">
+            <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
+            Temel araç takibi
+          </p>
+        </div>
+
+        {plans.map((plan) => {
+          const productId = billing === "monthly" ? plan.monthlyProductId : plan.yearlyProductId;
+          const product = findProduct(products, productId);
+          return (
+            <div key={plan.id} className="rounded-theme border border-border bg-card p-4 shadow-sm">
+              <div className="flex items-baseline justify-between gap-2">
+                <h2 className="font-heading font-bold text-foreground">{plan.name}</h2>
+                <PriceDisplay product={product} loading={productsLoading} />
+              </div>
+              <p className="mt-2 flex items-center gap-2 text-sm text-foreground/90">
+                <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
+                {formatListingAnalysisLimit(plan.id)} ilan linki analizi
+              </p>
+              <p className="mt-1 flex items-center gap-2 text-sm text-foreground/90">
+                <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
+                Daha fazla araç takibi
+              </p>
+              <button
+                type="button"
+                onClick={() => handlePlanCta(plan)}
+                disabled={!isStoreKitPurchasesEnabled || purchasingPlanId !== null}
+                className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-accent px-5 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {purchasingPlanId === plan.id ? <Spinner /> : null}
+                {!isStoreKitPurchasesEnabled ? (
+                  <>
+                    <Clock aria-hidden="true" className="h-4 w-4" />
+                    App Store onayı bekleniyor
+                  </>
+                ) : purchasingPlanId === plan.id ? (
+                  "İşleniyor..."
+                ) : (
+                  `${plan.name}'a geç`
+                )}
+              </button>
+            </div>
+          );
+        })}
       </div>
 
       {!isStoreKitPurchasesEnabled ? (
@@ -161,6 +231,31 @@ export function PaywallPlansScreen({
           Satın almaları geri yükle
         </button>
       ) : null}
+
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-xs text-muted-foreground">
+        <Link href="/gizlilik" className="underline-offset-4 hover:underline">
+          Gizlilik Politikası
+        </Link>
+        <span aria-hidden="true">·</span>
+        <Link href="/kullanim-kosullari" className="underline-offset-4 hover:underline">
+          Kullanım Koşulları
+        </Link>
+        <span aria-hidden="true">·</span>
+        <a
+          href={MANAGE_SUBSCRIPTIONS_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1 underline-offset-4 hover:underline"
+        >
+          Abonelikleri Yönet
+          <ExternalLink aria-hidden="true" className="h-3 w-3" />
+        </a>
+      </div>
+
+      <p className="mt-2 text-center text-[11px] leading-relaxed text-muted-foreground">
+        Abonelikler otomatik olarak yenilenir; mevcut dönem bitmeden en az 24 saat önce iptal edilmezse ücret App
+        Store hesabınızdan tahsil edilir. İptal ve yönetim için &quot;Abonelikleri Yönet&quot; bağlantısını kullanın.
+      </p>
 
       {onDismiss ? (
         <button
