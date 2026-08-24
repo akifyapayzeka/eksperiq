@@ -21,12 +21,17 @@ export function detectsOwnerOrProxySaleRisk(input: Pick<VehicleFormData, "ownerI
 }
 
 export function missingInformation(input: VehicleFormData): string[] {
-  const missing: string[] = [
-    "Şasi numarasının son 6 hanesi",
-    "Tramer detay belgesi",
-    "Rehin veya haciz bilgisi",
-    "Kilometre geçmişi",
-  ];
+  // Şasi son 6 hane / tramer detay belgesi / rehin-haciz bilgisi / kilometre
+  // geçmişi used to be added here unconditionally, regardless of input —
+  // there is no form field that could ever satisfy them, so every single
+  // analysis (even a fully-documented one) took a guaranteed -8 point hit on
+  // the 10-point documentsExpertise budget before any real gap was even
+  // considered. This was a direct cause of listings with no real red flags
+  // still landing in "Yüksek risk"/"Dikkatli incelenmeli" (2026-08-24). They
+  // are already covered as standard buyer questions in questions.ts
+  // (BASE_QUESTIONS) — asking the seller is the right place for them, not
+  // penalizing this specific listing for something no listing could provide.
+  const missing: string[] = [];
   if (!input.hasExpertiseReport) missing.push("Ekspertiz raporu");
   if (!input.hasMaintenanceInvoices) missing.push("Bakım faturası");
   if (!input.inspectionEndDate) missing.push("Muayene bilgisi");

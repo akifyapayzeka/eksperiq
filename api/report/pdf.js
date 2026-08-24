@@ -104,7 +104,7 @@ function createWriter(doc, fonts, logoImage) {
       thickness: 0.75,
       color: LINE,
     });
-    page.drawText("EksperIQ · eksperiq.vercel.app", {
+    page.drawText(`© ${new Date().getFullYear()} EksperIQ. Tüm hakları saklıdır. İzinsiz çoğaltılamaz.`, {
       x: MARGIN,
       y: 40,
       size: 8,

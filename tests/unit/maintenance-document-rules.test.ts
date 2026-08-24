@@ -154,17 +154,15 @@ describe("document rules", () => {
     );
   });
 
-  it("keeps always-needed verification documents in the missing information list", () => {
+  it("does not score generic 'always ask for these' documents against a fully-documented listing", () => {
+    // Regression test: şasi son 6 hane / tramer detay belgesi / rehin-haciz /
+    // kilometre geçmişi used to be unconditional entries here, guaranteeing
+    // an -8 point hit on documentsExpertise for every listing regardless of
+    // how complete it was — they're standard buyer questions (questions.ts),
+    // not a per-listing documentation gap. A fully-documented input should
+    // now report no missing information at all.
     const missing = missingInformation(baseInput);
-
-    expect(missing).toEqual(
-      expect.arrayContaining([
-        "Şasi numarasının son 6 hanesi",
-        "Tramer detay belgesi",
-        "Rehin veya haciz bilgisi",
-        "Kilometre geçmişi",
-      ]),
-    );
+    expect(missing).toEqual([]);
   });
 
   it("flags proxy sale language as medium-severity document risk", () => {
