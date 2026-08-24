@@ -55,4 +55,24 @@ Bu dosyanın altına "Codex Notu" ekle (derleme sonucu, varsa düzeltmeler, ciha
 
 ## Codex Notu
 
-_(Codex bu görevi aldığında buraya yazacak.)_
+2026-08-24 — Codex doğrulama notu
+
+- Branch: `fix/listing-photo-fetch-build-verification`
+- Doğrulanan kaynak: `origin/master` üzerindeki `15cb087` (`bee0791` değişikliğini içeriyor).
+- Yerel ortam: Windows/PowerShell; `xcodebuild` bu makinede mevcut değil. Bu nedenle yerel Xcode/Simulator/cihaz çalıştırması yapılamadı.
+- macOS/Xcode derleme doğrulaması: GitHub Actions üzerinden manuel `iOS Xcode Build Check` çalıştırıldı.
+  - Run: https://github.com/akifyapayzeka/eksperiq/actions/runs/32725783059
+  - Job: `Compile check (iOS Simulator, unsigned)`
+  - Sonuç: `success`
+  - Süre: 2m24s
+  - Xcode: 26.6, build version 17F113
+  - SDK: iphoneos 26.5
+  - Komut: `xcodebuild build -project ios/App/App.xcodeproj -scheme App -sdk iphonesimulator -destination "generic/platform=iOS Simulator" -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO`
+- Log kanıtı: `EksperIQListingFetchPlugin.swift` target `App` içinde `SwiftCompile` ile derlendi. Derleme hatası yok.
+- Uyarı: Swift derlemesi `UIApplication.shared` erişimi için mevcut actor izolasyonu uyarılarını gösterdi; build başarısını bozmadı ve bu görev kapsamında kod değişikliği yapılmadı.
+- Düzeltme: Kod düzeltmesi yapılmadı; yalnızca bu doğrulama notu eklendi.
+- Eksik doğrulama: Bu Codex çalışmasında interaktif Simülatör/gerçek cihaz testi yapılamadı. Bu yüzden gerçek sahibinden.com/arabam.com ilan akışı ve PDF içinde gerçek fotoğraf görünümü henüz cihaz/simülatörde doğrulanmış değildir.
+- Kabul kriteri durumu:
+  - [x] Xcode derleme: GitHub macOS runner ile geçti.
+  - [ ] Gerçek ilan linkinden uygulama akışı: cihaz/simülatörde manuel doğrulama bekliyor.
+  - [ ] PDF'te gerçek ilan fotoğrafları: cihaz/simülatörde manuel doğrulama bekliyor.
