@@ -55,6 +55,52 @@ describe("analysis engine", () => {
     expect(result.breakdown.damageHistory).toBeLessThanOrEqual(30);
   });
 
+  it("caps the risk label at 'Dikkatli incelenmeli' when the score is dragged down by a pile of low/medium findings with no real high-severity red flag", () => {
+    // Regression test for owner feedback (2026-08-24): a car with no
+    // structural damage (no şasi/podye/kaput/tavan/airbag/pert finding)
+    // was still coming out "Yüksek risk", because unrelated low/medium
+    // findings spread across every category (short description, a couple
+    // of painted panels, missing documents, poor tires) stack additively
+    // with no regard for whether anything actually serious was found.
+    const noisyButNotSevere: VehicleFormData = {
+      ...baseInput,
+      paintedParts: "Sol kapı, Sağ çamurluk, Bagaj kapağı",
+      replacedParts: "Sağ ön kapı",
+      localPaintedParts: "Ön tampon",
+      hasExpertiseReport: false,
+      hasMaintenanceInvoices: false,
+      lastMaintenanceDate: "",
+      timingBeltInfo: "Bilinmiyor",
+      transmissionMaintenanceInfo: "Bilinmiyor",
+      tireStatus: "Kötü",
+      hasSpareKey: false,
+      ownerInfo: "",
+      sellerDescription: "Ufak tefek boyası var, ekspertize açık.",
+    };
+    const result = analyzeVehicle(noisyButNotSevere);
+    expect(result.findings.some((finding) => finding.severity === "high")).toBe(false);
+    expect(result.totalScore).toBeLessThan(60);
+    expect(result.riskLabel).toBe("Dikkatli incelenmeli");
+    expect(result.decision).toBe("Ekspertiz ve belge kontrolü sonrası alınabilir.");
+  });
+
+  it("still allows 'Yüksek risk'/'Çok yüksek risk' when a real high-severity finding exists at a similarly low score", () => {
+    const genuinelyRisky: VehicleFormData = {
+      ...baseInput,
+      hasChassisRepair: true,
+      hasExpertiseReport: false,
+      hasMaintenanceInvoices: false,
+      lastMaintenanceDate: "",
+      timingBeltInfo: "Bilinmiyor",
+      transmissionMaintenanceInfo: "Bilinmiyor",
+      ownerInfo: "",
+    };
+    const result = analyzeVehicle(genuinelyRisky);
+    expect(result.findings.some((finding) => finding.severity === "high")).toBe(true);
+    expect(result.totalScore).toBeLessThan(60);
+    expect(["Yüksek risk", "Çok yüksek risk"]).toContain(result.riskLabel);
+  });
+
   it("flags heavy damage as high severity", () => {
     const findings = damageRules({ ...baseInput, hasHeavyDamage: true });
     expect(findings).toContainEqual(expect.objectContaining({ id: "heavy-damage", severity: "high" }));

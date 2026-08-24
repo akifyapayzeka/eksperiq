@@ -33,7 +33,7 @@ export function analyzeVehicle(input: VehicleFormData): AnalysisResult {
   ]);
   const breakdown = scoreFindings(findings);
   const score = totalScore(breakdown);
-  const level = riskLevel(score);
+  const level = riskLevel(score, findings);
   const costs = costSignals(input);
   const completeness = calculateDataCompleteness(input);
   return {
