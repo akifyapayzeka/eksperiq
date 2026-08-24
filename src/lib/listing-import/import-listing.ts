@@ -33,8 +33,21 @@ type ExtractedPageData = {
   bodyText: string;
   jsonLd: string[];
   images: string[];
+  imageData?: Array<{ url: string; dataUrl: string }>;
   finalUrl: string;
 };
+
+function validImageData(value: unknown): Array<{ url: string; dataUrl: string }> {
+  if (!Array.isArray(value)) return [];
+  return value.filter(
+    (item): item is { url: string; dataUrl: string } =>
+      Boolean(item) &&
+      typeof item === "object" &&
+      typeof (item as Record<string, unknown>).url === "string" &&
+      typeof (item as Record<string, unknown>).dataUrl === "string" &&
+      (item as { dataUrl: string }).dataUrl.startsWith("data:"),
+  );
+}
 
 type ListingImportApiResponse = {
   result?: Omit<ListingImportResult, "images">;
@@ -96,6 +109,7 @@ function fallbackResultFromPageData(pageData: ExtractedPageData): ListingImportR
     missingFields: ["brand", "model", "year", "fuelType", "transmission", "city"],
     warnings: ["İlan metni alındı ancak araç bilgileri otomatik alanlara güvenilir şekilde ayrılamadı."],
     images: filterListingImageUrls(pageData.images, 40),
+    imageData: validImageData(pageData.imageData),
   };
 }
 
@@ -322,5 +336,12 @@ async function attemptNativeImport(
   }
 
   onStage("done");
-  return { ok: true, result: { ...payload.result, images: filterListingImageUrls(pageData.images, 40) } };
+  return {
+    ok: true,
+    result: {
+      ...payload.result,
+      images: filterListingImageUrls(pageData.images, 40),
+      imageData: validImageData(pageData.imageData),
+    },
+  };
 }

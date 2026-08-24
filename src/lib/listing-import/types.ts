@@ -39,6 +39,11 @@ export type ImportedListingFields = {
   sellerDescription: string | null;
 };
 
+export type ListingImageData = {
+  url: string;
+  dataUrl: string;
+};
+
 export type ListingImportResult = {
   title: string;
   fields: ImportedListingFields;
@@ -46,6 +51,8 @@ export type ListingImportResult = {
   missingFields: string[];
   warnings: string[];
   images: string[];
+  /** Base64 bytes for a subset of `images`, fetched on-device — see AnalysisResult.listingImageData. */
+  imageData?: ListingImageData[];
 };
 
 export type ListingImportOutcome =

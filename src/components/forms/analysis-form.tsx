@@ -326,7 +326,7 @@ export function AnalysisForm() {
     }
 
     const analysis = createAnalysis(imported.data);
-    saveAnalysis({ ...analysis, listingImages: imported.images });
+    saveAnalysis({ ...analysis, listingImages: imported.images, listingImageData: imported.imageData });
     recordListingAnalysisUsed();
     router.push("/sonuc");
   }

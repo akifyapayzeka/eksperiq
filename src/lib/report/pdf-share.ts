@@ -27,6 +27,7 @@ export function buildReportPayload(result: AnalysisResult) {
     knownIssues: result.knownIssues,
     completeness: result.completeness,
     listingImages: result.listingImages,
+    listingImageData: result.listingImageData,
     sellerQuestions: result.sellerQuestions,
     inspectionFocus: result.inspectionFocus,
     buyerDecisionGuide: BUYER_DECISION_GUIDE,

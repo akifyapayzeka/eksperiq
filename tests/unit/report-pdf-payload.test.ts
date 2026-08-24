@@ -65,4 +65,16 @@ describe("report PDF payload", () => {
     expect(payload.completeness).toEqual(result.completeness);
     expect(payload.listingImages).toEqual(["https://example.com/a.jpg"]);
   });
+
+  it("carries natively-fetched photo bytes (listingImageData) so the PDF can embed them without a server fetch", () => {
+    // sahibinden.com/arabam.com reject image requests from a server-side
+    // datacenter IP outright, so the PDF endpoint can't reliably fetch
+    // listingImages itself — the on-device native fetch result is carried
+    // through here instead (see EksperIQListingFetchPlugin.swift).
+    const result = analyzeVehicle(input);
+    const imageData = [{ url: "https://example.com/a.jpg", dataUrl: "data:image/jpeg;base64,AAAA" }];
+    const payload = buildReportPayload({ ...result, listingImages: ["https://example.com/a.jpg"], listingImageData: imageData });
+
+    expect(payload.listingImageData).toEqual(imageData);
+  });
 });

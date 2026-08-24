@@ -145,4 +145,24 @@ describe("report PDF endpoint", () => {
     expect(response.statusCode).toBe(200);
     expect(response.body.subarray(0, 5).toString("latin1")).toBe("%PDF-");
   });
+
+  it("embeds a photo from listingImageData (base64) even when every network image fetch fails", async () => {
+    // sahibinden.com/arabam.com reject server-side image fetches from a
+    // datacenter IP outright — this proves the photo still makes it into
+    // the PDF via the native on-device fetch path (imageData) without
+    // depending on this endpoint's own fetch() succeeding at all.
+    const imageUrl = "https://i0.shbdn.com/photos/a.jpg";
+    const response = await callEndpoint(
+      {
+        ...validPayload,
+        listingImages: [imageUrl],
+        listingImageData: [{ url: imageUrl, dataUrl: `data:image/png;base64,${ONE_PIXEL_PNG_BASE64}` }],
+      },
+      mockFetchWithImages("fail"),
+    );
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.subarray(0, 5).toString("latin1")).toBe("%PDF-");
+    expect(response.body.length).toBeGreaterThan(1000);
+  });
 });

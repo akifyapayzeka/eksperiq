@@ -420,7 +420,12 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
                 finalUrl: object["finalUrl"] as? String ?? "",
                 rawJson: jsonString
             )
-            self.finish(.success(pageData))
+            let imageUrls = (object["images"] as? [Any])?.compactMap { $0 as? String } ?? []
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                let withImages = await self.attachImageData(to: pageData, jsonObject: object, urls: imageUrls)
+                self.finish(.success(withImages))
+            }
         }
     }
 
@@ -444,6 +449,98 @@ private final class ListingPageFetcher: NSObject, WKNavigationDelegate {
 
     private static func makeError(_ message: String) -> NSError {
         NSError(domain: "EksperIQListingFetch", code: 1, userInfo: [NSLocalizedDescriptionKey: message])
+    }
+
+    private static let maxImageFetchCount = 6
+
+    /// Best-effort: downloads a handful of the already-extracted listing
+    /// photos as base64 data URLs, within this SAME WKWebView session that
+    /// already loaded the real listing page (see this file's header comment
+    /// for why that matters — sahibinden/arabam reject server-side fetches
+    /// outright, but this is the same real device network a person browsing
+    /// the listing would use). The result is merged into pageData.rawJson
+    /// as an "imageData" field so /api/report/pdf.js can embed real photos
+    /// without a server-side fetch of its own.
+    ///
+    /// Any failure here (timeout, decode error, webview already torn down)
+    /// must never turn a working text extraction into a failed one — on any
+    /// error this just returns the original pageData with no photos
+    /// attached, exactly as before this feature existed.
+    private func attachImageData(
+        to pageData: ExtractedPageData,
+        jsonObject: [String: Any],
+        urls: [String]
+    ) async -> ExtractedPageData {
+        guard let webView, !urls.isEmpty else { return pageData }
+        let topUrls = Array(urls.prefix(Self.maxImageFetchCount))
+        let imageData = await Self.fetchImageData(webView: webView, urls: topUrls)
+        guard !imageData.isEmpty else { return pageData }
+        var updatedObject = jsonObject
+        updatedObject["imageData"] = imageData
+        guard let data = try? JSONSerialization.data(withJSONObject: updatedObject),
+              let updatedJson = String(data: data, encoding: .utf8) else {
+            return pageData
+        }
+        return ExtractedPageData(
+            title: pageData.title,
+            ogTitle: pageData.ogTitle,
+            ogDescription: pageData.ogDescription,
+            bodyText: pageData.bodyText,
+            locationText: pageData.locationText,
+            jsonLd: pageData.jsonLd,
+            finalUrl: pageData.finalUrl,
+            rawJson: updatedJson
+        )
+    }
+
+    /// Runs inside the page's own JS content world (not Capacitor's isolated
+    /// world) so fetch()/FileReader behave exactly as they would for the
+    /// page itself. Each image gets its own 6s AbortController timeout and
+    /// they run concurrently (Promise.all), so total wall time stays ~6-7s
+    /// regardless of how many images are requested. No separate Swift-level
+    /// timeout wraps this call — the existing hardTimeoutSeconds backstop
+    /// on the whole page-fetch session (see run(url:)) already force-
+    /// resolves the continuation if anything here were to hang.
+    private static let imageFetchScript = #"""
+    var results = [];
+    await Promise.all(urls.map(async function(url) {
+      try {
+        var controller = new AbortController();
+        var timeoutId = setTimeout(function() { controller.abort(); }, 6000);
+        var response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!response.ok) return;
+        var blob = await response.blob();
+        var dataUrl = await new Promise(function(resolve, reject) {
+          var reader = new FileReader();
+          reader.onloadend = function() { resolve(reader.result); };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+        results.push({ url: url, dataUrl: dataUrl });
+      } catch (e) {
+        // Best-effort — one failed/blocked image is just skipped.
+      }
+    }));
+    return results;
+    """#
+
+    private static func fetchImageData(webView: WKWebView, urls: [String]) async -> [[String: String]] {
+        do {
+            let value = try await webView.callAsyncJavaScript(
+                imageFetchScript,
+                arguments: ["urls": urls],
+                in: nil,
+                contentWorld: .page
+            )
+            guard let rawItems = value as? [[String: Any]] else { return [] }
+            return rawItems.compactMap { item -> [String: String]? in
+                guard let url = item["url"] as? String, let dataUrl = item["dataUrl"] as? String else { return nil }
+                return ["url": url, "dataUrl": dataUrl]
+            }
+        } catch {
+            return []
+        }
     }
 
     private static let extractionScript = #"""

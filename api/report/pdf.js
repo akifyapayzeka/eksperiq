@@ -275,19 +275,52 @@ async function fetchImageBytes(url) {
   }
 }
 
+const DATA_URL_PATTERN = /^data:[^;]+;base64,(.+)$/;
+
+/** Decodes a "data:<mime>;base64,<...>" string (see native imageData) back into raw bytes. */
+function decodeDataUrl(dataUrl) {
+  if (typeof dataUrl !== "string") return null;
+  const match = DATA_URL_PATTERN.exec(dataUrl);
+  if (!match) return null;
+  try {
+    return Buffer.from(match[1], "base64");
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Fetches and embeds listing photos so the report matches what the app
  * already shows (result.listingImages) — the PDF previously had no
  * pictures at all. Every step is best-effort: a failed fetch, an
  * unsupported format, or a corrupt file for one photo just skips that
- * photo rather than failing the whole report, since these are third-party
- * CDN URLs (sahibinden/arabam) this app doesn't control.
+ * photo rather than failing the whole report.
+ *
+ * sahibinden.com/arabam.com reject image requests from a server-side
+ * datacenter IP outright (confirmed live — see
+ * EksperIQListingFetchPlugin.swift's file header), so a plain server fetch
+ * by URL essentially never succeeds for these two sources. The app now
+ * fetches a handful of these photos natively on-device instead (same
+ * network a real Safari tab would use) and sends the bytes along as
+ * `imageData` — prefer that whenever present for a URL, and only fall back
+ * to the (likely-failing, but harmless) server fetch for the rest, so an
+ * older app version or a partial native fetch still degrades gracefully.
  */
-async function embedListingImages(doc, urls) {
+async function embedListingImages(doc, urls, imageData) {
+  const providedBytesByUrl = new Map();
+  if (Array.isArray(imageData)) {
+    for (const item of imageData) {
+      if (!item || typeof item.url !== "string") continue;
+      const buffer = decodeDataUrl(item.dataUrl);
+      if (buffer) providedBytesByUrl.set(item.url, buffer);
+    }
+  }
   const candidates = Array.isArray(urls)
     ? urls.filter((url) => typeof url === "string" && url.trim()).slice(0, MAX_REPORT_IMAGES)
     : [];
-  const buffers = await Promise.all(candidates.map(fetchImageBytes));
+  const buffers = await Promise.all(
+    candidates.map((url) => providedBytesByUrl.get(url) ?? fetchImageBytes(url)),
+  );
   const embedded = [];
   for (const buffer of buffers) {
     if (!buffer) continue;
@@ -379,7 +412,7 @@ async function buildPdf(payload) {
     w.paragraph(vehicleFacts, { size: 10, color: MUTED, gap: 12 });
   }
 
-  const listingImages = await embedListingImages(doc, payload.listingImages);
+  const listingImages = await embedListingImages(doc, payload.listingImages, payload.listingImageData);
   if (listingImages.length) {
     w.sectionTitle("İlan fotoğrafları");
     w.imageGrid(listingImages);

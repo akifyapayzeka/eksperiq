@@ -1,10 +1,11 @@
 import { vehicleSchema, type VehicleFormData } from "@/lib/schemas/vehicle";
 import { brandOptions, modelOptionsForBrand } from "@/components/forms/analysis-form-sections";
-import type { ListingImportResult } from "./types";
+import type { ListingImageData, ListingImportResult } from "./types";
 import { filterListingImageUrls } from "./image-filter";
 
 type ImportedAnalysisInputResult =
-  { ok: true; data: VehicleFormData; images: string[]; warnings: string[] } | { ok: false; missingFields: string[] };
+  | { ok: true; data: VehicleFormData; images: string[]; imageData: ListingImageData[]; warnings: string[] }
+  | { ok: false; missingFields: string[] };
 
 function importedString(value: unknown): string | null {
   if (typeof value === "string" && value.trim()) return value.trim();
@@ -157,10 +158,13 @@ export function buildVehicleInputFromListingImport(
 
   const parsed = vehicleSchema.safeParse(input);
   if (parsed.success) {
+    const filteredImages = filterListingImageUrls(result.images, 40);
+    const filteredImageUrls = new Set(filteredImages);
     return {
       ok: true,
       data: parsed.data,
-      images: filterListingImageUrls(result.images, 40),
+      images: filteredImages,
+      imageData: (result.imageData ?? []).filter((item) => filteredImageUrls.has(item.url)),
       warnings: missingIdentityFields,
     };
   }

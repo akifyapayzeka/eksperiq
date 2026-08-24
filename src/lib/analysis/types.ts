@@ -45,9 +45,24 @@ export type DataCompleteness = {
   missing: string[];
 };
 
+export type ListingImageData = {
+  url: string;
+  dataUrl: string;
+};
+
 export type AnalysisResult = {
   input: VehicleFormData;
   listingImages?: string[];
+  /**
+   * Base64 photo bytes fetched natively on-device (see
+   * EksperIQListingFetchPlugin.swift) for a subset of listingImages.
+   * sahibinden.com/arabam.com reject image fetches from a server-side
+   * datacenter IP outright, so the PDF report (api/report/pdf.js) can't
+   * reliably download these itself — this lets it embed real photos
+   * without a network fetch when present, falling back to a best-effort
+   * server fetch by URL for any image without a matching entry here.
+   */
+  listingImageData?: ListingImageData[];
   totalScore: number;
   riskLabel: string;
   decision: string;
