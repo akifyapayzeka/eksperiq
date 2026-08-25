@@ -242,7 +242,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
               "1.3 TCe genel olarak 1.2 TCe'ye göre daha güvenilir kabul edilir; yine de EDC düşük hız kavrama davranışı, turbo sesi, soğutma kaçakları ve yazılım güncellemeleri kontrol edilmelidir.",
             typicalOnset: "100.000 km sonrası",
             costLevel: "Orta",
-            sourceNote: "Renault 1.3 TCe/EDC kullanıcı deneyimleri ve bağımsız servis kayıtlarında tekrar eden kontrol başlığı.",
+            sourceNote:
+              "Renault 1.3 TCe/EDC kullanıcı deneyimleri ve bağımsız servis kayıtlarında tekrar eden kontrol başlığı.",
           },
         ],
       },
@@ -279,7 +280,8 @@ export const RENAULT_ENTRIES: ModelEntry[] = [
               "E-Tech hibritlerde batarya sağlık durumu, elektrik-benzin geçişleri, yazılım güncellemeleri ve soğuk çalıştırma davranışı test edilmelidir.",
             typicalOnset: "Garanti devri sonrası",
             costLevel: "Yüksek",
-            sourceNote: "Renault E-Tech kullanıcı deneyimleri ve hibrit alım rehberlerinde tekrar eden kontrol başlığı.",
+            sourceNote:
+              "Renault E-Tech kullanıcı deneyimleri ve hibrit alım rehberlerinde tekrar eden kontrol başlığı.",
           },
         ],
       },

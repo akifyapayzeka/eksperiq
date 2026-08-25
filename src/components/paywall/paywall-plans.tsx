@@ -42,11 +42,7 @@ function PriceDisplay({ product, loading }: { product: NativeProductInfo | undef
       </p>
     );
   }
-  return (
-    <p className="text-lg font-bold text-muted-foreground">
-      {loading ? <Spinner /> : "—"}
-    </p>
-  );
+  return <p className="text-lg font-bold text-muted-foreground">{loading ? <Spinner /> : "—"}</p>;
 }
 
 export function PaywallPlansScreen({
@@ -253,8 +249,8 @@ export function PaywallPlansScreen({
       </div>
 
       <p className="mt-2 text-center text-[11px] leading-relaxed text-muted-foreground">
-        Abonelikler otomatik olarak yenilenir; mevcut dönem bitmeden en az 24 saat önce iptal edilmezse ücret App
-        Store hesabınızdan tahsil edilir. İptal ve yönetim için &quot;Abonelikleri Yönet&quot; bağlantısını kullanın.
+        Abonelikler otomatik olarak yenilenir; mevcut dönem bitmeden en az 24 saat önce iptal edilmezse ücret App Store
+        hesabınızdan tahsil edilir. İptal ve yönetim için &quot;Abonelikleri Yönet&quot; bağlantısını kullanın.
       </p>
 
       {onDismiss ? (

@@ -300,7 +300,9 @@ describe("analysis engine", () => {
 
   it("prioritizes the commercial-history question when it is declared", () => {
     const questions = generateSellerQuestions({ ...baseInput, hasCommercialHistory: true }, []);
-    expect(questions[0]).toBe("Aracın ticari (taksi/kiralık) geçmişi var mı, varsa ne kadar süre bu şekilde kullanıldı?");
+    expect(questions[0]).toBe(
+      "Aracın ticari (taksi/kiralık) geçmişi var mı, varsa ne kadar süre bu şekilde kullanıldı?",
+    );
   });
 
   it("detects claim phrases in seller description", () => {

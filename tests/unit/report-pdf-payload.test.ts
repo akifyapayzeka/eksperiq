@@ -73,7 +73,11 @@ describe("report PDF payload", () => {
     // through here instead (see EksperIQListingFetchPlugin.swift).
     const result = analyzeVehicle(input);
     const imageData = [{ url: "https://example.com/a.jpg", dataUrl: "data:image/jpeg;base64,AAAA" }];
-    const payload = buildReportPayload({ ...result, listingImages: ["https://example.com/a.jpg"], listingImageData: imageData });
+    const payload = buildReportPayload({
+      ...result,
+      listingImages: ["https://example.com/a.jpg"],
+      listingImageData: imageData,
+    });
 
     expect(payload.listingImageData).toEqual(imageData);
   });

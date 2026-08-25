@@ -2,11 +2,12 @@ import { describe, expect, it } from "vitest";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { hashOriginalTransactionId, saveEntitlementRecord, getEntitlementRecord } = require("../../api/_lib/iap-store.js") as {
-  hashOriginalTransactionId: (id: string, environment?: string) => string;
-  saveEntitlementRecord: (id: string, record: unknown, environment?: string) => Promise<unknown>;
-  getEntitlementRecord: (id: string, environment?: string) => Promise<unknown>;
-};
+const { hashOriginalTransactionId, saveEntitlementRecord, getEntitlementRecord } =
+  require("../../api/_lib/iap-store.js") as {
+    hashOriginalTransactionId: (id: string, environment?: string) => string;
+    saveEntitlementRecord: (id: string, record: unknown, environment?: string) => Promise<unknown>;
+    getEntitlementRecord: (id: string, environment?: string) => Promise<unknown>;
+  };
 
 /**
  * Apple's App Store Server Notifications V2 legitimately delivers both

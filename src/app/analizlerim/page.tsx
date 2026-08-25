@@ -345,7 +345,6 @@ export default function MyAnalysesPage() {
           </div>
         )}
       </section>
-
     </AppShell>
   );
 }

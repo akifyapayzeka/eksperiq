@@ -1,10 +1,7 @@
 "use client";
 
 import { Capacitor } from "@capacitor/core";
-import {
-  EksperIQEntitlementPlugin,
-  type NativeProductInfo,
-} from "./native-entitlement-plugin";
+import { EksperIQEntitlementPlugin, type NativeProductInfo } from "./native-entitlement-plugin";
 import type { EksperIqPaidPlanId } from "./pricing";
 
 /**

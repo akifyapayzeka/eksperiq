@@ -72,8 +72,7 @@ function parseInput(value) {
     input: {
       imageUrls,
       title: typeof context.title === "string" ? context.title.slice(0, 300) : "",
-      sellerDescription:
-        typeof context.sellerDescription === "string" ? context.sellerDescription.slice(0, 1600) : "",
+      sellerDescription: typeof context.sellerDescription === "string" ? context.sellerDescription.slice(0, 1600) : "",
     },
   };
 }
@@ -131,11 +130,7 @@ function normalizeAnalysis(value, imageCount) {
   const fields = isRecord(value.fields) ? value.fields : {};
   const rawIndexes = Array.isArray(value.documentImageIndexes) ? value.documentImageIndexes : [];
   const documentImageIndexes = Array.from(
-    new Set(
-      rawIndexes
-        .filter((item) => Number.isInteger(item) && item >= 0 && item < imageCount)
-        .slice(0, imageCount),
-    ),
+    new Set(rawIndexes.filter((item) => Number.isInteger(item) && item >= 0 && item < imageCount).slice(0, imageCount)),
   );
 
   return {

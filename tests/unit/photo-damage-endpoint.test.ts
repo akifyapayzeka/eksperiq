@@ -701,7 +701,8 @@ describe("photo damage AI endpoint", () => {
                       signal: "Olası kaza hasarı",
                       confidence: "high",
                       explanation: "Kaput, tampon ve ön panel hizasında belirgin hasar sinyali olabilir.",
-                      recommendation: "Aracı çekiciyle ekspertize götürün; şasi ucu, podye, radyatör paneli ve airbag kayıtları kontrol edilmeli.",
+                      recommendation:
+                        "Aracı çekiciyle ekspertize götürün; şasi ucu, podye, radyatör paneli ve airbag kayıtları kontrol edilmeli.",
                     },
                   ],
                 }),
@@ -772,7 +773,10 @@ describe("photo damage AI endpoint", () => {
     process.env = previousEnv;
     vi.unstubAllGlobals();
     const payload = JSON.parse(response.body) as {
-      analysis: { isVehiclePhoto: boolean; findings: Array<{ signal: string; confidence: string; recommendation: string }> };
+      analysis: {
+        isVehiclePhoto: boolean;
+        findings: Array<{ signal: string; confidence: string; recommendation: string }>;
+      };
     };
     expect(response.statusCode).toBe(200);
     expect(payload.analysis.isVehiclePhoto).toBe(true);
@@ -840,7 +844,7 @@ describe("photo damage AI endpoint", () => {
           {
             message: {
               content:
-                'Thinking Process:\\nAnalyze the request: image shows significant front-left damage. Strict JSON is required but unavailable.',
+                "Thinking Process:\\nAnalyze the request: image shows significant front-left damage. Strict JSON is required but unavailable.",
             },
           },
         ],

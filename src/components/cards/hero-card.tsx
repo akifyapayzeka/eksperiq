@@ -55,7 +55,10 @@ export function HeroCard({
             aria-hidden="true"
             className={cn("pointer-events-none absolute -right-6 -top-8 h-28 w-28 rounded-full border", ring)}
           />
-          <div aria-hidden="true" className={cn("pointer-events-none absolute -bottom-10 left-8 h-20 w-20 rounded-full blur-2xl", glow)} />
+          <div
+            aria-hidden="true"
+            className={cn("pointer-events-none absolute -bottom-10 left-8 h-20 w-20 rounded-full blur-2xl", glow)}
+          />
         </>
       ) : null}
       <div className="relative">

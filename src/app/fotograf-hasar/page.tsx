@@ -366,7 +366,8 @@ export default function PhotoDamagePage() {
 
   function mergePhotoQuality(current: AiPhotoQuality | null, next: AiPhotoQuality | undefined): AiPhotoQuality | null {
     if (!next) return current;
-    if (!current) return { status: next.status, issues: next.issues.slice(0, 4), retakeTips: next.retakeTips.slice(0, 4) };
+    if (!current)
+      return { status: next.status, issues: next.issues.slice(0, 4), retakeTips: next.retakeTips.slice(0, 4) };
     const rank = { good: 0, usable: 1, poor: 2 } as const;
     const status = rank[next.status] > rank[current.status] ? next.status : current.status;
     return {
@@ -559,7 +560,9 @@ export default function PhotoDamagePage() {
                       className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full border border-accent/40 px-4 text-sm font-semibold text-accent"
                     >
                       <Calculator aria-hidden="true" className="h-4 w-4" />
-                      {costEstimatorOpenFor.has(item.id) ? "Maliyet tahminini gizle" : "Bu bulgu için tahmini maliyeti gör"}
+                      {costEstimatorOpenFor.has(item.id)
+                        ? "Maliyet tahminini gizle"
+                        : "Bu bulgu için tahmini maliyeti gör"}
                     </button>
                     {costEstimatorOpenFor.has(item.id) ? (
                       <RepairCostEstimator hint={{ area: item.area, signal: item.signal }} />
@@ -655,7 +658,10 @@ export default function PhotoDamagePage() {
               items.map((item, index) => {
                 const key = `manual-${index}`;
                 return (
-                  <article key={`${item.area}-${item.finding}-${index}`} className="rounded-theme-sm border border-border bg-muted p-4">
+                  <article
+                    key={`${item.area}-${item.finding}-${index}`}
+                    className="rounded-theme-sm border border-border bg-muted p-4"
+                  >
                     <p className="font-semibold text-foreground">
                       {item.area}: {item.finding}
                     </p>

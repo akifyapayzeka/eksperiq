@@ -63,8 +63,8 @@ export default function PrivacyPage() {
         işlenebilir. Uygulama bu sağlayıcılar dışında hiçbir üçüncü tarafla veri paylaşmaz ve verinizi satmaz.
       </p>
       <p>
-        <strong>Verilerinizi yönetme ve silme.</strong> Analizlerim ekranındaki kayıtları tek tek silebilirsiniz.
-        Araç, hatırlatma, gider ve sağlık karnesi kayıtları bu cihazda tutulur; uygulamayı kaldırdığınızda veya cihazın
+        <strong>Verilerinizi yönetme ve silme.</strong> Analizlerim ekranındaki kayıtları tek tek silebilirsiniz. Araç,
+        hatırlatma, gider ve sağlık karnesi kayıtları bu cihazda tutulur; uygulamayı kaldırdığınızda veya cihazın
         uygulama verilerini temizlediğinizde yerel kayıtlar da silinir. Varsa yukarıda açıklanan sunucu tarafı bildirim
         kopyaları, uygulama uzun süre senkronize olmadığında otomatik süre sonunda temizlenir.
       </p>

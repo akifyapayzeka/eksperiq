@@ -220,7 +220,9 @@ function normalizeSignal(finding) {
 
 function normalizeShortTextList(value, fallback) {
   const list = Array.isArray(value)
-    ? value.filter((item) => typeof item === "string" && item.trim()).map((item) => hedgeCertainLanguage(item.slice(0, 160)))
+    ? value
+        .filter((item) => typeof item === "string" && item.trim())
+        .map((item) => hedgeCertainLanguage(item.slice(0, 160)))
     : [];
   return list.length ? list.slice(0, 4) : fallback;
 }
@@ -473,9 +475,11 @@ function normalizeTextFallback(text) {
       ? [
           {
             area: fallbackArea,
-            signal: hasUsableText && (normalized.includes("uyarı") || normalized.includes("uyari") || normalized.includes("lamba"))
-              ? "Olası uyarı ışığı"
-              : "Olası hasar veya arıza sinyali (AI net sınıflandıramadı)",
+            signal:
+              hasUsableText &&
+              (normalized.includes("uyarı") || normalized.includes("uyari") || normalized.includes("lamba"))
+                ? "Olası uyarı ışığı"
+                : "Olası hasar veya arıza sinyali (AI net sınıflandıramadı)",
             confidence: "low",
             explanation: fallbackExplanation,
             recommendation:
@@ -691,7 +695,12 @@ async function requestOpenRouterVision(input) {
       if (!text) {
         console.warn(
           "[photo-damage] attempt had no extractable text:",
-          JSON.stringify({ model, hasResponseFormat: Boolean(responseFormat), payloadKeys: Object.keys(result.payload ?? {}), payloadHead: JSON.stringify(result.payload).slice(0, 600) }),
+          JSON.stringify({
+            model,
+            hasResponseFormat: Boolean(responseFormat),
+            payloadKeys: Object.keys(result.payload ?? {}),
+            payloadHead: JSON.stringify(result.payload).slice(0, 600),
+          }),
         );
         lastError = "AI yanıtı okunamadı.";
         continue;

@@ -379,7 +379,9 @@ function normalizeFieldsShape(json) {
 }
 
 function cleanListingLine(value) {
-  return String(value || "").replace(/\s+/g, " ").trim();
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function normalizeTurkish(value) {
@@ -401,7 +403,9 @@ function extractSellerDescriptionFromText(text) {
     .map(cleanListingLine)
     .filter((line) => line.length >= 3 && line.length <= 260);
 
-  const explicitLabelIndex = lines.findIndex((line) => /^(ilan\s+)?açıklama(sı)?$|^(ilan\s+)?aciklama(si)?$/i.test(line));
+  const explicitLabelIndex = lines.findIndex((line) =>
+    /^(ilan\s+)?açıklama(sı)?$|^(ilan\s+)?aciklama(si)?$/i.test(line),
+  );
   if (explicitLabelIndex >= 0) {
     const collected = [];
     for (const line of lines.slice(explicitLabelIndex + 1)) {
@@ -431,7 +435,9 @@ function extractSellerDescriptionFromText(text) {
 function extractCityFromText(text) {
   const raw = String(text || "");
   const normalized = normalizeTurkish(raw);
-  const locationMatch = normalized.match(/(?:konum adaylari|konum|adres|ilçe|ilce|mahalle|semt|şehir|sehir)([\s\S]{0,900})/);
+  const locationMatch = normalized.match(
+    /(?:konum adaylari|konum|adres|ilçe|ilce|mahalle|semt|şehir|sehir)([\s\S]{0,900})/,
+  );
   const locationWindow = locationMatch?.[1] ?? "";
   const exactCity = CITY_OPTIONS.find((city) => {
     const cityKey = normalizeTurkish(city);
@@ -461,10 +467,7 @@ function parseListingNumber(value) {
 
 function extractMileageFromText(text) {
   const source = String(text || "");
-  const patterns = [
-    /(?:kilometre|km)\D{0,50}(\d[\d.\s]{2,})/i,
-    /(\d[\d.\s]{2,})\s*(?:km|kilometre)\b/i,
-  ];
+  const patterns = [/(?:kilometre|km)\D{0,50}(\d[\d.\s]{2,})/i, /(\d[\d.\s]{2,})\s*(?:km|kilometre)\b/i];
   for (const pattern of patterns) {
     const match = source.match(pattern);
     const parsed = parseListingNumber(match?.[1]);
@@ -484,10 +487,7 @@ function shouldPreferFallbackMileage(currentMileage, fallbackMileage) {
 
 function extractPriceFromText(text) {
   const source = String(text || "");
-  const patterns = [
-    /(?:fiyat|ilan\s+fiyat[ıi])\D{0,50}(\d[\d.\s]{4,})\s*(?:tl|₺)?/i,
-    /(\d[\d.\s]{4,})\s*(?:tl|₺)\b/i,
-  ];
+  const patterns = [/(?:fiyat|ilan\s+fiyat[ıi])\D{0,50}(\d[\d.\s]{4,})\s*(?:tl|₺)?/i, /(\d[\d.\s]{4,})\s*(?:tl|₺)\b/i];
   for (const pattern of patterns) {
     const match = source.match(pattern);
     const parsed = parseListingNumber(match?.[1]);
@@ -512,7 +512,11 @@ function extractLabeledValueFromText(text, labelPattern) {
     if (!match) continue;
 
     const sameLineValue = cleanListingLine(line.slice((match.index ?? 0) + match[0].length).replace(/^[:\s/-]+/, ""));
-    if (sameLineValue && sameLineValue.length <= 90 && !LISTING_TABLE_LABEL_PATTERN.test(normalizeTurkish(sameLineValue))) {
+    if (
+      sameLineValue &&
+      sameLineValue.length <= 90 &&
+      !LISTING_TABLE_LABEL_PATTERN.test(normalizeTurkish(sameLineValue))
+    ) {
       return sameLineValue;
     }
 
@@ -539,7 +543,10 @@ function selectOptionFromText(value, options) {
 function extractTrimFromText(text) {
   const explicit = extractLabeledValueFromText(text, /^paket(?:\s+tipi)?\b/i);
   const haystack = [explicit, text].filter(Boolean).join("\n");
-  return selectOptionFromText(haystack, TRIM_OPTIONS.filter((option) => option !== "Belirtilmemiş"));
+  return selectOptionFromText(
+    haystack,
+    TRIM_OPTIONS.filter((option) => option !== "Belirtilmemiş"),
+  );
 }
 
 function extractFuelTypeFromText(text) {
@@ -572,7 +579,8 @@ function extractEngineSizeFromText(text) {
   const ccMatch = String(value).match(/\b(\d{3,4})\s*(?:cc|cm3|cm³)\b/i);
   if (ccMatch) {
     const cc = Number.parseInt(ccMatch[1], 10);
-    if (Number.isFinite(cc) && cc >= 600 && cc <= 8000) return `${(cc / 1000).toLocaleString("tr-TR", { maximumFractionDigits: 1 })}`;
+    if (Number.isFinite(cc) && cc >= 600 && cc <= 8000)
+      return `${(cc / 1000).toLocaleString("tr-TR", { maximumFractionDigits: 1 })}`;
   }
   const literMatch = String(value).match(/\b(\d[.,]\d{1,2})\s*(?:lt|l|litre|t)?\b/i);
   return literMatch ? literMatch[1].replace(",", ".") : null;
@@ -921,7 +929,10 @@ function normalizeListingImportJson(json, input, model) {
     const fallbackPaintedParts =
       extractPartsUnderLabel(fallbackText, /^boyal[ıi]$/i) ||
       extractQuantifiedPaintedPartsFromText(fallbackText) ||
-      extractPartsNearKeyword(fallbackText, /\bboyali\b|\bboyal[ıi]\b|yuzeysel\s+boya|y[üu]zeysel\s+boya|boya\s+vardir|boya\s+vard[ıi]r/i);
+      extractPartsNearKeyword(
+        fallbackText,
+        /\bboyali\b|\bboyal[ıi]\b|yuzeysel\s+boya|y[üu]zeysel\s+boya|boya\s+vardir|boya\s+vard[ıi]r/i,
+      );
     if (fallbackPaintedParts) {
       fields.paintedParts = fallbackPaintedParts;
       json.missingFields = removeMissingField(json.missingFields, "paintedParts");
@@ -946,7 +957,10 @@ function normalizeListingImportJson(json, input, model) {
       json.missingFields = removeMissingField(json.missingFields, "localPaintedParts");
     }
   }
-  if (fields.hasHeavyDamage === null && /a[ğg][ıi]r\s+hasar\s+kayd[ıi]\s+yok|hasar\s+kay[ıi]ts[ıi]z/i.test(fallbackText)) {
+  if (
+    fields.hasHeavyDamage === null &&
+    /a[ğg][ıi]r\s+hasar\s+kayd[ıi]\s+yok|hasar\s+kay[ıi]ts[ıi]z/i.test(fallbackText)
+  ) {
     fields.hasHeavyDamage = false;
     json.missingFields = removeMissingField(json.missingFields, "hasHeavyDamage");
   }

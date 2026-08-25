@@ -162,11 +162,7 @@ export default function PurchaseGuidePage() {
                 key={item.title}
                 href={item.href}
                 className={`rounded-theme-sm border bg-muted p-4 hover:border-accent ${
-                  index === 0
-                    ? "border-accent/25"
-                    : index === 1
-                      ? "border-success/25"
-                      : "border-warning/30"
+                  index === 0 ? "border-accent/25" : index === 1 ? "border-success/25" : "border-warning/30"
                 }`}
               >
                 <h3 className="font-semibold text-foreground">{item.title}</h3>
