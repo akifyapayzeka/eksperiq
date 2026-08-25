@@ -136,6 +136,7 @@ function summarize(subscription) {
     state: attributes.state ?? "UNKNOWN",
     name: attributes.name ?? null,
     subscriptionPeriod: attributes.subscriptionPeriod ?? null,
+    groupLevel: attributes.groupLevel ?? null,
   };
 }
 
@@ -207,7 +208,7 @@ async function main() {
   for (const productId of EXPECTED_PRODUCT_IDS) {
     const summary = summaries.get(productId);
     console.log(
-      `  ${productId}: state=${summary.state} name=${summary.name ?? "(none)"} groupId=${summary.groupId} period=${summary.subscriptionPeriod ?? "(none)"}`,
+      `  ${productId}: state=${summary.state} name=${summary.name ?? "(none)"} groupId=${summary.groupId} groupLevel=${summary.groupLevel ?? "(none)"} period=${summary.subscriptionPeriod ?? "(none)"}`,
     );
   }
   const readyStates = new Set(["APPROVED", "WAITING_FOR_REVIEW", "IN_REVIEW", "PENDING_BINARY_APPROVAL"]);
@@ -216,6 +217,20 @@ async function main() {
     console.log(
       `NOTE: the following products are not yet submitted/approved for review (state not in ${[...readyStates].join("/")}): ${notReady.join(", ")}`,
     );
+  }
+
+  const EXPECTED_GROUP_LEVEL = {
+    "com.eksperiq.app.proplus.monthly": 1,
+    "com.eksperiq.app.proplus.yearly": 1,
+    "com.eksperiq.app.pro.monthly": 2,
+    "com.eksperiq.app.pro.yearly": 2,
+  };
+  const levelMismatches = EXPECTED_PRODUCT_IDS.filter((productId) => {
+    const actual = summaries.get(productId)?.groupLevel;
+    return actual != null && actual !== EXPECTED_GROUP_LEVEL[productId];
+  });
+  if (levelMismatches.length > 0) {
+    console.log(`WARNING: group level mismatch (expected Pro+ =1, Pro=2): ${levelMismatches.join(", ")}`);
   }
 }
 
