@@ -5,6 +5,8 @@ Bu dosya App Store Connect gizlilik formu doldurulurken kullanılacak cevapları
 ## Veri Toplama
 
 - Kullanıcı hesabı: Opsiyoneldir; yalnızca Pro/Pro+ abonelik ve giriş için kullanılır. Araç kayıtları ve analizler geliştirici sunucusunda kalıcı hesap kaydı olarak tutulmaz.
+- E-posta adresi: Yalnızca kullanıcı hesap oluştururken (Supabase Authentication) girilir; kimlik doğrulama ve girişi yönetmek için kullanılır. Kullanıcı hesabını "Hesabımı sil" ile kalıcı olarak silebilir.
+- Ad/Soyad: Yalnızca kullanıcı hesap oluştururken girilir (Supabase Authentication user_metadata); reklam, izleme veya profil oluşturma amacıyla kullanılmaz.
 - Konum verisi: Yalnızca kullanıcı "konumuma göre" bir işlem başlatırsa cihazdan anlık alınır; şehir tahmini ve yakındaki ekspertiz, noter veya servisleri bulmak için kullanılır. Kalıcı hesap kaydı olarak saklanmaz, reklam/izleme amacıyla kullanılmaz.
 - Kişiler, mikrofon: Erişim istenmez.
 - Kamera, fotoğraflar: Yalnızca kullanıcı fotoğraf ekleme ekranında kamerayla çekim veya galeriden seçim başlattığı anda, tek bir fotoğraf için erişilir; sürekli veya arka planda erişim yoktur. Fotoğraf, AI'ya gönderilmeden önce cihazda küçültülür/yeniden sıkıştırılır ve EXIF meta verileri (konum, cihaz bilgisi) silinir.
@@ -33,13 +35,17 @@ Bakım ve Ödeme Takvimi kayıtları (MTV, sigorta, muayene, bakım gibi başlı
 
 App Store gizlilik formunda üçüncü taraf AI işleme (OpenRouter) açıkça belirtilmeli; kamera ve fotoğraf kitaplığı izinleri yalnızca kullanıcı fotoğraf ekleme ekranında bir fotoğraf çekmeyi veya seçmeyi başlattığı anda, o tek fotoğraf için istenir.
 
+İlan linki normalizasyonunda ve fotoğraf kontrolünde ilan metninde geçen satıcıya ait telefon, e-posta veya plaka gibi kişisel veriler, OpenRouter'a gönderilmeden hemen önce sunucu tarafında otomatik olarak kaldırılır (bkz. `api/_lib/redact-personal-data.js`). Bu bir NLP-düzeyinde tespit değildir — yalnızca telefon/e-posta/plaka gibi belirgin kalıpları yakalar; serbest metin ad/adres tespiti kasıtlı olarak yapılmaz (yanlış pozitifle araç açıklama metnini bozma riski gerçek kişisel veri sızıntısı riskinden daha yaygın çıkardı).
+
 ## Yurt Dışı Veri Aktarımı
 
-OpenRouter (AI işleme) ve Upstash (sunucu tarafı veritabanı altyapısı, yalnızca Web Push aboneliği için) yurt dışında barındırılan hizmetlerdir. Yukarıda açıklanan sınırlı veriler bu sağlayıcıların sunucularında işlenebilir/geçici olarak tutulabilir. Bu iki sağlayıcı dışında hiçbir üçüncü tarafla veri paylaşılmaz.
+OpenRouter (AI işleme), Upstash (sunucu tarafı veritabanı altyapısı, yalnızca Web Push aboneliği için), Supabase (hesap kimlik doğrulama), OpenStreetMap Nominatim (şehir tahmini) ve Google Places (yakındaki ekspertiz/noter/servis önerileri) yurt dışında barındırılan hizmetlerdir. Yukarıda açıklanan sınırlı veriler bu sağlayıcıların sunucularında işlenebilir/geçici olarak tutulabilir. Bu sağlayıcılar dışında hiçbir üçüncü tarafla veri paylaşılmaz.
 
 ## KVKK Kapsamındaki Haklar
 
-Uygulamada kullanıcı hesabı olmadığından, 6698 sayılı KVKK'nın 11. maddesindeki bilgi talep etme, düzeltme, silme ve itiraz haklarının büyük kısmı Profil > Verilerim ekranındaki dışa aktarma/içe aktarma/tümünü silme işlevleriyle doğrudan kullanıcı tarafından, aracı olmadan kullanılabilir. Sunucu tarafında tutulan sınırlı Web Push bildirim kopyası için de aynı "tümünü sil" işlemi yeterlidir. Ek taleplerin `/geri-bildirim` sayfasındaki iletişim kanalından iletilebileceği belirtilmelidir.
+Araç, analiz, hatırlatma, gider ve sağlık karnesi kayıtları cihazda tutulduğundan 6698 sayılı KVKK'nın 11. maddesindeki bilgi talep etme, düzeltme, silme ve itiraz haklarının büyük kısmı Analizlerim ekranındaki tekil silme işleviyle doğrudan kullanıcı tarafından, aracı olmadan kullanılabilir. Hesap açan kullanıcılar için e-posta/ad-soyad verisi, Profil ekranındaki "Hesabımı sil" akışıyla (bkz. `api/account/delete.js`, `src/lib/auth/delete-account.ts`) kalıcı olarak silinebilir — bu, Supabase Authentication'daki kullanıcıyı gerçekten siler, hesap silme App Store aboneliğini otomatik iptal etmez (kullanıcı ayrıca "Abonelikleri Yönet" ile iptal etmelidir). Sunucu tarafında tutulan sınırlı Web Push bildirim kopyası, bildirim kapatıldığında veya kayıt silindiğinde otomatik silinir. Ek taleplerin `/geri-bildirim` sayfasındaki iletişim kanalından iletilebileceği belirtilmelidir.
+
+Not: "Profil > Verilerim" ekranında dışa/içe aktarma ve tek dokunuşla tümünü silme işlevleri kod düzeyinde mevcuttur (`src/lib/data-management/delete-all.ts`, `export-import.ts`) ancak şu an herhangi bir ekrana bağlı değildir — bu doküman ve kullanıcıya açık gizlilik sayfası bu yüzden yalnızca gerçekten erişilebilir olan Analizlerim tekil silme ve yeni hesap silme akışını referans alır. Bu orphan kod tabanı bir sonraki oturumda ele alınmalı: ya gerçek bir ekrana bağlanmalı ya da kaldırılmalı.
 
 ## App Store Review İçin Net Sınır
 

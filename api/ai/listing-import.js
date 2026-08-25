@@ -1,6 +1,7 @@
 const { checkRateLimit } = require("../_lib/rate-limit.js");
 const { callOpenRouterChatCompletions, hedgeCertainLanguage } = require("../_lib/openrouter.js");
 const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
+const { redactPersonalData } = require("../_lib/redact-personal-data.js");
 
 // Text-only listing normalization. Photo analysis is a separate, always-free
 // user-owned vehicle flow; paid plan limits apply to listing-link analysis
@@ -317,11 +318,11 @@ function parseListingImportInput(value) {
   return {
     source: value.source,
     url: value.url.trim(),
-    title: value.title.trim(),
-    ogTitle: value.ogTitle.trim(),
-    ogDescription: value.ogDescription.trim(),
-    bodyText: value.bodyText.trim(),
-    jsonLd: value.jsonLd,
+    title: redactPersonalData(value.title.trim()),
+    ogTitle: redactPersonalData(value.ogTitle.trim()),
+    ogDescription: redactPersonalData(value.ogDescription.trim()),
+    bodyText: redactPersonalData(value.bodyText.trim()),
+    jsonLd: value.jsonLd.map((item) => redactPersonalData(item)),
   };
 }
 
