@@ -5,7 +5,7 @@ import type { Session, User } from "@supabase/supabase-js";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { appConfig } from "@/lib/constants/app";
 
-export type AuthResult = { ok: true } | { ok: false; message: string };
+export type AuthResult = { ok: true; requiresEmailConfirmation: boolean } | { ok: false; message: string };
 
 export type AuthState = {
   /** null while the initial session check is in flight. */
@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isConfigured: Boolean(supabase),
       async signUp(email: string, password: string, firstName: string, lastName: string) {
         if (!supabase) return { ok: false, message: "Hesap sistemi şu anda yapılandırılmamış." };
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -78,13 +78,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           },
         });
         if (error) return { ok: false, message: toTurkishError(error.message) };
-        return { ok: true };
+        // Supabase requires e-mail confirmation on this project, so signUp
+        // succeeds without ever returning a session — the caller must not
+        // treat this the same as an active login (it isn't one yet).
+        return { ok: true, requiresEmailConfirmation: !data.session };
       },
       async signIn(email: string, password: string) {
         if (!supabase) return { ok: false, message: "Hesap sistemi şu anda yapılandırılmamış." };
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) return { ok: false, message: toTurkishError(error.message) };
-        return { ok: true };
+        return { ok: true, requiresEmailConfirmation: false };
       },
       async signOut() {
         if (!supabase) return;

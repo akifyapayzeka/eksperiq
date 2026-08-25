@@ -36,6 +36,7 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
   const [password, setPassword] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmationPendingEmail, setConfirmationPendingEmail] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Derived directly at render time (no effect needed): reading localStorage
@@ -54,6 +55,7 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setConfirmationPendingEmail(null);
     if (!termsAccepted) {
       setError("Devam etmek için KVKK ve gizlilik onayını işaretleyin.");
       return;
@@ -66,6 +68,12 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
     setIsSubmitting(false);
     if (!result.ok) {
       setError(result.message);
+      return;
+    }
+    if (result.requiresEmailConfirmation) {
+      // No session yet — without this, the form just sits here silently
+      // with no feedback, indistinguishable from a failed signup.
+      setConfirmationPendingEmail(email.trim());
       return;
     }
     acceptAiConsent();
@@ -113,6 +121,7 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
               onClick={() => {
                 setMode("signup");
                 setError(null);
+                setConfirmationPendingEmail(null);
               }}
               className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${mode === "signup" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
             >
@@ -123,106 +132,128 @@ export function RequireAuthGate({ children }: { children: ReactNode }) {
               onClick={() => {
                 setMode("signin");
                 setError(null);
+                setConfirmationPendingEmail(null);
               }}
               className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${mode === "signin" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
             >
               Giriş yap
             </button>
           </div>
-          <form onSubmit={handleSubmit} className="grid gap-4">
-            {mode === "signup" ? (
-              <div className="grid grid-cols-2 gap-3">
-                <Field
-                  id="gate-first-name"
-                  label="Ad"
-                  autoComplete="given-name"
-                  required
-                  value={firstName}
-                  onChange={(event) => setFirstName(event.target.value)}
-                  placeholder="Adınız"
-                />
-                <Field
-                  id="gate-last-name"
-                  label="Soyad"
-                  autoComplete="family-name"
-                  required
-                  value={lastName}
-                  onChange={(event) => setLastName(event.target.value)}
-                  placeholder="Soyadınız"
-                />
-              </div>
-            ) : null}
-            <Field
-              id="gate-email"
-              label="E-posta"
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="ornek@eposta.com"
-            />
-            <Field
-              id="gate-password"
-              label="Şifre"
-              type="password"
-              autoComplete={mode === "signup" ? "new-password" : "current-password"}
-              minLength={6}
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="En az 6 karakter"
-            />
-            <label className="flex items-start gap-3 rounded-theme-sm border border-border bg-muted p-3 text-sm text-foreground/90">
-              <input
-                type="checkbox"
-                checked={termsAccepted}
-                onChange={(event) => {
-                  setTermsAccepted(event.target.checked);
-                  setError(null);
+          {confirmationPendingEmail ? (
+            <div className="grid gap-4">
+              <p className="rounded-theme-sm border border-success/40 bg-success/10 p-4 text-sm font-medium text-success">
+                {confirmationPendingEmail} adresine bir onay bağlantısı gönderdik. Onaylamak için e-postanızdaki
+                bağlantıya tıklayın, ardından &quot;Giriş yap&quot; ile devam edin.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirmationPendingEmail(null);
+                  setMode("signin");
                 }}
-                className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
+                className="text-sm font-semibold text-muted-foreground underline-offset-4 hover:underline"
+              >
+                Giriş ekranına dön
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="grid gap-4">
+              {mode === "signup" ? (
+                <div className="grid grid-cols-2 gap-3">
+                  <Field
+                    id="gate-first-name"
+                    label="Ad"
+                    autoComplete="given-name"
+                    required
+                    value={firstName}
+                    onChange={(event) => setFirstName(event.target.value)}
+                    placeholder="Adınız"
+                  />
+                  <Field
+                    id="gate-last-name"
+                    label="Soyad"
+                    autoComplete="family-name"
+                    required
+                    value={lastName}
+                    onChange={(event) => setLastName(event.target.value)}
+                    placeholder="Soyadınız"
+                  />
+                </div>
+              ) : null}
+              <Field
+                id="gate-email"
+                label="E-posta"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="ornek@eposta.com"
               />
-              <span>
-                <Link href="/gizlilik" className="underline">
-                  Gizlilik Politikası
-                </Link>
-                ,{" "}
-                <Link href="/kullanim-kosullari" className="underline">
-                  Kullanım Koşulları
-                </Link>{" "}
-                ve KVKK kapsamında üçüncü taraf bir AI sağlayıcısına geçici veri gönderimini kabul ediyorum.
-              </span>
-            </label>
-            {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
-            <PrimaryButton
-              type="submit"
-              disabled={
-                isSubmitting ||
-                !email.trim() ||
-                password.length < 6 ||
-                (mode === "signup" && (!firstName.trim() || !lastName.trim()))
-              }
+              <Field
+                id="gate-password"
+                label="Şifre"
+                type="password"
+                autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                minLength={6}
+                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="En az 6 karakter"
+              />
+              <label className="flex items-start gap-3 rounded-theme-sm border border-border bg-muted p-3 text-sm text-foreground/90">
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={(event) => {
+                    setTermsAccepted(event.target.checked);
+                    setError(null);
+                  }}
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
+                />
+                <span>
+                  <Link href="/gizlilik" className="underline">
+                    Gizlilik Politikası
+                  </Link>
+                  ,{" "}
+                  <Link href="/kullanim-kosullari" className="underline">
+                    Kullanım Koşulları
+                  </Link>{" "}
+                  ve KVKK kapsamında üçüncü taraf bir AI sağlayıcısına geçici veri gönderimini kabul ediyorum.
+                </span>
+              </label>
+              {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
+              <PrimaryButton
+                type="submit"
+                disabled={
+                  isSubmitting ||
+                  !email.trim() ||
+                  password.length < 6 ||
+                  (mode === "signup" && (!firstName.trim() || !lastName.trim()))
+                }
+              >
+                {isSubmitting ? (
+                  <Spinner />
+                ) : mode === "signup" ? (
+                  <UserPlus aria-hidden="true" className="h-4 w-4" />
+                ) : (
+                  <Mail aria-hidden="true" className="h-4 w-4" />
+                )}
+                {isSubmitting ? "Bekleyin..." : mode === "signup" ? "Üye ol" : "Giriş yap"}
+              </PrimaryButton>
+            </form>
+          )}
+          {!confirmationPendingEmail ? (
+            <button
+              type="button"
+              onClick={continueWithoutAccount}
+              className="mt-4 flex w-full items-center justify-center gap-1.5 text-sm font-semibold text-muted-foreground underline-offset-4 hover:underline"
             >
-              {isSubmitting ? (
-                <Spinner />
-              ) : mode === "signup" ? (
-                <UserPlus aria-hidden="true" className="h-4 w-4" />
-              ) : (
-                <Mail aria-hidden="true" className="h-4 w-4" />
-              )}
-              {isSubmitting ? "Bekleyin..." : mode === "signup" ? "Üye ol" : "Giriş yap"}
-            </PrimaryButton>
-          </form>
-          <button
-            type="button"
-            onClick={continueWithoutAccount}
-            className="mt-4 flex w-full items-center justify-center gap-1.5 text-sm font-semibold text-muted-foreground underline-offset-4 hover:underline"
-          >
-            <Lock aria-hidden="true" className="h-3.5 w-3.5" />
-            Üye olmadan devam et
-          </button>
+              <Lock aria-hidden="true" className="h-3.5 w-3.5" />
+              Üye olmadan devam et
+            </button>
+          ) : null}
         </div>
       </Screen>
     );

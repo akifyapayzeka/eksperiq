@@ -32,11 +32,13 @@ export default function GirisPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [confirmationPendingEmail, setConfirmationPendingEmail] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setConfirmationPendingEmail(null);
     setIsSubmitting(true);
     const result =
       mode === "signup"
@@ -45,6 +47,12 @@ export default function GirisPage() {
     setIsSubmitting(false);
     if (!result.ok) {
       setError(result.message);
+      return;
+    }
+    if (result.requiresEmailConfirmation) {
+      // No session yet — navigating to /profil now would land on an
+      // "unauthenticated" screen that looks exactly like signup failed.
+      setConfirmationPendingEmail(email.trim());
       return;
     }
     router.push("/profil");
@@ -69,6 +77,13 @@ export default function GirisPage() {
         <ConfirmedBanner />
       </Suspense>
 
+      {confirmationPendingEmail ? (
+        <div className="mb-4 rounded-theme border border-success/40 bg-success/10 p-4 text-sm font-medium text-success">
+          {confirmationPendingEmail} adresine bir onay bağlantısı gönderdik. Onaylamak için e-postanızdaki bağlantıya
+          tıklayın, ardından buradan giriş yapın.
+        </div>
+      ) : null}
+
       <div className="rounded-theme border border-border bg-card p-5 shadow-sm">
         <div className="mb-4 flex justify-center gap-1 rounded-full border border-border bg-muted p-1">
           <button
@@ -76,6 +91,7 @@ export default function GirisPage() {
             onClick={() => {
               setMode("signup");
               setError(null);
+              setConfirmationPendingEmail(null);
             }}
             className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${mode === "signup" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
           >
@@ -86,6 +102,7 @@ export default function GirisPage() {
             onClick={() => {
               setMode("signin");
               setError(null);
+              setConfirmationPendingEmail(null);
             }}
             className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${mode === "signin" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
           >
