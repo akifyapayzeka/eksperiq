@@ -42,9 +42,7 @@ mkdirSync(screenshotsDir, { recursive: true });
 mkdirSync(assetsDir, { recursive: true });
 
 const copiedDocs = docs.filter((doc) => copyIfExists(join(process.cwd(), doc), docsDir));
-const copiedScreenshots = screenshots.filter((file) =>
-  copyIfExists(join(screenshotSourceDir, file), screenshotsDir),
-);
+const copiedScreenshots = screenshots.filter((file) => copyIfExists(join(screenshotSourceDir, file), screenshotsDir));
 const copiedAssets = [
   "public/app-store-icon-source.svg",
   "public/app-store-icon-1024.png",

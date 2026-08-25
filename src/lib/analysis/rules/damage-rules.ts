@@ -90,9 +90,7 @@ function highestSeverity(groups: PartRisk[]): AnalysisFinding["severity"] {
 }
 
 function changedPartExplanation(groups: PartRisk[]): string {
-  return groups
-    .map((group) => `${group.label}: ${group.parts.join(", ")}. ${group.explanation}`)
-    .join(" ");
+  return groups.map((group) => `${group.label}: ${group.parts.join(", ")}. ${group.explanation}`).join(" ");
 }
 
 function changedPartRecommendation(groups: PartRisk[]): string {
@@ -191,7 +189,7 @@ export function damageRules(input: VehicleFormData): AnalysisFinding[] {
         id: "full-body-repaint-clean-claim-conflict",
         category: "Hasar",
         severity: "high",
-        title: "İlan hem \"hasar kaydı yok\" hem \"komple boya\" diyor",
+        title: 'İlan hem "hasar kaydı yok" hem "komple boya" diyor',
         explanation:
           "Bu iki ifade birbiriyle çelişmez (kayıt dışı/nakit onarımlarda resmi hasar kaydı hiç oluşmayabilir), ama birlikte göründüklerinde satıcının hangi olayın komple boyayı gerektirdiğini açıklamasını isteme sebebidir.",
         recommendation:
@@ -218,8 +216,7 @@ export function damageRules(input: VehicleFormData): AnalysisFinding[] {
       category: "Hasar",
       severity: "low",
       title: "Boyalı parça bilgisi var",
-      explanation:
-        `İlanda boyalı parça olarak ${input.paintedParts} belirtilmiş. Boya tek başına ağır hasar anlamına gelmez; parça, ölçüm ve onarım nedeni birlikte değerlendirilmelidir.`,
+      explanation: `İlanda boyalı parça olarak ${input.paintedParts} belirtilmiş. Boya tek başına ağır hasar anlamına gelmez; parça, ölçüm ve onarım nedeni birlikte değerlendirilmelidir.`,
       recommendation: "Boya kalınlık ölçümünü tüm panellerde yaptırın ve boya nedenini satıcıdan yazılı sorun.",
     });
   if (paintedCount > 1)
@@ -228,10 +225,8 @@ export function damageRules(input: VehicleFormData): AnalysisFinding[] {
       category: "Hasar",
       severity: paintedCount > 3 ? "high" : highestSeverity(paintedGroups),
       title: "Birden fazla boyalı parça var",
-      explanation:
-        `İlanda boyalı parçalar ${input.paintedParts} olarak belirtilmiş. ${changedPartExplanation(paintedGroups)} Tek panelden farklı olarak birden fazla parçanın boyalı olması, daha geniş bir onarımın (çarpma, sürtme veya kapsamlı kozmetik iş) izini taşıyabilir.`,
-      recommendation:
-        `${changedPartRecommendation(paintedGroups)} Parçaların aynı olaydan mı yoksa farklı zamanlardan mı kaynaklandığını satıcıdan yazılı isteyin.`,
+      explanation: `İlanda boyalı parçalar ${input.paintedParts} olarak belirtilmiş. ${changedPartExplanation(paintedGroups)} Tek panelden farklı olarak birden fazla parçanın boyalı olması, daha geniş bir onarımın (çarpma, sürtme veya kapsamlı kozmetik iş) izini taşıyabilir.`,
+      recommendation: `${changedPartRecommendation(paintedGroups)} Parçaların aynı olaydan mı yoksa farklı zamanlardan mı kaynaklandığını satıcıdan yazılı isteyin.`,
     });
   if (input.localPaintedParts)
     findings.push({
@@ -239,8 +234,7 @@ export function damageRules(input: VehicleFormData): AnalysisFinding[] {
       category: "Hasar",
       severity: "low",
       title: "Lokal boyalı parça bilgisi var",
-      explanation:
-        `İlanda lokal boyalı parça olarak ${input.localPaintedParts} belirtilmiş. Lokal boya çoğu zaman kozmetik olabilir; yine de darbe izi ve macun kalınlığı kontrol edilmelidir.`,
+      explanation: `İlanda lokal boyalı parça olarak ${input.localPaintedParts} belirtilmiş. Lokal boya çoğu zaman kozmetik olabilir; yine de darbe izi ve macun kalınlığı kontrol edilmelidir.`,
       recommendation: "Lokal boya olan bölgede boya kalınlığı, bağlantı vidaları ve panel hizasını kontrol ettirin.",
     });
   if (replacedCount === 1)
@@ -258,10 +252,8 @@ export function damageRules(input: VehicleFormData): AnalysisFinding[] {
       category: "Hasar",
       severity: replacedCount > 3 ? "high" : highestSeverity(replacedGroups),
       title: "Birden fazla değişen parça var",
-      explanation:
-        `İlanda değişen parçalar ${input.replacedParts} olarak belirtilmiş. ${changedPartExplanation(replacedGroups)}`,
-      recommendation:
-        `${changedPartRecommendation(replacedGroups)} Parça sayısı arttığı için hasarın tek olay mı, farklı zamanlarda küçük işlemler mi olduğunu yazılı sorun.`,
+      explanation: `İlanda değişen parçalar ${input.replacedParts} olarak belirtilmiş. ${changedPartExplanation(replacedGroups)}`,
+      recommendation: `${changedPartRecommendation(replacedGroups)} Parça sayısı arttığı için hasarın tek olay mı, farklı zamanlarda küçük işlemler mi olduğunu yazılı sorun.`,
     });
   if (input.tramerAmount >= HIGH_TRAMER_AMOUNT && input.sellerDescription.length < 80)
     findings.push({
@@ -295,7 +287,10 @@ export function damageRules(input: VehicleFormData): AnalysisFinding[] {
       });
     }
   }
-  if (/tampon/i.test(input.localPaintedParts ?? "") && !findings.some((finding) => finding.id === "local-painted-parts-declared"))
+  if (
+    /tampon/i.test(input.localPaintedParts ?? "") &&
+    !findings.some((finding) => finding.id === "local-painted-parts-declared")
+  )
     findings.push({
       id: "bumper-local-paint",
       category: "Hasar",

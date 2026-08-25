@@ -112,15 +112,15 @@ describe("enrichListingImportWithPhotoEvidence", () => {
             hasEvidence: true,
             documentImageIndexes: [1],
             documentTypes: ["İlan açıklaması görseli"],
-            evidenceSummary: "Açıklama görselinde sol ön çamurluk değişen ve iki kapı iki çamurluk yüzeysel boya yazıyor.",
+            evidenceSummary:
+              "Açıklama görselinde sol ön çamurluk değişen ve iki kapı iki çamurluk yüzeysel boya yazıyor.",
             fields: {
               tramerAmount: null,
               paintedParts: null,
               replacedParts: null,
               localPaintedParts: null,
               hasExpertiseReport: null,
-              sellerDescriptionAppend:
-                "SOL ÖN ÇAMURLUK DEĞİŞEN. İKİ KAPI İKİ ÇAMURLUK YÜZEYSEL BOYA VARDIR.",
+              sellerDescriptionAppend: "SOL ÖN ÇAMURLUK DEĞİŞEN. İKİ KAPI İKİ ÇAMURLUK YÜZEYSEL BOYA VARDIR.",
             },
           },
         }),

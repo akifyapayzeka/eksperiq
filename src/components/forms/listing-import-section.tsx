@@ -24,8 +24,16 @@ const stageLabels: Record<ImportStage, string> = {
 
 const loadingDetails: Record<Exclude<ImportStage, "done">, string[]> = {
   "checking-url": ["Link kaynağı doğrulanıyor", "İlan sitesi hazırlanıyor", "Analiz oturumu başlatılıyor"],
-  "opening-page": ["Sayfa cihazınızda açılıyor", "İlan metni ve konum alanları okunuyor", "Araç fotoğrafları ayrıştırılıyor"],
-  normalizing: ["İlan bilgileri düzenleniyor", "Eksik alanlar açıklamadan tamamlanıyor", "Rapor için kronik sorunlar eşleştiriliyor"],
+  "opening-page": [
+    "Sayfa cihazınızda açılıyor",
+    "İlan metni ve konum alanları okunuyor",
+    "Araç fotoğrafları ayrıştırılıyor",
+  ],
+  normalizing: [
+    "İlan bilgileri düzenleniyor",
+    "Eksik alanlar açıklamadan tamamlanıyor",
+    "Rapor için kronik sorunlar eşleştiriliyor",
+  ],
 };
 
 const errorMessages: Record<string, string> = {

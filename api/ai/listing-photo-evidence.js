@@ -1,6 +1,7 @@
 const { checkRateLimit } = require("../_lib/rate-limit.js");
 const { callOpenRouterChatCompletions, hedgeCertainLanguage } = require("../_lib/openrouter.js");
 const { applyCorsHeaders, handlePreflight } = require("../_lib/cors.js");
+const { redactPersonalData } = require("../_lib/redact-personal-data.js");
 
 // Was a single model with no fallback at all — resolveVisionModel() blindly
 // trusted any OPENROUTER_VISION_MODEL/OPENROUTER_MODEL env var ending in
@@ -71,9 +72,11 @@ function parseInput(value) {
     ok: true,
     input: {
       imageUrls,
-      title: typeof context.title === "string" ? context.title.slice(0, 300) : "",
+      title: typeof context.title === "string" ? redactPersonalData(context.title.slice(0, 300)) : "",
       sellerDescription:
-        typeof context.sellerDescription === "string" ? context.sellerDescription.slice(0, 1600) : "",
+        typeof context.sellerDescription === "string"
+          ? redactPersonalData(context.sellerDescription.slice(0, 1600))
+          : "",
     },
   };
 }
@@ -131,11 +134,7 @@ function normalizeAnalysis(value, imageCount) {
   const fields = isRecord(value.fields) ? value.fields : {};
   const rawIndexes = Array.isArray(value.documentImageIndexes) ? value.documentImageIndexes : [];
   const documentImageIndexes = Array.from(
-    new Set(
-      rawIndexes
-        .filter((item) => Number.isInteger(item) && item >= 0 && item < imageCount)
-        .slice(0, imageCount),
-    ),
+    new Set(rawIndexes.filter((item) => Number.isInteger(item) && item >= 0 && item < imageCount).slice(0, imageCount)),
   );
 
   return {

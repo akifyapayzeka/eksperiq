@@ -111,11 +111,9 @@ export function buildVehicleInputFromListingImport(
   const brand = importedString(fields.brand) ?? fallbackBrand(result);
   const model = importedString(fields.model) ?? fallbackModel(result, brand);
   const year = importedNumber(fields.year) ?? fallbackYear(result);
-  const missingIdentityFields = [
-    brand ? null : "brand",
-    model ? null : "model",
-    year ? null : "year",
-  ].filter((field): field is string => Boolean(field));
+  const missingIdentityFields = [brand ? null : "brand", model ? null : "model", year ? null : "year"].filter(
+    (field): field is string => Boolean(field),
+  );
   const input = {
     brand: brand ?? "Bilinmeyen marka",
     model: model ?? "Bilinmeyen model",

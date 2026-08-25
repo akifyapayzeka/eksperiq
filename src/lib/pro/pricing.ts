@@ -55,7 +55,8 @@ export const EKSPERIQ_PLAN_PRICING: Record<EksperIqPaidPlanId, EksperIqPlanPrici
       monthlyProductId: "com.eksperiq.app.proplus.monthly",
       yearlyProductId: "com.eksperiq.app.proplus.yearly",
       monthlyOperatingCostTry: 80,
-      notes: "Yogun kullanici icin sinirsiz ilan linki analizi, profesyonel rapor/export payi ve kayitli analiz akislari.",
+      notes:
+        "Yogun kullanici icin sinirsiz ilan linki analizi, profesyonel rapor/export payi ve kayitli analiz akislari.",
     },
     PRO_PLUS_COST_MULTIPLE,
   ),

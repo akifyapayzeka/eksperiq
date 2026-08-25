@@ -196,10 +196,7 @@ export default function Home() {
       />
 
       <section className="mt-5 grid gap-3 sm:grid-cols-2">
-        <Link
-          href="/satin-alma-rehberi"
-          className="rounded-theme border border-accent/25 bg-accent/5 p-4 shadow-sm"
-        >
+        <Link href="/satin-alma-rehberi" className="rounded-theme border border-accent/25 bg-accent/5 p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <span className="grid h-10 w-10 place-items-center rounded-full bg-accent/10 text-accent">
               <BookOpenCheck aria-hidden="true" className="h-5 w-5" />
@@ -212,7 +209,10 @@ export default function Home() {
             </div>
           </div>
         </Link>
-        <Link href="/yakinimdaki-hizmetler?kategori=ekspertiz" className="rounded-theme border border-success/25 bg-success/5 p-4 shadow-sm">
+        <Link
+          href="/yakinimdaki-hizmetler?kategori=ekspertiz"
+          className="rounded-theme border border-success/25 bg-success/5 p-4 shadow-sm"
+        >
           <div className="flex items-center gap-3">
             <span className="grid h-10 w-10 place-items-center rounded-full bg-success/10 text-success">
               <MapPinned aria-hidden="true" className="h-5 w-5" />

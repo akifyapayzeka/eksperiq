@@ -2,15 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import {
-  CalendarClock,
-  ChevronRight,
-  Pencil,
-  Plus,
-  ShieldCheck,
-  Trash2,
-  Wrench,
-} from "lucide-react";
+import { CalendarClock, ChevronRight, Pencil, Plus, ShieldCheck, Trash2, Wrench } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { loadAnalysis } from "@/lib/storage/analysis-storage";
 import {
@@ -71,7 +63,8 @@ export default function VehicleHealthRecordPage() {
     [reminders, selectedVehicleId, vehicles],
   );
   const maintenanceReminders = useMemo(
-    () => sortByUrgency(remindersForVehicle.filter((item) => MAINTENANCE_CATEGORIES.includes(item.category))).slice(0, 3),
+    () =>
+      sortByUrgency(remindersForVehicle.filter((item) => MAINTENANCE_CATEGORIES.includes(item.category))).slice(0, 3),
     [remindersForVehicle],
   );
   const taxReminders = useMemo(
@@ -527,7 +520,10 @@ function GarageReminderCard({
             <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
           </div>
         </div>
-        <ChevronRight aria-hidden="true" className="mt-2 h-5 w-5 shrink-0 text-muted-foreground group-hover:text-accent" />
+        <ChevronRight
+          aria-hidden="true"
+          className="mt-2 h-5 w-5 shrink-0 text-muted-foreground group-hover:text-accent"
+        />
       </div>
       <div className="mt-4 grid gap-2">
         {reminders.length ? (

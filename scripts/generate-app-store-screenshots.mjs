@@ -42,9 +42,8 @@ const screenshots = [
 
 function imageDataUrl(filePath) {
   const base64 = readFileSync(filePath).toString("base64");
-  const mimeType = filePath.toLowerCase().endsWith(".jpg") || filePath.toLowerCase().endsWith(".jpeg")
-    ? "image/jpeg"
-    : "image/png";
+  const mimeType =
+    filePath.toLowerCase().endsWith(".jpg") || filePath.toLowerCase().endsWith(".jpeg") ? "image/jpeg" : "image/png";
   return `data:${mimeType};base64,${base64}`;
 }
 

@@ -135,7 +135,12 @@ function extractQuantifiedPaintedParts(text: string): string | null {
 }
 
 function inferDamageFieldsFromEvidenceText(evidence: ListingPhotoEvidenceFields): ListingPhotoEvidenceFields {
-  const evidenceText = [evidence.sellerDescriptionAppend, evidence.paintedParts, evidence.replacedParts, evidence.localPaintedParts]
+  const evidenceText = [
+    evidence.sellerDescriptionAppend,
+    evidence.paintedParts,
+    evidence.replacedParts,
+    evidence.localPaintedParts,
+  ]
     .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
     .join(" ");
   if (!evidenceText) return evidence;
@@ -147,7 +152,8 @@ function inferDamageFieldsFromEvidenceText(evidence: ListingPhotoEvidenceFields)
       extractQuantifiedPaintedParts(evidenceText) ??
       extractPartsNearKeyword(evidenceText, /\bboyali\b|yuzeysel\s+boya|boya\s+vardir/i),
     replacedParts: evidence.replacedParts ?? extractPartsNearKeyword(evidenceText, /\bdegisen\b/i),
-    localPaintedParts: evidence.localPaintedParts ?? extractPartsNearKeyword(evidenceText, /lokal\s+boya|lokal\s+boyali/i),
+    localPaintedParts:
+      evidence.localPaintedParts ?? extractPartsNearKeyword(evidenceText, /lokal\s+boya|lokal\s+boyali/i),
   };
 }
 
@@ -171,7 +177,8 @@ function mergeFields(fields: ImportedListingFields, evidence: ListingPhotoEviden
     }
 
     if (typeof incoming === "boolean") {
-      if (existing === null || existing === false || incoming === true) (merged[fieldName] as boolean | null) = incoming;
+      if (existing === null || existing === false || incoming === true)
+        (merged[fieldName] as boolean | null) = incoming;
     }
   }
 
@@ -200,9 +207,7 @@ function removeDocumentImages(images: string[], documentImageIndexes: number[]):
   return filtered.length ? filtered : images;
 }
 
-export async function enrichListingImportWithPhotoEvidence(
-  result: ListingImportResult,
-): Promise<ListingImportResult> {
+export async function enrichListingImportWithPhotoEvidence(result: ListingImportResult): Promise<ListingImportResult> {
   if (!result.images.length) return result;
 
   try {

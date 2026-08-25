@@ -27,10 +27,10 @@ Maliyet hesabi:
 - 2026-08-20 kur varsayimi: `1 USD ~= 48 TL`.
 - Tipik ilan normalize cagrisi cent alti seviyededir; uygulamadaki `monthlyOperatingCostTry` yalniz token maliyeti degil, retry, hatali deneme, Vercel/altyapi payi, Apple kesintisi sonrasi nefes payi ve kotu kullanim tamponudur.
 
-| Plan          | Aylik operasyon maliyeti | Aylik fiyat | Yillik fiyat | Kapsam                         |
-| ------------- | -----------------------: | ----------: | -----------: | ------------------------------ |
-| EksperIQ Pro  |                    30 TL |      150 TL |     1.500 TL | Ayda 20 ilan linki analizi     |
-| EksperIQ Pro+ |                    80 TL |      400 TL |     4.000 TL | Sinirsiz ilan linki analizi    |
+| Plan          | Aylik operasyon maliyeti | Aylik fiyat | Yillik fiyat | Kapsam                      |
+| ------------- | -----------------------: | ----------: | -----------: | --------------------------- |
+| EksperIQ Pro  |                    30 TL |      150 TL |     1.500 TL | Ayda 20 ilan linki analizi  |
+| EksperIQ Pro+ |                    80 TL |      400 TL |     4.000 TL | Sinirsiz ilan linki analizi |
 
 Fotograf analizi Free, Pro ve Pro+ icin ucretsiz kalir ve ucretsiz gorsel AI modeliyle calisir.
 

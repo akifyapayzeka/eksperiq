@@ -223,7 +223,12 @@ function createWriter(doc, fonts, logoImage) {
         rowTopY = state.y;
       }
       const x = MARGIN + column * (cellWidth + gap) + (cellWidth - drawWidth) / 2;
-      state.page.drawImage(image, { x, y: rowTopY - maxCellHeight + (maxCellHeight - drawHeight) / 2, width: drawWidth, height: drawHeight });
+      state.page.drawImage(image, {
+        x,
+        y: rowTopY - maxCellHeight + (maxCellHeight - drawHeight) / 2,
+        width: drawWidth,
+        height: drawHeight,
+      });
       column = (column + 1) % columns;
       if (column === 0) state.y = rowTopY - maxCellHeight - 8;
     });
@@ -318,9 +323,7 @@ async function embedListingImages(doc, urls, imageData) {
   const candidates = Array.isArray(urls)
     ? urls.filter((url) => typeof url === "string" && url.trim()).slice(0, MAX_REPORT_IMAGES)
     : [];
-  const buffers = await Promise.all(
-    candidates.map((url) => providedBytesByUrl.get(url) ?? fetchImageBytes(url)),
-  );
+  const buffers = await Promise.all(candidates.map((url) => providedBytesByUrl.get(url) ?? fetchImageBytes(url)));
   const embedded = [];
   for (const buffer of buffers) {
     if (!buffer) continue;
@@ -431,9 +434,7 @@ async function buildPdf(payload) {
     );
   }
 
-  const buyerDecisionGuide = Array.isArray(payload.buyerDecisionGuide)
-    ? payload.buyerDecisionGuide.slice(0, 4)
-    : [];
+  const buyerDecisionGuide = Array.isArray(payload.buyerDecisionGuide) ? payload.buyerDecisionGuide.slice(0, 4) : [];
   if (buyerDecisionGuide.length) {
     w.sectionTitle("Adım adım karar rehberi");
     w.numberedList(

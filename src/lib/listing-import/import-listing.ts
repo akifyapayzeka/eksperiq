@@ -192,7 +192,10 @@ export async function importListingFromUrl(
   function onVisible() {
     if (document.visibilityState === "visible" && Date.now() >= deadline && !visibilityGraceTimer) {
       trace("js-client-timeout-grace", `visibilitychange grace ${VISIBILITY_RETURN_GRACE_MS}ms`);
-      visibilityGraceTimer = setTimeout(() => resolveClientTimeout("visibilitychange-grace"), VISIBILITY_RETURN_GRACE_MS);
+      visibilityGraceTimer = setTimeout(
+        () => resolveClientTimeout("visibilitychange-grace"),
+        VISIBILITY_RETURN_GRACE_MS,
+      );
     }
   }
   document.addEventListener("visibilitychange", onVisible);

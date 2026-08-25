@@ -18,7 +18,8 @@ export const BUYER_DECISION_GUIDE: BuyerDecisionGuideItem[] = [
   },
   {
     title: "Sonra pahalı risklere bak",
-    meaning: "Motor, şanzıman, şasi, podye, airbag ve ağır hasar sorunları küçük kozmetik kusurlardan çok daha önemlidir.",
+    meaning:
+      "Motor, şanzıman, şasi, podye, airbag ve ağır hasar sorunları küçük kozmetik kusurlardan çok daha önemlidir.",
     action: "Ekspertize bu başlıkları özellikle söyle; yalnızca boya ölçümüyle yetinme.",
   },
   {
@@ -72,6 +73,7 @@ export const BUYER_EDUCATION_NOTES: BuyerEducationNote[] = [
   {
     title: "Ekspertiz raporu",
     why: "İlan açıklaması satıcı beyanıdır; bağımsız ekspertiz mekanik, kaporta, elektronik ve güvenlik risklerini ayrı ayrı görmenizi sağlar.",
-    check: "Raporun tarihini, firma bilgisini ve fotoğraflarını isteyin; mümkünse kendi seçtiğiniz yerde tekrar kontrol ettirin.",
+    check:
+      "Raporun tarihini, firma bilgisini ve fotoğraflarını isteyin; mümkünse kendi seçtiğiniz yerde tekrar kontrol ettirin.",
   },
 ];

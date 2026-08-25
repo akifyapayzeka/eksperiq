@@ -74,15 +74,17 @@ export function sellerRules(input: VehicleFormData): AnalysisFinding[] {
     });
   }
 
-  findings.push(...detectedClaims(input.sellerDescription).map<AnalysisFinding>((claim) => ({
-    id: `claim-${normalize(claim).replaceAll(" ", "-")}`,
-    category: "Satıcı",
-    severity: claim === "Ekspertize açık" ? "low" : "medium",
-    title: `"${claim}" ifadesi doğrulanmalı`,
-    explanation:
-      "Bu ifade tek başına olumsuzluk veya dolandırıcılık anlamına gelmez; yine de belge ve ekspertizle teyit edilmelidir.",
-    recommendation: "İddiayı yazılı detay, fotoğraf, kayıt veya bağımsız ekspertizle doğrulayın.",
-  })));
+  findings.push(
+    ...detectedClaims(input.sellerDescription).map<AnalysisFinding>((claim) => ({
+      id: `claim-${normalize(claim).replaceAll(" ", "-")}`,
+      category: "Satıcı",
+      severity: claim === "Ekspertize açık" ? "low" : "medium",
+      title: `"${claim}" ifadesi doğrulanmalı`,
+      explanation:
+        "Bu ifade tek başına olumsuzluk veya dolandırıcılık anlamına gelmez; yine de belge ve ekspertizle teyit edilmelidir.",
+      recommendation: "İddiayı yazılı detay, fotoğraf, kayıt veya bağımsız ekspertizle doğrulayın.",
+    })),
+  );
 
   if (detectsGarageClaim(input.sellerDescription)) {
     findings.push({

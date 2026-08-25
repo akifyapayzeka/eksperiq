@@ -15,16 +15,16 @@ This file maps current used-car buyer research and review themes to concrete Eks
 
 ## Product Mapping
 
-| Lesson | Build 58 Surface |
-| --- | --- |
-| Step-by-step purchase guidance | `/satin-alma-rehberi`, home shortcuts, report buyer-decision next-step cards |
-| Official record verification | `/resmi-sorgu-rehberi`, report official-check link, final checklist |
-| Independent expertise and notary direction | `/yakinimdaki-hizmetler?kategori=ekspertiz`, `servis`, `noter`; report city/service/notary cards |
-| Repair and maintenance cost awareness | `/onarim-maliyeti`, report negotiation CTA, repair-cost estimator |
-| Why each term matters | `BUYER_DECISION_GUIDE`, `BUYER_EDUCATION_NOTES`, report `Araç alırken bunlar neden önemli?`, PDF payload |
-| Seller-question understanding | Expandable report seller question cards with `Neden sorulur?` and `Cevap ne anlatır?` |
-| Hidden damage and false clean claims | damage rules, seller clean-damage claim handling, TRAMER/boya/expertise verification copy |
-| Photo uncertainty | free photo AI guardrails, non-vehicle rejection, photo-quality/retake guidance |
+| Lesson                                     | Build 58 Surface                                                                                         |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| Step-by-step purchase guidance             | `/satin-alma-rehberi`, home shortcuts, report buyer-decision next-step cards                             |
+| Official record verification               | `/resmi-sorgu-rehberi`, report official-check link, final checklist                                      |
+| Independent expertise and notary direction | `/yakinimdaki-hizmetler?kategori=ekspertiz`, `servis`, `noter`; report city/service/notary cards         |
+| Repair and maintenance cost awareness      | `/onarim-maliyeti`, report negotiation CTA, repair-cost estimator                                        |
+| Why each term matters                      | `BUYER_DECISION_GUIDE`, `BUYER_EDUCATION_NOTES`, report `Araç alırken bunlar neden önemli?`, PDF payload |
+| Seller-question understanding              | Expandable report seller question cards with `Neden sorulur?` and `Cevap ne anlatır?`                    |
+| Hidden damage and false clean claims       | damage rules, seller clean-damage claim handling, TRAMER/boya/expertise verification copy                |
+| Photo uncertainty                          | free photo AI guardrails, non-vehicle rejection, photo-quality/retake guidance                           |
 
 ## Source Types Used
 

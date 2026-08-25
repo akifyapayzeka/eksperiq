@@ -7,8 +7,20 @@ export default function PrivacyPage() {
     <InfoPage title="Gizlilik">
       <p>{appConfig.privacy}</p>
       <p>
-        <strong>Kullanıcı hesabı yok.</strong> Uygulamada üyelik, giriş veya profil bilgisi bulunmaz; reklam takibi,
-        üçüncü taraf analytics kodu veya çerez bannerı gerektirecek bir izleyici de yoktur.
+        <strong>Hesap oluşturma isteğe bağlıdır.</strong> Uygulamayı hesap açmadan da tamamen kullanabilirsiniz. Hesap
+        yalnızca Pro/Pro+ abonelik satın alma ve aynı aboneliği birden fazla cihazda kullanabilmek için sunulur. Hesap
+        oluşturursanız e-posta adresiniz ve adınız/soyadınız, kimlik doğrulama sağlayıcımız Supabase Authentication
+        üzerinden saklanır; başka hiçbir amaçla (reklam, izleme, profil oluşturma) kullanılmaz. Araç, analiz,
+        hatırlatma, gider ve sağlık karnesi kayıtlarınız hesabınıza değil, her zaman bu cihaza kaydedilir — bu kayıtlar
+        geliştirici sunucusunda hesabınızla ilişkilendirilmiş halde tutulmaz. Reklam takibi, üçüncü taraf analytics kodu
+        veya çerez bannerı gerektirecek bir izleyici yoktur.
+      </p>
+      <p>
+        <strong>Hesabınızı silme.</strong> Profil ekranındaki &ldquo;Hesabımı sil&rdquo; ile hesabınızı (e-posta,
+        ad/soyad, giriş bilgileriniz) kalıcı olarak silebilirsiniz; bu işlem geri alınamaz ve bu cihazdaki yerel
+        kayıtlarınızı da temizleyip oturumunuzu kapatır. Hesabınızı silmek App Store aboneliğinizi otomatik olarak iptal
+        etmez — aktif bir aboneliğiniz varsa Ayarlar &gt; Abonelikler veya uygulama içindeki &ldquo;Abonelikleri
+        Yönet&rdquo; bağlantısı üzerinden ayrıca iptal etmeniz gerekir.
       </p>
       <p>
         <strong>Fotoğraftan Hasar Analizi.</strong> Bu özelliği kullanırsanız seçtiğiniz fotoğraf önce cihazınızda
@@ -28,7 +40,9 @@ export default function PrivacyPage() {
         bağlantı yapıştırıp &ldquo;İlanı analiz et&rdquo;e bastığınızda çalışır. İşlem sürerken uygulamayı arka plana
         alırsanız (ana ekrana dönme/kilitleme) analiz kısa bir süre daha devam edebilir ve tamamlandığında cihazınıza
         yerel bir bildirim gönderilir — bu bildirim için izin isteği yalnızca bu özelliği ilk kullandığınızda gösterilir
-        ve tamamen isteğe bağlıdır, reddederseniz özellik yine de çalışmaya devam eder.
+        ve tamamen isteğe bağlıdır, reddederseniz özellik yine de çalışmaya devam eder. İlan metninde satıcıya ait
+        telefon, e-posta veya plaka gibi bilgiler geçiyorsa, bu bilgiler OpenRouter&apos;a gönderilmeden hemen önce
+        otomatik olarak kaldırılır.
       </p>
       <p>
         <strong>AI karar destek notu.</strong> Sonuç ekranındaki isteğe bağlı bu özelliği açarsanız; aracınızın
@@ -58,22 +72,32 @@ export default function PrivacyPage() {
         zaman saklanmaz; bu sayaçlar kullanıcı kimliğiyle ilişkilendirilemez ve kısa süre sonra kendiliğinden silinir.
       </p>
       <p>
-        <strong>Yurt dışı veri aktarımı.</strong> OpenRouter (AI işleme) ve Upstash (sunucu tarafı veritabanı altyapısı)
-        yurt dışında barındırılan hizmetlerdir; yukarıda açıklanan sınırlı veriler bu sağlayıcıların sunucularında
-        işlenebilir. Uygulama bu sağlayıcılar dışında hiçbir üçüncü tarafla veri paylaşmaz ve verinizi satmaz.
+        <strong>Konum.</strong> Masraf tahmini ekranındaki &ldquo;Konumuma göre tahmin et&rdquo; ve Yakınımdaki
+        Hizmetler ekranı gibi isteğe bağlı özellikler, yalnızca siz açıkça başlattığınızda cihazınızdan anlık konum
+        ister. Konumunuz şehrinizi bulmak için OpenStreetMap&apos;e, yakındaki ekspertiz/noter/servis önerileri için
+        Google Places&apos;a geçici olarak iletilir; sunucumuzda kalıcı olarak saklanmaz, reklam veya izleme amacıyla
+        kullanılmaz.
       </p>
       <p>
-        <strong>Verilerinizi yönetme ve silme.</strong> Analizlerim ekranındaki kayıtları tek tek silebilirsiniz.
-        Araç, hatırlatma, gider ve sağlık karnesi kayıtları bu cihazda tutulur; uygulamayı kaldırdığınızda veya cihazın
+        <strong>Yurt dışı veri aktarımı.</strong> OpenRouter (AI işleme), Upstash (sunucu tarafı veritabanı altyapısı),
+        OpenStreetMap ve Google Places (konum tabanlı öneriler) yurt dışında barındırılan hizmetlerdir; yukarıda
+        açıklanan sınırlı veriler bu sağlayıcıların sunucularında işlenebilir. Uygulama bu sağlayıcılar ve Supabase
+        (hesap kimlik doğrulama) dışında hiçbir üçüncü tarafla veri paylaşmaz ve verinizi satmaz.
+      </p>
+      <p>
+        <strong>Verilerinizi yönetme ve silme.</strong> Analizlerim ekranındaki kayıtları tek tek silebilirsiniz. Araç,
+        hatırlatma, gider ve sağlık karnesi kayıtları bu cihazda tutulur; uygulamayı kaldırdığınızda veya cihazın
         uygulama verilerini temizlediğinizde yerel kayıtlar da silinir. Varsa yukarıda açıklanan sunucu tarafı bildirim
         kopyaları, uygulama uzun süre senkronize olmadığında otomatik süre sonunda temizlenir.
       </p>
       <p>
         <strong>KVKK kapsamındaki haklarınız.</strong> 6698 sayılı Kişisel Verilerin Korunması Kanunu&apos;nun 11.
         maddesi uyarınca; verilerinizin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme,
-        düzeltilmesini veya silinmesini isteme ve işlemeye itiraz etme haklarına sahipsiniz. Uygulamada hesap
-        olmadığından cihazdaki kayıtlar büyük ölçüde cihazınızda kalır; sunucu tarafında tutulan sınırlı bildirim
-        kopyası için ek bir talebiniz olursa{" "}
+        düzeltilmesini veya silinmesini isteme ve işlemeye itiraz etme haklarına sahipsiniz. Araç ve analiz kayıtlarınız
+        cihazınızda kaldığından bu haklarınızı büyük ölçüde doğrudan, aracı olmadan kullanabilirsiniz. Hesap
+        bilgileriniz (e-posta, ad/soyad) için Profil ekranındaki &ldquo;Hesabımı sil&rdquo; ile silme hakkınızı doğrudan
+        kullanabilirsiniz; düzeltme veya bilgi talebi ile sunucu tarafında tutulan sınırlı bildirim kopyası için ek bir
+        talebiniz olursa{" "}
         <Link href="/geri-bildirim" className="font-medium text-accent underline">
           geri bildirim sayfasından
         </Link>{" "}

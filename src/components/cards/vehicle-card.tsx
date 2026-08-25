@@ -8,7 +8,13 @@ function vehicleTitle(vehicle: VehicleProfile): string {
 }
 
 function vehicleSpec(vehicle: VehicleProfile): string {
-  return [vehicle.brand, vehicle.model, vehicle.engineSize, vehicle.trim, vehicle.modelYear ? String(vehicle.modelYear) : null]
+  return [
+    vehicle.brand,
+    vehicle.model,
+    vehicle.engineSize,
+    vehicle.trim,
+    vehicle.modelYear ? String(vehicle.modelYear) : null,
+  ]
     .filter(Boolean)
     .join(" ");
 }
@@ -60,7 +66,10 @@ export function VehicleCard({
             {vehicle.fuel ? (
               <span className="flex items-center gap-1">
                 <Fuel aria-hidden="true" className="h-3.5 w-3.5" />
-                {[VEHICLE_FUEL_LABELS[vehicle.fuel], vehicle.transmission ? VEHICLE_TRANSMISSION_LABELS[vehicle.transmission] : null]
+                {[
+                  VEHICLE_FUEL_LABELS[vehicle.fuel],
+                  vehicle.transmission ? VEHICLE_TRANSMISSION_LABELS[vehicle.transmission] : null,
+                ]
                   .filter(Boolean)
                   .join(" / ")}
               </span>
