@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import type { Session, User } from "@supabase/supabase-js";
+import type { AuthError, Session, User } from "@supabase/supabase-js";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { appConfig } from "@/lib/constants/app";
 
@@ -21,8 +21,37 @@ export type AuthState = {
 
 const AuthContext = createContext<AuthState | null>(null);
 
-function toTurkishError(message: string): string {
-  const normalized = message.toLowerCase();
+/**
+ * Matches on Supabase's stable `error.code` first — confirmed against real
+ * production auth logs that a reviewer-like session hit both
+ * "email_not_confirmed" (signing in before confirming) and
+ * "over_email_send_rate_limit" via its per-request-cooldown variant
+ * ("For security purposes, you can only request this after N seconds"),
+ * which doesn't contain the substring "rate limit" and previously fell
+ * through to the generic fallback below. Message-substring matching is kept
+ * only as a fallback for older SDK/server responses that omit `code`.
+ */
+function toTurkishError(error: AuthError): string {
+  switch (error.code) {
+    case "user_already_exists":
+    case "email_exists":
+      return "Bu e-posta ile zaten bir hesap var. Giriş yapmayı deneyin.";
+    case "invalid_credentials":
+      return "E-posta veya şifre hatalı.";
+    case "weak_password":
+      return "Şifre en az 6 karakter olmalı.";
+    case "email_not_confirmed":
+      return "E-posta adresinizi henüz onaylamadınız. Gelen kutunuzdaki onay bağlantısına tıklayıp tekrar giriş yapın.";
+    case "over_email_send_rate_limit":
+      return "Az önce bir doğrulama e-postası istediniz. Birkaç dakika bekleyip tekrar deneyin.";
+    case "over_request_rate_limit":
+      return "Çok fazla deneme yapıldı. Birazdan tekrar deneyin.";
+    case "email_address_invalid":
+      return "Geçerli bir e-posta adresi girin.";
+    default:
+      break;
+  }
+  const normalized = error.message.toLowerCase();
   if (normalized.includes("already registered") || normalized.includes("already exists")) {
     return "Bu e-posta ile zaten bir hesap var. Giriş yapmayı deneyin.";
   }
@@ -32,7 +61,10 @@ function toTurkishError(message: string): string {
   if (normalized.includes("password") && normalized.includes("6")) {
     return "Şifre en az 6 karakter olmalı.";
   }
-  if (normalized.includes("rate limit")) {
+  if (normalized.includes("not confirmed")) {
+    return "E-posta adresinizi henüz onaylamadınız. Gelen kutunuzdaki onay bağlantısına tıklayıp tekrar giriş yapın.";
+  }
+  if (normalized.includes("rate limit") || normalized.includes("security purposes")) {
     return "Çok fazla deneme yapıldı. Birazdan tekrar deneyin.";
   }
   if (normalized.includes("email") && normalized.includes("invalid")) {
@@ -77,7 +109,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             emailRedirectTo: `${appConfig.productionUrl}/giris?confirmed=1`,
           },
         });
-        if (error) return { ok: false, message: toTurkishError(error.message) };
+        if (error) return { ok: false, message: toTurkishError(error) };
+        // Anti-email-enumeration behavior: signing up with an email that
+        // already has a CONFIRMED account returns a fake success (no error,
+        // session:null, no email actually sent) instead of revealing the
+        // account exists. Confirmed against production: the only reliable
+        // signal is an empty identities array — a real new signup always
+        // has at least one. Without this check the caller would show
+        // "check your e-mail" for an e-mail that will never receive one.
+        if (data.user && data.user.identities?.length === 0) {
+          return { ok: false, message: "Bu e-posta ile zaten bir hesap var. Giriş yapmayı deneyin." };
+        }
         // Supabase requires e-mail confirmation on this project, so signUp
         // succeeds without ever returning a session — the caller must not
         // treat this the same as an active login (it isn't one yet).
@@ -86,7 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async signIn(email: string, password: string) {
         if (!supabase) return { ok: false, message: "Hesap sistemi şu anda yapılandırılmamış." };
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) return { ok: false, message: toTurkishError(error.message) };
+        if (error) return { ok: false, message: toTurkishError(error) };
         return { ok: true, requiresEmailConfirmation: false };
       },
       async signOut() {
