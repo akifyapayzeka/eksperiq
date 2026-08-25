@@ -1,98 +1,58 @@
-# App Review Guideline 2.1 Response Draft
+# App Review Response Draft (Build 65 — 25 Ağustos 2026 reddine yanıt taslağı)
 
-Use this for App Store Connect > App Review Information > Notes, and attach or link the screen recording requested by Apple.
+**Bu dosya bir taslaktır — App Store Connect'e henüz gönderilmedi.** Kullanmadan önce: (1) demo hesap kimlik bilgilerini bu dosyaya EKLEMEYİN, ayrıca güvenli şekilde iletilecek; (2) test edilen cihaz/iOS sürümünü gerçek bilgiyle doldurun; (3) ekran kaydını ekleyin.
 
 ## Screen Recording Checklist
 
-Record on a physical iPhone running the latest available iOS version. Start recording before launching EksperIQ.
+Record on a physical iPhone/iPad running the latest available iOS version. Start recording before launching EksperIQ.
 
 Recommended flow:
 
-1. Launch EksperIQ.
-2. Continue without creating an account if the sign-in screen appears.
-3. Open the Analysis tab.
-4. Choose "Araç satın alacağım".
-5. Paste a public vehicle listing URL, start listing analysis, and show the generated report: risk score, buyer decision, seller questions, inspection/checklist notes, chronic issue section, listing photos, and nearby service guidance.
-6. Return to Analysis and choose "Kendi aracımı analiz edeceğim".
-7. Select or capture a vehicle photo and run the free photo analysis flow.
-8. Open Garage and show maintenance/payment calendar.
-9. Open Profile/Plans and show Free, Pro, and Pro+ listing-analysis limits. If the reviewer needs to test purchase, use Apple's sandbox/TestFlight environment; no separate developer demo credentials are required.
-10. If camera/photo/notification prompts appear, show that they are user-initiated and tied to photo analysis or maintenance reminders only.
+1. Launch EksperIQ (fresh install or after force-quit).
+2. On the onboarding screen, choose "Giriş yap" and sign in with the demo account credentials.
+3. Open the Analysis tab, paste a public vehicle listing URL (or use the manual form), generate the report, and show: risk score, seller questions, inspection checklist, chronic issue notes, listing photos.
+4. Open Profile ("Profil") and show the subscription paywall: all four products (Pro Monthly, Pro Yearly, Pro+ Monthly, Pro+ Yearly) with real title, duration, localized price, Privacy Policy link, Terms of Use link, auto-renewal disclosure, and Restore Purchases button.
+5. Attempt a purchase (Sandbox — no real charge during review) and show the resulting entitlement.
+6. Show Restore Purchases working.
+7. Show Profile > Account > "Hesabımı sil" (account deletion) is reachable and functional — do not complete it on the shared demo account unless a fresh one is available afterward.
+8. Open the free photo analysis flow.
+9. Open the Support page (Profil > Destek) and show the visible support email.
 
-## Copy/Paste Reply
+## Copy/Paste Reply Draft
 
 Hello App Review Team,
 
-Thank you for reviewing EksperIQ. Below is the additional information requested under Guideline 2.1.
+Thank you for the detailed feedback on EksperIQ (reviewed on iPad Air 11-inch (M3), iPadOS 26.6.1, build 1.0 (61)). We've addressed each point below in build 1.0 (65).
 
-1. Screen recording
+**1. Guideline 2.1(a) — Information Needed / demo account**
 
-We have attached/provided a screen recording captured on a physical iPhone running the latest available iOS version. The recording starts with launching the app and demonstrates the typical user flow through the core features:
+We've created a persistent demo account with full access to the app, including the subscription purchase flow and account deletion. Credentials are provided in App Store Connect's App Review Information fields (not repeated here). No plan tier blocks access to the core analysis features — sign-in is only needed to reach subscription purchase and account deletion, both reachable with the demo account.
 
-- Opening EksperIQ
-- Continuing without account creation
-- Creating a used-car purchase analysis from a public listing URL or manual vehicle information
-- Viewing the generated decision-support report, including risk score, buyer decision, seller questions, inspection checklist, chronic issue notes, listing photos, and nearby service guidance
-- Running the free vehicle photo analysis flow
-- Opening Garage to view maintenance and payment calendar features
-- Opening the subscription/plans screen to show Free, Pro, and Pro+ listing-analysis limits
-- Showing user-initiated camera/photo/notification permission flows where applicable
+**2. Guideline 2.1(a) — App Completeness / signup error**
 
-Screen recording link/attachment: [ADD SCREEN RECORDING LINK OR ATTACHMENT]
+We root-caused the signup issue: our sign-up flow requires e-mail confirmation, so a successful signup correctly returns no active session yet — but our UI incorrectly treated that as "signed in" and routed the user to a screen that then looked exactly like a failed signup (no session existed, so it showed the sign-in screen again with no explanation). Build 65 fixes this: after signup, the user now sees an explicit "check your e-mail to confirm" message instead of a misleading blank state. We verified the fix against our production authentication backend.
 
-2. Tested devices and operating systems
+**3. Guideline 2.1(b) — In-App Purchase**
 
-The app was tested before submission on:
+All four subscription products (`com.eksperiq.app.pro.monthly`, `.pro.yearly`, `.proplus.monthly`, `.proplus.yearly`) are configured in the same subscription group with the correct levels (Pro+ above Pro) and are included in this version's review submission along with app version 1.0.
 
-- [ADD DEVICE MODEL], iOS [ADD IOS VERSION], physical device, TestFlight build 59
+**4. Guideline 3.1.2(c)**
 
-3. App functions, target audience, problem solved, and value
+The in-app purchase screen displays each subscription's title, duration, localized price (loaded live from StoreKit — never hard-coded), our Privacy Policy link, Terms of Use link, and a Restore Purchases button, along with the required auto-renewal/cancellation disclosure. Our Privacy Policy is at https://eksperiq.vercel.app/gizlilik.
 
-EksperIQ is a Turkish used-car decision-support app for people who are considering buying a second-hand vehicle. The app helps users understand a vehicle listing before purchase by turning listing information, user-entered vehicle details, and optional vehicle photos into a structured pre-purchase report.
+**5. Guideline 1.5 — Support URL**
 
-The app is designed especially for users who are not car experts. It explains what should be checked before buying, what questions should be asked to the seller, which issues should be verified during an independent inspection, and which known chronic issue signals may be relevant to the vehicle's brand/model/year/engine information.
+We've replaced our Support URL with a genuine end-user support page: https://eksperiq.vercel.app/destek — it shows a visible, clickable support e-mail, guidance for bug reports/subscription questions/privacy requests, an account-deletion pointer, and links to our Privacy Policy and Terms of Use.
 
-EksperIQ does not replace a professional vehicle inspection, authorized service check, official record check, legal review, or the user's final purchase decision. It is a decision-support and educational pre-purchase tool only.
+A screen recording covering the full flow above is attached to this submission.
 
-4. Setup and access instructions
+Thank you for your time reviewing EksperIQ.
 
-No account is required to review the app's main features.
+## Tested Devices and Operating Systems
 
-Recommended review flow:
+- [ADD DEVICE MODEL], iOS/iPadOS [ADD VERSION], physical device, TestFlight build 65
+- **Not:** Bu geliştirme oturumu bir Linux sandbox içinde çalıştı — fiziksel bir iOS/iPadOS cihazı yoktu. Signup düzeltmesi gerçek production Supabase backend'ine karşı canlı bir Node testiyle doğrulandı (kod/ağ düzeyinde), ancak gerçek cihazda/gerçek WKWebView'da elle test edilmedi. Yukarıdaki cihaz satırı, App Store Connect'e gönderilmeden önce gerçek bir cihazda manuel doğrulama yapıldıktan sonra doldurulmalıdır.
 
-- Launch the app.
-- Continue without signing in if prompted.
-- Open the Analysis tab.
-- Choose "Araç satın alacağım" to analyze a vehicle listing or manually enter vehicle information.
-- Generate a report and review the risk score, buyer decision, seller questions, inspection checklist, chronic issue notes, listing photos, and nearby service suggestions.
-- Choose "Kendi aracımı analiz edeceğim" to test the free vehicle photo analysis flow.
-- Open Garage to view maintenance/payment calendar features.
-- Open Profile/Plans to view Free, Pro, and Pro+ listing-analysis limits.
+## External Services
 
-If a public listing URL is not available during review, the manual vehicle form can be used to generate the same type of report.
-
-No demo login credentials are required.
-
-5. External services, tools, and platforms
-
-EksperIQ uses the following external services:
-
-- OpenRouter: temporary AI processing for listing normalization, report support text, and optional photo pre-checks. User action is required before this processing. AI output is framed as decision support, not a definitive inspection result.
-- Vercel Serverless Functions: backend API endpoints for AI normalization, rate limiting, and nearby service lookup.
-- Upstash Redis: anonymous rate-limit counters using non-identifying hashed installation/request data.
-- Google Places API: nearby expertise/service/notary search results when users request local service guidance.
-- Apple StoreKit 2: Pro/Pro+ subscription purchase and restore flows.
-- Apple local notifications / Capacitor Local Notifications: optional on-device reminders for maintenance/payment calendar items, only after user action.
-- Capacitor Camera/Photos: user-initiated vehicle photo capture or photo selection for free photo analysis.
-
-6. Regional differences
-
-The app functions consistently across all regions where it is available. Its language and vehicle-market content are focused on Turkey and Turkish used-car buying workflows.
-
-7. Regulated industry / protected third-party material
-
-EksperIQ is not a financial, legal, insurance, government, or professional vehicle inspection service. It does not certify vehicles, guarantee vehicle condition, or provide official inspection results.
-
-The app may process publicly visible vehicle listing information submitted by the user only to help the user organize and understand the listing for personal pre-purchase decision support. EksperIQ is not affiliated with listing platforms and does not claim ownership of third-party listing content.
-
-The app clearly states that all vehicle condition, damage, mileage, price, maintenance, and seller claims must be verified with an independent professional inspection, service check, and official records before purchase.
+Unchanged from the previous submission: OpenRouter (temporary AI processing, user-initiated), Vercel Serverless Functions, Upstash Redis (anonymous rate limiting), Google Places API + OpenStreetMap Nominatim (optional location-based suggestions), Supabase Authentication (optional account, Pro/Pro+ subscription management), Apple StoreKit 2 (subscription purchase/restore), Capacitor Camera/Photos/Local Notifications (user-initiated only).
