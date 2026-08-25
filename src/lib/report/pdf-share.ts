@@ -24,6 +24,7 @@ export function buildReportPayload(result: AnalysisResult) {
     findings: result.findings,
     strengths: result.strengths,
     costs: result.costs,
+    negotiation: result.negotiation,
     knownIssues: result.knownIssues,
     completeness: result.completeness,
     listingImages: result.listingImages,

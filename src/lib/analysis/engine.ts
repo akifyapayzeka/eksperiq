@@ -10,6 +10,7 @@ import { calculateDataCompleteness } from "./completeness";
 import { riskLevel, scoreFindings, totalScore } from "./scoring";
 import { costSignals, dynamicInspectionFocus, finalChecklist, priorityActions, strengths } from "./recommendations";
 import { generateSellerQuestions } from "./questions";
+import { buildNegotiationGuidance } from "./negotiation";
 import type { AnalysisFinding, AnalysisResult } from "./types";
 
 const severityOrder = {
@@ -52,6 +53,7 @@ export function analyzeVehicle(input: VehicleFormData): AnalysisResult {
     mileage: evaluateMileage(input),
     completeness,
     knownIssues: findChronicIssues(input).issues,
+    negotiation: buildNegotiationGuidance(input.price, findings, costs, completeness),
     generatedAt: new Date().toISOString(),
   };
 }

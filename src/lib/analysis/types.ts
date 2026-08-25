@@ -50,6 +50,24 @@ export type ListingImageData = {
   dataUrl: string;
 };
 
+/**
+ * Bu araç piyasada ne eder sorusuna DEĞİL — bu ilanın kendi fiyatından ne
+ * kadar aşağı inilmesi makul olduğuna cevap verir. Benzer ilanlarla canlı
+ * piyasa karşılaştırması yapmaz (uygulamanın hiçbir yerinde böyle bir veri
+ * kaynağı yok — sahibinden.com/arabam.com veri merkezi IP'lerinden gelen
+ * istekleri reddediyor), yalnızca BU ilandaki bulgulara (hasar/boya/değişen,
+ * KM-yaş dengesizliği, eksik evrak vb.) dayalı yerel, deterministik bir
+ * pazarlık payı hesaplar.
+ */
+export type NegotiationGuidance = {
+  listingPrice: number;
+  discountPercentLow: number;
+  discountPercentHigh: number;
+  suggestedOfferLow: number;
+  suggestedOfferHigh: number;
+  reasons: string[];
+};
+
 export type AnalysisResult = {
   input: VehicleFormData;
   listingImages?: string[];
@@ -82,5 +100,6 @@ export type AnalysisResult = {
    * etkilemez. Eşleşme bulunamazsa boş dizi.
    */
   knownIssues: MatchedIssue[];
+  negotiation: NegotiationGuidance;
   generatedAt: string;
 };
