@@ -14,7 +14,7 @@ const requiredSnippets = [
   "OpenRouter",
   "Fotoğraf erişimi",
   "İlan linki normalizasyonu",
-  "Destek URL'si: `https://eksperiq.vercel.app/geri-bildirim`",
+  "Destek URL'si: `https://eksperiq.vercel.app/destek`",
 ];
 
 const forbiddenPositiveClaims = [

@@ -80,7 +80,7 @@ Güncel Apple yükleme gerekliliği: App Store Connect'e gönderilecek build App
 - Bundle ID önerisi: `com.eksperiq.app`
 - Kategori önerisi: Utilities veya Productivity
 - Yaş derecelendirmesi: Düşük riskli bilgi/karar destek uygulaması olarak doldurulmalı; finansal, tıbbi veya hukuki danışmanlık gibi işaretlenmemeli.
-- Destek URL'si: `https://eksperiq.vercel.app/geri-bildirim`
+- Destek URL'si: `https://eksperiq.vercel.app/destek`
 - Pazarlama URL'si: `https://eksperiq.vercel.app`
 - Gizlilik politikası URL'si: `https://eksperiq.vercel.app/gizlilik`
 - Ekran görüntüleri: `npm run screenshots` ile `test-results/screenshots` altında ana sayfa, analiz formu, sonuç raporu, analizlerim ve offline ekran üretilir.
