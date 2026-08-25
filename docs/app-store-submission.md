@@ -50,13 +50,13 @@ Recommended review flow:
 
 1. Open the app. On first launch you'll see an onboarding screen offering "Üye ol / Giriş yap" (sign up / sign in) or "Üye olmadan devam et" (continue without an account). Sign in with the demo credentials above ("Giriş yap" tab).
 2. On the Analysis tab, either paste a public vehicle listing URL or fill the manual vehicle form, then generate the report (risk score, seller questions, inspection checklist, chronic issue notes, photo section, disclaimer).
-3. Open Profile ("Profil") to reach the subscription paywall. All four subscription products (Pro Monthly, Pro Yearly, Pro+ Monthly, Pro+ Yearly) are enabled in this build with real App Store Connect pricing, and each shows title, duration, price, auto-renewal terms, Privacy Policy, Terms of Use and Restore Purchases. Purchases use the App Store Sandbox automatically during review — no real charge occurs.
+3. Open Profile ("Profil") to reach the subscription paywall. Once the App Store Connect subscription metadata blockers below are resolved and the purchase flow is enabled for this build **[MANUAL STEP REQUIRED — not yet enabled]**, all four subscription products (Pro Monthly, Pro Yearly, Pro+ Monthly, Pro+ Yearly) will show with real App Store Connect pricing, title, duration, price, auto-renewal terms, Privacy Policy, Terms of Use and Restore Purchases. Purchases use the App Store Sandbox automatically during review — no real charge occurs.
 4. Account deletion is available from Profile > Account > "Hesabımı sil" (two-step confirmation), which permanently deletes the demo account's email/name from our authentication provider (Supabase). Please do not use this on the shared demo account during review — a fresh demo account can be provided if deletion testing is needed.
 5. Open the photo analysis flow if desired; photo analysis is free and clearly framed as a non-definitive visual pre-check.
 
 The app does not guarantee that a vehicle is safe, undamaged, legally clean or suitable to purchase. It does not replace professional vehicle inspection, service checks, official record checks or legal review. Listing import uses visible listing content from the user's submitted URL and may process text through OpenRouter for temporary normalization. Vehicle/analysis records are stored locally on-device; only the optional account's email and name are stored server-side (Supabase Authentication), used solely to manage the Pro/Pro+ subscription and let the user sign in on another device.
 
-A screen recording covering app launch → demo sign-in → paywall (all four products, real price/duration) → Privacy Policy → Terms/EULA → Restore Purchases → main feature access is attached to this submission.
+**[MANUAL STEP REQUIRED]** A screen recording covering app launch → demo sign-in → paywall (all four products, real price/duration) → Privacy Policy → Terms/EULA → Restore Purchases → main feature access is not yet attached to this submission — see the checklist in `docs/app-review-2-1-response.md`.
 
 Guideline 2.1 additional information response draft: `docs/app-review-2-1-response.md`
 
