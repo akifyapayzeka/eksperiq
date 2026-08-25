@@ -449,9 +449,9 @@ function answeredBuyerQuestions(result: AnalysisResult): Array<{ question: strin
     ? "Hasar/boya/değişen tarafında kontrol edilmesi gereken bulgular var."
     : "Girilen veriyle ağır hasar tarafında belirgin bulgu az; yine de TRAMER ve boya ölçümü şart.";
   const priceAnswer =
-    result.negotiation.listingPrice > 0
-      ? `İstenen fiyat ${formatCurrency(result.negotiation.listingPrice)}. Durum bazlı makul pazarlık aralığı: ${formatCurrency(result.negotiation.suggestedOfferLow)} - ${formatCurrency(result.negotiation.suggestedOfferHigh)} (detay: Alım Planı sekmesi).`
-      : "İlanda fiyat net alınamadı; fiyat olmadan pazarlık aralığı hesaplanamaz.";
+    result.input.price > 0
+      ? `İstenen fiyat ${formatCurrency(result.input.price)}; pazarlık gerekçelerini Alım Planı sekmesinde kullanın.`
+      : "İlanda fiyat net alınamadı; fiyat olmadan piyasa karşılaştırması ve pazarlık sağlıklı olmaz.";
 
   return [
     { question: "Bu araç alınır mı?", answer: buyerDecision(result).headline },
@@ -463,6 +463,23 @@ function answeredBuyerQuestions(result: AnalysisResult): Array<{ question: strin
     { question: "Boya/değişen/tramer riskli mi?", answer: damageAnswer },
     { question: "Fiyat pazarlığı yapılır mı?", answer: priceAnswer },
   ];
+}
+
+function negotiationReasons(result: AnalysisResult): string[] {
+  const reasons = [
+    ...result.findings
+      .filter((finding) => finding.severity !== "low")
+      .slice(0, 3)
+      .map((finding) => finding.title),
+    ...result.costs
+      .filter((cost) => cost.level !== "Düşük" && cost.level !== "Yakın tarihli")
+      .slice(0, 2)
+      .map((cost) => `${cost.item}: ${cost.level}`),
+  ];
+  if (result.completeness.missing.length) {
+    reasons.push(`Eksik bilgi: ${result.completeness.missing.slice(0, 3).join(", ")}`);
+  }
+  return Array.from(new Set(reasons)).slice(0, 6);
 }
 
 function sellerMessage(result: AnalysisResult): string {
@@ -770,7 +787,7 @@ export function ResultClient() {
     findingFilter === "all" ? result.findings : result.findings.filter((finding) => finding.severity === findingFilter);
   const decision = buyerDecision(result);
   const answeredQuestions = answeredBuyerQuestions(result);
-  const negotiationItems = result.negotiation.reasons;
+  const negotiationItems = negotiationReasons(result);
   const sellerMessageText = sellerMessage(result);
 
   return (
@@ -1394,30 +1411,11 @@ export function ResultClient() {
             <SectionCard
               accent="warning"
               id="rapor-pazarlik"
-              title="Pazarlık payı önerisi"
-              description="İlanın kendi fiyatına göre, bu ilandaki bulgulara dayalı yaklaşık bir pazarlık aralığıdır — benzer ilanlarla canlı piyasa karşılaştırması değildir."
+              title="Pazarlık gerekçeleri"
+              description="Fiyat konuşurken somut ve ölçülebilir başlıklarla ilerleyin."
             >
-              {result.negotiation.listingPrice > 0 ? (
-                <div className="rounded-lg border border-warning/30 bg-warning/10 p-4">
-                  <p className="text-sm font-medium text-foreground">
-                    İlan fiyatı: {formatCurrency(result.negotiation.listingPrice)}
-                  </p>
-                  <p className="mt-2 text-2xl font-semibold text-foreground">
-                    {formatCurrency(result.negotiation.suggestedOfferLow)} -{" "}
-                    {formatCurrency(result.negotiation.suggestedOfferHigh)}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Durum bazlı makul pazarlık payı: %{Math.round(result.negotiation.discountPercentLow * 100)}-%
-                    {Math.round(result.negotiation.discountPercentHigh * 100)}
-                  </p>
-                </div>
-              ) : (
-                <p className="rounded-lg border border-border bg-muted p-4 text-sm text-muted-foreground">
-                  İlanda fiyat bilgisi girilmediği için pazarlık aralığı hesaplanamadı.
-                </p>
-              )}
               {negotiationItems.length ? (
-                <ul className="mt-3 grid gap-2">
+                <ul className="grid gap-2">
                   {negotiationItems.map((item) => (
                     <li key={item} className="rounded-lg border border-border bg-card p-3 text-sm leading-6">
                       {item}
@@ -1425,31 +1423,18 @@ export function ResultClient() {
                   ))}
                 </ul>
               ) : (
-                <p className="mt-3 rounded-lg border border-border bg-muted p-4 text-sm text-muted-foreground">
+                <p className="rounded-lg border border-border bg-muted p-4 text-sm text-muted-foreground">
                   Mevcut bilgilerle güçlü bir pazarlık gerekçesi oluşmadı; yine de ekspertiz ve resmi kayıt sonucuna
                   göre fiyatı tekrar değerlendirin.
                 </p>
               )}
-              <p className="mt-3 text-xs leading-5 text-muted-foreground">
-                Bu aralık gerçek zamanlı piyasa verisi kullanmaz, yalnızca bu ilandaki bulgulara dayanır. Benzer
-                ilanlarla kıyaslamak için kendi araştırdığınız fiyatları Araç Değer Takibi&apos;ne girin.
-              </p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <Link
-                  href="/onarim-maliyeti"
-                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-accent px-4 text-sm font-semibold text-accent"
-                >
-                  Tahmini masraf aralığını aç
-                  <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
-                </Link>
-                <Link
-                  href="/arac-deger-takibi"
-                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border px-4 text-sm font-semibold text-foreground/90"
-                >
-                  Araç Değer Takibi&apos;ni aç
-                  <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
-                </Link>
-              </div>
+              <Link
+                href="/onarim-maliyeti"
+                className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-accent px-4 text-sm font-semibold text-accent"
+              >
+                Tahmini masraf aralığını aç
+                <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+              </Link>
             </SectionCard>
             <SectionCard
               accent="danger"

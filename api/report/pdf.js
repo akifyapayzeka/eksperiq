@@ -480,26 +480,6 @@ async function buildPdf(payload) {
     w.y -= 6;
   }
 
-  const negotiation = payload.negotiation && typeof payload.negotiation === "object" ? payload.negotiation : null;
-  if (negotiation && Number(negotiation.listingPrice) > 0) {
-    w.sectionTitle("Pazarlık payı önerisi");
-    w.paragraph(
-      "Benzer ilanlarla canlı piyasa karşılaştırması değildir; yalnızca bu ilandaki bulgulara dayalı yaklaşık bir aralıktır.",
-      { size: 9, color: MUTED, gap: 6 },
-    );
-    const offerLow = Number(negotiation.suggestedOfferLow) || 0;
-    const offerHigh = Number(negotiation.suggestedOfferHigh) || 0;
-    w.paragraph(
-      `İlan fiyatı: ${Number(negotiation.listingPrice).toLocaleString("tr-TR")} TL. Önerilen pazarlık aralığı: ${offerLow.toLocaleString("tr-TR")} - ${offerHigh.toLocaleString("tr-TR")} TL.`,
-      { size: 10, gap: 4 },
-    );
-    const reasons = asStringArray(negotiation.reasons, 6);
-    if (reasons.length) {
-      reasons.forEach((item) => w.paragraph(`•  ${item}`, { gap: 2 }));
-    }
-    w.y -= 6;
-  }
-
   const costs = Array.isArray(payload.costs) ? payload.costs.slice(0, 10) : [];
   if (costs.length) {
     w.sectionTitle("Olası maliyet sinyalleri");
