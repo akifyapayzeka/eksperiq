@@ -5,7 +5,6 @@ import { demoVehicleInput } from "../fixtures/demo-vehicle";
 import { gotoAnalysisForm } from "./helpers/analysis-flow";
 
 const screenshotDir = path.join("test-results", "screenshots");
-const authSkippedKey = "eksperiq:onboarding-auth-skipped";
 const screenshotOnlyCss = `
   nextjs-portal,
   [data-nextjs-toast],
@@ -93,9 +92,6 @@ test("captures release screenshots", async ({ page, isMobile }, testInfo) => {
   await mkdir(screenshotDir, { recursive: true });
   const prefix = testInfo.project.name;
 
-  await page.addInitScript((key) => {
-    window.localStorage.setItem(key, "true");
-  }, authSkippedKey);
   await page.goto("/");
   await prepareScreenshotPage(page);
   await expect(page.getByRole("heading", { name: /Aracınız için bugün ne yapalım/ })).toBeVisible();

@@ -21,7 +21,6 @@ const steps = [
   { label: "Rule feedback package", script: "rule-feedback:check" },
   { label: "Launch readiness", script: "launch:check" },
   { label: "External readiness contract", script: "external:check" },
-  { label: "Supabase env contract", script: "supabase:env-check" },
   { label: "App Store metadata", script: "appstore:metadata-check" },
   { label: "Native build", script: "native:build" },
 ];

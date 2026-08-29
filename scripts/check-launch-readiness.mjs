@@ -19,7 +19,6 @@ const requiredFiles = [
   "docs/testflight-qa-checklist.md",
   "docs/testflight-qa-report.md",
   "docs/ios-repo-strategy.md",
-  "docs/supabase-production.md",
   "docs/ai-production-rollout.md",
   "docs/app-store-submission.md",
   "docs/app-store-privacy-answers.md",
@@ -50,7 +49,6 @@ const requiredFiles = [
   "scripts/triage-user-test-note.mjs",
   "scripts/check-user-test-triage.mjs",
   "scripts/check-photo-ai-production.mjs",
-  "scripts/check-supabase-env.mjs",
   "scripts/check-external-readiness.mjs",
   "scripts/sync-vercel-ai-env.mjs",
   "scripts/audit-launch-checklist.mjs",
@@ -92,7 +90,6 @@ const requiredPackageScripts = [
   "launch:audit",
   "ai:staging-check",
   "ai:photo-prod-check",
-  "supabase:env-check",
   "external:check",
   "vercel:sync-ai-env",
   "launch:check",
@@ -149,12 +146,8 @@ const requiredTextChecks = [
     snippets: ["Xcode", "Signing", "TestFlight", "GitHub macOS 26"],
   },
   {
-    file: "docs/supabase-production.md",
-    snippets: ["Supabase", "RLS", "SUPABASE_SERVICE_ROLE_KEY", "supabase db push"],
-  },
-  {
     file: "docs/all-steps-status.md",
-    snippets: ["iOS Xcode Build Check", "Supabase production schema", "npm run external:check"],
+    snippets: ["iOS Xcode Build Check", "npm run external:check"],
   },
   {
     file: ".github/ISSUE_TEMPLATE/user-test-feedback.md",

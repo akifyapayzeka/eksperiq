@@ -31,7 +31,6 @@ npm run rule-backlog:check
 npm run launch:check
 npm run launch:audit
 npm run appstore:metadata-check
-npm run supabase:env-check
 npm run external:check
 npm run appstore:prepare
 npm run hostinger:package
@@ -129,26 +128,9 @@ Kontrol edilecekler:
 - App Store Connect metinleri `docs/app-store-submission.md` dosyasından kontrol edildi.
 - App Store gizlilik cevapları `docs/app-store-privacy-answers.md` dosyasından kontrol edildi.
 - Metadata güvenlik kontrolü: `npm run appstore:metadata-check`
-- GitHub Apple/Supabase secret durumu: `npm run external:check` (`-- --required` TestFlight öncesi temiz geçmeli)
+- GitHub Apple secret durumu: `npm run external:check` (`-- --required` TestFlight öncesi temiz geçmeli)
 - iOS/TestFlight ön kontrol dosyası: `docs/ios-testflight-preflight.md`
-
-## Supabase
-
-- Production schema: `supabase/migrations/202608090001_initial_production_schema.sql`
-- RLS politikaları kullanıcı verisini `auth.uid() = owner_id` sınırında tutar.
-- Env kontrolü:
-
-```bash
-npm run supabase:env-check
-npm run supabase:env-check -- --required
-```
-
-- Migration yalnızca doğru Supabase project ref doğrulandıktan sonra uygulanmalı:
-
-```bash
-supabase link --project-ref <project-ref>
-supabase db push
-```
+- Uygulamanın kullanıcı hesabı/kimlik doğrulama backend'i yoktur; Pro/Pro+ satın alma tamamen StoreKit üzerinden, Apple ID'ye bağlı çalışır.
 
 ## Geri bildirim ve kural geliştirme
 

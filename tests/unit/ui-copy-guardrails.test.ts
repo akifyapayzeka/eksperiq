@@ -10,9 +10,8 @@ import { join } from "node:path";
  * These complement scripts/check-safe-claims.mjs and
  * scripts/check-sensitive-data.mjs, which cover a different phrase set.
  *
- * Note: the app now has real Supabase accounts for Pro/Pro+ subscription
- * management (src/lib/auth/auth-context.tsx) — "Çıkış yap" is expected UI
- * copy, not a regression, so the older no-accounts guardrail was removed.
+ * The app has no account/login system — Pro/Pro+ purchases are StoreKit-only
+ * and device-local, so "supabase.co" should never appear in source again.
  */
 
 const SRC_ROOT = join(process.cwd(), "src");

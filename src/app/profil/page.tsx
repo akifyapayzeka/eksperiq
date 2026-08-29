@@ -3,8 +3,6 @@ import { ChevronRight, FileText, HelpCircle, Info, MessageSquareText, ShieldChec
 import { appConfig } from "@/lib/constants/app";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
-import { AccountSection } from "@/components/profile/account-section";
-import { ProfileWelcomeBanner } from "@/components/profile/welcome-banner";
 import { ProfilePlansPromoSection } from "@/components/profile/plans-promo-section";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { DisclaimerCard } from "@/components/ui/alert";
@@ -21,10 +19,7 @@ const supportLinks = [
 export default function ProfilePage() {
   return (
     <AppShell>
-      <ProfileWelcomeBanner />
-      <PageHeader eyebrow="Hesap ve Ayarlar" title="Profil ve Ayarlar" />
-
-      <AccountSection />
+      <PageHeader eyebrow="Ayarlar" title="Profil ve Ayarlar" />
 
       <ProfilePlansPromoSection />
 

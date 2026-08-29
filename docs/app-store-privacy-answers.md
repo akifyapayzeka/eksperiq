@@ -4,10 +4,7 @@ Bu dosya App Store Connect gizlilik formu doldurulurken kullanılacak cevapları
 
 ## Veri Toplama
 
-- Kullanıcı hesabı: Opsiyoneldir; yalnızca Pro/Pro+ abonelik ve giriş için kullanılır. Araç kayıtları ve analizler geliştirici sunucusunda kalıcı hesap kaydı olarak tutulmaz.
-- E-posta adresi: Yalnızca kullanıcı hesap oluştururken (Supabase Authentication) girilir; kimlik doğrulama ve girişi yönetmek için kullanılır. Kullanıcı hesabını "Hesabımı sil" ile kalıcı olarak silebilir.
-- Ad/Soyad: Yalnızca kullanıcı hesap oluştururken girilir (Supabase Authentication user_metadata); reklam, izleme veya profil oluşturma amacıyla kullanılmaz.
-- Kullanıcı/hesap ID'si (User ID): Hesap oluşturulduğunda Supabase Authentication kalıcı bir hesap UUID'si atar; bu UUID Supabase'in auth.users tablosunda hesap kaydının birincil anahtarı olarak tutulur ve `api/account/delete.js`'nin doğrulama adımında (auth.getUser → user.id) geliştirici sunucusuna da ulaşır. Bu, Apple'ın "collected" tanımına girer (cihaz dışına gönderiliyor ve hesabın parçası olarak saklanıyor) — kullanılmıyor/paylaşılmıyor olması "toplanmıyor" anlamına gelmez, bu iki ayrı soru. App Store Connect: **User ID = YES, Linked to User = YES, Tracking = NO, Purpose = App Functionality** (yalnızca hesap kimlik doğrulama/silme için; reklam, profil oluşturma veya izleme amacıyla kullanılmaz/paylaşılmaz).
+- Kullanıcı hesabı: Yok. Uygulamanın herhangi bir kullanıcı hesabı/girişi yoktur; e-posta, ad/soyad veya başka bir kimlik bilgisi istenmez ya da saklanmaz. Araç kayıtları ve analizler geliştirici sunucusunda hiçbir kullanıcı kaydıyla ilişkilendirilmiş halde tutulmaz.
 - Konum verisi: Yalnızca kullanıcı "konumuma göre" bir işlem başlatırsa cihazdan anlık alınır (`navigator.geolocation.getCurrentPosition(..., { enableHighAccuracy: false })` — bu W3C API ayarı düşük güç/hız tercih eder ama iOS'un ayrı "Approximate Location" anahtarını devre dışı bırakmaz; kod hiçbir yerde precise/coarse ayrımı yapmıyor, kullanıcı Ayarlar'da Precise Location'ı kapatmadıysa alınan koordinat hassas olabilir). Bu ham koordinatlar `api/geo/reverse-geocode.js` üzerinden OpenStreetMap Nominatim'e ve `api/places/nearby.js` üzerinden Google Places API'ye istek sırasında iletilir; her iki uç nokta da koordinatı hiçbir veritabanına yazmaz, yalnızca üçüncü taraf yanıtını (şehir adı / yakındaki işletmeler) döndürür — istek ömrü dışında tutulmaz. App Store Connect: **Precise Location = YES, Linked to User = NO, Tracking = NO, Purpose = App Functionality**.
 - Kişiler, mikrofon: Erişim istenmez.
 - Kamera, fotoğraflar: Yalnızca kullanıcı fotoğraf ekleme ekranında kamerayla çekim veya galeriden seçim başlattığı anda, tek bir fotoğraf için erişilir; sürekli veya arka planda erişim yoktur. Fotoğraf, AI'ya gönderilmeden önce cihazda küçültülür/yeniden sıkıştırılır ve EXIF meta verileri (konum, cihaz bilgisi) silinir.
@@ -17,7 +14,7 @@ Bu dosya App Store Connect gizlilik formu doldurulurken kullanılacak cevapları
 - Üçüncü taraf analytics: Yok.
 - Geliştirici sunucusuna kalıcı hesap/analiz kaydı: Yok. (Bildirim özelliğiyle ilgili sınırlı, TTL'li istisna için aşağıya bakın.)
 - İlan sitesi scraping: Yok.
-- Ödeme veya abonelik: Pro/Pro+ planları yalnızca ilan linki analiz hakkını genişletmek için kullanılır. Fotoğraf analizi ücretsiz kalır. StoreKit satın alma akışı gerçek App Store ürünleri ve sandbox doğrulaması tamamlanmadan etkinleştirilmez.
+- Ödeme veya abonelik: Pro/Pro+ planları yalnızca ilan linki analiz hakkını genişletmek için kullanılır; satın alma tamamen Apple StoreKit üzerinden, Apple ID'ye bağlı ve cihazda gerçekleşir — geliştirici sunucusuna abonelik durumu gönderilmez. Fotoğraf analizi ücretsiz kalır. StoreKit satın alma akışı gerçek App Store ürünleri ve sandbox doğrulaması tamamlanmadan etkinleştirilmez.
 
 ## Cihazda Geçici/Kalıcı Veri
 
@@ -40,11 +37,11 @@ App Store gizlilik formunda üçüncü taraf AI işleme (OpenRouter) açıkça b
 
 ## Yurt Dışı Veri Aktarımı
 
-OpenRouter (AI işleme), Upstash (sunucu tarafı veritabanı altyapısı, yalnızca Web Push aboneliği için), Supabase (hesap kimlik doğrulama), OpenStreetMap Nominatim (şehir tahmini) ve Google Places (yakındaki ekspertiz/noter/servis önerileri) yurt dışında barındırılan hizmetlerdir. Yukarıda açıklanan sınırlı veriler bu sağlayıcıların sunucularında işlenebilir/geçici olarak tutulabilir. Bu sağlayıcılar dışında hiçbir üçüncü tarafla veri paylaşılmaz.
+OpenRouter (AI işleme), Upstash (sunucu tarafı veritabanı altyapısı, yalnızca Web Push aboneliği için), OpenStreetMap Nominatim (şehir tahmini) ve Google Places (yakındaki ekspertiz/noter/servis önerileri) yurt dışında barındırılan hizmetlerdir. Yukarıda açıklanan sınırlı veriler bu sağlayıcıların sunucularında işlenebilir/geçici olarak tutulabilir. Bu sağlayıcılar dışında hiçbir üçüncü tarafla veri paylaşılmaz.
 
 ## KVKK Kapsamındaki Haklar
 
-Araç, analiz, hatırlatma, gider ve sağlık karnesi kayıtları cihazda tutulduğundan 6698 sayılı KVKK'nın 11. maddesindeki bilgi talep etme, düzeltme, silme ve itiraz haklarının büyük kısmı Analizlerim ekranındaki tekil silme işleviyle doğrudan kullanıcı tarafından, aracı olmadan kullanılabilir. Hesap açan kullanıcılar için e-posta/ad-soyad verisi, Profil ekranındaki "Hesabımı sil" akışıyla (bkz. `api/account/delete.js`, `src/lib/auth/delete-account.ts`) kalıcı olarak silinebilir — bu, Supabase Authentication'daki kullanıcıyı gerçekten siler, hesap silme App Store aboneliğini otomatik iptal etmez (kullanıcı ayrıca "Abonelikleri Yönet" ile iptal etmelidir). Sunucu tarafında tutulan sınırlı Web Push bildirim kopyası, bildirim kapatıldığında veya kayıt silindiğinde otomatik silinir. Ek taleplerin `/destek` sayfasındaki destek e-postasından iletilebileceği belirtilmelidir.
+Araç, analiz, hatırlatma, gider ve sağlık karnesi kayıtları cihazda tutulduğundan ve hiçbir hesap/kimlik verisi saklanmadığından, 6698 sayılı KVKK'nın 11. maddesindeki bilgi talep etme, düzeltme, silme ve itiraz haklarının büyük kısmı Analizlerim ekranındaki tekil silme işleviyle doğrudan kullanıcı tarafından, aracı olmadan kullanılabilir. Sunucu tarafında tutulan sınırlı Web Push bildirim kopyası, bildirim kapatıldığında veya kayıt silindiğinde otomatik silinir. Ek taleplerin `/destek` sayfasındaki destek e-postasından iletilebileceği belirtilmelidir.
 
 Not: "Profil > Verilerim" ekranında dışa/içe aktarma ve tek dokunuşla tümünü silme işlevleri kod düzeyinde mevcuttur (`src/lib/data-management/delete-all.ts`, `export-import.ts`) ancak şu an herhangi bir ekrana bağlı değildir — bu doküman ve kullanıcıya açık gizlilik sayfası bu yüzden yalnızca gerçekten erişilebilir olan Analizlerim tekil silme ve yeni hesap silme akışını referans alır. Bu orphan kod tabanı bir sonraki oturumda ele alınmalı: ya gerçek bir ekrana bağlanmalı ya da kaldırılmalı.
 
