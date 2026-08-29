@@ -3,6 +3,13 @@ import { createPrivateKey, sign } from "node:crypto";
 const API_BASE = "https://api.appstoreconnect.apple.com/v1";
 const BUNDLE_ID = process.env.APP_STORE_BUNDLE_ID || "com.eksperiq.app";
 const SHOULD_CREATE_MISSING = process.argv.includes("--create-missing");
+const SHOULD_FIX_LEVELS = process.argv.includes("--fix-levels");
+const EXPECTED_GROUP_LEVEL = {
+  "com.eksperiq.app.proplus.monthly": 1,
+  "com.eksperiq.app.proplus.yearly": 1,
+  "com.eksperiq.app.pro.monthly": 2,
+  "com.eksperiq.app.pro.yearly": 2,
+};
 const EXPECTED_PRODUCT_IDS = [
   "com.eksperiq.app.pro.monthly",
   "com.eksperiq.app.pro.yearly",
@@ -132,6 +139,7 @@ function summarize(subscription) {
   const productId = productIdOf(subscription);
   const attributes = subscription?.attributes ?? {};
   return {
+    id: subscription?.id ?? null,
     productId,
     state: attributes.state ?? "UNKNOWN",
     name: attributes.name ?? null,
@@ -219,17 +227,29 @@ async function main() {
     );
   }
 
-  const EXPECTED_GROUP_LEVEL = {
-    "com.eksperiq.app.proplus.monthly": 1,
-    "com.eksperiq.app.proplus.yearly": 1,
-    "com.eksperiq.app.pro.monthly": 2,
-    "com.eksperiq.app.pro.yearly": 2,
-  };
   const levelMismatches = EXPECTED_PRODUCT_IDS.filter((productId) => {
     const actual = summaries.get(productId)?.groupLevel;
     return actual != null && actual !== EXPECTED_GROUP_LEVEL[productId];
   });
-  if (levelMismatches.length > 0) {
+
+  if (levelMismatches.length > 0 && SHOULD_FIX_LEVELS) {
+    for (const productId of levelMismatches) {
+      const summary = summaries.get(productId);
+      const expected = EXPECTED_GROUP_LEVEL[productId];
+      if (!summary?.id) fail(`Cannot fix groupLevel for ${productId}: no subscription id found.`);
+      // Only ever patches the groupLevel attribute of an existing subscription
+      // — never touches state, review metadata, or screenshots, and never
+      // creates/submits anything.
+      await request(`/subscriptions/${summary.id}`, token, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: { type: "subscriptions", id: summary.id, attributes: { groupLevel: expected } },
+        }),
+      });
+      console.log(`Fixed groupLevel for ${productId}: ${summary.groupLevel} -> ${expected}`);
+    }
+  } else if (levelMismatches.length > 0) {
     console.log(`WARNING: group level mismatch (expected Pro+ =1, Pro=2): ${levelMismatches.join(", ")}`);
   }
 }

@@ -44,6 +44,7 @@
     "storekit:gate-check": "node scripts/check-storekit-release-gate.mjs",
     "storekit:products-check": "node scripts/check-app-store-subscriptions.mjs",
     "storekit:products-create-missing": "node scripts/check-app-store-subscriptions.mjs --create-missing",
+    "storekit:fix-levels": "node scripts/check-app-store-subscriptions.mjs --fix-levels",
     "chronic-issues:coverage": "node scripts/report-chronic-issues-coverage.mjs",
     "vercel:link-check": "node scripts/check-vercel-project-link.mjs",
     "feedback:outputs-check": "node scripts/check-feedback-output-safety.mjs",
