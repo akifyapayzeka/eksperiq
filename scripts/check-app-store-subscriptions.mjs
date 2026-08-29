@@ -128,6 +128,18 @@ function productIdOf(subscription) {
   return subscription?.attributes?.productId || subscription?.attributes?.subscriptionId || null;
 }
 
+function summarize(subscription) {
+  const productId = productIdOf(subscription);
+  const attributes = subscription?.attributes ?? {};
+  return {
+    productId,
+    state: attributes.state ?? "UNKNOWN",
+    name: attributes.name ?? null,
+    subscriptionPeriod: attributes.subscriptionPeriod ?? null,
+    groupLevel: attributes.groupLevel ?? null,
+  };
+}
+
 async function main() {
   const token = createJwt();
   const apps = await request(`/apps?filter[bundleId]=${encodeURIComponent(BUNDLE_ID)}&limit=1`, token);
@@ -140,11 +152,14 @@ async function main() {
   }
 
   const found = new Set();
+  const summaries = new Map();
   for (const group of groups.data) {
     const subscriptions = await request(`/subscriptionGroups/${group.id}/subscriptions?limit=200`, token);
     for (const item of subscriptions.data ?? []) {
       const productId = productIdOf(item);
-      if (productId) found.add(productId);
+      if (!productId) continue;
+      found.add(productId);
+      summaries.set(productId, { ...summarize(item), groupId: group.id });
     }
   }
 
@@ -186,6 +201,37 @@ async function main() {
   }
 
   console.log(`App Store subscription check passed for ${BUNDLE_ID}: ${EXPECTED_PRODUCT_IDS.join(", ")}`);
+  console.log(
+    `Subscription groups found: ${groups.data.length} (group id(s): ${groups.data.map((g) => g.id).join(", ")})`,
+  );
+  console.log("Per-product state:");
+  for (const productId of EXPECTED_PRODUCT_IDS) {
+    const summary = summaries.get(productId);
+    console.log(
+      `  ${productId}: state=${summary.state} name=${summary.name ?? "(none)"} groupId=${summary.groupId} groupLevel=${summary.groupLevel ?? "(none)"} period=${summary.subscriptionPeriod ?? "(none)"}`,
+    );
+  }
+  const readyStates = new Set(["APPROVED", "WAITING_FOR_REVIEW", "IN_REVIEW", "PENDING_BINARY_APPROVAL"]);
+  const notReady = EXPECTED_PRODUCT_IDS.filter((productId) => !readyStates.has(summaries.get(productId)?.state));
+  if (notReady.length > 0) {
+    console.log(
+      `NOTE: the following products are not yet submitted/approved for review (state not in ${[...readyStates].join("/")}): ${notReady.join(", ")}`,
+    );
+  }
+
+  const EXPECTED_GROUP_LEVEL = {
+    "com.eksperiq.app.proplus.monthly": 1,
+    "com.eksperiq.app.proplus.yearly": 1,
+    "com.eksperiq.app.pro.monthly": 2,
+    "com.eksperiq.app.pro.yearly": 2,
+  };
+  const levelMismatches = EXPECTED_PRODUCT_IDS.filter((productId) => {
+    const actual = summaries.get(productId)?.groupLevel;
+    return actual != null && actual !== EXPECTED_GROUP_LEVEL[productId];
+  });
+  if (levelMismatches.length > 0) {
+    console.log(`WARNING: group level mismatch (expected Pro+ =1, Pro=2): ${levelMismatches.join(", ")}`);
+  }
 }
 
 main().catch((error) => fail(error instanceof Error ? error.message : String(error)));

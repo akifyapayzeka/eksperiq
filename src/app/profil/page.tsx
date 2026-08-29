@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, FileText, Info, MessageSquareText, ShieldCheck, Search } from "lucide-react";
+import { ChevronRight, FileText, HelpCircle, Info, MessageSquareText, ShieldCheck, Search } from "lucide-react";
 import { appConfig } from "@/lib/constants/app";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { DisclaimerCard } from "@/components/ui/alert";
 
 const supportLinks = [
+  { href: "/destek", label: "Destek", icon: HelpCircle },
   { href: "/resmi-sorgu-rehberi", label: "Resmi Sorgu Rehberi", icon: Search },
   { href: "/geri-bildirim", label: "Geri bildirim gönder", icon: MessageSquareText },
   { href: "/gizlilik", label: "Gizlilik politikası", icon: ShieldCheck },

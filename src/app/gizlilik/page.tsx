@@ -98,8 +98,8 @@ export default function PrivacyPage() {
         bilgileriniz (e-posta, ad/soyad) için Profil ekranındaki &ldquo;Hesabımı sil&rdquo; ile silme hakkınızı doğrudan
         kullanabilirsiniz; düzeltme veya bilgi talebi ile sunucu tarafında tutulan sınırlı bildirim kopyası için ek bir
         talebiniz olursa{" "}
-        <Link href="/geri-bildirim" className="font-medium text-accent underline">
-          geri bildirim sayfasından
+        <Link href="/destek" className="font-medium text-accent underline">
+          destek sayfasından
         </Link>{" "}
         bize ulaşabilirsiniz.
       </p>

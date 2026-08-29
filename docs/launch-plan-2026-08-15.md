@@ -81,7 +81,7 @@ Bu işler kod içinde çözülemez ve kullanıcı tarafında açılmalıdır:
 - Kategori: Utilities veya Productivity
 - Fiyat: Ücretsiz
 - Gizlilik politikası: `https://eksperiq.vercel.app/gizlilik`
-- Destek URL'si: `https://eksperiq.vercel.app/geri-bildirim`
+- Destek URL'si: `https://eksperiq.vercel.app/destek`
 - Pazarlama URL'si: `https://eksperiq.vercel.app`
 - Review note: `docs/app-store-submission.md`
 - Screenshot kaynağı: `test-results/screenshots`
