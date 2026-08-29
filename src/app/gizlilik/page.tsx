@@ -7,20 +7,18 @@ export default function PrivacyPage() {
     <InfoPage title="Gizlilik">
       <p>{appConfig.privacy}</p>
       <p>
-        <strong>Hesap oluşturma isteğe bağlıdır.</strong> Uygulamayı hesap açmadan da tamamen kullanabilirsiniz. Hesap
-        yalnızca Pro/Pro+ abonelik satın alma ve aynı aboneliği birden fazla cihazda kullanabilmek için sunulur. Hesap
-        oluşturursanız e-posta adresiniz ve adınız/soyadınız, kimlik doğrulama sağlayıcımız Supabase Authentication
-        üzerinden saklanır; başka hiçbir amaçla (reklam, izleme, profil oluşturma) kullanılmaz. Araç, analiz,
-        hatırlatma, gider ve sağlık karnesi kayıtlarınız hesabınıza değil, her zaman bu cihaza kaydedilir — bu kayıtlar
-        geliştirici sunucusunda hesabınızla ilişkilendirilmiş halde tutulmaz. Reklam takibi, üçüncü taraf analytics kodu
-        veya çerez bannerı gerektirecek bir izleyici yoktur.
+        <strong>Hesap yoktur.</strong> Uygulama herhangi bir kullanıcı hesabı/girişi gerektirmez; e-posta adresiniz,
+        adınız/soyadınız veya başka bir kimlik bilginiz istenmez ya da saklanmaz. Araç, analiz, hatırlatma, gider ve
+        sağlık karnesi kayıtlarınız her zaman yalnızca bu cihaza kaydedilir; geliştirici sunucusunda hiçbir kullanıcı
+        kaydıyla ilişkilendirilmiş halde tutulmaz. Reklam takibi, üçüncü taraf analytics kodu veya çerez bannerı
+        gerektirecek bir izleyici yoktur.
       </p>
       <p>
-        <strong>Hesabınızı silme.</strong> Profil ekranındaki &ldquo;Hesabımı sil&rdquo; ile hesabınızı (e-posta,
-        ad/soyad, giriş bilgileriniz) kalıcı olarak silebilirsiniz; bu işlem geri alınamaz ve bu cihazdaki yerel
-        kayıtlarınızı da temizleyip oturumunuzu kapatır. Hesabınızı silmek App Store aboneliğinizi otomatik olarak iptal
-        etmez — aktif bir aboneliğiniz varsa Ayarlar &gt; Abonelikler veya uygulama içindeki &ldquo;Abonelikleri
-        Yönet&rdquo; bağlantısı üzerinden ayrıca iptal etmeniz gerekir.
+        <strong>Pro/Pro+ abonelik.</strong> Satın alma tamamen Apple&apos;ın StoreKit sistemi üzerinden, Apple
+        ID&apos;nize bağlı olarak gerçekleşir; abonelik durumu yalnızca cihazınızda tutulur ve geliştirici sunucusuna
+        gönderilmez. Aboneliğinizi başka bir cihaza taşımak için &ldquo;Satın almaları geri yükle&rdquo; (Restore
+        Purchases) yeterlidir. İptal ve yönetim için Ayarlar &gt; Abonelikler veya uygulama içindeki &ldquo;Abonelikleri
+        Yönet&rdquo; bağlantısını kullanabilirsiniz.
       </p>
       <p>
         <strong>Fotoğraftan Hasar Analizi.</strong> Bu özelliği kullanırsanız seçtiğiniz fotoğraf önce cihazınızda
@@ -81,8 +79,8 @@ export default function PrivacyPage() {
       <p>
         <strong>Yurt dışı veri aktarımı.</strong> OpenRouter (AI işleme), Upstash (sunucu tarafı veritabanı altyapısı),
         OpenStreetMap ve Google Places (konum tabanlı öneriler) yurt dışında barındırılan hizmetlerdir; yukarıda
-        açıklanan sınırlı veriler bu sağlayıcıların sunucularında işlenebilir. Uygulama bu sağlayıcılar ve Supabase
-        (hesap kimlik doğrulama) dışında hiçbir üçüncü tarafla veri paylaşmaz ve verinizi satmaz.
+        açıklanan sınırlı veriler bu sağlayıcıların sunucularında işlenebilir. Uygulama bu sağlayıcılar dışında hiçbir
+        üçüncü tarafla veri paylaşmaz ve verinizi satmaz.
       </p>
       <p>
         <strong>Verilerinizi yönetme ve silme.</strong> Analizlerim ekranındaki kayıtları tek tek silebilirsiniz. Araç,
@@ -94,9 +92,8 @@ export default function PrivacyPage() {
         <strong>KVKK kapsamındaki haklarınız.</strong> 6698 sayılı Kişisel Verilerin Korunması Kanunu&apos;nun 11.
         maddesi uyarınca; verilerinizin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme,
         düzeltilmesini veya silinmesini isteme ve işlemeye itiraz etme haklarına sahipsiniz. Araç ve analiz kayıtlarınız
-        cihazınızda kaldığından bu haklarınızı büyük ölçüde doğrudan, aracı olmadan kullanabilirsiniz. Hesap
-        bilgileriniz (e-posta, ad/soyad) için Profil ekranındaki &ldquo;Hesabımı sil&rdquo; ile silme hakkınızı doğrudan
-        kullanabilirsiniz; düzeltme veya bilgi talebi ile sunucu tarafında tutulan sınırlı bildirim kopyası için ek bir
+        cihazınızda kaldığından ve hiçbir hesap/kimlik bilginiz tutulmadığından bu haklarınızı büyük ölçüde doğrudan,
+        aracı olmadan kullanabilirsiniz. Sunucu tarafında tutulan sınırlı bildirim kopyası için düzeltme veya bilgi
         talebiniz olursa{" "}
         <Link href="/destek" className="font-medium text-accent underline">
           destek sayfasından

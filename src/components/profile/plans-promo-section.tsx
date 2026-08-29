@@ -4,11 +4,10 @@ import { useSubscriptionTier } from "@/lib/pro/tier";
 import { PaywallPlansScreen } from "@/components/paywall/paywall-plans";
 
 /**
- * Always-visible Pro/Pro+ promo in the profile — shown whether the user is
- * logged in or not, and regardless of platform (StoreKit purchases only
- * work natively, but the pitch itself is worth showing everywhere). Hidden
- * only once someone is already on the top tier, since there's nothing left
- * to upsell.
+ * Always-visible Pro/Pro+ promo in the profile, regardless of platform
+ * (StoreKit purchases only work natively, but the pitch itself is worth
+ * showing everywhere). Hidden only once someone is already on the top tier,
+ * since there's nothing left to upsell.
  */
 export function ProfilePlansPromoSection() {
   const tier = useSubscriptionTier();

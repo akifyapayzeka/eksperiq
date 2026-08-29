@@ -25,7 +25,7 @@ const supportTopics = [
   {
     title: "Gizlilik veya verilerinizle ilgili bir talebiniz mi var?",
     icon: ShieldCheck,
-    description: "Hesabınızdaki verilerle ilgili bilgi, düzeltme veya silme talebinizi iletin.",
+    description: "Verilerinizle ilgili bilgi, düzeltme veya silme talebinizi iletin.",
     mailto: mailtoWithSubject("EksperIQ Destek - Gizlilik talebi"),
     cta: "Gizlilik talebi gönder",
   },
@@ -86,9 +86,9 @@ export default function SupportPage() {
       <div className="flex items-start gap-3 rounded-theme-sm border border-border bg-muted p-4">
         <Trash2 aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
         <p className="text-sm text-foreground/90">
-          <strong>Hesabınızı silmek mi istiyorsunuz?</strong> Uygulama içinde Profil &gt; Hesap bölümündeki
-          &ldquo;Hesabımı sil&rdquo; ile hesabınızı doğrudan ve kalıcı olarak silebilirsiniz. Uygulamaya erişiminiz
-          yoksa yukarıdaki destek e-postasından da talep edebilirsiniz.
+          <strong>Verilerinizi silmek mi istiyorsunuz?</strong> Uygulamanın kullanıcı hesabı yoktur — tüm araç ve analiz
+          kayıtlarınız yalnızca bu cihazda tutulur. Analizlerim ekranından tek tek silebilir veya uygulamayı
+          cihazınızdan kaldırarak tüm yerel verileri kalıcı olarak temizleyebilirsiniz.
         </p>
       </div>
 

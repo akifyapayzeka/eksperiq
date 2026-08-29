@@ -35,11 +35,6 @@ jobs:
       NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED: ${{ secrets.NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED }}
       STOREKIT_APP_STORE_PRODUCTS_VERIFIED: ${{ secrets.STOREKIT_APP_STORE_PRODUCTS_VERIFIED }}
       STOREKIT_SANDBOX_PURCHASE_VERIFIED: ${{ secrets.STOREKIT_SANDBOX_PURCHASE_VERIFIED }}
-      # Supabase hesap girişi (Pro/Pro+ abonelik) icin — bu iki GitHub Secret
-      # tanimli degilse hesap ozelligi sessizce kapali kalir (getSupabaseBrowserClient
-      # null doner), build hata vermez ama giris yapilamaz.
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
       IOS_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}

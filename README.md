@@ -204,7 +204,6 @@ Vercel, Hostinger ve App Store/TestFlight hazırlığı için ana operasyon list
 
 ## Gelecek geliştirmeler
 
-- Supabase ile isteğe bağlı kullanıcı hesabı ve kayıtlı analizler
 - Native iOS uygulamasında APNs ile push bildirimi (`@capacitor/push-notifications`)
 - Daha gelişmiş PDF dışa aktarma
 - Daha kapsamlı erişilebilirlik ve tarayıcı uyumluluk testleri

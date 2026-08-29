@@ -40,32 +40,27 @@ Alacağınız aracı detaylı analiz ettirin; riskleri, kronik sorunları, foto�
 
 EksperIQ is a Turkish used-car decision-support app.
 
-**Demo account** (persistent, already confirmed — no self-signup needed):
-
-- Username: provided separately, outside this repository (see final task report)
-- Password: provided separately, outside this repository
-- Account type: standard user account (free tier). No plan tier gates any core analysis functionality — sign-in is only required to reach the subscription purchase flow and account deletion, both of which are reachable with this demo account.
+**No account or sign-in of any kind.** The app has no user account system — there is nothing to sign in to, no demo credentials are needed, and no signup flow exists to fail. Every screen is reachable immediately on first launch.
 
 Recommended review flow:
 
-1. Open the app. On first launch you'll see an onboarding screen offering "Üye ol / Giriş yap" (sign up / sign in) or "Üye olmadan devam et" (continue without an account). Sign in with the demo credentials above ("Giriş yap" tab).
+1. Open the app — it opens directly to the main screen, no onboarding gate.
 2. On the Analysis tab, either paste a public vehicle listing URL or fill the manual vehicle form, then generate the report (risk score, seller questions, inspection checklist, chronic issue notes, photo section, disclaimer).
-3. Open Profile ("Profil") to reach the subscription paywall. Once the App Store Connect subscription metadata blockers below are resolved and the purchase flow is enabled for this build **[MANUAL STEP REQUIRED — not yet enabled]**, all four subscription products (Pro Monthly, Pro Yearly, Pro+ Monthly, Pro+ Yearly) will show with real App Store Connect pricing, title, duration, price, auto-renewal terms, Privacy Policy, Terms of Use and Restore Purchases. Purchases use the App Store Sandbox automatically during review — no real charge occurs.
-4. Account deletion is available from Profile > Account > "Hesabımı sil" (two-step confirmation), which permanently deletes the demo account's email/name from our authentication provider (Supabase). Please do not use this on the shared demo account during review — a fresh demo account can be provided if deletion testing is needed.
-5. Open the photo analysis flow if desired; photo analysis is free and clearly framed as a non-definitive visual pre-check.
+3. Open Profile ("Profil") to reach the subscription paywall. Once the App Store Connect subscription metadata blockers below are resolved and the purchase flow is enabled for this build **[MANUAL STEP REQUIRED — not yet enabled]**, all four subscription products (Pro Monthly, Pro Yearly, Pro+ Monthly, Pro+ Yearly) will show with real App Store Connect pricing, title, duration, price, auto-renewal terms, Privacy Policy, Terms of Use and Restore Purchases. Purchase and restore both work purely via StoreKit and the reviewer's own Sandbox Apple ID — no app account of any kind is involved. No real charge occurs.
+4. Open the photo analysis flow if desired; photo analysis is free and clearly framed as a non-definitive visual pre-check.
 
-The app does not guarantee that a vehicle is safe, undamaged, legally clean or suitable to purchase. It does not replace professional vehicle inspection, service checks, official record checks or legal review. Listing import uses visible listing content from the user's submitted URL and may process text through OpenRouter for temporary normalization. Vehicle/analysis records are stored locally on-device; only the optional account's email and name are stored server-side (Supabase Authentication), used solely to manage the Pro/Pro+ subscription and let the user sign in on another device.
+The app does not guarantee that a vehicle is safe, undamaged, legally clean or suitable to purchase. It does not replace professional vehicle inspection, service checks, official record checks or legal review. Listing import uses visible listing content from the user's submitted URL and may process text through OpenRouter for temporary normalization. All vehicle/analysis records are stored locally on-device only; the app has no backend user account and stores no personal data (name, email, or any identifier) on our servers.
 
-**[MANUAL STEP REQUIRED]** A screen recording covering app launch → demo sign-in → paywall (all four products, real price/duration) → Privacy Policy → Terms/EULA → Restore Purchases → main feature access is not yet attached to this submission — see the checklist in `docs/app-review-2-1-response.md`.
+**[MANUAL STEP REQUIRED]** A screen recording covering app launch → main feature access → paywall (all four products, real price/duration) → Privacy Policy → Terms/EULA → Restore Purchases is not yet attached to this submission — see the checklist in `docs/app-review-2-1-response.md`.
 
 Guideline 2.1 additional information response draft: `docs/app-review-2-1-response.md`
 
 ## Gizlilik Cevap Özeti
 
-- Kullanıcı hesabı: Opsiyonel; yalnızca Pro/Pro+ abonelik ve giriş içindir (Supabase Authentication — e-posta + ad/soyad). Profil > Hesap > "Hesabımı sil" ile kalıcı olarak silinebilir.
+- Kullanıcı hesabı: Yok. Pro/Pro+ satın alma tamamen Apple StoreKit üzerinden, Apple ID'ye bağlı çalışır.
 - Reklam takibi: Yok.
 - Üçüncü taraf analytics: Yok.
-- Geliştirici sunucusuna kalıcı hesap kaydı: Yalnızca hesap açan kullanıcılar için e-posta/ad-soyad (yukarıya bakın); araç/analiz kayıtları sunucuya gönderilmez.
+- Geliştirici sunucusuna kalıcı kullanıcı kaydı: Yok; araç/analiz kayıtları da sunucuya gönderilmez.
 - Konum izni: Yalnızca "Konumuma göre tahmin et" (masraf tahmini) ve Yakınımdaki Hizmetler ekranlarında, kullanıcı açıkça başlattığında istenir; hassas konum OpenStreetMap (şehir tespiti) ve Google Places'a (yakın servis önerisi) geçici olarak iletilir, sunucuda kalıcı saklanmaz.
 - Kamera izni: Yalnızca kullanıcı fotoğraf ekleme ekranında "Fotoğraf çek" seçeneğini kullandığı anda, tek bir fotoğraf için istenir; sürekli veya arka planda erişim yoktur.
 - Fotoğraf erişimi: Yalnızca kullanıcının dosya seçmesiyle ve AI fotoğraf kontrolü talebiyle sınırlı.

@@ -8,18 +8,9 @@ const requiredGitHubSecrets = [
   "APP_STORE_CONNECT_KEY_ID",
   "APP_STORE_CONNECT_ISSUER_ID",
   "APP_STORE_CONNECT_API_KEY_P8_BASE64",
-  "NEXT_PUBLIC_SUPABASE_URL",
-  "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-  "SUPABASE_SERVICE_ROLE_KEY",
-  "SUPABASE_DATABASE_URL",
 ];
 
-const requiredEnv = [
-  "NEXT_PUBLIC_SUPABASE_URL",
-  "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-  "SUPABASE_SERVICE_ROLE_KEY",
-  "SUPABASE_DATABASE_URL",
-];
+const requiredEnv = [];
 
 const repo = process.env.GITHUB_REPOSITORY || "akifyapayzeka/eksperiq";
 const strict = process.argv.includes("--required") || process.env.EXTERNAL_READINESS_REQUIRED === "true";
@@ -62,7 +53,7 @@ if (missingEnv.length > 0) {
 }
 
 if (missingSecrets.length === 0 && missingEnv.length === 0) {
-  console.log("External readiness kontrati tamam: Apple ve Supabase secret isimleri mevcut.");
+  console.log("External readiness kontrati tamam: Apple secret isimleri mevcut.");
   process.exit(0);
 }
 

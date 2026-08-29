@@ -51,9 +51,8 @@ npm run launch:audit
 - [x] iOS/TestFlight ön kontrol, QA checklist ve iOS repo stratejisi yazıldı.
 - [x] GitHub `iOS Xcode Build Check` macOS 26 runner üzerinde Xcode 26.6 / iOS 26.5 SDK ile geçti.
 - [x] GitHub `iOS TestFlight Upload` workflow'u eklendi; Xcode 26 kapısını geçiyor ve eksik signing/App Store Connect secret'larında kontrollü duruyor.
-- [x] Supabase production schema ve RLS migration dosyası hazır: `supabase/migrations/202608090001_initial_production_schema.sql`.
-- [x] Supabase client/server boundary ve env kontrolü hazır: `npm run supabase:env-check`.
-- [x] Apple + Supabase GitHub secret durumunu raporlayan dış hazırlık kontrolü hazır: `npm run external:check`.
+- [x] Uygulamadan hesap/giriş sistemi (Supabase Authentication) tamamen kaldırıldı; Pro/Pro+ satın alma hesapsız, doğrudan StoreKit üzerinden çalışıyor.
+- [x] Apple GitHub secret durumunu raporlayan dış hazırlık kontrolü hazır: `npm run external:check`.
 - [x] Secret, eski marka ve istenmeyen env taraması yapılıyor.
 - [x] App Store/Google Play ve kamu şikayetlerinden çıkarılan ürün dersleri `npm run market-review:check` ile release kapısına bağlı.
 - [x] Pro/paywall StoreKit satın alma flag'i, ürün ve sandbox doğrulama flag'leri olmadan açılamıyor: `npm run storekit:gate-check`.
@@ -72,7 +71,6 @@ npm run launch:audit
 - [ ] Apple signing certificate, provisioning profile ve App Store Connect API key GitHub secrets'a eklenecek; `npm run external:check -- --required` temiz geçecek.
 - [x] GitHub macOS 26 runner üzerinde Xcode 26 veya Apple'ın güncel kabul ettiği sürüm doğrulandı.
 - [x] `npm run ios:add` ile Capacitor iOS proje klasörü oluşturuldu; final arşivleme/signing macOS/Xcode ortamında yapılacak.
-- [ ] Supabase production projesi oluşturulacak/linklenecek, `supabase db push` ile migration uygulanacak ve Vercel/GitHub env'leri eklenecek.
 - [ ] Xcode signing team ve Bundle ID Apple hesabında/provisioning profile'da doğrulanacak.
 - [ ] Gerçek iPhone üzerinde TestFlight QA checklist işaretlenecek.
 - [ ] App Store Connect metadata, privacy ve screenshot alanları girilecek.

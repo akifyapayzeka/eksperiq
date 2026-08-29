@@ -7,7 +7,7 @@ const requiredSnippets = [
   "karar destek",
   "profesyonel araç ekspertizinin",
   "garanti etmez",
-  "Kullanıcı hesabı: Opsiyonel",
+  "Kullanıcı hesabı: Yok",
   "Reklam takibi: Yok",
   "Üçüncü taraf analytics: Yok",
   "Konum izni",
