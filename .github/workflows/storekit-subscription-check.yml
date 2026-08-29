@@ -11,6 +11,14 @@ on:
         options:
           - "false"
           - "true"
+      fix_levels:
+        description: "Fix groupLevel on existing subscriptions that don't match Pro+=1/Pro=2 (no-op if create_missing=true)"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 jobs:
   check-products:
@@ -37,9 +45,13 @@ jobs:
         run: npm ci
 
       - name: Verify subscription product IDs
-        if: ${{ inputs.create_missing != 'true' }}
+        if: ${{ inputs.create_missing != 'true' && inputs.fix_levels != 'true' }}
         run: npm run storekit:products-check
 
       - name: Create missing subscription product IDs
         if: ${{ inputs.create_missing == 'true' }}
         run: npm run storekit:products-create-missing
+
+      - name: Fix subscription group levels
+        if: ${{ inputs.create_missing != 'true' && inputs.fix_levels == 'true' }}
+        run: npm run storekit:fix-levels
