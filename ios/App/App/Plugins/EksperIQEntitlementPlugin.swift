@@ -3,9 +3,10 @@ import Capacitor
 
 // EksperIQEntitlementPlugin — the Capacitor bridge wrapping
 // EksperIQEntitlementStore.swift's StoreKit 2 calls. Written for the
-// production-hardening effort but, like the store actor it wraps, has
-// NEVER been compiled or run: this repository has no Xcode/Swift
-// toolchain. Before this can be trusted, see the checklist at the top of
+// production-hardening effort; like the store actor it wraps, verified to
+// compile on a real Xcode 26 macOS runner (see the header comment in
+// EksperIQEntitlementStore.swift) but never run on a device. Before this
+// can be trusted, see the checklist at the top of
 // EksperIQEntitlementStore.swift and docs/ios-storekit-integration.md.
 //
 // jsName must exactly match the string passed to registerPlugin() in

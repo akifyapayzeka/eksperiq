@@ -45,15 +45,15 @@ The signup screen that produced this error no longer exists — we removed the a
 
 Product IDs `com.eksperiq.app.pro.monthly`, `.pro.yearly`, `.proplus.monthly`, `.proplus.yearly` exist in App Store Connect in a single subscription group. Purchases are handled purely by StoreKit against the reviewer's own (Sandbox) Apple ID — no app account is involved.
 
-**[MANUAL STEP REQUIRED]** — two of the four products currently have an incorrect subscription level in App Store Connect (Pro Monthly and Pro+ Monthly are swapped relative to their yearly counterparts) and must be corrected before submission. **[MANUAL STEP REQUIRED]** — none of the four products have review screenshots/metadata submitted yet; they must be completed and included in this version's review submission before this section can be marked resolved.
+**DONE** — subscription levels corrected in App Store Connect. **DONE** — all four products now have review screenshots, localizations, and pricing (150/1500/400/4000 TL, Turkey base + Apple's auto-equalized prices for other territories) set. **[MANUAL STEP REQUIRED]** — App Store Connect refused an independent "Add for Review" for this subscription group ("New subscription groups must be submitted with an auto-renewable subscription... add an app version"), so the subscriptions will only actually go to Apple review together with this version's next submission (i.e. once Build 65 is uploaded and the version is submitted) — not as a separate step beforehand.
 
 **4. Guideline 3.1.2(c)**
 
-The in-app purchase screen displays each subscription's title, duration, localized price (loaded live from StoreKit — never hard-coded), our Privacy Policy link, Terms of Use link, and a Restore Purchases button, along with the required auto-renewal/cancellation disclosure. Our Privacy Policy is at https://eksperiq.vercel.app/gizlilik. **[MANUAL STEP REQUIRED]** — please confirm in App Store Connect whether our License Agreement is Apple's Standard EULA (in which case its link has been added to our App Description) or a custom one (in which case it must be kept consistent with the field in App Store Connect).
+The in-app purchase screen displays each subscription's title, duration, localized price (loaded live from StoreKit — never hard-coded), our Privacy Policy link, Terms of Use link, and a Restore Purchases button, along with the required auto-renewal/cancellation disclosure. Our Privacy Policy is at https://eksperiq.vercel.app/gizlilik. **DONE** — confirmed our License Agreement is Apple's Standard EULA (no custom EULA configured in App Store Connect).
 
 **5. Guideline 1.5 — Support URL**
 
-We've replaced our Support URL with a genuine end-user support page: https://eksperiq.vercel.app/destek — it shows a visible, clickable support e-mail, guidance for bug reports/subscription questions/privacy requests, a pointer for deleting locally-stored data, and links to our Privacy Policy and Terms of Use. **[MANUAL STEP REQUIRED]** — this URL will only be live in production once this pull request is merged and deployed; please confirm it returns the expected page before updating the Support URL field in App Store Connect.
+We've replaced our Support URL with a genuine end-user support page: https://eksperiq.vercel.app/destek — it shows a visible, clickable support e-mail, guidance for bug reports/subscription questions/privacy requests, a pointer for deleting locally-stored data, and links to our Privacy Policy and Terms of Use. **DONE** — confirmed live in production (HTTP 200) and the Support URL field in App Store Connect points to it.
 
 **[MANUAL STEP REQUIRED]** — a screen recording covering the full flow (see checklist above) is not yet attached to this submission.
 

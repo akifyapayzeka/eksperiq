@@ -34,12 +34,12 @@ export interface EntitlementProvider {
 }
 
 /**
- * The active provider until real StoreKit 2 purchase/restore code is
- * written, compiled, and verified in Xcode: there is no purchase mechanism,
- * so every user is honestly "free" (never fake "pro" via localStorage or any
- * other client-only flag). This is the feature flag referenced in the
- * production-hardening plan — no UI may render a purchase/upgrade action
- * while this provider is active, since it would not do anything.
+ * The default provider passed to isPro() below when the caller doesn't pass
+ * one — honestly "free", never a fake "pro" via localStorage or any other
+ * client-only flag. isPro() itself has no call sites in the app anymore
+ * (superseded by SubscriptionManager.getSnapshot() / resolveSubscriptionTier()
+ * in tier.ts, which do read the real on-device StoreKit entitlement); this
+ * stays as a safe default for the standalone isPro() helper and its tests.
  */
 export const unavailableEntitlementProvider: EntitlementProvider = {
   async getEntitlement(): Promise<EntitlementSnapshot> {
@@ -48,13 +48,13 @@ export const unavailableEntitlementProvider: EntitlementProvider = {
 };
 
 /**
- * Reads the real on-device StoreKit 2 entitlement via
- * SubscriptionManager (ios/App/App/Plugins/EksperIQEntitlementPlugin.swift
- * underneath). Written and wired up, but **not** the default provider
- * anywhere in the app yet — see docs/ios-storekit-integration.md for the
- * remaining Apple Developer account, App Store Connect product, and
- * Xcode-build steps required before this can safely replace
- * unavailableEntitlementProvider.
+ * Reads the real on-device StoreKit 2 entitlement via SubscriptionManager
+ * (ios/App/App/Plugins/EksperIQEntitlementPlugin.swift underneath). Not
+ * passed as isPro()'s default (see unavailableEntitlementProvider above),
+ * but this is the same read tier.ts's resolveSubscriptionTier() and the
+ * paywall UI actually use in production, gated behind the
+ * NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED flag (see paywall-plans.tsx) until
+ * App Store Connect products + a real-device purchase have been verified.
  */
 export const nativeStoreKitEntitlementProvider: EntitlementProvider = {
   async getEntitlement(): Promise<EntitlementSnapshot> {
@@ -65,12 +65,12 @@ export const nativeStoreKitEntitlementProvider: EntitlementProvider = {
 
 /**
  * Starts a real StoreKit 2 purchase for the given App Store Connect product
- * id. Throws on web (no purchase mechanism there) and, until the manual
- * blockers in docs/ios-storekit-integration.md are resolved, also throws on
- * native (the plugin has no compiled implementation yet) — callers must
- * catch this and show a friendly "coming soon" message rather than crash,
- * and must not render a purchase button that assumes success until this has
- * been verified working on a real device.
+ * id via SubscriptionManager.purchase(). Throws on web (no purchase
+ * mechanism there) — callers must catch this and show a friendly message
+ * rather than crash. On native this calls the real compiled Swift plugin;
+ * the paywall UI still gates the purchase button behind
+ * NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED until App Store Connect products
+ * and a real-device purchase have been verified end to end.
  */
 export async function purchasePlan(productId: string): Promise<EntitlementSnapshot & { cancelled?: boolean }> {
   const result = await SubscriptionManager.purchase(productId);
