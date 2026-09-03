@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Check, Clock, ExternalLink, RotateCcw, Sparkles } from "lucide-react";
 import { EKSPERIQ_PLAN_PRICING, type EksperIqPlanPricing } from "@/lib/pro/pricing";
 import { formatListingAnalysisLimit } from "@/lib/pro/listing-quota";
+import { DEFAULT_BILLING_PERIOD, yearlyFreeMonths, yearlySavingsPercent } from "@/lib/pro/billing-period";
 import { purchasePlan, restorePurchases } from "@/lib/pro/entitlement";
 import { SubscriptionManager } from "@/lib/pro/subscription-manager";
 import type { NativeProductInfo } from "@/lib/pro/native-entitlement-plugin";
@@ -56,7 +57,7 @@ export function PaywallPlansScreen({
   dismissLabel?: string;
   onDismiss?: () => void;
 }) {
-  const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
+  const [billing, setBilling] = useState<"monthly" | "yearly">(DEFAULT_BILLING_PERIOD);
   const [purchaseMessage, setPurchaseMessage] = useState<string | null>(null);
   const [purchasingPlanId, setPurchasingPlanId] = useState<string | null>(null);
   const [isRestoring, setIsRestoring] = useState(false);
@@ -78,6 +79,9 @@ export function PaywallPlansScreen({
   }, []);
 
   const plans = Object.values(EKSPERIQ_PLAN_PRICING);
+  // Toggle etiketindeki oran, paketlerin kendi fiyatlarından hesaplanıyor
+  // (bkz. billing-period.ts) — sabit yazılmış bir pazarlama rakamı değil.
+  const maxYearlySavings = Math.max(0, ...plans.map((plan) => yearlySavingsPercent(plan)));
 
   async function handlePlanCta(plan: EksperIqPlanPricing) {
     if (purchasingPlanId) return;
@@ -147,7 +151,7 @@ export function PaywallPlansScreen({
           onClick={() => setBilling("yearly")}
           className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${billing === "yearly" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
         >
-          Yıllık (indirimli)
+          Yıllık{maxYearlySavings > 0 ? ` (%${maxYearlySavings} tasarruf)` : ""}
         </button>
       </div>
 
@@ -188,6 +192,12 @@ export function PaywallPlansScreen({
                 <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
                 PDF rapor çıktısı
               </p>
+              {billing === "yearly" && yearlyFreeMonths(plan) > 0 ? (
+                <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-success">
+                  <Check aria-hidden="true" className="h-4 w-4 shrink-0" />
+                  Yıllık ödemede {yearlyFreeMonths(plan)} ay bedava
+                </p>
+              ) : null}
               <button
                 type="button"
                 onClick={() => handlePlanCta(plan)}
