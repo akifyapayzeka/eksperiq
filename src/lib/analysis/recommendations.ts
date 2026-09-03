@@ -1,7 +1,26 @@
 import type { VehicleFormData } from "@/lib/schemas/vehicle";
 import { MAX_PRIORITY_ACTIONS } from "@/lib/constants/analysis";
 import { maintenanceHistoryUnresolved } from "./rules/maintenance-rules";
+import { inspectionStatus } from "./inspection";
 import type { AnalysisFinding, CostSignal, DataCompleteness, PriorityAction } from "./types";
+
+/**
+ * Muayene satırı gerçek tarihten türetilir. Önceden tarih girilmiş olması tek
+ * başına "Yakın tarihli" sayılıyordu: 2 yıl sonrası da, 8 ay önce dolmuş bir
+ * muayene de aynı satırı üretiyordu — yani bu satır veriyi hiç okumuyordu.
+ */
+function inspectionCostLevel(inspectionEndDate: string | undefined): CostSignal["level"] {
+  switch (inspectionStatus(inspectionEndDate)) {
+    case "unknown":
+      return "Bilgi yetersiz";
+    case "expired":
+      return "Yüksek";
+    case "soon":
+      return "Yakın tarihli";
+    case "later":
+      return "Düşük";
+  }
+}
 
 export const finalChecklist = [
   "Ruhsat sahibini doğruladım",
@@ -91,7 +110,7 @@ export function costSignals(input: VehicleFormData): CostSignal[] {
             ? "Bilgi yetersiz"
             : "Düşük",
     },
-    { item: "Muayene", level: input.inspectionEndDate ? "Yakın tarihli" : "Bilgi yetersiz" },
+    { item: "Muayene", level: inspectionCostLevel(input.inspectionEndDate) },
     { item: "Yedek anahtar", level: input.hasSpareKey ? "Düşük" : "Orta" },
   ];
 }

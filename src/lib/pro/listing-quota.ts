@@ -9,12 +9,17 @@ const STORAGE_KEY = "eksperiq:listing-quota";
  * waiting a month) — Pro is a monthly cap, and Pro+ is unlimited. These are
  * the real, enforced numbers shown in the paywall.
  *
- * TEMPORARY: free raised well above the real launch value — the app has no
- * public users yet, only the owner's own device testing against it
- * repeatedly. Dial back down to the real free cap (3) once the app is live.
+ * Bu sayılar doğrudan paywall'da gösteriliyor, dolayısıyla ücretsiz limit her
+ * zaman Pro'nun altında kalmalı: bir süre ücretsiz 1000'e çekilmişti (cihazda
+ * tekrar tekrar test edebilmek için) ve bu değer yayına çıkmak üzereydi —
+ * paywall ücretsiz kartta "1000", Pro kartında "20" gösteriyor, yani ücretli
+ * paket ücretsizden az görünüyordu ve ücretsiz kullanıcı paywall'a hiç
+ * çarpmıyordu. tests/unit/listing-quota.test.ts bu sıralamayı kilitliyor;
+ * geliştirme sırasında limiti geçici olarak yükseltmek gerekirse yayın
+ * öncesi geri almayı unutmamak için testi gevşetmeyin.
  */
 const LISTING_ANALYSIS_LIMIT: Record<SubscriptionTier, number> = {
-  free: 1000,
+  free: 3,
   pro: 20,
   proPlus: Number.POSITIVE_INFINITY,
 };

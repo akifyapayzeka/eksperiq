@@ -3,7 +3,10 @@ import type { VehicleFormData } from "@/lib/schemas/vehicle";
 import type { AnalysisFinding, MileageEvaluation } from "../types";
 
 export function evaluateMileage(input: VehicleFormData): MileageEvaluation {
-  if (input.mileage <= 0) {
+  // Model yılı ilandan okunamadıysa elimizdeki yıl bir yer tutucu: yaşa
+  // bölünen kilometre gerçek bir yıllık ortalama değil, uydurulmuş bir sayı
+  // olur (ve "çok yüksek kullanım" gibi yüksek önemli sahte bulgu doğurur).
+  if (input.yearIsEstimated || input.mileage <= 0) {
     return { vehicleAge: Math.max(1, CURRENT_YEAR - input.year + 1), annualMileage: 0, label: "Bilgi yetersiz" };
   }
   const vehicleAge = Math.max(1, CURRENT_YEAR - input.year + 1);
@@ -16,7 +19,7 @@ export function evaluateMileage(input: VehicleFormData): MileageEvaluation {
 }
 
 export function mileageRules(input: VehicleFormData): AnalysisFinding[] {
-  if (input.mileage <= 0) return [];
+  if (input.yearIsEstimated || input.mileage <= 0) return [];
   const mileage = evaluateMileage(input);
   if (mileage.annualMileage < MILEAGE_BANDS.veryLowMax) {
     return [

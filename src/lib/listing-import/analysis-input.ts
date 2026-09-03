@@ -118,6 +118,9 @@ export function buildVehicleInputFromListingImport(
     brand: brand ?? "Bilinmeyen marka",
     model: model ?? "Bilinmeyen model",
     year: year ?? fallbackSafeYear(result),
+    // Yıl ilandan okunamadıysa yukarıdaki değer bir yer tutucudur; yaşa
+    // dayalı hiçbir hesap bunu gerçek model yılı gibi kullanmamalı.
+    yearIsEstimated: year === null,
     trim: importedString(fields.trim) ?? undefined,
     fuelType: importedString(fields.fuelType) ?? fallbackFuelType(result) ?? "Bilinmiyor",
     transmission: importedString(fields.transmission) ?? fallbackTransmission(result) ?? "Bilinmiyor",

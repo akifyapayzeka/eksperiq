@@ -159,7 +159,7 @@ export function PaywallPlansScreen({
           </div>
           <p className="mt-2 flex items-center gap-2 text-sm text-foreground/90">
             <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
-            {formatListingAnalysisLimit("free")} ilan linki analizi
+            {formatListingAnalysisLimit("free")} araç analizi (ilan linki veya elle giriş)
           </p>
           <p className="mt-1 flex items-center gap-2 text-sm text-foreground/90">
             <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
@@ -178,7 +178,7 @@ export function PaywallPlansScreen({
               </div>
               <p className="mt-2 flex items-center gap-2 text-sm text-foreground/90">
                 <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
-                {formatListingAnalysisLimit(plan.id)} ilan linki analizi
+                {formatListingAnalysisLimit(plan.id)} araç analizi (ilan linki veya elle giriş)
               </p>
               <p className="mt-1 flex items-center gap-2 text-sm text-foreground/90">
                 <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />

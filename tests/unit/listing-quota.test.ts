@@ -13,16 +13,26 @@ describe("listing analysis quota", () => {
   });
 
   it("exposes the real (non-marketing) numeric limits per tier", () => {
-    // free is temporarily raised for pre-launch testing (see the
-    // TEMPORARY comment in listing-quota.ts) — assert against the live
-    // constant instead of a hardcoded number so this test doesn't fight
-    // that intentional, self-documented change.
-    const freeLimit = getListingAnalysisLimit("free");
+    expect(getListingAnalysisLimit("free")).toBe(3);
     expect(getListingAnalysisLimit("pro")).toBe(20);
     expect(getListingAnalysisLimit("proPlus")).toBe(Number.POSITIVE_INFINITY);
-    expect(formatListingAnalysisLimit("free")).toBe(String(freeLimit));
+    expect(formatListingAnalysisLimit("free")).toBe("3");
     expect(formatListingAnalysisLimit("pro")).toBe("20");
     expect(formatListingAnalysisLimit("proPlus")).toBe("Sınırsız");
+  });
+
+  it("her ücretli paket ücretsizden kesinlikle daha fazlasını verir", () => {
+    // Bu değişmez olmadan, ücretsiz limiti geçici olarak yükseltilmiş bir
+    // sürüm sessizce yayına çıkabiliyordu: paywall ücretsiz kartta "1000",
+    // Pro kartında "20" gösteriyordu — yani ücretli paket ücretsizden az
+    // görünüyordu ve ücretsiz kullanıcı paywall'a hiç çarpmıyordu.
+    // Eski test limiti canlı sabitten okuduğu için bunu yakalayamıyordu.
+    const free = getListingAnalysisLimit("free");
+    const pro = getListingAnalysisLimit("pro");
+    const proPlus = getListingAnalysisLimit("proPlus");
+
+    expect(free).toBeLessThan(pro);
+    expect(pro).toBeLessThan(proPlus);
   });
 
   it("free tier gets exactly its configured lifetime cap of analyses, never resetting", () => {
