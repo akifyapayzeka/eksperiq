@@ -184,6 +184,10 @@ export function PaywallPlansScreen({
                 <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
                 Daha fazla araç takibi
               </p>
+              <p className="mt-1 flex items-center gap-2 text-sm text-foreground/90">
+                <Check aria-hidden="true" className="h-4 w-4 shrink-0 text-success" />
+                PDF rapor çıktısı
+              </p>
               <button
                 type="button"
                 onClick={() => handlePlanCta(plan)}

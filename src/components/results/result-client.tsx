@@ -18,6 +18,9 @@ import { appConfig } from "@/lib/constants/app";
 import { shareReportPdf } from "@/lib/report/pdf-share";
 import { BUYER_DECISION_GUIDE, BUYER_EDUCATION_NOTES } from "@/lib/analysis/buyer-education";
 import { mileageAnswer, mileageSummarySentence } from "@/lib/analysis/mileage-summary";
+import { useSubscriptionTier } from "@/lib/pro/tier";
+import { canExportReportPdf, PDF_EXPORT_PAYWALL_COPY } from "@/lib/pro/pdf-export-gate";
+import { PlanPaywallDialog } from "@/components/paywall/plan-paywall-dialog";
 import { SCORE_WEIGHTS } from "@/lib/constants/analysis";
 import {
   loadAnalysis,
@@ -533,6 +536,8 @@ export function ResultClient() {
   const [toastNonce, setToastNonce] = useState(0);
   const [activeTab, setActiveTab] = useState<ReportTab>("karar");
   const [selectedListingImageIndex, setSelectedListingImageIndex] = useState<number | null>(null);
+  const tier = useSubscriptionTier();
+  const [pdfPaywallOpen, setPdfPaywallOpen] = useState(false);
   const [listingImageZoom, setListingImageZoom] = useState(MIN_IMAGE_ZOOM);
   const pinchStartDistanceRef = useRef<number | null>(null);
   const pinchStartZoomRef = useRef(MIN_IMAGE_ZOOM);
@@ -716,6 +721,13 @@ export function ResultClient() {
 
   async function shareSummary() {
     if (!result) return;
+
+    // PDF sunucuda üretiliyor (maliyetli) ve pricing.ts bunu zaten Pro
+    // içeriği olarak sayıyor — ücretsiz pakette istek hiç gönderilmiyor.
+    if (!canExportReportPdf(tier)) {
+      setPdfPaywallOpen(true);
+      return;
+    }
 
     const outcome = await shareReportPdf(result);
 
@@ -1644,6 +1656,14 @@ export function ResultClient() {
           </div>
         </div>
       ) : null}
+
+      <PlanPaywallDialog
+        open={pdfPaywallOpen}
+        headline={PDF_EXPORT_PAYWALL_COPY.headline}
+        description={PDF_EXPORT_PAYWALL_COPY.description}
+        dismissLabel={PDF_EXPORT_PAYWALL_COPY.dismissLabel}
+        onDismiss={() => setPdfPaywallOpen(false)}
+      />
     </>
   );
 }
