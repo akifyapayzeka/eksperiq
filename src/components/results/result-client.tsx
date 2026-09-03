@@ -17,6 +17,7 @@ import {
 import { appConfig } from "@/lib/constants/app";
 import { shareReportPdf } from "@/lib/report/pdf-share";
 import { BUYER_DECISION_GUIDE, BUYER_EDUCATION_NOTES } from "@/lib/analysis/buyer-education";
+import { mileageAnswer, mileageSummarySentence } from "@/lib/analysis/mileage-summary";
 import { SCORE_WEIGHTS } from "@/lib/constants/analysis";
 import {
   loadAnalysis,
@@ -458,7 +459,7 @@ function answeredBuyerQuestions(result: AnalysisResult): Array<{ question: strin
     { question: "Kronik sorunu var mı?", answer: knownIssueAnswer },
     {
       question: "Km normal mi?",
-      answer: `${result.mileage.label}. Yıllık yaklaşık ${result.mileage.annualMileage.toLocaleString("tr-TR")} km kullanım görünüyor.`,
+      answer: mileageAnswer(result.mileage),
     },
     { question: "Boya/değişen/tramer riskli mi?", answer: damageAnswer },
     { question: "Fiyat pazarlığı yapılır mı?", answer: priceAnswer },
@@ -1504,10 +1505,7 @@ export function ResultClient() {
               </dl>
               <div className="mt-4 rounded-lg border border-border bg-muted p-4">
                 <p className="font-medium text-foreground">{result.mileage.label}</p>
-                <p className="mt-1 text-sm leading-6 text-foreground/80">
-                  Araç yaşı yaklaşık {result.mileage.vehicleAge} yıl, yıllık ortalama kullanım yaklaşık{" "}
-                  {result.mileage.annualMileage.toLocaleString("tr-TR")} km. Bu değerler yalnızca genel referanstır.
-                </p>
+                <p className="mt-1 text-sm leading-6 text-foreground/80">{mileageSummarySentence(result.mileage)}</p>
               </div>
               {result.listingImages?.length ? (
                 <div className="mt-4">
