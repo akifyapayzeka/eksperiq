@@ -5,18 +5,42 @@ const BUNDLE_ID = process.env.APP_STORE_BUNDLE_ID || "com.eksperiq.app";
 const SHOULD_CREATE_MISSING = process.argv.includes("--create-missing");
 const SHOULD_FIX_LEVELS = process.argv.includes("--fix-levels");
 const EXPECTED_GROUP_LEVEL = {
+  "com.eksperiq.app.proplus.weekly": 1,
   "com.eksperiq.app.proplus.monthly": 1,
   "com.eksperiq.app.proplus.yearly": 1,
+  "com.eksperiq.app.pro.weekly": 2,
   "com.eksperiq.app.pro.monthly": 2,
   "com.eksperiq.app.pro.yearly": 2,
 };
 const EXPECTED_PRODUCT_IDS = [
+  "com.eksperiq.app.pro.weekly",
   "com.eksperiq.app.pro.monthly",
   "com.eksperiq.app.pro.yearly",
+  "com.eksperiq.app.proplus.weekly",
   "com.eksperiq.app.proplus.monthly",
   "com.eksperiq.app.proplus.yearly",
 ];
 const PRODUCT_DEFINITIONS = new Map([
+  [
+    "com.eksperiq.app.pro.weekly",
+    {
+      name: "EksperIQ Pro Haftalık",
+      productId: "com.eksperiq.app.pro.weekly",
+      subscriptionPeriod: "ONE_WEEK",
+      groupLevel: 2,
+      familySharable: false,
+    },
+  ],
+  [
+    "com.eksperiq.app.proplus.weekly",
+    {
+      name: "EksperIQ Pro+ Haftalık",
+      productId: "com.eksperiq.app.proplus.weekly",
+      subscriptionPeriod: "ONE_WEEK",
+      groupLevel: 1,
+      familySharable: false,
+    },
+  ],
   [
     "com.eksperiq.app.pro.yearly",
     {

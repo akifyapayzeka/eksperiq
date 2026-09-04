@@ -5,7 +5,14 @@ import Link from "next/link";
 import { Check, Clock, ExternalLink, RotateCcw, Sparkles } from "lucide-react";
 import { EKSPERIQ_PLAN_PRICING, type EksperIqPlanPricing } from "@/lib/pro/pricing";
 import { formatListingAnalysisLimit } from "@/lib/pro/listing-quota";
-import { DEFAULT_BILLING_PERIOD, yearlyFreeMonths, yearlySavingsPercent } from "@/lib/pro/billing-period";
+import {
+  BILLING_PERIODS,
+  DEFAULT_BILLING_PERIOD,
+  productIdForPeriod,
+  type BillingPeriod,
+  yearlyFreeMonths,
+  yearlySavingsPercent,
+} from "@/lib/pro/billing-period";
 import { purchasePlan, restorePurchases } from "@/lib/pro/entitlement";
 import { SubscriptionManager } from "@/lib/pro/subscription-manager";
 import type { NativeProductInfo } from "@/lib/pro/native-entitlement-plugin";
@@ -15,6 +22,13 @@ const isStoreKitPurchasesEnabled = process.env.NEXT_PUBLIC_STOREKIT_PURCHASES_EN
 
 /** Apple's "Manage Subscriptions" universal link — works from any platform, no app scheme needed. */
 const MANAGE_SUBSCRIPTIONS_URL = "https://apps.apple.com/account/subscriptions";
+
+/** Dönem seçicideki sekme adları. */
+const PERIOD_TAB_LABEL: Record<BillingPeriod, string> = {
+  weekly: "Haftalık",
+  monthly: "Aylık",
+  yearly: "Yıllık",
+};
 
 const PERIOD_LABEL: Record<string, string> = {
   day: "gün",
@@ -57,7 +71,7 @@ export function PaywallPlansScreen({
   dismissLabel?: string;
   onDismiss?: () => void;
 }) {
-  const [billing, setBilling] = useState<"monthly" | "yearly">(DEFAULT_BILLING_PERIOD);
+  const [billing, setBilling] = useState<BillingPeriod>(DEFAULT_BILLING_PERIOD);
   const [purchaseMessage, setPurchaseMessage] = useState<string | null>(null);
   const [purchasingPlanId, setPurchasingPlanId] = useState<string | null>(null);
   const [isRestoring, setIsRestoring] = useState(false);
@@ -85,7 +99,7 @@ export function PaywallPlansScreen({
 
   async function handlePlanCta(plan: EksperIqPlanPricing) {
     if (purchasingPlanId) return;
-    const productId = billing === "monthly" ? plan.monthlyProductId : plan.yearlyProductId;
+    const productId = productIdForPeriod(plan, billing);
     setPurchasingPlanId(plan.id);
     setPurchaseMessage(null);
     try {
@@ -139,20 +153,17 @@ export function PaywallPlansScreen({
       </div>
 
       <div className="mb-4 flex justify-center gap-1 rounded-full border border-border bg-muted p-1">
-        <button
-          type="button"
-          onClick={() => setBilling("monthly")}
-          className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${billing === "monthly" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
-        >
-          Aylık
-        </button>
-        <button
-          type="button"
-          onClick={() => setBilling("yearly")}
-          className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${billing === "yearly" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
-        >
-          Yıllık{maxYearlySavings > 0 ? ` (%${maxYearlySavings} tasarruf)` : ""}
-        </button>
+        {BILLING_PERIODS.map((period) => (
+          <button
+            key={period}
+            type="button"
+            onClick={() => setBilling(period)}
+            className={`rounded-full px-3 py-1.5 text-sm font-semibold transition ${billing === period ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+          >
+            {PERIOD_TAB_LABEL[period]}
+            {period === "yearly" && maxYearlySavings > 0 ? ` (%${maxYearlySavings})` : ""}
+          </button>
+        ))}
       </div>
 
       <div className="grid gap-3">
@@ -172,7 +183,7 @@ export function PaywallPlansScreen({
         </div>
 
         {plans.map((plan) => {
-          const productId = billing === "monthly" ? plan.monthlyProductId : plan.yearlyProductId;
+          const productId = productIdForPeriod(plan, billing);
           const product = findProduct(products, productId);
           return (
             <div key={plan.id} className="rounded-theme border border-border bg-card p-4 shadow-sm">
@@ -196,6 +207,14 @@ export function PaywallPlansScreen({
                 <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-success">
                   <Check aria-hidden="true" className="h-4 w-4 shrink-0" />
                   Yıllık ödemede {yearlyFreeMonths(plan)} ay bedava
+                </p>
+              ) : null}
+              {billing === "weekly" ? (
+                // Kısa taahhüdün birim başına pahalı olduğunu gizlemek yerine
+                // söylüyoruz: bir hafta araç bakacak kullanıcı için doğru
+                // seçenek bu, ama uzun kullanacak kullanıcı aylığa yönelmeli.
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                  Tek bir araç için kısa süreli erişim. Bir aydan uzun kullanacaksanız aylık plan daha uygun.
                 </p>
               ) : null}
               <button

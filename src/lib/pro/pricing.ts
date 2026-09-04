@@ -3,11 +3,14 @@ export type EksperIqPaidPlanId = "pro" | "proPlus";
 export interface EksperIqPlanPricing {
   id: EksperIqPaidPlanId;
   name: string;
+  /** App Store Connect subscription product id for the weekly period. */
+  weeklyProductId: string;
   /** App Store Connect subscription product id for the monthly period. */
   monthlyProductId: string;
   /** App Store Connect subscription product id for the yearly period. */
   yearlyProductId: string;
   monthlyOperatingCostTry: number;
+  weeklyPriceTry: number;
   monthlyPriceTry: number;
   yearlyPriceTry: number;
   notes: string;
@@ -20,14 +23,24 @@ const PRO_COST_MULTIPLE = 5;
 const PRO_PLUS_COST_MULTIPLE = PRO_COST_MULTIPLE;
 // Yillik plan aylik fiyatin 12 kati yerine 10 kati: ~%17 indirim (2 ay bedava mantigi).
 const YEARLY_MONTHS_EQUIVALENT = 10;
+/**
+ * Haftalık plan, araç arayan kullanıcının gerçek kullanım süresine göre var:
+ * insanlar araba bakarken 1-2 hafta yoğun kullanıp bırakıyor, bir yıl boyunca
+ * her ay ödemek istemiyor. Kısa taahhüt birim başına PAHALI olmalı, yoksa
+ * aylık plan anlamsızlaşır: haftalık = aylığın yarısı, yani dört hafta
+ * kullanmak aylık plandan belirgin biçimde pahalıya gelir ve uzun kullanacak
+ * kullanıcı doğal olarak aylığa/yıllığa yönelir.
+ */
+const WEEKLY_MONTH_FRACTION = 0.5;
 
 function plan(
-  input: Omit<EksperIqPlanPricing, "monthlyPriceTry" | "yearlyPriceTry">,
+  input: Omit<EksperIqPlanPricing, "weeklyPriceTry" | "monthlyPriceTry" | "yearlyPriceTry">,
   costMultiple: number,
 ): EksperIqPlanPricing {
   const monthlyPriceTry = input.monthlyOperatingCostTry * costMultiple;
   return {
     ...input,
+    weeklyPriceTry: monthlyPriceTry * WEEKLY_MONTH_FRACTION,
     monthlyPriceTry,
     yearlyPriceTry: monthlyPriceTry * YEARLY_MONTHS_EQUIVALENT,
   };
@@ -41,6 +54,7 @@ export const EKSPERIQ_PLAN_PRICING: Record<EksperIqPaidPlanId, EksperIqPlanPrici
     {
       id: "pro",
       name: "EksperIQ Pro",
+      weeklyProductId: "com.eksperiq.app.pro.weekly",
       monthlyProductId: "com.eksperiq.app.pro.monthly",
       yearlyProductId: "com.eksperiq.app.pro.yearly",
       monthlyOperatingCostTry: 30,
@@ -52,6 +66,7 @@ export const EKSPERIQ_PLAN_PRICING: Record<EksperIqPaidPlanId, EksperIqPlanPrici
     {
       id: "proPlus",
       name: "EksperIQ Pro+",
+      weeklyProductId: "com.eksperiq.app.proplus.weekly",
       monthlyProductId: "com.eksperiq.app.proplus.monthly",
       yearlyProductId: "com.eksperiq.app.proplus.yearly",
       monthlyOperatingCostTry: 80,
