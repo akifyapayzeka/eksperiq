@@ -22,6 +22,10 @@ const ALLOWED_STEPS = new Set([
   "js-after-fetch-ok",
   "js-after-fetch-error",
   "js-client-timeout",
+  // Uygulama arka plandan donunce verilen ek sure ("grace window") yolu.
+  // Gonderiliyordu ama bu listede yoktu: endpoint 400 donuyor, fire-and-forget
+  // ping sonucu kontrol etmedigi icin kayit hicbir iz birakmadan kayboluyordu.
+  "js-client-timeout-grace",
   "swift-task-started",
   "swift-opening-page",
   "swift-page-fetched",
