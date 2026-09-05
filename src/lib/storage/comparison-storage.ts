@@ -41,10 +41,21 @@ export function loadComparisonEntries(): ComparisonEntry[] {
   return readRaw();
 }
 
-export type AddComparisonResult = { ok: true } | { ok: false; reason: "full" };
+export type AddComparisonResult = { ok: true } | { ok: false; reason: "full" | "duplicate" };
+
+/**
+ * Karşılaştırmanın amacı FARKLI ilanları yan yana koymak. Aynı analizi ikinci
+ * kez eklemek (çift dokunuş, listeye dönüp tekrar basma) aynı aracı iki satır
+ * yapıp üç kontenjandan birini daha yiyordu. `generatedAt` her analiz için
+ * benzersiz olduğundan kimlik olarak onu kullanıyoruz.
+ */
+function isSameAnalysis(entry: ComparisonEntry, result: AnalysisResult): boolean {
+  return entry.result.generatedAt === result.generatedAt;
+}
 
 export function addToComparison(result: AnalysisResult): AddComparisonResult {
   const current = readRaw();
+  if (current.some((entry) => isSameAnalysis(entry, result))) return { ok: false, reason: "duplicate" };
   if (current.length >= MAX_COMPARISON_ENTRIES) return { ok: false, reason: "full" };
 
   const entry: ComparisonEntry = {

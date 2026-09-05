@@ -2,14 +2,18 @@ import Foundation
 import StoreKit
 
 // EksperIQEntitlementStore — real StoreKit 2 implementation written for the
-// production-hardening effort, but it has NEVER been compiled or run: this
-// repository has no Xcode/Swift toolchain, and there is no App Store
-// Connect subscription product for PRO_MONTHLY_PRODUCT_ID
-// ("com.eksperiq.app.pro.monthly") yet either. Before this can be trusted:
-//   1. Create the subscription product in App Store Connect with that
-//      exact product id (or update the constant on both sides to match).
-//   2. Open the project in Xcode, fix any compile errors, run on the
-//      StoreKit Testing / Sandbox environment.
+// production-hardening effort. This repository has no Xcode/Swift
+// toolchain, so it has never been compiled here directly — but
+// .github/workflows/ios-xcode-build-check.yml (a real Xcode 26 macOS
+// runner) has compiled this exact file successfully (BUILD SUCCEEDED) as
+// recently as commit 9a589bf; nothing under ios/App/App/Plugins has
+// changed since. That verifies syntax/API compatibility only — it has
+// still never been RUN. Before this can be trusted:
+//   1. DONE — all four subscription products (com.eksperiq.app.pro.monthly,
+//      .pro.yearly, .proplus.monthly, .proplus.yearly) exist in App Store
+//      Connect with prices and localizations set.
+//   2. DONE (compiles) — still needs running on the StoreKit Testing /
+//      Sandbox environment at least once.
 //   3. Exercise purchase, restore, and the currentEntitlements listener on
 //      a real device against a sandbox Apple ID.
 // See docs/ios-storekit-integration.md for the full checklist.

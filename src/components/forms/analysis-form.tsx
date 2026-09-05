@@ -25,6 +25,10 @@ import { ListingImportSection } from "@/components/forms/listing-import-section"
 
 type ProgressField = keyof VehicleFormInput;
 
+/** Cihaz depolaması dolduğunda gösterilir — sessizce başarısız olup boş rapora yönlendirmek yerine. */
+const STORAGE_FULL_MESSAGE =
+  "Analiz cihaza kaydedilemedi: tarayıcı/uygulama depolama alanı dolu görünüyor. Analizlerim ekranından eski kayıtları silip tekrar deneyin.";
+
 const requiredProgressFields: Array<{ name: ProgressField; label: string }> = [
   { name: "brand", label: "Marka" },
   { name: "model", label: "Model" },
@@ -307,7 +311,13 @@ export function AnalysisForm() {
 
   function onSubmit(values: VehicleFormData) {
     const parsed = vehicleSchema.parse(values);
-    saveAnalysis(createAnalysis(parsed));
+    const outcome = saveAnalysis(createAnalysis(parsed));
+    // Kayıt gerçekten yazılmadıysa kota yakılmaz ve /sonuc'a gidilmez:
+    // yönlendirme yapılırsa kullanıcı boş/eski bir rapor görür.
+    if (!outcome.stored) {
+      setListingSubmitError(STORAGE_FULL_MESSAGE);
+      return;
+    }
     recordListingAnalysisUsed();
     router.push("/sonuc");
   }
@@ -326,7 +336,15 @@ export function AnalysisForm() {
     }
 
     const analysis = createAnalysis(imported.data);
-    saveAnalysis({ ...analysis, listingImages: imported.images, listingImageData: imported.imageData });
+    const outcome = saveAnalysis({
+      ...analysis,
+      listingImages: imported.images,
+      listingImageData: imported.imageData,
+    });
+    if (!outcome.stored) {
+      setListingSubmitError(STORAGE_FULL_MESSAGE);
+      return;
+    }
     recordListingAnalysisUsed();
     router.push("/sonuc");
   }

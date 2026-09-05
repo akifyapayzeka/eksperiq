@@ -92,6 +92,7 @@ export function ReminderCalendarScreen({
   const [recurrence, setRecurrence] = useState<ReminderRecurrence>("none");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formMessage, setFormMessage] = useState("");
+  const [notificationSyncFailed, setNotificationSyncFailed] = useState(false);
   const [isVehicleSheetOpen, setIsVehicleSheetOpen] = useState(false);
 
   useEffect(() => {
@@ -176,13 +177,25 @@ export function ReminderCalendarScreen({
     setEditingId(null);
   }
 
+  /**
+   * Bildirimi son tarihten 30/15 gun once gonderen sunucu tarafi cron,
+   * yalnizca kendisine ulasan kayitlari biliyor. Senkron basarisiz olursa
+   * kayit cihazda duruyor ama bildirim GELMEYECEK — kullanicinin bunu
+   * bilmesi gerekiyor, aksi halde MTV/sigorta/muayene tarihini bildirime
+   * guvenip kacirabilir.
+   */
   function persist(records: ReminderRecord[]) {
     setReminders(records);
     getNotificationState()
-      .then((state) => {
-        if (state === "subscribed") void syncNotifications(records);
+      .then(async (state) => {
+        if (state !== "subscribed") {
+          setNotificationSyncFailed(false);
+          return;
+        }
+        const { synced } = await syncNotifications(records);
+        setNotificationSyncFailed(!synced);
       })
-      .catch(() => {});
+      .catch(() => setNotificationSyncFailed(true));
   }
 
   function addMtvInstallments() {
@@ -405,6 +418,15 @@ export function ReminderCalendarScreen({
           {formMessage ? (
             <p role="status" className="mt-3 text-sm font-medium text-foreground/80">
               {formMessage}
+            </p>
+          ) : null}
+          {notificationSyncFailed ? (
+            <p
+              role="alert"
+              className="mt-3 rounded-theme-sm border border-warning/30 bg-warning/10 px-3 py-2 text-sm font-medium text-foreground"
+            >
+              Kayıt bu cihaza yazıldı, ancak bildirim planı sunucuya gönderilemedi — bu tarih için bildirim
+              gelmeyebilir. Bağlantınızı kontrol edip kaydı tekrar düzenleyerek yeniden deneyebilirsiniz.
             </p>
           ) : null}
         </section>

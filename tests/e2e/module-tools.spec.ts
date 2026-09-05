@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import path from "node:path";
 import { demoVehicleInput } from "../fixtures/demo-vehicle";
 import { stubClipboard } from "./helpers/clipboard";
-import { gotoAnalysisForm } from "./helpers/analysis-flow";
+import { gotoAnalysisForm, openReportTab } from "./helpers/analysis-flow";
 
 const vehiclePhotoFixturePath = path.join(__dirname, "..", "fixtures", "large-photo.jpg");
 
@@ -25,30 +25,50 @@ async function fillRequiredForm(page: Page) {
   await page.getByLabel("Satıcı açıklaması veya araç notu").fill(demoVehicleInput.sellerDescription);
 }
 
+/**
+ * Fotoğraf seçimi artık sayfada duran bir `<input type="file">` ile değil,
+ * Capacitor Camera eklentisinin "Galeriden seç" akışıyla yapılıyor
+ * (src/lib/media/pick-photos.ts — iOS'ta OS'un İngilizce aksiyon sayfasını
+ * göstermemek için). Eklentinin web uygulaması, input'u ancak butona
+ * basıldığında `#_capacitor-camera-input-gallery` id'siyle oluşturup DOM'a
+ * ekliyor ve seçim bitince kaldırıyor (@capacitor/camera .../web.js,
+ * galleryInputExperience). Bu yüzden input butona basılmadan önce yok —
+ * eski `input[type="file"]` beklentisi hiçbir zaman karşılanamıyordu.
+ */
 async function selectVehiclePhoto(page: Page) {
-  const input = page.locator('input[type="file"]').first();
   const selectedLabel = page.getByText("1 fotoğraf seçildi.");
-  await expect(input).toBeAttached();
 
-  let lastError: unknown;
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    await input.setInputFiles([]);
-    await input.setInputFiles(vehiclePhotoFixturePath);
-    const selectedCount = await input.evaluate((element: HTMLInputElement) => element.files?.length ?? 0);
+  // Eklenti input'u gizli olarak olusturup kendisi `click()` ediyor; dosya
+  // secici acilmadan kapanirsa (headless'ta hep boyle olur) "User cancelled
+  // photos app" ile reddedip input'u DOM'dan siliyor. Bu yuzden input'a
+  // dogrudan `setInputFiles` yetismiyor — seciciyi Playwright'in kendi
+  // filechooser olayiyla karsilamak gerekiyor.
+  const fileChooserPromise = page.waitForEvent("filechooser");
+  await page.getByRole("button", { name: "Galeriden seç" }).click();
+  const fileChooser = await fileChooserPromise;
+  await fileChooser.setFiles(vehiclePhotoFixturePath);
 
-    if (selectedCount === 1) {
-      try {
-        await expect(selectedLabel).toBeVisible({ timeout: 7000 });
-        return;
-      } catch (error) {
-        lastError = error;
-      }
-    }
+  await expect(selectedLabel).toBeVisible({ timeout: 10000 });
+}
 
-    await page.waitForTimeout(300);
-  }
-
-  throw lastError instanceof Error ? lastError : new Error("Vehicle photo file selection did not reach the UI.");
+/**
+ * Ikinci arac eklemek UCRETLI bir ozellik: `canAddVehicle` ucretsiz pakette
+ * 1 arac ile siniryor ve VehicleFormSheet form yerine paywall gosteriyor
+ * (src/lib/pro/vehicle-limit.ts, vehicle-form-sheet.tsx). Arac BASINA ayrisma
+ * davranisini dogrulamak icin ikinci araci UI'dan eklemek mumkun degil; kaydi
+ * dogrudan uygulamanin kendi depolama anahtarina yaziyoruz. Paywall'in
+ * gercekten ciktigi ayrica `ucretsiz pakette ikinci arac paywall acar`
+ * testinde kilitleniyor.
+ */
+async function seedSecondVehicle(page: Page, label: string) {
+  await page.evaluate((vehicleLabel) => {
+    const key = "eksperiq:vehicles";
+    const raw = window.localStorage.getItem(key);
+    const current: Array<{ id: string; label: string; createdAt: string }> = raw ? JSON.parse(raw) : [];
+    current.push({ id: `e2e-${Date.now()}`, label: vehicleLabel, createdAt: new Date().toISOString() });
+    window.localStorage.setItem(key, JSON.stringify(current));
+  }, label);
+  await page.reload();
 }
 
 async function fillUntilValue(locator: ReturnType<Page["getByLabel"]>, value: string) {
@@ -102,8 +122,19 @@ test("module cards open usable assistant tools", async ({ page }) => {
   await page.getByLabel("Güven seviyesi").selectOption("Orta olasılık");
   await page.getByRole("button", { name: "Bulguyu ekle" }).click();
   await expect(page.getByText("Ön tampon: Çizik")).toBeVisible();
-  await page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/).check();
-  await page.getByRole("button", { name: "İlanı analiz et" }).click();
+  // Bu onay kutusu yalnizca NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED="true" iken
+  // render ediliyor (src/app/fotograf-hasar/page.tsx). Bayrak yoksa dogrudan
+  // `.check()` cagirmak 120 saniyelik sessiz bir timeout'a donusuyor ve
+  // sebebini soylemiyor — bayragi acikca isimlendiren hizli bir kontrol,
+  // gercek hatayi 2 dakika beklemeden gosterir. Bayrak ci.yml'in e2e
+  // islerinde tanimli; yerelde koşarken de verilmesi gerekiyor.
+  const aiConsentCheckbox = page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/);
+  await expect(
+    aiConsentCheckbox,
+    'AI onay kutusu yok — NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED="true" verilmeden bu test çalışmaz.',
+  ).toBeVisible({ timeout: 10000 });
+  await aiConsentCheckbox.check();
+  await page.getByRole("button", { name: "Fotoğrafları analiz et" }).click();
   await expect(page.getByText("Fotoğraf kontrolü tamamlandı. Bugün kalan hak: 9")).toBeVisible();
   await expect(page.getByText("Ön tampon: Çizik")).toHaveCount(2);
 
@@ -113,10 +144,14 @@ test("module cards open usable assistant tools", async ({ page }) => {
   await expect(page).toHaveURL(/\/bakim-odeme-takvimi$/);
 
   await page.goto("/arac-saglik-karnesi");
-  // The default vehicle is hydrated asynchronously (a requestAnimationFrame
-  // after mount) — filling and submitting the form before that lands can
-  // silently no-op addRecord()'s `if (!selectedVehicleId) return;` guard.
-  await expect(page.getByLabel("Araç seç")).not.toHaveValue("");
+  // Varsayilan arac bir frame sonra hidrate oluyor (mount sonrasi
+  // requestAnimationFrame); bundan once form doldurup gondermek
+  // addRecord()'in `if (!selectedVehicleId) return;` guard'ina takilip
+  // sessizce no-op'a duser. Eskiden burada "Arac sec" select'i bekleniyordu
+  // ama o select yalnizca BIRDEN FAZLA arac varken render ediliyor — tek
+  // aracli varsayilan durumda hic yok. Aracin kendi baslik landmark'i her
+  // durumda hidrasyon bitince beliriyor.
+  await expect(page.locator("#vehicle-section-title")).toBeVisible();
   await page.getByRole("button", { name: "Yeni kayıt" }).click();
   await page.getByLabel("Başlık").fill("90 bin km bakımı");
   await page.getByRole("button", { name: "Kaydı ekle" }).click();
@@ -137,9 +172,13 @@ test("module cards open usable assistant tools", async ({ page }) => {
 
 test("health record entries persist across reloads and build a score trend", async ({ page }) => {
   await page.goto("/arac-saglik-karnesi");
-  // See the matching comment on the "module cards open usable assistant
-  // tools" test above — the default vehicle hydrates asynchronously.
-  await expect(page.getByLabel("Araç seç")).not.toHaveValue("");
+  // Varsayılan araç bir frame sonra hidrate oluyor (bkz. AGENTS/skill'deki
+  // requestAnimationFrame kalıbı); ondan önce form gönderimi sessizce
+  // no-op'a düşer. Eskiden burada "Araç seç" select'i bekleniyordu ama o
+  // select yalnızca BİRDEN FAZLA araç varken render ediliyor — tek araçlı
+  // varsayılan durumda hiç var olmuyordu. Aracın kendi başlığı, her durumda
+  // hidrasyon tamamlandığında beliren gerçek sinyal.
+  await expect(page.getByRole("heading", { name: "Aracım", exact: true })).toBeVisible();
 
   // Scoped to the record-add section: getByLabel("Tür") alone is ambiguous —
   // the page's separate Repair Cost Estimator has a "Şehir" select whose
@@ -172,16 +211,27 @@ test("health record entries persist across reloads and build a score trend", asy
   await expect(page.getByRole("heading", { name: "İlk kontrol" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "İkinci kontrol" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Araç ekle" }).click();
-  await page.getByLabel("Araç adı").fill("İkinci Arabam");
-  await page.getByRole("button", { name: "Ekle", exact: true }).click();
+  // Bu ekranda arac ekleme butonu "Yeni arac" ve arac secici, VehicleSwitcher
+  // bileseninin #vehicle-switcher-select'i degil; sayfanin kendi inline
+  // select'i ("Arac sec" etiketi) — o da yalnizca birden fazla arac varken
+  // render ediliyor, yani ikinci arac eklendikten SONRA beliriyor.
+  await seedSecondVehicle(page, "İkinci Arabam");
+  await page.getByLabel("Araç seç").selectOption({ label: "İkinci Arabam" });
   await expect(page.getByRole("heading", { name: "İkinci kontrol" })).toHaveCount(0);
   await expect(page.getByText("Henüz kayıt eklenmedi.")).toBeVisible();
 
-  await page.locator("#vehicle-switcher-select").selectOption({ label: "Aracım" });
+  await page.getByLabel("Araç seç").selectOption({ label: "Aracım" });
   await expect(page.getByRole("heading", { name: "İkinci kontrol" })).toBeVisible();
 });
 
+/**
+ * Eski hali "Soruları kopyala" ve "Raporu yazdır" butonlarına basıyordu; bu
+ * iki buton uygulamada hiç var olmadı (deponun kök commit'i dahil `src/`
+ * içinde hiç geçmiyorlar), dolayısıyla test hiç geçmemişti. Sonuç ekranının
+ * gerçek aksiyonları: her sekmede duran "Raporu paylaş" ve Alım Planı
+ * sekmesindeki "Satıcı mesajını kopyala". İkisinin de kullanıcıya görünür bir
+ * karşılık verdiği burada doğrulanıyor.
+ */
 test("report action buttons show visible feedback", async ({ page }) => {
   await stubClipboard(page);
   await gotoAnalysisForm(page);
@@ -189,11 +239,14 @@ test("report action buttons show visible feedback", async ({ page }) => {
   await page.getByRole("button", { name: "Analiz oluştur" }).click();
   await expect(page).toHaveURL(/\/sonuc$/);
 
-  await page.getByRole("button", { name: "Soruları kopyala" }).click();
-  await expect(page.getByText("Satıcı soruları panoya kopyalandı.")).toBeVisible();
+  await openReportTab(page, "Alım Planı");
+  await page.getByRole("button", { name: "Satıcı mesajını kopyala" }).click();
+  await expect(page.getByText("Satıcı mesajı panoya kopyalandı.")).toBeVisible();
 
-  await page.getByRole("button", { name: "Raporu yazdır" }).click();
-  await expect(page.getByText(/Yazdırma penceresi açıldı/)).toBeVisible();
+  // PDF sunucuda üretiliyor ve ücretli pakete ait: ücretsiz kullanıcıda istek
+  // hiç gönderilmiyor, bunun yerine paket ekranı açılıyor.
+  await page.getByRole("button", { name: "Raporu paylaş" }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
 });
 
 test("comparison page lists analyses added from the result screen and enforces the 3-entry cap", async ({ page }) => {
@@ -213,11 +266,14 @@ test("comparison page lists analyses added from the result screen and enforces t
     await page.getByLabel("İstenen fiyat").fill(price);
     await page.getByRole("button", { name: "Analiz oluştur" }).click();
     await expect(page).toHaveURL(/\/sonuc$/);
-    await page.getByRole("button", { name: "Karşılaştırmaya ekle" }).click();
+    // Karşılaştırmaya ekleme sonuç ekranından değil, kayıtlı analiz
+    // listesinden yapılıyor — sonuç ekranı tek aksiyonla sade tutuluyor.
+    await page.goto("/analizlerim");
+    await page.getByRole("button", { name: "Karşılaştırmaya ekle" }).first().click();
   }
 
   await createAndAddAnalysis("1200000");
-  await expect(page.getByText("İlan karşılaştırma listesine eklendi.")).toBeVisible();
+  await expect(page.getByText("Karşılaştırmaya eklendi.")).toBeVisible();
 
   await createAndAddAnalysis("1350000");
   await createAndAddAnalysis("1450000");
@@ -228,9 +284,7 @@ test("comparison page lists analyses added from the result screen and enforces t
   await expect(page.getByRole("cell", { name: "1.450.000 TL" })).toBeVisible();
 
   await createAndAddAnalysis("1500000");
-  await expect(
-    page.getByText("Karşılaştırma listesi dolu (en fazla 3 ilan). Karşılaştırma sayfasından bir kaydı kaldırın."),
-  ).toBeVisible();
+  await expect(page.getByText(/Karşılaştırma listesi dolu \(en fazla 3 analiz\)/)).toBeVisible();
 
   await page.goto("/karsilastirma");
   await page
@@ -247,22 +301,37 @@ test("clicking 'Karşılaştırmaya ekle' twice on the same result only adds one
   await page.getByRole("button", { name: "Analiz oluştur" }).click();
   await expect(page).toHaveURL(/\/sonuc$/);
 
-  await page.getByRole("button", { name: "Karşılaştırmaya ekle" }).click();
-  await expect(page.getByRole("button", { name: "Karşılaştırmaya eklendi" })).toBeDisabled();
+  await page.goto("/analizlerim");
+  const addButton = page.getByRole("button", { name: "Karşılaştırmaya ekle" }).first();
+  await addButton.click();
+  await expect(page.getByText("Karşılaştırmaya eklendi.")).toBeVisible();
+
+  // Aynı analiz ikinci kez eklenemez: üç kontenjandan biri boşa gitmesin ve
+  // karşılaştırma ekranı aynı aracı kendisiyle kıyaslamasın diye.
+  await addButton.click();
+  await expect(page.getByText("Bu analiz karşılaştırma listesinde zaten var.")).toBeVisible();
 
   await page.goto("/karsilastirma");
   await expect(page.getByRole("cell", { name: "999.000 TL" })).toHaveCount(1);
 });
 
+/**
+ * `/bakim-odeme-takvimi` artık yalnızca bir hub: takvim ekranı ikiye ayrıldı.
+ * Vergi kategorileri (MTV, trafik sigortası, kasko) `/vergi` alt rotasında —
+ * MTV taksit butonu da orada — bakım kategorileri (muayene, bakım, lastik,
+ * akü, diğer) `/bakim` alt rotasında. Bu test ikisini tek sayfada arıyordu.
+ */
 test("maintenance and payment calendar tracks upcoming dates and syncs to the garage widget", async ({ page }) => {
   await page.goto("/bakim-odeme-takvimi");
-
   await expect(page.getByRole("heading", { name: "Bildirimler" })).toBeVisible();
 
+  await page.goto("/bakim-odeme-takvimi/vergi");
+  await expect(page.locator("#vehicle-switcher-select")).not.toHaveValue("");
   await page.getByRole("button", { name: "MTV taksitlerini ekle (Ocak/Temmuz)" }).click();
   await expect(page.getByText("MTV 1. taksit")).toBeVisible();
   await expect(page.getByText("MTV 2. taksit")).toBeVisible();
 
+  await page.goto("/bakim-odeme-takvimi/bakim");
   await page.getByLabel("Tür").selectOption("muayene");
   await page.getByLabel("Başlık").fill("Araç muayenesi");
   const nearDate = new Date();
@@ -279,21 +348,21 @@ test("maintenance and payment calendar tracks upcoming dates and syncs to the ga
   await expect(page.getByText("Araç muayenesi")).toBeVisible();
   await expect(page.getByText("10 gün kaldı")).toBeVisible();
 
-  await page.goto("/bakim-odeme-takvimi");
+  await page.goto("/bakim-odeme-takvimi/vergi");
   await page.reload();
   await expect(page.getByText("MTV 1. taksit")).toBeVisible();
   await expect(page.getByText("MTV 2. taksit")).toBeVisible();
 });
 
 test("maintenance calendar keeps a separate reminder list per vehicle", async ({ page }) => {
-  await page.goto("/bakim-odeme-takvimi");
+  await page.goto("/bakim-odeme-takvimi/vergi");
+  await expect(page.locator("#vehicle-switcher-select")).not.toHaveValue("");
 
   await page.getByRole("button", { name: "MTV taksitlerini ekle (Ocak/Temmuz)" }).click();
   await expect(page.getByText("MTV 1. taksit")).toBeVisible();
 
-  await page.getByRole("button", { name: "Araç ekle" }).click();
-  await page.getByLabel("Araç adı").fill("İkinci Arabam");
-  await page.getByRole("button", { name: "Ekle", exact: true }).click();
+  await seedSecondVehicle(page, "İkinci Arabam");
+  await page.locator("#vehicle-switcher-select").selectOption({ label: "İkinci Arabam" });
 
   await expect(page.getByText("MTV 1. taksit")).toHaveCount(0);
   await expect(page.getByText("Henüz takip edilen tarih yok.")).toBeVisible();
@@ -307,25 +376,32 @@ test("maintenance calendar keeps a separate reminder list per vehicle", async ({
 });
 
 test("maintenance calendar cancels an in-progress edit when the vehicle changes", async ({ page }) => {
-  await page.goto("/bakim-odeme-takvimi");
+  await page.goto("/bakim-odeme-takvimi/vergi");
+  // Form alanlari `disabled={!selectedVehicleId}`; varsayilan arac bir frame
+  // sonra hidrate oluyor. Once secicinin gercek bir degere ulasmasini bekle,
+  // yoksa alanlar "visible ama disabled" halde takilir.
+  await expect(page.locator("#vehicle-switcher-select")).not.toHaveValue("");
 
   const form = page.locator("section", { has: page.getByRole("heading", { name: "Kayıt ekle" }) });
   const titleInput = form.getByLabel("Başlık");
   await expect(titleInput).toHaveValue("MTV taksiti");
-  await form.getByLabel("Tür").selectOption("muayene");
-  await fillUntilValue(titleInput, "Aracım muayenesi");
+  // "muayene" bir BAKIM kategorisi; vergi ekraninin Tur listesinde yok
+  // (TAX_CATEGORIES = mtv / trafik-sigortasi / kasko). Testin amaci kategori
+  // degil, "arac degisince yarim kalan duzenleme iptal olur" davranisi.
+  await form.getByLabel("Tür").selectOption("kasko");
+  await fillUntilValue(titleInput, "Aracım kaskosu");
   await form.getByLabel("Son tarih").fill("2026-12-01");
-  await fillUntilValue(titleInput, "Aracım muayenesi");
-  await expect(titleInput).toHaveValue("Aracım muayenesi");
+  await fillUntilValue(titleInput, "Aracım kaskosu");
+  await expect(titleInput).toHaveValue("Aracım kaskosu");
   await expect(form.getByLabel("Son tarih")).toHaveValue("2026-12-01");
   await page.getByRole("button", { name: "Kaydı ekle", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Aracım muayenesi" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Aracım kaskosu" })).toBeVisible();
   await page.getByText("Düzenle", { exact: true }).click();
   await expect(page.getByRole("heading", { name: "Kaydı düzenle" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Araç ekle" }).click();
-  await page.getByLabel("Araç adı").fill("İkinci Arabam");
-  await page.getByRole("button", { name: "Ekle", exact: true }).click();
+  await seedSecondVehicle(page, "İkinci Arabam");
+  await expect(page.locator("#vehicle-switcher-select")).not.toHaveValue("");
+  await page.locator("#vehicle-switcher-select").selectOption({ label: "İkinci Arabam" });
 
   await expect(page.getByRole("heading", { name: "Kayıt ekle" })).toBeVisible();
   await expect(page.getByLabel("Başlık")).toHaveValue("MTV taksiti");
@@ -423,7 +499,7 @@ test("photo damage tool refuses non-vehicle photos via the AI's own check", asyn
   await page.goto("/fotograf-hasar");
   await selectVehiclePhoto(page);
   await page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/).check();
-  await page.getByRole("button", { name: "İlanı analiz et" }).click();
+  await page.getByRole("button", { name: "Fotoğrafları analiz et" }).click();
   await expect(
     page.getByText("Bu görsellerde araç veya araç parçası güvenle tespit edilemedi. Hasar bulgusu oluşturulmadı."),
   ).toBeVisible();
@@ -450,4 +526,19 @@ test("saved photo analysis appears in Analizlerim", async ({ page }) => {
 
   await page.getByRole("button", { name: "Sil" }).click();
   await expect(page.getByText("Henüz kaydedilmiş fotoğraf analizi yok.")).toBeVisible();
+});
+
+/**
+ * Ucretsiz paketin arac siniri gercek bir gelir kurali; testlerin onu
+ * atlamasi (ikinci araci depolamaya yazarak) kuralin kendisinin
+ * dogrulanmadigi anlamina gelmesin diye burada ayrica kilitleniyor.
+ */
+test("ücretsiz pakette ikinci araç eklemek paywall açar", async ({ page }) => {
+  await page.goto("/arac-saglik-karnesi");
+  await expect(page.locator("#vehicle-section-title")).toBeVisible();
+
+  await page.getByRole("button", { name: "Yeni araç" }).click();
+
+  await expect(page.getByLabel("Araç adı")).toHaveCount(0);
+  await expect(page.getByRole("dialog")).toBeVisible();
 });

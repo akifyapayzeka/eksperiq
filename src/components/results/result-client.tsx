@@ -17,6 +17,10 @@ import {
 import { appConfig } from "@/lib/constants/app";
 import { shareReportPdf } from "@/lib/report/pdf-share";
 import { BUYER_DECISION_GUIDE, BUYER_EDUCATION_NOTES } from "@/lib/analysis/buyer-education";
+import { mileageAnswer, mileageSummarySentence } from "@/lib/analysis/mileage-summary";
+import { useSubscriptionTier } from "@/lib/pro/tier";
+import { canExportReportPdf, PDF_EXPORT_PAYWALL_COPY } from "@/lib/pro/pdf-export-gate";
+import { PlanPaywallDialog } from "@/components/paywall/plan-paywall-dialog";
 import { SCORE_WEIGHTS } from "@/lib/constants/analysis";
 import {
   loadAnalysis,
@@ -458,7 +462,7 @@ function answeredBuyerQuestions(result: AnalysisResult): Array<{ question: strin
     { question: "Kronik sorunu var mı?", answer: knownIssueAnswer },
     {
       question: "Km normal mi?",
-      answer: `${result.mileage.label}. Yıllık yaklaşık ${result.mileage.annualMileage.toLocaleString("tr-TR")} km kullanım görünüyor.`,
+      answer: mileageAnswer(result.mileage),
     },
     { question: "Boya/değişen/tramer riskli mi?", answer: damageAnswer },
     { question: "Fiyat pazarlığı yapılır mı?", answer: priceAnswer },
@@ -525,13 +529,17 @@ const purchaseDocumentChecks = [
 export function ResultClient() {
   const [isReady, setIsReady] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [copyStatus, setCopyStatus] = useState<"idle" | "summary-copied" | "shared" | "downloaded" | "failed">("idle");
+  const [copyStatus, setCopyStatus] = useState<"idle" | "seller-message-copied" | "shared" | "downloaded" | "failed">(
+    "idle",
+  );
   const [findingFilter, setFindingFilter] = useState<FindingFilter>("all");
   const [checkedChecklist, setCheckedChecklist] = useState<Set<string>>(new Set());
   const [scoreRingFilled, setScoreRingFilled] = useState(false);
   const [toastNonce, setToastNonce] = useState(0);
   const [activeTab, setActiveTab] = useState<ReportTab>("karar");
   const [selectedListingImageIndex, setSelectedListingImageIndex] = useState<number | null>(null);
+  const tier = useSubscriptionTier();
+  const [pdfPaywallOpen, setPdfPaywallOpen] = useState(false);
   const [listingImageZoom, setListingImageZoom] = useState(MIN_IMAGE_ZOOM);
   const pinchStartDistanceRef = useRef<number | null>(null);
   const pinchStartZoomRef = useRef(MIN_IMAGE_ZOOM);
@@ -679,7 +687,7 @@ export function ResultClient() {
     swipeStartRef.current = null;
   }
 
-  async function copyText(text: string, successStatus: "summary-copied") {
+  async function copyText(text: string, successStatus: "seller-message-copied") {
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
@@ -716,6 +724,13 @@ export function ResultClient() {
   async function shareSummary() {
     if (!result) return;
 
+    // PDF sunucuda üretiliyor (maliyetli) ve pricing.ts bunu zaten Pro
+    // içeriği olarak sayıyor — ücretsiz pakette istek hiç gönderilmiyor.
+    if (!canExportReportPdf(tier)) {
+      setPdfPaywallOpen(true);
+      return;
+    }
+
     const outcome = await shareReportPdf(result);
 
     if (outcome === "shared") {
@@ -728,7 +743,10 @@ export function ResultClient() {
   }
 
   function actionStatusMessage() {
-    if (copyStatus === "summary-copied") return "Rapor özeti panoya kopyalandı.";
+    // Bu durumu tetikleyen tek buton "Satici mesajini kopyala"; eskiden
+    // "Rapor ozeti panoya kopyalandi." diyordu, yani kullaniciya kopyalanan
+    // seyin adini yanlis soyluyordu.
+    if (copyStatus === "seller-message-copied") return "Satıcı mesajı panoya kopyalandı.";
     if (copyStatus === "shared") return "Rapor PDF'i paylaşım paneline gönderildi.";
     if (copyStatus === "downloaded") return "Rapor PDF olarak indirildi.";
     if (copyStatus === "failed") return "Paylaşma veya kopyalama tarayıcı tarafından engellendi.";
@@ -1335,7 +1353,7 @@ export function ResultClient() {
                 </pre>
                 <button
                   type="button"
-                  onClick={() => void copyText(sellerMessageText, "summary-copied")}
+                  onClick={() => void copyText(sellerMessageText, "seller-message-copied")}
                   className="no-print mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
                 >
                   <MessageSquareText aria-hidden="true" className="h-4 w-4" />
@@ -1504,10 +1522,7 @@ export function ResultClient() {
               </dl>
               <div className="mt-4 rounded-lg border border-border bg-muted p-4">
                 <p className="font-medium text-foreground">{result.mileage.label}</p>
-                <p className="mt-1 text-sm leading-6 text-foreground/80">
-                  Araç yaşı yaklaşık {result.mileage.vehicleAge} yıl, yıllık ortalama kullanım yaklaşık{" "}
-                  {result.mileage.annualMileage.toLocaleString("tr-TR")} km. Bu değerler yalnızca genel referanstır.
-                </p>
+                <p className="mt-1 text-sm leading-6 text-foreground/80">{mileageSummarySentence(result.mileage)}</p>
               </div>
               {result.listingImages?.length ? (
                 <div className="mt-4">
@@ -1646,6 +1661,14 @@ export function ResultClient() {
           </div>
         </div>
       ) : null}
+
+      <PlanPaywallDialog
+        open={pdfPaywallOpen}
+        headline={PDF_EXPORT_PAYWALL_COPY.headline}
+        description={PDF_EXPORT_PAYWALL_COPY.description}
+        dismissLabel={PDF_EXPORT_PAYWALL_COPY.dismissLabel}
+        onDismiss={() => setPdfPaywallOpen(false)}
+      />
     </>
   );
 }

@@ -15,15 +15,19 @@ import type { EksperIqPaidPlanId } from "./pricing";
 export type EntitlementState = "free" | "pro" | "expired" | "billingRetry" | "gracePeriod" | "revoked" | "unknown";
 
 /** App Store Connect subscription product ids — must match exactly what's created there. */
+export const PRO_WEEKLY_PRODUCT_ID = "com.eksperiq.app.pro.weekly";
 export const PRO_MONTHLY_PRODUCT_ID = "com.eksperiq.app.pro.monthly";
 export const PRO_YEARLY_PRODUCT_ID = "com.eksperiq.app.pro.yearly";
+export const PRO_PLUS_WEEKLY_PRODUCT_ID = "com.eksperiq.app.proplus.weekly";
 export const PRO_PLUS_MONTHLY_PRODUCT_ID = "com.eksperiq.app.proplus.monthly";
 export const PRO_PLUS_YEARLY_PRODUCT_ID = "com.eksperiq.app.proplus.yearly";
 
 /** Every subscription product id this app can sell — checked as a group when resolving entitlement. */
 export const ALL_PRODUCT_IDS = [
+  PRO_WEEKLY_PRODUCT_ID,
   PRO_MONTHLY_PRODUCT_ID,
   PRO_YEARLY_PRODUCT_ID,
+  PRO_PLUS_WEEKLY_PRODUCT_ID,
   PRO_PLUS_MONTHLY_PRODUCT_ID,
   PRO_PLUS_YEARLY_PRODUCT_ID,
 ];
@@ -51,8 +55,10 @@ const STATE_PRIORITY: EntitlementState[] = [
 ];
 
 const PRODUCT_TIER: Record<string, EksperIqPaidPlanId> = {
+  [PRO_WEEKLY_PRODUCT_ID]: "pro",
   [PRO_MONTHLY_PRODUCT_ID]: "pro",
   [PRO_YEARLY_PRODUCT_ID]: "pro",
+  [PRO_PLUS_WEEKLY_PRODUCT_ID]: "proPlus",
   [PRO_PLUS_MONTHLY_PRODUCT_ID]: "proPlus",
   [PRO_PLUS_YEARLY_PRODUCT_ID]: "proPlus",
 };

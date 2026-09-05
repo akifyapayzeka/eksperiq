@@ -17,7 +17,7 @@ export function ProfilePlansPromoSection() {
     <section className="mt-4 flex justify-center rounded-theme border border-border bg-card p-5 shadow-sm">
       <PaywallPlansScreen
         headline={tier === "pro" ? "Pro+'a yükseltin" : "Pro ile daha güçlü analiz"}
-        description="Pro ayda 20 ilan linki analizi, Pro+ sınırsız ilan analizi verir."
+        description="Pro ayda 20 araç analizi, Pro+ sınırsız araç analizi verir."
       />
     </section>
   );
