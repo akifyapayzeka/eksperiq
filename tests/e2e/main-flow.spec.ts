@@ -284,7 +284,7 @@ test("copies seller-ready message to clipboard", async ({ page }) => {
 
   await openReportTab(page, "Alım Planı");
   await page.getByRole("button", { name: "Satıcı mesajını kopyala" }).click();
-  await expect(page.getByText("Rapor özeti panoya kopyalandı.")).toBeVisible();
+  await expect(page.getByText("Satıcı mesajı panoya kopyalandı.")).toBeVisible();
 
   const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
   // Butonun kopyaladığı metin result-client.tsx'teki şablon; test eskiden

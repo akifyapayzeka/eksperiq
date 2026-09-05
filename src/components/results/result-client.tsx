@@ -529,7 +529,9 @@ const purchaseDocumentChecks = [
 export function ResultClient() {
   const [isReady, setIsReady] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [copyStatus, setCopyStatus] = useState<"idle" | "summary-copied" | "shared" | "downloaded" | "failed">("idle");
+  const [copyStatus, setCopyStatus] = useState<"idle" | "seller-message-copied" | "shared" | "downloaded" | "failed">(
+    "idle",
+  );
   const [findingFilter, setFindingFilter] = useState<FindingFilter>("all");
   const [checkedChecklist, setCheckedChecklist] = useState<Set<string>>(new Set());
   const [scoreRingFilled, setScoreRingFilled] = useState(false);
@@ -685,7 +687,7 @@ export function ResultClient() {
     swipeStartRef.current = null;
   }
 
-  async function copyText(text: string, successStatus: "summary-copied") {
+  async function copyText(text: string, successStatus: "seller-message-copied") {
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
@@ -741,7 +743,10 @@ export function ResultClient() {
   }
 
   function actionStatusMessage() {
-    if (copyStatus === "summary-copied") return "Rapor özeti panoya kopyalandı.";
+    // Bu durumu tetikleyen tek buton "Satici mesajini kopyala"; eskiden
+    // "Rapor ozeti panoya kopyalandi." diyordu, yani kullaniciya kopyalanan
+    // seyin adini yanlis soyluyordu.
+    if (copyStatus === "seller-message-copied") return "Satıcı mesajı panoya kopyalandı.";
     if (copyStatus === "shared") return "Rapor PDF'i paylaşım paneline gönderildi.";
     if (copyStatus === "downloaded") return "Rapor PDF olarak indirildi.";
     if (copyStatus === "failed") return "Paylaşma veya kopyalama tarayıcı tarafından engellendi.";
@@ -1348,7 +1353,7 @@ export function ResultClient() {
                 </pre>
                 <button
                   type="button"
-                  onClick={() => void copyText(sellerMessageText, "summary-copied")}
+                  onClick={() => void copyText(sellerMessageText, "seller-message-copied")}
                   className="no-print mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
                 >
                   <MessageSquareText aria-hidden="true" className="h-4 w-4" />

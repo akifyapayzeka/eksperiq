@@ -230,7 +230,7 @@ test("report action buttons show visible feedback", async ({ page }) => {
 
   await openReportTab(page, "Alım Planı");
   await page.getByRole("button", { name: "Satıcı mesajını kopyala" }).click();
-  await expect(page.getByText("Rapor özeti panoya kopyalandı.")).toBeVisible();
+  await expect(page.getByText("Satıcı mesajı panoya kopyalandı.")).toBeVisible();
 
   // PDF sunucuda üretiliyor ve ücretli pakete ait: ücretsiz kullanıcıda istek
   // hiç gönderilmiyor, bunun yerine paket ekranı açılıyor.
