@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { demoVehicleInput } from "../fixtures/demo-vehicle";
 import { stubClipboard } from "./helpers/clipboard";
-import { gotoAnalysisForm } from "./helpers/analysis-flow";
+import { gotoAnalysisForm, openReportTab } from "./helpers/analysis-flow";
 
 async function fillRequiredForm(page: Page) {
   await page.getByLabel("Marka").selectOption(demoVehicleInput.brand);
@@ -175,7 +175,10 @@ test("shows product module roadmap", async ({ page }) => {
     page.getByRole("heading", { name: "Sadece ilan analizi değil, araç yolculuğu asistanı." }),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "Tüm modüller" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Modülü aç/ })).toHaveCount(11);
+  // Sayı elle tutuluyor: yeni bir modül eklendiğinde ya da bir modül sessizce
+  // kaybolduğunda bu satır kırılsın diye. Kırıldığında doğru refleks sayıyı
+  // güncellemek DEĞİL, önce modülün gerçekten olması gerektiğini doğrulamak.
+  await expect(page.getByRole("link", { name: /Modülü aç/ })).toHaveCount(12);
   await expect(page.getByRole("heading", { name: "İlan Analizi", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Fotoğraftan Hasar Analizi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Araç Sağlık Karnesi" })).toBeVisible();
@@ -183,7 +186,7 @@ test("shows product module roadmap", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Test Sürüşü Kontrol Listesi" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Gider Defteri" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Karşılaştırmalı İlan Analizi" })).toBeVisible();
-  await expect(page.getByText("Kesinlik sınırı:")).toHaveCount(11);
+  await expect(page.getByText("Kesinlik sınırı:")).toHaveCount(12);
 });
 
 test("shows feedback collection flow", async ({ page }) => {
@@ -223,25 +226,27 @@ test("creates analysis result", async ({ page }) => {
   await expect(page.getByText("Zorunlu alanlar tamamlandı.")).toBeVisible();
   await page.getByRole("button", { name: "Analiz oluştur" }).click();
   await expect(page).toHaveURL(/\/sonuc$/);
+  // Sekmeden bağımsız, raporun tepesinde her zaman duran bölüm.
   await expect(page.getByText("Araç Risk Skoru")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Raporu paylaş" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Geri bildirim" })).toBeVisible();
+
+  await openReportTab(page, "Özet");
   await expect(page.getByText("Bilgi doluluğu")).toBeVisible();
-  await expect(page.getByText("Araç ve ilan özeti")).toBeVisible();
-  await expect(page.getByText("Skor nasıl okunmalı?")).toBeVisible();
-  await expect(page.getByText("Öncelik", { exact: true })).toBeVisible();
-  await expect(page.getByLabel("İlk kontrol edilecek risk")).toBeVisible();
-  await expect(page.getByText("Sonraki adım")).toBeVisible();
+  await expect(page.getByText("Kategori skorları")).toBeVisible();
+  await expect(page.getByText("Güçlü taraflar")).toBeVisible();
+  await expect(page.getByText("Öncelikli ilk aksiyonlar")).toBeVisible();
   await expect(page.getByRole("progressbar", { name: "Bilgi doluluğu yüzdesi" })).toBeVisible();
   await expect(page.getByRole("progressbar", { name: "Hasar geçmişi skoru" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Raporu yazdır" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Soruları kopyala" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Satıcı mesajını kopyala" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Rapor özetini kopyala" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Raporu paylaş" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Geri bildirim gönder" })).toBeVisible();
-  await expect(page.getByText("Öncelikli ilk aksiyonlar")).toBeVisible();
   await expect(page.getByText("TRAMER veya e-Devlet'ten doğrulanmadıkça kesin kabul edilmemelidir.")).toBeVisible();
 
-  await page.getByRole("tab", { name: "Bulgular" }).click();
+  await openReportTab(page, "Araç/Fotolar");
+  await expect(page.getByText("Araç ve ilan özeti")).toBeVisible();
+
+  await openReportTab(page, "Alım Planı");
+  await expect(page.getByRole("button", { name: "Satıcı mesajını kopyala" })).toBeVisible();
+
+  await openReportTab(page, "Riskler");
   await expect(page.getByText("Garaj kullanımı iddiası doğrulanmalı")).toBeVisible();
   await expect(page.getByLabel("Risk bulgusu dağılımı")).toBeVisible();
   await expect(page.getByText("Yüksek riskli bulgu")).toBeVisible();
@@ -250,23 +255,23 @@ test("creates analysis result", async ({ page }) => {
   await expect(page.getByRole("button", { name: /Yüksek \(/ })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText(/\/ Düşük/)).toHaveCount(0);
 
-  await page.getByRole("tab", { name: "Sorular" }).click();
+  await openReportTab(page, "Alım Planı");
   await expect(page.getByText("Satıcıya sorulacak sorular")).toBeVisible();
   await expect(page.getByText("Ekspertizde özellikle kontrol edilmesi gerekenler")).toBeVisible();
 
-  await page.getByRole("tab", { name: "Kontrol Listesi" }).click();
+  await openReportTab(page, "Kontrol Listesi");
   await expect(page.getByLabel("Tamamlanan kontroller 0 / 10")).toBeVisible();
   await page.getByLabel("Ruhsat sahibini doğruladım").check();
   await expect(page.getByLabel("Tamamlanan kontroller 1 / 10")).toBeVisible();
 
   await page.reload();
-  await page.getByRole("tab", { name: "Bulgular" }).click();
+  await openReportTab(page, "Riskler");
   await expect(page.getByRole("button", { name: /Yüksek \(/ })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText(/\/ Düşük/)).toHaveCount(0);
-  await page.getByRole("tab", { name: "Kontrol Listesi" }).click();
+  await openReportTab(page, "Kontrol Listesi");
   await expect(page.getByLabel("Tamamlanan kontroller 1 / 10")).toBeVisible();
   await expect(page.getByLabel("Ruhsat sahibini doğruladım")).toBeChecked();
-  await page.getByRole("tab", { name: "Bulgular" }).click();
+  await openReportTab(page, "Riskler");
   await page.getByRole("button", { name: /Tümü \(/ }).click();
 });
 
@@ -277,13 +282,16 @@ test("copies seller-ready message to clipboard", async ({ page }) => {
   await page.getByRole("button", { name: "Analiz oluştur" }).click();
   await expect(page).toHaveURL(/\/sonuc$/);
 
+  await openReportTab(page, "Alım Planı");
   await page.getByRole("button", { name: "Satıcı mesajını kopyala" }).click();
-  await expect(page.getByText("Satıcı mesajı panoya kopyalandı.")).toBeVisible();
+  await expect(page.getByText("Rapor özeti panoya kopyalandı.")).toBeVisible();
 
   const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+  // Butonun kopyaladığı metin result-client.tsx'teki şablon; test eskiden
+  // report-summary.ts'teki AYRI ve farklı sözcüklü şablonu doğruluyordu.
   expect(clipboardText).toContain("Merhaba, 2020 Toyota Corolla ilanınızla ilgileniyorum.");
-  expect(clipboardText).toContain("Satın alma öncesi birkaç bilgiyi netleştirmek isterim:");
-  expect(clipboardText).toContain("kesin ekspertiz sonucu değildir");
+  expect(clipboardText).toContain("Aracı görmeden önce şu bilgileri yazılı paylaşabilir misiniz?");
+  expect(clipboardText).toContain("bağımsız ekspertize göstermek");
 });
 
 test("prepares a clean print report", async ({ page }) => {
@@ -294,18 +302,35 @@ test("prepares a clean print report", async ({ page }) => {
   await expect(page.getByText(/Rapor tarihi:/)).toBeVisible();
 
   await page.emulateMedia({ media: "print" });
-  await expect(page.getByRole("button", { name: "Raporu yazdır" })).toBeHidden();
+  // Eskiden burada var olmayan bir "Raporu yazdır" butonunun gizli olduğu
+  // iddia ediliyordu; olmayan eleman zaten "hidden" sayıldığı için bu iddia
+  // hiçbir şey doğrulamıyordu. Gerçekte ekrandaki tek aksiyon "Raporu paylaş"
+  // ve baskıda gizlenmesi gereken de o.
+  await expect(page.getByRole("button", { name: "Raporu paylaş" })).toBeHidden();
+  await expect(page.getByRole("tablist", { name: "Rapor bölümleri" })).toBeHidden();
   await expect(page.getByText("Araç Risk Skoru")).toBeVisible();
   await expect(page.getByText("Satıcıya sorulacak sorular")).toBeVisible();
   await expect(page.getByRole("main").getByText("EksperIQ", { exact: true })).toBeVisible();
   await expect(page.getByText(/Rapor oluşturma:/)).toBeVisible();
 });
 
+/**
+ * Eskiden bu test `/sonuc` ekranında "Oturum verisini sil" adlı bir butona
+ * basıyordu. Böyle bir buton uygulamada hiç olmadı (deponun kök commit'i
+ * dahil hiçbir sürümde `src/` içinde geçmiyor), dolayısıyla test hiçbir zaman
+ * geçmemişti. Doğrulanan asıl davranış korunuyor: analiz oturumluk saklanır,
+ * temizlendiğinde /sonuc "Analiz bulunamadı" der.
+ */
 test("clears current session result", async ({ page }) => {
   await gotoAnalysisForm(page);
   await fillRequiredForm(page);
   await page.getByRole("button", { name: "Analiz oluştur" }).click();
-  await page.getByRole("button", { name: "Oturum verisini sil" }).click();
+  await expect(page).toHaveURL(/\/sonuc$/);
+  await expect(page.getByText("Araç Risk Skoru")).toBeVisible();
+
+  await page.evaluate(() => window.sessionStorage.clear());
+  await page.reload();
+
   await expect(page.getByRole("heading", { name: "Analiz bulunamadı" })).toBeVisible();
 });
 

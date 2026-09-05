@@ -24,7 +24,9 @@ test("garage entry opens vehicle record page", async ({ page }) => {
   await expect(garageLink).toHaveAttribute("href", "/arac-saglik-karnesi");
   await garageLink.click();
   await expect(page).toHaveURL(/\/arac-saglik-karnesi$/);
-  await expect(page.getByRole("heading", { name: "Analiz, bakım ve notları tek ekranda tut" })).toBeVisible();
+  // Sayfanın ilk landmark başlığı; eski metin ("Analiz, bakım ve notları tek
+  // ekranda tut") bu ekranda hiç bulunmuyor.
+  await expect(page.locator("#vehicle-section-title")).toBeVisible();
 });
 
 test("analysis list filters and search controls update results", async ({ page }) => {
