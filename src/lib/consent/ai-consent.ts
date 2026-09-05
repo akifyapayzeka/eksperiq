@@ -1,6 +1,7 @@
 "use client";
 
-const AI_CONSENT_KEY = "eksperiq:ai-consent-accepted";
+/** Tam sıfırlama süpürgesi bunu da temizlesin diye dışa açık (bkz. data-management/keys.ts). */
+export const AI_CONSENT_KEY = "eksperiq:ai-consent-accepted";
 
 /**
  * There is no account/sign-in system, so this is captured once per device

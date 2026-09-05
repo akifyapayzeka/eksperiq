@@ -103,3 +103,46 @@ describe("deleteAllLocalData", () => {
     await expect(deleteAllLocalData()).resolves.toEqual({ serverDeleted: false });
   });
 });
+
+/**
+ * "Tüm verilerimi sil" artık gerçek bir ekrana bağlı (Profil > Verilerim) ve
+ * kullanıcıya "Tüm verileriniz bu cihazdan silindi." diyor. O cümlenin doğru
+ * olması için silme süpürgesinin gerçekten HER kullanıcı verisini kapsaması
+ * gerekiyor — ama iki localStorage anahtarı hiçbir listede değildi:
+ * davranış olayları (`eksperiq:product-events`) ve AI onay kaydı
+ * (`eksperiq:ai-consent-accepted`). Kullanıcı "hepsini sil" diyor, cihazda
+ * davranış geçmişi kalıyordu.
+ *
+ * Aynı testin ikinci yarısı bunun TERSİNİ kilitliyor: ücretsiz paket kotası
+ * (`eksperiq:listing-quota`) silinMEmeli. Silinirse "Tüm verilerimi sil"
+ * butonu ücretsiz analiz hakkını sıfırlamanın yolu olur — yani ödeme
+ * duvarını atlatan bir kapı.
+ */
+describe("silme süpürgesinin kapsamı", () => {
+  afterEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+    vi.clearAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("davranış olaylarını ve AI onayını da siler", async () => {
+    localStorage.setItem("eksperiq:product-events", JSON.stringify([{ id: "e1", name: "analysis_created" }]));
+    localStorage.setItem("eksperiq:ai-consent-accepted", "true");
+
+    const { deleteAllLocalData } = await import("@/lib/data-management/delete-all");
+    await deleteAllLocalData();
+
+    expect(localStorage.getItem("eksperiq:product-events")).toBeNull();
+    expect(localStorage.getItem("eksperiq:ai-consent-accepted")).toBeNull();
+  });
+
+  it("ücretsiz paket kotasını SİLMEZ — silme butonu kota sıfırlama yolu olmamalı", async () => {
+    localStorage.setItem("eksperiq:listing-quota", JSON.stringify({ used: 3 }));
+
+    const { deleteAllLocalData } = await import("@/lib/data-management/delete-all");
+    await deleteAllLocalData();
+
+    expect(localStorage.getItem("eksperiq:listing-quota")).not.toBeNull();
+  });
+});
