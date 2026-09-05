@@ -54,3 +54,27 @@ test("analysis list filters and search controls update results", async ({ page }
   await page.locator("#analysis-search").fill("Toyota");
   await expect(page.getByRole("heading", { name: /Toyota Corolla/ })).toBeVisible();
 });
+
+/**
+ * "Verilerim" bölümü uzun süre koda yazılmış ama hiçbir ekrana bağlanmamıştı:
+ * `deleteAllLocalData` / `exportDataAsJson` / `getStorageUsageSummary`
+ * yazılmış ve birim testleri varken onları çağıran bileşen silinmişti — yani
+ * kullanıcının verisini toptan silmesinin veya yedeklemesinin hiçbir yolu
+ * yoktu. Birim testleri bunu göremezdi (fonksiyonlar tek tek çalışıyordu);
+ * ekrana bağlı olduğunu ancak buradaki gibi bir uçtan uca test görür.
+ */
+test("profildeki Verilerim bölümü gerçekten çalışır", async ({ page }) => {
+  await page.goto("/profil");
+  await expect(page.getByRole("heading", { name: "Verilerim" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Verilerimi dışa aktar" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Yedeği geri yükle" })).toBeVisible();
+
+  // Yanlislikla tek dokunusla silinmesin: onay yazilmadan buton kapali.
+  const deleteButton = page.getByRole("button", { name: "Tüm verilerimi sil" });
+  await expect(deleteButton).toBeDisabled();
+  await page.getByLabel("Onay").fill("SİL");
+  await expect(deleteButton).toBeEnabled();
+
+  await deleteButton.click();
+  await expect(page.getByText(/verileriniz bu cihazdan silindi/i)).toBeVisible();
+});

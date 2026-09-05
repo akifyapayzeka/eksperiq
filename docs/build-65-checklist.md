@@ -64,6 +64,31 @@ MARKETING_VERSION       = 1.0
       kullanıcıya var olmayan bir "sonuç sayfasındaki buton"u tarif ediyordu.
       Giriş noktası `/analizlerim`'e kondu (sonuç ekranına buton eklenmedi —
       o ekran bilinçli olarak tek aksiyonla sade tutuluyor). Commit: `766c4b5`
+- [x] **"Verilerim" ekranı yoktu.** `deleteAllLocalData`, `exportDataAsJson`,
+      `importDataFromJson` ve `getStorageUsageSummary` yazılmış ve birim
+      testleri varken onları çağıran bileşen silinmişti — kullanıcının verisini
+      toptan silmesinin veya yedeklemesinin hiçbir yolu yoktu. Profil ekranına
+      "Verilerim" bölümü eklendi: kullanılan alan, JSON dışa aktarma, yedeği
+      geri yükleme ve iki adımlı onayla ("SİL" yazma) toptan silme. Silmede
+      sunucudaki bildirim kaydı doğrulanamazsa bu kullanıcıya dürüstçe
+      söyleniyor. `/gizlilik` metni de buna göre güncellendi.
+- [x] **Bildirim senkronu sessizce başarısız oluyordu.** `syncRemindersToPush`
+      `response.ok`'a hiç bakmıyordu (`fetch` 500'de reddetmez) ve ağ hatasını
+      yutuyordu; dönüş tipi `void` olduğu için çağıran öğrenemiyordu. Bildirimi
+      gönderen sunucu cron'u yalnızca kendisine ULAŞAN kayıtları bildiğinden,
+      kullanıcı MTV/sigorta/muayene hatırlatması ekliyor, "Kayıt eklendi."
+      görüyor ve bildirim hiç gelmiyordu. Artık `{ synced: boolean }` dönüyor
+      ve başarısızlıkta ekranda uyarı çıkıyor. Commit: `a269056`
+- [x] **"Satıcı mesajını kopyala" yanlış bildirim veriyordu** ("Rapor özeti
+      panoya kopyalandı."). Commit: `30feafc`
+- [x] **Teşhis aracının kendisi kördü.** `js-client-timeout-grace` adımı
+      gönderiliyor ama endpoint'in allowlist'inde olmadığı için 400 ile
+      sessizce düşüyordu; logları okuyan kişi "grace yolu hiç çalışmamış"
+      sanırdı. İki listeyi birbirine bağlayan test eklendi. Commit: `e3b6912`
+- [x] **Ölü `report-summary.ts` modülü silindi.** Satıcı mesajının ikinci,
+      hiç kullanılmayan şablonuydu; birim testi de "test edilmiş" görüntüsü
+      veriyordu. Kullanıcının gördüğü canlı metin `result-client.tsx`'te ve
+      E2E ile doğrulanıyor.
 - [x] **Aynı analiz iki kez karşılaştırmaya eklenebiliyordu** — üç kontenjandan
       ikisini aynı araca harcıyor, ekran aracı kendisiyle kıyaslıyordu.
       `generatedAt` üzerinden mükerrer koruması. Commit: `766c4b5`
@@ -94,14 +119,10 @@ MARKETING_VERSION       = 1.0
 
 1. **GitHub Actions faturasını aç.** Kilit açılmadan hiçbir CI koşusu runner
    alamıyor (koşular 3 saniyede, log üretmeden `failure` oluyor).
-2. **App Store Connect'te haftalık ürünlerin Subscription Level'ını düzelt.**
-   Şu an yanlış: `pro.weekly` level=3 (olması gereken **2**),
-   `proplus.weekly` level=4 (olması gereken **1**). Monetization →
-   Subscriptions → EksperIQ Pro grubu → Subscription Levels.
-   Doğrulama: `npm run storekit:products-check` yeşile dönmeli
-   (şu an bu yüzden bilerek kırmızı).
-   Neden önemli: Pro abonesi Pro+ Haftalık aldığında Apple bunu "düşürme"
-   sayıyor ve geçişi dönem sonuna erteliyor — kullanıcı ödediğini alamıyor.
+2. ~~**Haftalık ürünlerin Subscription Level'ını düzelt.**~~ **YAPILDI**
+   (5 Eylül 2026). Ölçüm: `npm run storekit:products-check` artık
+   `EXIT=0` ve "check passed" diyor — altı ürünün hepsi doğru kademede
+   (`pro.*` = 2, `proplus.*` = 1).
 3. **CI'ı yeşile al.** PR #49'da `ci.yml` koşsun; format/typecheck/lint/unit/
    build/privacy/claims/appstore-metadata + Playwright E2E (chromium/webkit).
 4. **Merge** (senin açık onayınla) — master tek doğru kaynak olsun.
@@ -120,11 +141,12 @@ MARKETING_VERSION       = 1.0
       3.1.1 riski.
 - [ ] **Ücretsiz deneme (introductory offer)** altı ürünün hiçbirinde tanımlı
       değil. Zorunlu değil, dönüşümü artırır.
-- [ ] **Küçük tutarsızlık:** "Satıcı mesajını kopyala" butonuna basınca çıkan
-      bildirim "Rapor özeti panoya kopyalandı." diyor — kopyalanan şey satıcı
-      mesajı. Ayrıca satıcı mesajı için kodda iki ayrı şablon var
-      (`result-client.tsx` butonda kullanılıyor, `report-summary.ts` farklı
-      sözcüklerle duruyor).
+- [ ] **`api/debug/listing-import-trace.js` hâlâ production'da.** Kodun kendi
+      yorumu "ilan içe aktarma takılması kök nedeni bulunduğunda silinebilir"
+      diyor. Takılma çözüldüyse endpoint ve onu çağıran JS/Swift `trace`
+      satırları Build 65'ten önce kaldırılmalı. Ayrıca tek fail-open nokta bu:
+      rate limiter çökerse isteği geçiriyor (bilinçli tercih, yalnızca
+      `console.log` yapıyor — riski log gürültüsü, veri sızıntısı değil).
 - [ ] **Haftalık fiyatlar** App Store Connect'te 79,99 / 199,99 TL girilmiş;
       kodda hedef 75 / 200 idi. Paywall gerçek App Store fiyatını gösterdiği
       için kullanıcıya yanlış rakam gitmiyor — dokunmaya gerek yok, bilgi.
