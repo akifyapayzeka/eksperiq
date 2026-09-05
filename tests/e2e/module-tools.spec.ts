@@ -37,11 +37,16 @@ async function fillRequiredForm(page: Page) {
  */
 async function selectVehiclePhoto(page: Page) {
   const selectedLabel = page.getByText("1 fotoğraf seçildi.");
-  await page.getByRole("button", { name: "Galeriden seç" }).click();
 
-  const input = page.locator("#_capacitor-camera-input-gallery");
-  await expect(input).toBeAttached();
-  await input.setInputFiles(vehiclePhotoFixturePath);
+  // Eklenti input'u gizli olarak olusturup kendisi `click()` ediyor; dosya
+  // secici acilmadan kapanirsa (headless'ta hep boyle olur) "User cancelled
+  // photos app" ile reddedip input'u DOM'dan siliyor. Bu yuzden input'a
+  // dogrudan `setInputFiles` yetismiyor — seciciyi Playwright'in kendi
+  // filechooser olayiyla karsilamak gerekiyor.
+  const fileChooserPromise = page.waitForEvent("filechooser");
+  await page.getByRole("button", { name: "Galeriden seç" }).click();
+  const fileChooser = await fileChooserPromise;
+  await fileChooser.setFiles(vehiclePhotoFixturePath);
 
   await expect(selectedLabel).toBeVisible({ timeout: 10000 });
 }
