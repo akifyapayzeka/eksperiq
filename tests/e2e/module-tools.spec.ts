@@ -122,7 +122,18 @@ test("module cards open usable assistant tools", async ({ page }) => {
   await page.getByLabel("Güven seviyesi").selectOption("Orta olasılık");
   await page.getByRole("button", { name: "Bulguyu ekle" }).click();
   await expect(page.getByText("Ön tampon: Çizik")).toBeVisible();
-  await page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/).check();
+  // Bu onay kutusu yalnizca NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED="true" iken
+  // render ediliyor (src/app/fotograf-hasar/page.tsx). Bayrak yoksa dogrudan
+  // `.check()` cagirmak 120 saniyelik sessiz bir timeout'a donusuyor ve
+  // sebebini soylemiyor — bayragi acikca isimlendiren hizli bir kontrol,
+  // gercek hatayi 2 dakika beklemeden gosterir. Bayrak ci.yml'in e2e
+  // islerinde tanimli; yerelde koşarken de verilmesi gerekiyor.
+  const aiConsentCheckbox = page.getByLabel(/AI sağlayıcısına geçici olarak gönderileceğini/);
+  await expect(
+    aiConsentCheckbox,
+    'AI onay kutusu yok — NEXT_PUBLIC_AI_PHOTO_DAMAGE_ENABLED="true" verilmeden bu test çalışmaz.',
+  ).toBeVisible({ timeout: 10000 });
+  await aiConsentCheckbox.check();
   await page.getByRole("button", { name: "Fotoğrafları analiz et" }).click();
   await expect(page.getByText("Fotoğraf kontrolü tamamlandı. Bugün kalan hak: 9")).toBeVisible();
   await expect(page.getByText("Ön tampon: Çizik")).toHaveCount(2);
