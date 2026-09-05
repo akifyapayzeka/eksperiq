@@ -142,7 +142,13 @@ export function buildVehicleInputFromListingImport(
   const fields = result.fields;
   const brand = importedString(fields.brand) ?? fallbackBrand(result);
   const model = importedString(fields.model) ?? fallbackModel(result, brand);
-  const year = importedNumber(fields.year) ?? fallbackYear(result);
+  // Yalnizca ilanin KENDI model yili alanindan okunan deger kesin sayilir.
+  // `fallbackYear` baslik + aciklamanin tamamindaki ilk 19xx/20xx sayisini
+  // aliyor; "Aracimi 2020 yilinda aldim" gibi bir cumle 2012 model bir araca
+  // 2020 yazdirabiliyor. Bu tahmini yil kesin sayilinca arac yasi, yillik
+  // kilometre ve onlara bagli bulgular da uydurulmus oluyordu.
+  const extractedYear = importedNumber(fields.year);
+  const year = extractedYear ?? fallbackYear(result);
   const missingIdentityFields = [brand ? null : "brand", model ? null : "model", year ? null : "year"].filter(
     (field): field is string => Boolean(field),
   );
@@ -150,9 +156,10 @@ export function buildVehicleInputFromListingImport(
     brand: brand ?? "Bilinmeyen marka",
     model: model ?? "Bilinmeyen model",
     year: year ?? fallbackSafeYear(result),
-    // Yıl ilandan okunamadıysa yukarıdaki değer bir yer tutucudur; yaşa
-    // dayalı hiçbir hesap bunu gerçek model yılı gibi kullanmamalı.
-    yearIsEstimated: year === null,
+    // Yıl ilanın kendi alanından okunamadıysa yukarıdaki değer bir tahmindir
+    // (serbest metinden yakalanmış ya da yer tutucu); yaşa dayalı hiçbir hesap
+    // bunu gerçek model yılı gibi kullanmamalı.
+    yearIsEstimated: extractedYear === null,
     trim: importedString(fields.trim) ?? undefined,
     fuelType: importedString(fields.fuelType) ?? fallbackFuelType(result) ?? "Bilinmiyor",
     transmission: importedString(fields.transmission) ?? fallbackTransmission(result) ?? "Bilinmiyor",

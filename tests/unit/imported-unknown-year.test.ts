@@ -113,3 +113,53 @@ describe("ilan içe aktarma — model yılı okunamadığında", () => {
     expect(mileage.label).not.toBe("Bilgi yetersiz");
   });
 });
+
+/**
+ * Yukarıdaki düzeltme yarım kalmıştı: `yearIsEstimated` yalnızca HEM ilan
+ * alanında HEM de serbest metinde yıl bulunamadığında true oluyordu. İlan
+ * alanı boşken açıklamadan REGEX ile yakalanan dört haneli sayı ise "kesin
+ * model yılı" muamelesi görüyordu.
+ *
+ * Regex, başlık + açıklamanın tamamındaki ilk 19xx/20xx eşleşmesini alıyor;
+ * "Aracımı 2020 yılında aldım" gibi bir cümle 2012 model bir araçta yanlış
+ * yılı yakalar. O yanlış yıl kesin sayıldığı için araç yaşı, yıllık kilometre
+ * ve bunlara bağlı bulgular da yanlış üretiliyordu — yani düzeltilmek istenen
+ * zarar bu yoldan devam ediyordu.
+ */
+describe("serbest metinden tahmin edilen model yılı", () => {
+  it("ilan alanı boşken açıklamadan yakalanan yıl kesin sayılmaz", () => {
+    const built = buildVehicleInputFromListingImport(
+      importResult({ sellerDescription: "Aracımı 2020 yılında aldım, bakımları tam." }),
+      "https://example.com/ilan",
+    );
+    expect(built.ok).toBe(true);
+    if (!built.ok) return;
+
+    expect(built.data.year).toBe(2020);
+    expect(built.data.yearIsEstimated).toBe(true);
+  });
+
+  it("tahmin edilen yıldan yıllık kilometre bulgusu üretilmez", () => {
+    const built = buildVehicleInputFromListingImport(
+      importResult({ sellerDescription: "Aracımı 2020 yılında aldım." }),
+      "https://example.com/ilan",
+    );
+    expect(built.ok).toBe(true);
+    if (!built.ok) return;
+
+    expect(evaluateMileage(built.data).annualMileage).toBe(0);
+    expect(analyzeVehicle(built.data).findings.map((finding) => finding.id)).not.toContain("very-high-mileage");
+  });
+
+  it("ilan alanında yıl varsa açıklamadaki sayı onu ezmez", () => {
+    const built = buildVehicleInputFromListingImport(
+      importResult({ year: 2015, sellerDescription: "Aracımı 2020 yılında aldım." }),
+      "https://example.com/ilan",
+    );
+    expect(built.ok).toBe(true);
+    if (!built.ok) return;
+
+    expect(built.data.year).toBe(2015);
+    expect(built.data.yearIsEstimated).toBeFalsy();
+  });
+});
