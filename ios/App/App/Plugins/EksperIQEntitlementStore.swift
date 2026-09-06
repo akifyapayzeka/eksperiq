@@ -149,8 +149,25 @@ actor EksperIQEntitlementStore {
             return Self.freeSnapshot
         }
 
+        // `Product.SubscriptionInfo.status` bir ABONELIK GRUBUNUN durumlarini
+        // dondurur, yalnizca bu urunun degil. EksperIQ'nun alti urununun
+        // TAMAMI tek bir grupta (App Store Connect grup 22315838), dolayisiyla
+        // `.first` almak rastgele bir urunun durumunu bu urunun durumu gibi
+        // sunuyordu.
+        //
+        // JS tarafi (src/lib/pro/subscription-manager.ts) bu fonksiyonu alti
+        // urun icin ayri ayri cagirip her cevabi O URUNE ait saniyor; hepsi
+        // ayni "subscribed" cevabini verince eslesenler arasindan tierRank ile
+        // Pro+ seciliyordu. Yani Pro abonesi Pro+ hakki kazaniyordu.
+        //
+        // productID ile filtrelemek her iki yorumda da dogru: dizi gercekten
+        // grup capindaysa dogru urunu seciyor, urune ozelse filtre etkisiz.
         let statuses = try await subscription.status
-        guard let status = statuses.first else {
+        let matching = statuses.first { status in
+            guard case .verified(let transaction) = status.transaction else { return false }
+            return transaction.productID == productId
+        }
+        guard let status = matching else {
             return Self.freeSnapshot
         }
 

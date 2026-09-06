@@ -89,6 +89,28 @@ MARKETING_VERSION       = 1.0
       hiç kullanılmayan şablonuydu; birim testi de "test edilmiş" görüntüsü
       veriyordu. Kullanıcının gördüğü canlı metin `result-client.tsx`'te ve
       E2E ile doğrulanıyor.
+- [x] **Pro abonesi Pro+ hakkı kazanıyordu (native StoreKit).**
+      `EksperIQEntitlementStore.currentEntitlement(productId:)` ürüne göre
+      filtre yapmıyordu: `Product.SubscriptionInfo.status` bir abonelik
+      GRUBUNUN durumlarını döndürür ve EksperIQ'nun altı ürünü de tek grupta
+      (ölçüldü: hepsi groupId 22315838). `.first` alındığı için her ürün
+      sorgusu aynı grup cevabını veriyordu; JS tarafı altı cevabı da "o ürüne
+      ait" sanıp eşleşenler arasından `tierRank` ile **Pro+**'ı seçiyordu.
+      Yani 150 TL'ye Pro alan kullanıcı 400 TL'lik Pro+ özelliklerini
+      kullanıyordu. Düzeltme `transaction.productID` ile filtreliyor — dizi
+      grup çapındaysa doğru ürünü seçiyor, ürüne özelse filtre etkisiz.
+      **UYARI: Swift bu ortamda derlenemedi.** Build 65'ten önce
+      `ios-xcode-build-check.yml` çalıştırılmalı ve cihazda sandbox aboneliğiyle
+      doğrulanmalı.
+- [x] **"Tüm verilerimi sil" iki anahtarı atlıyordu** — davranış olayları ve AI
+      onayı cihazda kalıyordu. `RESET_ONLY_LOCAL_STORAGE_KEYS` eklendi; ayrıca
+      `eksperiq:listing-quota`'nın SİLİNMEMESİ test ile kilitlendi (silinseydi
+      buton ücretsiz hakkı sıfırlama yolu olurdu). Commit: `bf76807`
+- [x] **Serbest metinden tahmin edilen model yılı "kesin" sayılıyordu.**
+      İlanın kendi yıl alanı boşken açıklamadaki ilk 19xx/20xx sayısı
+      yakalanıp kesin model yılı gibi kullanılıyordu ("Aracımı 2020 yılında
+      aldım" → 2020). Ölçüm: 250.000 km'lik araç "yılda 35.714 km" sayılıp
+      sahte "Yüksek kullanım" bulgusu üretiyordu. Commit: `e29d61f`
 - [x] **Aynı analiz iki kez karşılaştırmaya eklenebiliyordu** — üç kontenjandan
       ikisini aynı araca harcıyor, ekran aracı kendisiyle kıyaslıyordu.
       `generatedAt` üzerinden mükerrer koruması. Commit: `766c4b5`
