@@ -79,13 +79,23 @@ export function hasListingAnalysisQuotaRemaining(tier: SubscriptionTier): boolea
   return getListingAnalysesUsed(tier) < getListingAnalysisLimit(tier);
 }
 
-/** Call once a listing analysis has actually been produced (not on every form open/attempt). */
-export function recordListingAnalysisUsed(): void {
+/**
+ * Call once a listing analysis has actually been produced (not on every form
+ * open/attempt).
+ *
+ * Ucretsiz limit OMURLUK, Pro limiti AYLIK. Eskiden her cagri ikisini birden
+ * artiriyordu; ucretsiz haklarini ayni ay icinde bitirip Pro'ya gecen
+ * kullanici 20 yerine 17 hakla basliyordu — yani ucretsizken yaptigi
+ * analizlerin bedelini bir kez daha odemis oluyordu. Ucretsizken yapilan
+ * analizler artik yalnizca omurluk sayaca yaziliyor.
+ */
+export function recordListingAnalysisUsed(tier: SubscriptionTier): void {
   const record = readRecord();
   const period = currentPeriodKey();
+  const periodUsedSoFar = record.periodKey === period ? record.periodUsed : 0;
   writeRecord({
     lifetimeUsed: record.lifetimeUsed + 1,
     periodKey: period,
-    periodUsed: (record.periodKey === period ? record.periodUsed : 0) + 1,
+    periodUsed: tier === "free" ? periodUsedSoFar : periodUsedSoFar + 1,
   });
 }

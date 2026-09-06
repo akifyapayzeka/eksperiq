@@ -111,6 +111,18 @@ MARKETING_VERSION       = 1.0
       yakalanıp kesin model yılı gibi kullanılıyordu ("Aracımı 2020 yılında
       aldım" → 2020). Ölçüm: 250.000 km'lik araç "yılda 35.714 km" sayılıp
       sahte "Yüksek kullanım" bulgusu üretiyordu. Commit: `e29d61f`
+- [x] **Test sürüşü kontrol listesi oturumluktu.** Liste satıcının yanında,
+      aracın başında dolduruluyor; iOS uygulamayı bellek için sonlandırdığında
+      (aynı uygulamada kamera da kullanıldığı için olasılığı düşük değil)
+      tamamen kayboluyordu — uygulamadaki en yüksek veri kaybı riski, kullanıcının
+      en çok emek verdiği yerdeydi. Kalıcı hâle getirildi; ayrıca yedeklemeye
+      dahil edildi ve "tüm verilerimi sil" süpürgesinde doğru depoya taşındı
+      (yanlış depodan silinmeye çalışılsaydı liste silinmeden kalırdı).
+- [x] **Ücretsizden Pro'ya geçen kullanıcı 20 değil 17 hakla başlıyordu.**
+      Ücretsiz limit ömürlük, Pro limiti aylık; sayaç her analizde ikisini
+      birden artırdığı için para veren kullanıcı ücretsizken yaptığı
+      analizlerin bedelini bir kez daha ödüyordu. Ücretsizken yapılan
+      analizler artık dönem sayacına yazılmıyor.
 - [x] **Aynı analiz iki kez karşılaştırmaya eklenebiliyordu** — üç kontenjandan
       ikisini aynı araca harcıyor, ekran aracı kendisiyle kıyaslıyordu.
       `generatedAt` üzerinden mükerrer koruması. Commit: `766c4b5`
@@ -161,14 +173,14 @@ MARKETING_VERSION       = 1.0
       yapılmadan `NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED` açılamıyor; şu an
       kapalı olduğu için "Satın alımları geri yükle" butonu gizli — bu bir
       3.1.1 riski.
-- [ ] **Ücretsiz deneme (introductory offer)** altı ürünün hiçbirinde tanımlı
-      değil. Zorunlu değil, dönüşümü artırır.
-- [ ] **`api/debug/listing-import-trace.js` hâlâ production'da.** Kodun kendi
-      yorumu "ilan içe aktarma takılması kök nedeni bulunduğunda silinebilir"
-      diyor. Takılma çözüldüyse endpoint ve onu çağıran JS/Swift `trace`
-      satırları Build 65'ten önce kaldırılmalı. Ayrıca tek fail-open nokta bu:
-      rate limiter çökerse isteği geçiriyor (bilinçli tercih, yalnızca
-      `console.log` yapıyor — riski log gürültüsü, veri sızıntısı değil).
+- ~~**Ücretsiz deneme (introductory offer)**~~ **GEREKMİYOR** (6 Eylül 2026,
+  sahibin kararı): 3 ücretsiz ilan analizi zaten deneme işlevi görüyor;
+  ücretsiz kullanıcı ayrıca tek aracı takip edebiliyor ve fotoğraf analizi
+  kendi kotasıyla açık. İkinci bir "bedava" katmanı eklenmiyor.
+- ~~**`api/debug/listing-import-trace.js`**~~ **KALDIRILDI** (6 Eylül 2026):
+  ilan içe aktarma takılması çözüldüğü için endpoint, JS'teki 13 `trace()`
+  çağrısı, Swift'teki `DiagnosticTrace` bloğu ve 6 çağrısı silindi.
+  Depodaki tek fail-open nokta da böylece kapandı.
 - [ ] **Haftalık fiyatlar** App Store Connect'te 79,99 / 199,99 TL girilmiş;
       kodda hedef 75 / 200 idi. Paywall gerçek App Store fiyatını gösterdiği
       için kullanıcıya yanlış rakam gitmiyor — dokunmaya gerek yok, bilgi.

@@ -15,6 +15,7 @@ export const EXPORTABLE_STORAGE_KEYS: Record<string, string> = {
   photoAnalyses: appConfig.photoAnalysesStorageKey,
   comparison: appConfig.comparisonStorageKey,
   analysisHistory: appConfig.analysisHistoryStorageKey,
+  testDriveChecklist: appConfig.testDriveChecklistStorageKey,
 };
 
 /**
@@ -27,7 +28,6 @@ export const EPHEMERAL_SESSION_STORAGE_KEYS: string[] = [
   `${appConfig.storageKey}:checklist`,
   `${appConfig.storageKey}:finding-filter`,
   `${appConfig.storageKey}:ai-note-feedback`,
-  appConfig.testDriveChecklistStorageKey,
   appConfig.officialLookupChecklistStorageKey,
   appConfig.saleChecklistStorageKey,
 ];

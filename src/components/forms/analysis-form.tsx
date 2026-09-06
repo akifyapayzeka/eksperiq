@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Camera, ClipboardCheck, FileText, ShieldCheck, Wrench } from "lucide-react";
 import { saveAnalysis } from "@/lib/storage/analysis-storage";
 import { recordListingAnalysisUsed } from "@/lib/pro/listing-quota";
+import { useSubscriptionTier } from "@/lib/pro/tier";
 import { vehicleSchema, type VehicleFormData, type VehicleFormInput } from "@/lib/schemas/vehicle";
 import { createAnalysis } from "@/lib/services/analysis-service";
 import { appConfig } from "@/lib/constants/app";
@@ -283,6 +284,9 @@ function FormSectionLinks() {
 export function AnalysisForm() {
   const router = useRouter();
   const [listingSubmitError, setListingSubmitError] = useState("");
+  // Kota sayaci pakete gore ayriliyor: ucretsizken yapilan analiz Pro'nun
+  // aylik hakkindan dusmemeli (bkz. src/lib/pro/listing-quota.ts).
+  const tier = useSubscriptionTier();
   const {
     register,
     handleSubmit,
@@ -318,7 +322,7 @@ export function AnalysisForm() {
       setListingSubmitError(STORAGE_FULL_MESSAGE);
       return;
     }
-    recordListingAnalysisUsed();
+    recordListingAnalysisUsed(tier);
     router.push("/sonuc");
   }
 
@@ -345,7 +349,7 @@ export function AnalysisForm() {
       setListingSubmitError(STORAGE_FULL_MESSAGE);
       return;
     }
-    recordListingAnalysisUsed();
+    recordListingAnalysisUsed(tier);
     router.push("/sonuc");
   }
 
