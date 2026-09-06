@@ -11,12 +11,54 @@ const validFindingFilters = ["all", "high", "medium", "low"] as const;
 
 export type StoredFindingFilter = (typeof validFindingFilters)[number];
 
-export function saveAnalysis(result: AnalysisResult): void {
-  if (typeof window === "undefined") return;
-  sessionStorage.setItem(appConfig.storageKey, JSON.stringify(result));
+export type AnalysisSaveOutcome = {
+  /** Analiz gerçekten yazıldıysa true — çağıran taraf buna bakmadan "kaydedildi" varsaymamalı. */
+  stored: boolean;
+  /** Kotaya sığdırmak için ilan fotoğrafları düşürüldüyse true. */
+  droppedImages: boolean;
+};
+
+/** Fotoğraflar olmadan aynı analiz — kota dolduğunda raporun kendisini kurtarmak için. */
+function withoutListingImages(result: AnalysisResult): AnalysisResult {
+  return { ...result, listingImages: [], listingImageData: [] };
+}
+
+function writeSessionAnalysis(result: AnalysisResult): boolean {
+  try {
+    sessionStorage.setItem(appConfig.storageKey, JSON.stringify(result));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * İlan içe aktarmada araç fotoğrafları base64 olarak analizin içinde
+ * saklanıyor ve sessionStorage kotasını (~5 MB) gerçekten doldurabiliyor.
+ * Eskiden bu yazım korumasızdı: kota dolduğunda saveAnalysis fırlatıyor,
+ * çağıran akıştaki kota sayacı ve /sonuc yönlendirmesi hiç çalışmıyordu —
+ * kullanıcı butona basıyor, hiçbir şey olmuyor, hata da görmüyordu. Artık
+ * önce fotoğraflar düşürülerek rapor kurtarılmaya çalışılıyor ve sonuç
+ * çağırana dürüstçe bildiriliyor.
+ */
+export function saveAnalysis(result: AnalysisResult): AnalysisSaveOutcome {
+  if (typeof window === "undefined") return { stored: false, droppedImages: false };
+
+  let stored = writeSessionAnalysis(result);
+  let droppedImages = false;
+  let persisted = result;
+
+  if (!stored) {
+    persisted = withoutListingImages(result);
+    droppedImages = true;
+    stored = writeSessionAnalysis(persisted);
+  }
+
+  if (!stored) return { stored: false, droppedImages: false };
+
   sessionStorage.removeItem(checklistStorageKey);
   sessionStorage.removeItem(findingFilterStorageKey);
-  upsertAnalysisHistory({ id: createAnalysisHistoryId(), result });
+  upsertAnalysisHistory({ id: createAnalysisHistoryId(), result: persisted });
   recordProductEvent("analysis_created", {
     scoreBand: Math.floor(result.totalScore / 10) * 10,
     riskLabel: result.riskLabel,
@@ -24,6 +66,8 @@ export function saveAnalysis(result: AnalysisResult): void {
     highFindingCount: result.findings.filter((finding) => finding.severity === "high").length,
     completenessPercent: result.completeness.percentage,
   });
+
+  return { stored: true, droppedImages };
 }
 
 /** Loads a past analysis from device history into the current session slot, so /sonuc can render it. */

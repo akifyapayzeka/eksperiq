@@ -39,7 +39,7 @@ export default function ComparisonPage() {
           icon={GitCompareArrows}
           eyebrow="Karşılaştırmalı İlan Analizi"
           title="Birden fazla ilanı yan yana gör"
-          description='Sonuç sayfasındaki "Karşılaştırmaya ekle" butonuyla en fazla 3 analiz burada yan yana
+          description='Analizlerim ekranındaki "Karşılaştırmaya ekle" butonuyla en fazla 3 analiz burada yan yana
             görüntülenir. Bu bir karşılaştırma özeti sunar; hangi ilanın alınacağına dair kesin karar vermez.'
           tone="accent"
         />
@@ -137,14 +137,14 @@ export default function ComparisonPage() {
         ) : (
           <section className="mt-5 rounded-theme border border-dashed border-border bg-muted p-8 text-center">
             <p className="text-sm leading-6 text-muted-foreground">
-              Henüz karşılaştırmaya eklenmiş ilan yok. Bir analiz oluşturup sonuç sayfasından &quot;Karşılaştırmaya
+              Henüz karşılaştırmaya eklenmiş ilan yok. Analizlerim ekranından bir analizin &quot;Karşılaştırmaya
               ekle&quot; butonunu kullanın.
             </p>
             <Link
-              href="/"
+              href="/analizlerim"
               className="mt-4 inline-flex min-h-11 items-center rounded-full bg-accent px-4 text-sm font-semibold text-primary-foreground"
             >
-              Ana sayfaya dön
+              Analizlerim&apos;e git
             </Link>
           </section>
         )}

@@ -12,6 +12,13 @@ export const vehicleSchema = z.object({
     .int()
     .min(1980, "Model yılı 1980 veya sonrası olmalı.")
     .max(CURRENT_YEAR, "Model yılı geçerli olmalı."),
+  /**
+   * İlan içe aktarmada model yılı okunamadığında yerine bir yer tutucu
+   * konuyor. Bu bayrak, o sayının ilandan gelmediğini yaş/kilometre
+   * hesaplarına bildirir — aksi halde araç 1 yaşında sayılıp gerçek
+   * kilometresi sahte bir yıllık ortalamaya dönüşüyordu.
+   */
+  yearIsEstimated: z.boolean().optional(),
   trim: optionalText,
   fuelType: z.string().trim().min(1, "Yakıt türü seçin."),
   transmission: z.string().trim().min(1, "Vites türü seçin."),

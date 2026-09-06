@@ -1,28 +1,11 @@
 "use client";
 
 import { Capacitor } from "@capacitor/core";
-import { apiFetch } from "@/lib/api/client";
 import { getInstallId } from "@/lib/api/install-id";
 import { EksperIQListingFetchPlugin } from "./native-plugin";
 import { filterListingImageUrls } from "./image-filter";
 import { detectListingSource, type ListingSourceCheck } from "./url";
 import type { ListingImportOutcome, ListingImportResult } from "./types";
-
-/**
- * TEMPORARY: a reported production hang has no trace at all in
- * api/ai/listing-import's own logs, and there's no way to get real device
- * console logs to see where it actually stalls. Fires a small, best-effort,
- * fire-and-forget ping to api/debug/listing-import-trace.js at each stage
- * boundary — never awaited, never throws, and never affects the real
- * outcome. Delete both this and that endpoint once the hang is root-caused.
- */
-function trace(step: string, detail?: string): void {
-  void apiFetch("/api/debug/listing-import-trace", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ step, detail }),
-  }).catch(() => {});
-}
 
 export type ImportStage = "checking-url" | "opening-page" | "normalizing" | "done";
 
@@ -144,7 +127,6 @@ export async function importListingFromUrl(
   rawUrl: string,
   onStage?: (stage: ImportStage) => void,
 ): Promise<ListingImportOutcome> {
-  trace("js-start");
   onStage?.("checking-url");
   const detected = detectListingSource(rawUrl);
   if (!detected.ok) return { ok: false, reason: "invalid-url" };
@@ -152,7 +134,6 @@ export async function importListingFromUrl(
   if (!Capacitor.isNativePlatform()) {
     return { ok: false, reason: "unsupported-platform" };
   }
-  trace("js-native-confirmed");
 
   let timedOut = false;
   const guardedOnStage = (stage: ImportStage) => {
@@ -173,11 +154,10 @@ export async function importListingFromUrl(
   const timeoutPromise = new Promise<ListingImportOutcome>((resolve) => {
     resolveTimeout = resolve;
   });
-  const resolveClientTimeout = (trigger: string) => {
-    trace("js-client-timeout", `resolved via ${trigger}`);
+  const resolveClientTimeout = () => {
     resolveTimeout(timeoutOutcome);
   };
-  const timer = setTimeout(() => resolveClientTimeout("setTimeout"), CLIENT_HARD_TIMEOUT_MS);
+  const timer = setTimeout(resolveClientTimeout, CLIENT_HARD_TIMEOUT_MS);
   let visibilityGraceTimer: ReturnType<typeof setTimeout> | null = null;
 
   // A plain setTimeout can be throttled or paused for as long as the
@@ -191,11 +171,7 @@ export async function importListingFromUrl(
   // a real success that arrives a second later.
   function onVisible() {
     if (document.visibilityState === "visible" && Date.now() >= deadline && !visibilityGraceTimer) {
-      trace("js-client-timeout-grace", `visibilitychange grace ${VISIBILITY_RETURN_GRACE_MS}ms`);
-      visibilityGraceTimer = setTimeout(
-        () => resolveClientTimeout("visibilitychange-grace"),
-        VISIBILITY_RETURN_GRACE_MS,
-      );
+      visibilityGraceTimer = setTimeout(resolveClientTimeout, VISIBILITY_RETURN_GRACE_MS);
     }
   }
   document.addEventListener("visibilitychange", onVisible);
@@ -273,7 +249,6 @@ async function runNativeImport(
 ): Promise<ListingImportOutcome> {
   const firstAttempt = await attemptNativeImport(detected, onStage);
   if (!looksLikeBlockedPage(firstAttempt)) return firstAttempt;
-  trace("js-retry-after-blocked-page");
   const secondAttempt = await attemptNativeImport(detected, onStage);
   if (looksLikeBlockedPage(secondAttempt)) return { ok: false, reason: "blocked" };
   return secondAttempt;
@@ -287,28 +262,23 @@ async function attemptNativeImport(
   // single native call below (opening-page -> normalizing -> done), so the
   // UI's progress indicator reflects what's actually happening natively
   // instead of guessing — when it's available (see addProgressListener).
-  trace("js-before-add-listener");
   const listener = await addProgressListener(onStage);
-  trace(listener ? "js-after-add-listener" : "js-add-listener-timed-out");
 
   let pageData: ExtractedPageData;
   let importHttpStatus: number;
   let importResponseJson: string;
   try {
-    trace("js-before-fetch");
     const result = await EksperIQListingFetchPlugin.fetchListingPage({
       url: detected.url,
       source: detected.source,
       installId: getInstallId(),
     });
-    trace("js-after-fetch-ok");
     pageData = JSON.parse(result.pageDataJson) as ExtractedPageData;
     importHttpStatus = result.importHttpStatus;
     importResponseJson = result.importResponseJson;
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     console.error("[listing-import] fetchListingPage failed:", detail);
-    trace("js-after-fetch-error", detail.slice(0, 300));
     return { ok: false, reason: "fetch-failed", detail };
   } finally {
     await listener?.remove();
@@ -323,17 +293,11 @@ async function attemptNativeImport(
   let payload: ListingImportApiResponse;
   try {
     payload = JSON.parse(importResponseJson) as ListingImportApiResponse;
-  } catch (error) {
-    const detail = error instanceof Error ? error.message : String(error);
-    trace("js-payload-parse-error", `${detail} | raw=${importResponseJson}`.slice(0, 300));
+  } catch {
     onStage("done");
     return { ok: true, result: fallbackResultFromPageData(pageData) };
   }
   if (importHttpStatus !== 200 || !payload.result) {
-    trace(
-      "js-payload-missing-result",
-      `status=${importHttpStatus} keys=${Object.keys(payload).join(",")}`.slice(0, 300),
-    );
     onStage("done");
     return { ok: true, result: fallbackResultFromPageData(pageData) };
   }

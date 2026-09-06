@@ -71,7 +71,7 @@ export default function AnalysisPage() {
         <PlanPaywallDialog
           open={quotaDialogOpen}
           headline="Ücretsiz ilan analizi hakkınız bitti"
-          description="İlan linkiyle analize devam etmek için Pro veya Pro+'a geçin. Aracınızın bakım ve vergi takibini, fotoğraf hasar kontrolünü ücretsiz kullanmaya devam edebilirsiniz."
+          description="Yeni araç analizi oluşturmak için (ilan linkiyle veya bilgileri elle girerek) Pro veya Pro+'a geçin. Aracınızın bakım ve vergi takibini, fotoğraf hasar kontrolünü ücretsiz kullanmaya devam edebilirsiniz."
           dismissLabel="Geri dön"
           onDismiss={() => setQuotaDialogOpen(false)}
         />

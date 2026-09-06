@@ -1,13 +1,7 @@
-import { HIGH_MILEAGE_TIMING_HISTORY_KM, INSPECTION_SOON_DAYS } from "@/lib/constants/analysis";
+import { HIGH_MILEAGE_TIMING_HISTORY_KM } from "@/lib/constants/analysis";
 import type { VehicleFormData } from "@/lib/schemas/vehicle";
 import type { AnalysisFinding } from "../types";
-
-function daysUntil(date?: string): number | null {
-  if (!date) return null;
-  const target = new Date(`${date}T00:00:00`);
-  if (Number.isNaN(target.getTime())) return null;
-  return Math.ceil((target.getTime() - Date.now()) / 86400000);
-}
+import { daysUntilInspectionEnd, inspectionStatus } from "../inspection";
 
 export function maintenanceHistoryUnresolved(value?: string): boolean {
   return !value || /bilinmiyor|belirtilmemiş|yaklaşmış/i.test(value);
@@ -70,8 +64,19 @@ export function maintenanceRules(input: VehicleFormData): AnalysisFinding[] {
       explanation: "Lastikler yakın dönemde değişim gerektirebilir.",
       recommendation: "Diş derinliği ve üretim tarihini kontrol edin.",
     });
-  const inspectionDays = daysUntil(input.inspectionEndDate);
-  if (inspectionDays !== null && inspectionDays <= INSPECTION_SOON_DAYS)
+  const inspection = inspectionStatus(input.inspectionEndDate);
+  if (inspection === "expired") {
+    const overdueDays = Math.abs(daysUntilInspectionEnd(input.inspectionEndDate) ?? 0);
+    findings.push({
+      id: "inspection-expired",
+      category: "Evrak",
+      severity: "high",
+      title: "Muayene süresi dolmuş",
+      explanation: `Muayene ${overdueDays} gün önce sona ermiş. Muayenesiz araç trafiğe çıkamaz; idari para cezası ve muayeneden kalma (masraf) riski alıcıya geçer.`,
+      recommendation:
+        "Devir öncesi muayenenin satıcı tarafından yaptırılmasını isteyin; yaptırılmayacaksa muayene ve olası kusur giderme masrafını fiyata yansıtın.",
+    });
+  } else if (inspection === "soon") {
     findings.push({
       id: "inspection-soon",
       category: "Evrak",
@@ -80,6 +85,7 @@ export function maintenanceRules(input: VehicleFormData): AnalysisFinding[] {
       explanation: "Yakın muayene ek masraf ve kusur riski doğurabilir.",
       recommendation: "Muayene öncesi kusur çıkarabilecek kalemleri ekspertizde kontrol edin.",
     });
+  }
   if (/var/i.test(input.lpgStatus ?? "") && !input.lpgRegistered)
     findings.push({
       id: "lpg-not-registered",

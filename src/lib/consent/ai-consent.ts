@@ -1,12 +1,15 @@
 "use client";
 
-const AI_CONSENT_KEY = "eksperiq:ai-consent-accepted";
+/** Tam sıfırlama süpürgesi bunu da temizlesin diye dışa açık (bkz. data-management/keys.ts). */
+export const AI_CONSENT_KEY = "eksperiq:ai-consent-accepted";
 
 /**
- * Captured once at the sign-in/onboarding gate (KVKK + gizlilik + AI veri
- * işleme onayı) instead of re-asking on every AI screen. AI feature pages
- * still send aiProviderConsent:true with each request — this only controls
- * whether the UI needs to show its own consent checkbox first.
+ * There is no account/sign-in system, so this is captured once per device
+ * (KVKK + gizlilik + AI veri işleme onayı) from whichever AI feature screen
+ * (fotoğraf hasar, ilan linki içe aktarma) the user reaches first, instead
+ * of re-asking on every AI screen. AI feature pages still send
+ * aiProviderConsent:true with each request — this only controls whether the
+ * UI needs to show its own consent checkbox first.
  */
 export function hasAcceptedAiConsent(): boolean {
   if (typeof window === "undefined") return false;

@@ -28,6 +28,36 @@ function searchText(result: ListingImportResult): string {
   return [result.title, result.fields.sellerDescription].map((value) => importedString(value) ?? "").join(" ");
 }
 
+/** Türkçe harfler dahil "kelime karakteri" — JS'in \b'si ç/ğ/ı/ö/ş/ü'yü tanımaz. */
+const WORD_CHARACTER = /[0-9a-zçğıöşüâîû]/;
+
+/**
+ * Katalog adını (marka/model) metinde KELİME olarak arar. Düz `includes`
+ * kullanıldığında gerçek ilan cümleleri yanlış markayla eşleşiyordu:
+ * "mini onarım yapıldı" -> Mini, "yaylada kullanıldı" -> Lada. Ad, kelime
+ * başında olmalı; sonrasına Türkçe ek gelebilir ("Opel'in", "Renault'un"),
+ * bu yüzden yalnızca SOL sınır zorunlu tutuluyor, sağda ayırıcı ya da
+ * kesme işareti aranıyor. Bu bir tahmin katmanı olduğu için kaçırmak
+ * (yanlış negatif) yanlış marka atamaktan daha güvenlidir: kaçırıldığında
+ * rapor dürüstçe "Bilinmeyen marka" der.
+ */
+function containsCatalogWord(haystack: string, needle: string): boolean {
+  const text = haystack.toLocaleLowerCase("tr-TR");
+  const term = needle.toLocaleLowerCase("tr-TR");
+  if (!term) return false;
+
+  let index = text.indexOf(term);
+  while (index !== -1) {
+    const before = index === 0 ? "" : text[index - 1];
+    const after = text[index + term.length] ?? "";
+    const leftIsBoundary = before === "" || !WORD_CHARACTER.test(before);
+    const rightIsBoundary = after === "" || !WORD_CHARACTER.test(after) || after === "'" || after === "’";
+    if (leftIsBoundary && rightIsBoundary) return true;
+    index = text.indexOf(term, index + 1);
+  }
+  return false;
+}
+
 function fallbackYear(result: ListingImportResult): number | null {
   const match = searchText(result).match(/\b(19[8-9]\d|20[0-3]\d)\b/);
   return match ? Number(match[1]) : null;
@@ -47,13 +77,18 @@ function fallbackFuelType(result: ListingImportResult): string | null {
   return null;
 }
 
+/**
+ * Marka tahmini SADECE ilan başlığından yapılır. Serbest açıklama metni bu iş
+ * için güvenilir değil: "mini onarım yapıldı" cümlesi kelime sınırı kuralını
+ * da geçiyor ("mini" gerçekten ayrı bir kelime) ama marka değil, sıfat.
+ * sahibinden/arabam başlıkları zaten "Renault Megane 1.5 dCi" biçiminde
+ * marka ile başlar; başlıkta yoksa dürüstçe "Bilinmeyen marka" demek, yanlış
+ * marka atayıp raporun tamamını (kronik arızalar, model rehberi) yanlış araca
+ * göre üretmekten iyidir.
+ */
 function fallbackBrand(result: ListingImportResult): string | null {
-  const normalized = searchText(result).toLocaleLowerCase("tr-TR");
-  return (
-    brandOptions.find(
-      (brand) => brand !== "Diğer / listede yok" && normalized.includes(brand.toLocaleLowerCase("tr-TR")),
-    ) ?? null
-  );
+  const title = importedString(result.title) ?? "";
+  return brandOptions.find((brand) => brand !== "Diğer / listede yok" && containsCatalogWord(title, brand)) ?? null;
 }
 
 function fallbackTransmission(result: ListingImportResult): string | null {
@@ -71,10 +106,7 @@ function fallbackCity(result: ListingImportResult): string {
 function fallbackModel(result: ListingImportResult, brand: string | null): string | null {
   if (!brand) return null;
   const text = searchText(result);
-  const normalized = text.toLocaleLowerCase("tr-TR");
-  const catalogMatch = modelOptionsForBrand(brand).find((model) =>
-    normalized.includes(model.toLocaleLowerCase("tr-TR")),
-  );
+  const catalogMatch = modelOptionsForBrand(brand).find((model) => containsCatalogWord(text, model));
   if (catalogMatch) return catalogMatch;
 
   const escapedBrand = brand.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -110,7 +142,13 @@ export function buildVehicleInputFromListingImport(
   const fields = result.fields;
   const brand = importedString(fields.brand) ?? fallbackBrand(result);
   const model = importedString(fields.model) ?? fallbackModel(result, brand);
-  const year = importedNumber(fields.year) ?? fallbackYear(result);
+  // Yalnizca ilanin KENDI model yili alanindan okunan deger kesin sayilir.
+  // `fallbackYear` baslik + aciklamanin tamamindaki ilk 19xx/20xx sayisini
+  // aliyor; "Aracimi 2020 yilinda aldim" gibi bir cumle 2012 model bir araca
+  // 2020 yazdirabiliyor. Bu tahmini yil kesin sayilinca arac yasi, yillik
+  // kilometre ve onlara bagli bulgular da uydurulmus oluyordu.
+  const extractedYear = importedNumber(fields.year);
+  const year = extractedYear ?? fallbackYear(result);
   const missingIdentityFields = [brand ? null : "brand", model ? null : "model", year ? null : "year"].filter(
     (field): field is string => Boolean(field),
   );
@@ -118,6 +156,10 @@ export function buildVehicleInputFromListingImport(
     brand: brand ?? "Bilinmeyen marka",
     model: model ?? "Bilinmeyen model",
     year: year ?? fallbackSafeYear(result),
+    // Yıl ilanın kendi alanından okunamadıysa yukarıdaki değer bir tahmindir
+    // (serbest metinden yakalanmış ya da yer tutucu); yaşa dayalı hiçbir hesap
+    // bunu gerçek model yılı gibi kullanmamalı.
+    yearIsEstimated: extractedYear === null,
     trim: importedString(fields.trim) ?? undefined,
     fuelType: importedString(fields.fuelType) ?? fallbackFuelType(result) ?? "Bilinmiyor",
     transmission: importedString(fields.transmission) ?? fallbackTransmission(result) ?? "Bilinmiyor",

@@ -3,7 +3,12 @@
 import { disableNotifications } from "@/lib/push/notifications";
 import { loadReminders } from "@/lib/storage/reminders-storage";
 import { clearAllThumbnails } from "@/lib/photo-analysis/indexed-db";
-import { EXPORTABLE_STORAGE_KEYS, EPHEMERAL_SESSION_STORAGE_KEYS, DEVICE_IDENTITY_LOCAL_STORAGE_KEYS } from "./keys";
+import {
+  EXPORTABLE_STORAGE_KEYS,
+  EPHEMERAL_SESSION_STORAGE_KEYS,
+  DEVICE_IDENTITY_LOCAL_STORAGE_KEYS,
+  RESET_ONLY_LOCAL_STORAGE_KEYS,
+} from "./keys";
 
 async function clearCacheStorage(): Promise<void> {
   if (typeof caches === "undefined") return;
@@ -46,6 +51,9 @@ export async function deleteAllLocalData(): Promise<DeleteAllResult> {
     window.localStorage.removeItem(storageKey);
   }
   for (const storageKey of DEVICE_IDENTITY_LOCAL_STORAGE_KEYS) {
+    window.localStorage.removeItem(storageKey);
+  }
+  for (const storageKey of RESET_ONLY_LOCAL_STORAGE_KEYS) {
     window.localStorage.removeItem(storageKey);
   }
   for (const storageKey of EPHEMERAL_SESSION_STORAGE_KEYS) {

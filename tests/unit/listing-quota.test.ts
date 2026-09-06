@@ -13,31 +13,41 @@ describe("listing analysis quota", () => {
   });
 
   it("exposes the real (non-marketing) numeric limits per tier", () => {
-    // free is temporarily raised for pre-launch testing (see the
-    // TEMPORARY comment in listing-quota.ts) — assert against the live
-    // constant instead of a hardcoded number so this test doesn't fight
-    // that intentional, self-documented change.
-    const freeLimit = getListingAnalysisLimit("free");
+    expect(getListingAnalysisLimit("free")).toBe(3);
     expect(getListingAnalysisLimit("pro")).toBe(20);
     expect(getListingAnalysisLimit("proPlus")).toBe(Number.POSITIVE_INFINITY);
-    expect(formatListingAnalysisLimit("free")).toBe(String(freeLimit));
+    expect(formatListingAnalysisLimit("free")).toBe("3");
     expect(formatListingAnalysisLimit("pro")).toBe("20");
     expect(formatListingAnalysisLimit("proPlus")).toBe("Sınırsız");
+  });
+
+  it("her ücretli paket ücretsizden kesinlikle daha fazlasını verir", () => {
+    // Bu değişmez olmadan, ücretsiz limiti geçici olarak yükseltilmiş bir
+    // sürüm sessizce yayına çıkabiliyordu: paywall ücretsiz kartta "1000",
+    // Pro kartında "20" gösteriyordu — yani ücretli paket ücretsizden az
+    // görünüyordu ve ücretsiz kullanıcı paywall'a hiç çarpmıyordu.
+    // Eski test limiti canlı sabitten okuduğu için bunu yakalayamıyordu.
+    const free = getListingAnalysisLimit("free");
+    const pro = getListingAnalysisLimit("pro");
+    const proPlus = getListingAnalysisLimit("proPlus");
+
+    expect(free).toBeLessThan(pro);
+    expect(pro).toBeLessThan(proPlus);
   });
 
   it("free tier gets exactly its configured lifetime cap of analyses, never resetting", () => {
     const freeLimit = getListingAnalysisLimit("free");
     expect(hasListingAnalysisQuotaRemaining("free")).toBe(true);
-    for (let i = 0; i < freeLimit - 1; i += 1) recordListingAnalysisUsed();
+    for (let i = 0; i < freeLimit - 1; i += 1) recordListingAnalysisUsed("free");
     expect(getListingAnalysesUsed("free")).toBe(freeLimit - 1);
     expect(hasListingAnalysisQuotaRemaining("free")).toBe(true);
-    recordListingAnalysisUsed();
+    recordListingAnalysisUsed("free");
     expect(getListingAnalysesUsed("free")).toBe(freeLimit);
     expect(hasListingAnalysisQuotaRemaining("free")).toBe(false);
   });
 
-  it("counts usage against whichever tier is asked, from the same underlying counter", () => {
-    recordListingAnalysisUsed();
+  it("counts usage against whichever tier is asked", () => {
+    recordListingAnalysisUsed("pro");
     expect(getListingAnalysesUsed("pro")).toBe(1);
     expect(hasListingAnalysisQuotaRemaining("pro")).toBe(true);
   });
@@ -59,5 +69,40 @@ describe("listing analysis quota", () => {
   it("does not crash on malformed stored JSON", () => {
     localStorage.setItem("eksperiq:listing-quota", "{not-json");
     expect(getListingAnalysesUsed("free")).toBe(0);
+  });
+});
+
+/**
+ * Ücretsiz limit ÖMÜRLÜK, Pro limiti AYLIK. `recordListingAnalysisUsed` her
+ * çağrıda ikisini birden artırdığı için, ücretsiz haklarını aynı ay içinde
+ * bitirip Pro'ya geçen kullanıcı 20 değil 17 hakla başlıyordu: para veren
+ * kullanıcı, ücretsizken yaptığı analizlerin bedelini bir kez daha ödüyordu.
+ *
+ * Ücretsizken yapılan analizler artık dönem sayacına yazılmıyor — yalnızca
+ * ömürlük sayaca. Böylece Pro'ya geçiş anında dönem hakkı tam.
+ */
+describe("ücretsizden Pro'ya geçiş", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("ücretsiz hakkını bitirip Pro'ya geçen kullanıcı tam 20 hakla başlar", () => {
+    for (let index = 0; index < 3; index += 1) recordListingAnalysisUsed("free");
+
+    expect(getListingAnalysesUsed("free")).toBe(3);
+    expect(getListingAnalysesUsed("pro")).toBe(0);
+    expect(hasListingAnalysisQuotaRemaining("pro")).toBe(true);
+  });
+
+  it("Pro'yken yapılan analizler dönem hakkından düşer", () => {
+    recordListingAnalysisUsed("pro");
+    recordListingAnalysisUsed("pro");
+
+    expect(getListingAnalysesUsed("pro")).toBe(2);
+  });
+
+  it("ömürlük sayaç her pakette artar — Pro'dan ücretsize dönen sıfırdan başlamaz", () => {
+    recordListingAnalysisUsed("pro");
+    recordListingAnalysisUsed("free");
+
+    expect(getListingAnalysesUsed("free")).toBe(2);
   });
 });

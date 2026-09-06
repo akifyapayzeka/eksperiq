@@ -143,3 +143,54 @@ describe("push client", () => {
     );
   });
 });
+
+/**
+ * Kullanıcı bildirimleri açtıktan sonra eklediği her hatırlatma sunucuya
+ * gönderilmek zorunda: bildirimi 30/15 gün kala gönderen şey sunucudaki cron
+ * ve o yalnızca kendisine ulaşan kayıtları biliyor. `syncRemindersToPush`
+ * isteğin sonucunu HİÇ kontrol etmiyordu — `response.ok` bakılmıyordu (fetch
+ * 500'de reddetmez, çözümlenir) ve ağ hatası `.catch(() => undefined)` ile
+ * yutuluyordu. Sonuç: MTV/sigorta/muayene hatırlatması kaydedilmiş görünüyor,
+ * kullanıcı bildirim bekliyor ve o bildirim hiç gelmiyor — parası yanabilir.
+ * Artık sonuç dürüstçe raporlanıyor.
+ */
+describe("hatırlatma senkronizasyonu sonucu dürüstçe raporlanır", () => {
+  beforeEach(() => {
+    stubServiceWorker({
+      endpoint: "https://push.example.com/c",
+      toJSON: () => ({ endpoint: "https://push.example.com/c", keys: { p256dh: "p", auth: "a" } }),
+    });
+  });
+
+  it("sunucu 200 dönerse senkron başarılı sayılır", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("{}", { status: 200 })),
+    );
+    await expect(syncRemindersToPush(reminders)).resolves.toEqual({ synced: true });
+  });
+
+  it("sunucu 500 dönerse başarı denmez", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("boom", { status: 500 })),
+    );
+    await expect(syncRemindersToPush(reminders)).resolves.toEqual({ synced: false });
+  });
+
+  it("ağ hatası yutulmaz", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new Error("offline");
+      }),
+    );
+    await expect(syncRemindersToPush(reminders)).resolves.toEqual({ synced: false });
+  });
+
+  it("aktif abonelik yoksa gönderilecek bir şey yok, bu bir hata değil", async () => {
+    stubServiceWorker(null);
+    vi.stubGlobal("fetch", vi.fn());
+    await expect(syncRemindersToPush(reminders)).resolves.toEqual({ synced: true });
+  });
+});

@@ -69,18 +69,37 @@ export async function subscribeToPush(reminders: ReminderRecord[]): Promise<{ ok
   return { ok: true };
 }
 
-export async function syncRemindersToPush(reminders: ReminderRecord[]): Promise<void> {
-  if (!isPushSupported()) return;
+/**
+ * Bildirimi son tarihten 30/15 gun once gonderen sey sunucudaki cron ve o
+ * yalnizca KENDISINE ULASAN kayitlari biliyor. Bu istek sessizce basarisiz
+ * olursa kullanici hatirlatmayi kaydetmis, bildirim bekliyor ve o bildirim
+ * hic gelmiyor — MTV/sigorta/muayene icin bu dogrudan para kaybi.
+ *
+ * Eskiden sonuc hic kontrol edilmiyordu: `fetch` 500'de reddetmedigi icin
+ * sunucu hatasi basari sayiliyordu, ag hatasi da `.catch(() => undefined)`
+ * ile yutuluyordu. Artik cagirana dogruyu soyluyoruz (bkz. ayni depodaki
+ * `unsubscribeFromPush`'un `serverDeleted` kalibi).
+ *
+ * Gonderilecek abonelik yoksa `synced: true` doner: bu bir hata degil,
+ * kullanici bildirimleri hic acmamis demektir.
+ */
+export async function syncRemindersToPush(reminders: ReminderRecord[]): Promise<{ synced: boolean }> {
+  if (!isPushSupported()) return { synced: true };
 
   const registration = await navigator.serviceWorker.getRegistration();
   const subscription = await registration?.pushManager.getSubscription();
-  if (!subscription) return;
+  if (!subscription) return { synced: true };
 
-  await apiFetch("/api/push/subscribe", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ subscription: subscription.toJSON(), reminders: toApiReminders(reminders) }),
-  }).catch(() => undefined);
+  try {
+    const response = await apiFetch("/api/push/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscription: subscription.toJSON(), reminders: toApiReminders(reminders) }),
+    });
+    return { synced: response.ok };
+  } catch {
+    return { synced: false };
+  }
 }
 
 /**

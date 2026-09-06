@@ -46,12 +46,16 @@ export async function enableNotifications(reminders: ReminderRecord[]): Promise<
   return subscribeToPush(reminders);
 }
 
-export async function syncNotifications(reminders: ReminderRecord[]): Promise<void> {
+/**
+ * `synced: false` yalnizca web push tarafinda anlamli: yerel (native)
+ * planlama cihazda yapiliyor, sunucuya gonderilecek bir sey yok.
+ */
+export async function syncNotifications(reminders: ReminderRecord[]): Promise<{ synced: boolean }> {
   if (Capacitor.isNativePlatform()) {
     await syncReminderNotifications(reminders);
-    return;
+    return { synced: true };
   }
-  await syncRemindersToPush(reminders);
+  return syncRemindersToPush(reminders);
 }
 
 /**

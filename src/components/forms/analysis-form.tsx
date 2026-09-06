@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Camera, ClipboardCheck, FileText, ShieldCheck, Wrench } from "lucide-react";
 import { saveAnalysis } from "@/lib/storage/analysis-storage";
 import { recordListingAnalysisUsed } from "@/lib/pro/listing-quota";
+import { useSubscriptionTier } from "@/lib/pro/tier";
 import { vehicleSchema, type VehicleFormData, type VehicleFormInput } from "@/lib/schemas/vehicle";
 import { createAnalysis } from "@/lib/services/analysis-service";
 import { appConfig } from "@/lib/constants/app";
@@ -24,6 +25,10 @@ import {
 import { ListingImportSection } from "@/components/forms/listing-import-section";
 
 type ProgressField = keyof VehicleFormInput;
+
+/** Cihaz depolaması dolduğunda gösterilir — sessizce başarısız olup boş rapora yönlendirmek yerine. */
+const STORAGE_FULL_MESSAGE =
+  "Analiz cihaza kaydedilemedi: tarayıcı/uygulama depolama alanı dolu görünüyor. Analizlerim ekranından eski kayıtları silip tekrar deneyin.";
 
 const requiredProgressFields: Array<{ name: ProgressField; label: string }> = [
   { name: "brand", label: "Marka" },
@@ -279,6 +284,9 @@ function FormSectionLinks() {
 export function AnalysisForm() {
   const router = useRouter();
   const [listingSubmitError, setListingSubmitError] = useState("");
+  // Kota sayaci pakete gore ayriliyor: ucretsizken yapilan analiz Pro'nun
+  // aylik hakkindan dusmemeli (bkz. src/lib/pro/listing-quota.ts).
+  const tier = useSubscriptionTier();
   const {
     register,
     handleSubmit,
@@ -307,8 +315,14 @@ export function AnalysisForm() {
 
   function onSubmit(values: VehicleFormData) {
     const parsed = vehicleSchema.parse(values);
-    saveAnalysis(createAnalysis(parsed));
-    recordListingAnalysisUsed();
+    const outcome = saveAnalysis(createAnalysis(parsed));
+    // Kayıt gerçekten yazılmadıysa kota yakılmaz ve /sonuc'a gidilmez:
+    // yönlendirme yapılırsa kullanıcı boş/eski bir rapor görür.
+    if (!outcome.stored) {
+      setListingSubmitError(STORAGE_FULL_MESSAGE);
+      return;
+    }
+    recordListingAnalysisUsed(tier);
     router.push("/sonuc");
   }
 
@@ -326,8 +340,16 @@ export function AnalysisForm() {
     }
 
     const analysis = createAnalysis(imported.data);
-    saveAnalysis({ ...analysis, listingImages: imported.images, listingImageData: imported.imageData });
-    recordListingAnalysisUsed();
+    const outcome = saveAnalysis({
+      ...analysis,
+      listingImages: imported.images,
+      listingImageData: imported.imageData,
+    });
+    if (!outcome.stored) {
+      setListingSubmitError(STORAGE_FULL_MESSAGE);
+      return;
+    }
+    recordListingAnalysisUsed(tier);
     router.push("/sonuc");
   }
 

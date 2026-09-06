@@ -9,12 +9,17 @@ const STORAGE_KEY = "eksperiq:listing-quota";
  * waiting a month) — Pro is a monthly cap, and Pro+ is unlimited. These are
  * the real, enforced numbers shown in the paywall.
  *
- * TEMPORARY: free raised well above the real launch value — the app has no
- * public users yet, only the owner's own device testing against it
- * repeatedly. Dial back down to the real free cap (3) once the app is live.
+ * Bu sayılar doğrudan paywall'da gösteriliyor, dolayısıyla ücretsiz limit her
+ * zaman Pro'nun altında kalmalı: bir süre ücretsiz 1000'e çekilmişti (cihazda
+ * tekrar tekrar test edebilmek için) ve bu değer yayına çıkmak üzereydi —
+ * paywall ücretsiz kartta "1000", Pro kartında "20" gösteriyor, yani ücretli
+ * paket ücretsizden az görünüyordu ve ücretsiz kullanıcı paywall'a hiç
+ * çarpmıyordu. tests/unit/listing-quota.test.ts bu sıralamayı kilitliyor;
+ * geliştirme sırasında limiti geçici olarak yükseltmek gerekirse yayın
+ * öncesi geri almayı unutmamak için testi gevşetmeyin.
  */
 const LISTING_ANALYSIS_LIMIT: Record<SubscriptionTier, number> = {
-  free: 1000,
+  free: 3,
   pro: 20,
   proPlus: Number.POSITIVE_INFINITY,
 };
@@ -74,13 +79,23 @@ export function hasListingAnalysisQuotaRemaining(tier: SubscriptionTier): boolea
   return getListingAnalysesUsed(tier) < getListingAnalysisLimit(tier);
 }
 
-/** Call once a listing analysis has actually been produced (not on every form open/attempt). */
-export function recordListingAnalysisUsed(): void {
+/**
+ * Call once a listing analysis has actually been produced (not on every form
+ * open/attempt).
+ *
+ * Ucretsiz limit OMURLUK, Pro limiti AYLIK. Eskiden her cagri ikisini birden
+ * artiriyordu; ucretsiz haklarini ayni ay icinde bitirip Pro'ya gecen
+ * kullanici 20 yerine 17 hakla basliyordu — yani ucretsizken yaptigi
+ * analizlerin bedelini bir kez daha odemis oluyordu. Ucretsizken yapilan
+ * analizler artik yalnizca omurluk sayaca yaziliyor.
+ */
+export function recordListingAnalysisUsed(tier: SubscriptionTier): void {
   const record = readRecord();
   const period = currentPeriodKey();
+  const periodUsedSoFar = record.periodKey === period ? record.periodUsed : 0;
   writeRecord({
     lifetimeUsed: record.lifetimeUsed + 1,
     periodKey: period,
-    periodUsed: (record.periodKey === period ? record.periodUsed : 0) + 1,
+    periodUsed: tier === "free" ? periodUsedSoFar : periodUsedSoFar + 1,
   });
 }

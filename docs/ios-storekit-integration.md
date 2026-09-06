@@ -141,12 +141,15 @@ Developer Program üyeliği + App Store Connect erişimi gerektirir. Sırasıyla
 
 ### 1. App Store Connect (iş/hesap adımı, kod değil)
 
-- Abonelik ürünleri (`com.eksperiq.app.pro.monthly`, `com.eksperiq.app.pro.yearly`,
-  `com.eksperiq.app.proplus.monthly`, `com.eksperiq.app.proplus.yearly`) App Store Connect'te oluşturulmadan hiçbir
-  satın alma test edilemez ve bu ürün satışta gösterilemez (kesin kural: oluşturulmamış ürünü satışta gösterme).
+- **DONE** — Abonelik ürünleri (`com.eksperiq.app.pro.monthly`, `com.eksperiq.app.pro.yearly`,
+  `com.eksperiq.app.proplus.monthly`, `com.eksperiq.app.proplus.yearly`) App Store Connect'te oluşturuldu;
+  localization, fiyatlandırma (150/1500/400/4000 TL) ve review screenshot'ları da tamamlandı — satışta
+  gösterilebilir durumdalar (Apple review onayı ayrı bir adım, bkz. final rapor).
 - App Store Server Notifications V2 için App Store Connect'te bir webhook URL'si ve (opsiyonel) paylaşılan sır
-  tanımlanmalı.
-- Sunucu tarafı doğrulama için bir App Store Connect API anahtarı (.p8 dosyası + Key ID + Issuer ID) oluşturulmalı.
+  tanımlanmalı — hâlâ eksik.
+- **DONE** — bir App Store Connect API anahtarı (.p8 dosyası + Key ID + Issuer ID) mevcut ve bu oturumda App Store
+  Connect API çağrıları (ürün/fiyat/screenshot yönetimi) için kullanıldı. Aşağıdaki madde 3'te bahsedilen sunucu
+  tarafı Apple Server API sorgusu (abonelik durumu sorgulama) için ayrı bir kullanım henüz yok — bugün gerekmiyor.
 
 ### 2. Native Swift — satın alma/restore/currentEntitlements (yazıldı, gerçek Xcode'da derleniyor, cihazda HİÇ doğrulanmadı)
 
@@ -166,8 +169,10 @@ sonucunu veriyor (unsigned Simulator, code signing kapalı) — syntax hatası v
 bu yalnızca derleme; aşağıdaki checklist'in 2. ve 3. maddeleri (gerçek cihazda çalıştırma, sandbox satın alma) hâlâ
 tamamlanmadı:
 
-1. App Store Connect'te dört abonelik ürününü yukarıdaki product ID'leriyle oluştur.
-2. Xcode'da projeyi aç, olası derleme hatalarını düzelt, StoreKit Testing/Sandbox ortamında çalıştır.
+1. **DONE** — App Store Connect'te dört abonelik ürünü yukarıdaki product ID'leriyle, fiyatlandırma ve
+   localization'larıyla oluşturuldu.
+2. **DONE (derleme)** — `ios-xcode-build-check.yml` derleme hatası olmadığını doğruladı; StoreKit Testing/Sandbox
+   ortamında gerçek cihazda çalıştırma hâlâ eksik.
 3. Satın alma, restore ve `currentEntitlements` dinleyicisini gerçek bir cihazda sandbox Apple ID'siyle doğrula.
 4. Bu üç adım geçmeden `STOREKIT_APP_STORE_PRODUCTS_VERIFIED=true`, `STOREKIT_SANDBOX_PURCHASE_VERIFIED=true` ve
    `NEXT_PUBLIC_STOREKIT_PURCHASES_ENABLED=true` açma.
@@ -213,10 +218,14 @@ gerçek hale gelir ve o noktada eklenmelidir.
 
 ## Özet — manuel blocker listesi
 
-1. App Store Connect'te abonelik ürünü + fiyatlandırma oluşturma (iş adımı).
-2. `EksperIQEntitlementStore.swift` + `EksperIQEntitlementPlugin.swift`'i Xcode'da açma, derleme hatalarını
-   düzeltme, gerçek cihazda (App Store Connect sandbox test kullanıcısıyla) satın alma/restore/dinleyiciyi
-   doğrulama. **Kod yazıldı, yalnızca bu adım eksik.**
+1. **DONE** — App Store Connect'te dört abonelik ürünü (`com.eksperiq.app.pro.monthly`, `.pro.yearly`,
+   `.proplus.monthly`, `.proplus.yearly`) oluşturuldu, localization'ları yazıldı, fiyatları (150/1500/400/4000 TL,
+   TUR bazlı + otomatik eşdeğer diğer ülkeler) ayarlandı, review screenshot'ları yüklendi.
+2. `EksperIQEntitlementStore.swift` + `EksperIQEntitlementPlugin.swift`: `ios-xcode-build-check.yml` üzerinden
+   gerçek Xcode 26'da derlendiği doğrulandı (**BUILD SUCCEEDED**, commit 9a589bf — sonrasında bu dosyalarda
+   değişiklik yok). Kalan tek adım: gerçek cihazda (App Store Connect sandbox test kullanıcısıyla) satın
+   alma/restore/dinleyiciyi doğrulama — bu hâlâ eksik, GitHub Actions'ın macOS runner'ı hesap billing kilidi
+   nedeniyle şu an tetiklenemiyor.
 3. App Store Connect'te App Store Server Notifications V2 webhook URL'sini kaydetme, `APPLE_APP_STORE_NOTIFICATIONS_ENABLED`
    ve `APPLE_IAP_ENTITLEMENT_ENABLED` + `STOREKIT_ENTITLEMENT_TOKEN_SECRET`'i ayarlama, Apple'ın sandbox
    bildirimleriyle `/api/iap/notifications` ve `/api/iap/entitlement`'i uçtan uca doğrulama. **Kod yazıldı, yalnızca

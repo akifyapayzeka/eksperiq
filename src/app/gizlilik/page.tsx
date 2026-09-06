@@ -83,10 +83,13 @@ export default function PrivacyPage() {
         üçüncü tarafla veri paylaşmaz ve verinizi satmaz.
       </p>
       <p>
-        <strong>Verilerinizi yönetme ve silme.</strong> Analizlerim ekranındaki kayıtları tek tek silebilirsiniz. Araç,
-        hatırlatma, gider ve sağlık karnesi kayıtları bu cihazda tutulur; uygulamayı kaldırdığınızda veya cihazın
-        uygulama verilerini temizlediğinizde yerel kayıtlar da silinir. Varsa yukarıda açıklanan sunucu tarafı bildirim
-        kopyaları, uygulama uzun süre senkronize olmadığında otomatik süre sonunda temizlenir.
+        <strong>Verilerinizi yönetme ve silme.</strong> Analizlerim ekranındaki kayıtları tek tek silebilirsiniz. Profil
+        &gt; Verilerim ekranından ise tüm verilerinizi (analizler, araçlar, hatırlatmalar, giderler, sağlık karnesi ve
+        fotoğraf kayıtları) tek seferde kalıcı olarak silebilir, dilerseniz önce JSON dosyası olarak yedek alabilir ve
+        bu yedeği geri yükleyebilirsiniz. Araç, hatırlatma, gider ve sağlık karnesi kayıtları bu cihazda tutulur;
+        uygulamayı kaldırdığınızda veya cihazın uygulama verilerini temizlediğinizde yerel kayıtlar da silinir. Varsa
+        yukarıda açıklanan sunucu tarafı bildirim kopyaları, uygulama uzun süre senkronize olmadığında otomatik süre
+        sonunda temizlenir.
       </p>
       <p>
         <strong>KVKK kapsamındaki haklarınız.</strong> 6698 sayılı Kişisel Verilerin Korunması Kanunu&apos;nun 11.
@@ -102,7 +105,7 @@ export default function PrivacyPage() {
       </p>
       <p>
         Analiz geçmişiniz (Analizlerim ekranındaki kayıtlar) tarayıcı oturumu kapansa bile bu cihazda saklanır;
-        istediğiniz analizi Analizlerim ekranından tek tek silebilirsiniz.
+        istediğiniz analizi Analizlerim ekranından tek tek, tümünü ise Profil &gt; Verilerim ekranından silebilirsiniz.
       </p>
     </InfoPage>
   );

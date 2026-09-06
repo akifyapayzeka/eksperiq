@@ -171,3 +171,54 @@ describe("SubscriptionManager", () => {
     });
   });
 });
+
+/**
+ * Native taraftaki `currentEntitlement(productId:)` ürüne göre filtre
+ * yapmıyordu: `Product.SubscriptionInfo.status` bir abonelik GRUBUNUN
+ * durumlarını döndürür ve EksperIQ'nun altı ürünü de tek grupta. `.first`
+ * alındığı için her ürün sorgusu aynı grup cevabını veriyordu.
+ *
+ * Bu testler o durumun JS tarafındaki SONUCUNU gösteriyor: altı ürün de
+ * "aktif" derse tier çözümü Pro+'ı seçiyor — yani Pro abonesi Pro+ hakkı
+ * kazanıyor. Native düzeltme (productID ile filtreleme) bunu kaynağında
+ * kapatıyor; bu testler de yalnızca doğru ürünün aktif dönmesi hâlinde
+ * doğru paketin seçildiğini kilitliyor.
+ */
+describe("tier çözümü — hangi ürünün aktif olduğu önemli", () => {
+  it("yalnızca Pro aylık aktifse Pro verir, Pro+ değil", async () => {
+    isNativePlatform.mockReturnValue(true);
+    currentEntitlement.mockImplementation(async ({ productId }: { productId: string }) =>
+      productId === "com.eksperiq.app.pro.monthly" ? { state: "pro" } : { state: "free" },
+    );
+
+    const { SubscriptionManager } = await import("@/lib/pro/subscription-manager");
+    const snapshot = await SubscriptionManager.getSnapshot();
+
+    expect(snapshot.state).toBe("pro");
+    expect(snapshot.tier).toBe("pro");
+  });
+
+  it("yalnızca Pro+ haftalık aktifse Pro+ verir", async () => {
+    isNativePlatform.mockReturnValue(true);
+    currentEntitlement.mockImplementation(async ({ productId }: { productId: string }) =>
+      productId === "com.eksperiq.app.proplus.weekly" ? { state: "pro" } : { state: "free" },
+    );
+
+    const { SubscriptionManager } = await import("@/lib/pro/subscription-manager");
+    const snapshot = await SubscriptionManager.getSnapshot();
+
+    expect(snapshot.tier).toBe("proPlus");
+  });
+
+  it("native taraf ürün ayrımı yapmazsa Pro abonesi Pro+ kazanır — bu davranış kaynağında düzeltildi", async () => {
+    isNativePlatform.mockReturnValue(true);
+    // Duzeltilmeden onceki native davranisin taklidi: her urun icin ayni
+    // grup cevabi. Tier cozumu en ust paketi seciyor.
+    currentEntitlement.mockResolvedValue({ state: "pro" });
+
+    const { SubscriptionManager } = await import("@/lib/pro/subscription-manager");
+    const snapshot = await SubscriptionManager.getSnapshot();
+
+    expect(snapshot.tier).toBe("proPlus");
+  });
+});

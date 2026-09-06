@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertCircle, ArrowUpRight, Camera, FileText, Search, SlidersHorizontal, Trash2 } from "lucide-react";
+import { AlertCircle, ArrowUpRight, Camera, Columns3, FileText, Search, SlidersHorizontal, Trash2 } from "lucide-react";
 import { openAnalysisFromHistory } from "@/lib/storage/analysis-storage";
 import {
   type AnalysisHistoryRecord,
@@ -11,6 +11,8 @@ import {
   loadAnalysisHistory,
 } from "@/lib/storage/analysis-history-storage";
 import { deletePhotoAnalysis, loadPhotoAnalyses } from "@/lib/storage/photo-analysis-storage";
+import { addToComparison } from "@/lib/storage/comparison-storage";
+import { MAX_COMPARISON_ENTRIES } from "@/lib/comparison/types";
 import { loadVehicles } from "@/lib/storage/vehicle-storage";
 import { riskBucket } from "@/lib/analysis/risk-bucket";
 import { AppShell } from "@/components/layout/app-shell";
@@ -97,6 +99,7 @@ export default function MyAnalysesPage() {
   const [activeFilter, setActiveFilter] = useState<AnalysisFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [photoAnalyses, setPhotoAnalyses] = useState<PhotoAnalysisRecord[]>([]);
+  const [comparisonMessage, setComparisonMessage] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -146,6 +149,26 @@ export default function MyAnalysesPage() {
     const total = history.reduce((sum, record) => sum + record.result.totalScore, 0);
     return Math.round(total / history.length);
   }, [history]);
+
+  /**
+   * Karşılaştırma modülü "aktif" olarak listeleniyordu ama uygulamada onu
+   * besleyen tek bir buton bile yoktu: `addToComparison` hiçbir yerden
+   * çağrılmıyordu ve /karsilastirma ekranı kullanıcıya var olmayan bir
+   * "sonuç sayfasındaki buton"u tarif ediyordu. Giriş noktası buraya
+   * konuldu — karşılaştırılacak şey zaten kayıtlı analizler.
+   */
+  function addAnalysisToComparison(result: AnalysisResult) {
+    const outcome = addToComparison(result);
+    if (outcome.ok) {
+      setComparisonMessage("Karşılaştırmaya eklendi.");
+      return;
+    }
+    setComparisonMessage(
+      outcome.reason === "duplicate"
+        ? "Bu analiz karşılaştırma listesinde zaten var."
+        : `Karşılaştırma listesi dolu (en fazla ${MAX_COMPARISON_ENTRIES} analiz). Karşılaştırma ekranından birini çıkarın.`,
+    );
+  }
 
   return (
     <AppShell>
@@ -245,6 +268,14 @@ export default function MyAnalysesPage() {
                       </PrimaryButton>
                       <button
                         type="button"
+                        onClick={() => addAnalysisToComparison(record.result)}
+                        className="inline-flex min-h-10 items-center gap-1 rounded-full border border-border px-3 text-sm font-semibold text-foreground/90 transition hover:border-accent"
+                      >
+                        <Columns3 aria-hidden="true" className="h-4 w-4" />
+                        Karşılaştırmaya ekle
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => removeAnalysis(record.id)}
                         className="inline-flex min-h-10 items-center gap-1 rounded-full px-3 text-sm font-semibold text-destructive transition hover:bg-destructive/10"
                       >
@@ -277,6 +308,18 @@ export default function MyAnalysesPage() {
             />
           </div>
         )}
+
+        {comparisonMessage ? (
+          <p
+            role="status"
+            className="mt-4 rounded-theme-sm border border-border bg-muted p-3 text-sm font-medium text-foreground"
+          >
+            {comparisonMessage}{" "}
+            <Link href="/karsilastirma" className="font-semibold text-accent underline">
+              Karşılaştırma ekranını aç
+            </Link>
+          </p>
+        ) : null}
 
         <p className="mt-5 rounded-theme-sm bg-muted p-3 text-sm leading-6 text-muted-foreground">
           Risk skorları mevcut kanıtlara göre hesaplanır; kesin hüküm yerine inceleme önceliği sunar. Analizler

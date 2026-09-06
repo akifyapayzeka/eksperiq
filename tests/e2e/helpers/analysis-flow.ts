@@ -14,3 +14,14 @@ export async function gotoAnalysisForm(page: Page): Promise<void> {
   }
   await page.getByRole("button", { name: "Araç satın alacağım" }).click();
 }
+
+/**
+ * `/sonuc` raporu sekmelere bölünmüş ("Alıcı Kararı", "Özet", "Riskler",
+ * "Alım Planı", "Araç/Fotolar", "Kontrol Listesi"). Aktif olmayan panel
+ * `hidden` sınıfıyla duruyor: içindeki başlık DOM'da VAR ama görünmüyor, bu
+ * yüzden `toBeVisible()` "hidden" diye düşüyor. Bir bölüme ait iddiadan önce
+ * o sekme açılmalı.
+ */
+export async function openReportTab(page: Page, name: string): Promise<void> {
+  await page.getByRole("tab", { name, exact: true }).click();
+}

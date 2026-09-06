@@ -107,10 +107,9 @@ export default function PhotoDamagePage() {
   const [aiMessage, setAiMessage] = useState("");
   const [aiAnalysis, setAiAnalysis] = useState<AiPhotoAnalysis | null>(null);
   const [aiBatchProgress, setAiBatchProgress] = useState<{ done: number; total: number } | null>(null);
-  // KVKK/gizlilik/AI onayı normalde üye ol/giriş yap ekranında bir kez
-  // alınır (RequireAuthGate); burada tekrar sorulmaz. Yalnızca o onay hiç
-  // alınmamışsa (örn. hesap sistemi yapılandırılı değilse) yedek olarak
-  // gösterilir.
+  // Uygulamada hesap/giriş sistemi yok — KVKK/gizlilik/AI onayı yalnızca bu
+  // sayfada (ve ListingImportSection'da) tek seferlik bir onay kutusuyla
+  // alınır; localStorage'da işaretlendikten sonra bir daha sorulmaz.
   const [aiConsent, setAiConsent] = useState(() => hasAcceptedAiConsent());
   // Checking the box flips aiConsent to true; the prompt's visibility must
   // not depend on the same value or it unmounts itself mid-click.
